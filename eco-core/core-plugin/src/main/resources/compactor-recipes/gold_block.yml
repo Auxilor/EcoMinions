@@ -1,0 +1,4 @@
+input: GOLD_INGOT
+input-amount: 9
+output: GOLD_BLOCK
+output-amount: 1

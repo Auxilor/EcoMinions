@@ -1,0 +1,62 @@
+name: "&2Cactus Minion"
+target-blocks:
+  - CACTUS
+
+base-stats:
+  speed-ticks: 80
+  efficiency-ticks: 12
+  radius: 2
+  inventory-rows: 3
+  regen-delay-ticks: 240
+
+spawn-item:
+  mode: item
+  item: "CACTUS"
+  display-name: "&2Cactus Minion &7(Lvl %level%)"
+  lore:
+    - "&7Harvests cactus columns"
+    - "&7Level: &2%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "CSC"
+      - "SAS"
+      - "CSC"
+    ingredients:
+      C: CACTUS
+      S: SAND
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  CACTUS: 1.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_sell
+  - experience
+
+armor:
+  chestplate:
+    material: LEATHER_CHESTPLATE
+    color:
+      r: 60
+      g: 130
+      b: 65
+  leggings:
+    material: LEATHER_LEGGINGS
+    color:
+      r: 60
+      g: 130
+      b: 65
+  boots:
+    material: LEATHER_BOOTS
+    color:
+      r: 60
+      g: 130
+      b: 65

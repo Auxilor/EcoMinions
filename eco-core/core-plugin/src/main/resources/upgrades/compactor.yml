@@ -1,0 +1,11 @@
+name: "&7Compactor"
+effect: compactor
+display:
+  icon: piston
+tiers:
+  1:
+    value: 1
+    stat-delta: "Enabled"
+    cost-options:
+      - { value: 100000, type: vault }
+      - { value: 500, type: gems }

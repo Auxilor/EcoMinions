@@ -1,0 +1,11 @@
+name: "&2Auto Sell"
+effect: auto_sell
+display:
+  icon: emerald
+tiers:
+  1:
+    value: 1
+    stat-delta: "Enabled"
+    cost-options:
+      - { value: 75000, type: vault }
+      - { value: 400, type: gems }

@@ -1,0 +1,61 @@
+package com.exanthiax.ecominions.minions.ui
+
+import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.placeholders.TemplateContext
+import com.exanthiax.ecominions.core.text.Messages
+import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
+import com.exanthiax.ecominions.minions.model.MinionSettings
+import com.exanthiax.ecominions.minions.service.Minion
+import net.kyori.adventure.text.Component
+import org.bukkit.entity.Display
+import org.bukkit.entity.TextDisplay
+
+/** The floating label above a minion. */
+class MinionHologram(
+    private val messages: Messages,
+    private val settings: SettingsHolder<MinionSettings>
+) {
+    fun refresh(minion: Minion) {
+        val display = minion.hologram ?: spawn(minion) ?: return
+        display.teleport(anchorOf(minion))
+        display.text(Component.text(textFor(minion)))
+    }
+
+    fun remove(minion: Minion) {
+        minion.hologram?.remove()
+        minion.hologram = null
+    }
+
+    private fun spawn(minion: Minion): TextDisplay? {
+        if (minion.entity.isDead) {
+            return null
+        }
+        val display = minion.entity.world.spawn(anchorOf(minion), TextDisplay::class.java) {
+            it.isPersistent = true
+            it.billboard = Display.Billboard.CENTER
+            it.setSeeThrough(true)
+            it.text(Component.empty())
+        }
+        minion.hologram = display
+        return display
+    }
+
+    private fun anchorOf(minion: Minion) =
+        minion.entity.location.clone().add(0.0, settings.value.hologramOffset, 0.0)
+
+    private fun textFor(minion: Minion): String {
+        val context = TemplateContext.of(MinionPlaceholders.MINION to minion)
+        val lines = mutableListOf(
+            messages.line("hologram.line-1", context),
+            messages.line("hologram.line-2", context)
+        )
+
+        when (minion.animation) {
+            Minion.AnimationState.FULL -> lines += messages.line("hologram.full", context)
+            Minion.AnimationState.BLOCKED -> lines += messages.line("hologram.no-target", context)
+            else -> Unit
+        }
+
+        return lines.joinToString("\n")
+    }
+}

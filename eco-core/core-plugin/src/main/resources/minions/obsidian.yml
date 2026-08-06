@@ -1,0 +1,61 @@
+name: "&5Obsidian Minion"
+target-blocks:
+  - OBSIDIAN
+
+base-stats:
+  speed-ticks: 200
+  efficiency-ticks: 40
+  radius: 2
+  inventory-rows: 3
+  regen-delay-ticks: 600
+
+spawn-item:
+  mode: item
+  item: "OBSIDIAN"
+  display-name: "&5Obsidian Minion &7(Lvl %level%)"
+  lore:
+    - "&7Mines obsidian"
+    - "&7Level: &5%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "OSO"
+      - "SAS"
+      - "OSO"
+    ingredients:
+      O: OBSIDIAN
+      S: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  OBSIDIAN: 100.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - capacity
+  - auto_sell
+  - experience
+
+armor:
+  chestplate:
+    material: LEATHER_CHESTPLATE
+    color:
+      r: 21
+      g: 11
+      b: 31
+  leggings:
+    material: LEATHER_LEGGINGS
+    color:
+      r: 21
+      g: 11
+      b: 31
+  boots:
+    material: LEATHER_BOOTS
+    color:
+      r: 21
+      g: 11
+      b: 31

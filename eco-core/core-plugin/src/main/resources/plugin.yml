@@ -1,0 +1,30 @@
+name: ${pluginName}
+version: ${version}
+main: com.exanthiax.ecominions.EcoMinionsPlugin
+api-version: "1.21"
+authors: [Auxilor, Exanthiax, Callum]
+depend:
+  - eco
+softdepend:
+  - EcoItems
+commands:
+  minions:
+    aliases: [minion, ecominions]
+permissions:
+  ecominions.command:
+    default: true
+  ecominions.admin:
+    default: op
+    children:
+      ecominions.admin.give: true
+      ecominions.admin.reload: true
+      ecominions.admin.remove: true
+      ecominions.admin.info: true
+  ecominions.admin.give:
+    default: op
+  ecominions.admin.reload:
+    default: op
+  ecominions.admin.remove:
+    default: op
+  ecominions.admin.info:
+    default: op

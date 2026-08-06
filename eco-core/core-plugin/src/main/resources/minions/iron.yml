@@ -1,0 +1,54 @@
+name: "&fIron Minion"
+target-blocks:
+  - IRON_ORE
+  - DEEPSLATE_IRON_ORE
+
+base-stats:
+  speed-ticks: 90
+  efficiency-ticks: 15
+  radius: 2
+  inventory-rows: 3
+  regen-delay-ticks: 200
+
+spawn-item:
+  mode: item
+  item: "IRON_BLOCK"
+  display-name: "&fIron Minion &7(Lvl %level%)"
+  lore:
+    - "&7Mines iron ore"
+    - "&7Level: &f%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "ISI"
+      - "SAS"
+      - "ISI"
+    ingredients:
+      I: IRON_BLOCK
+      S: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  RAW_IRON: 15.0
+  IRON_INGOT: 25.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_smelt
+  - auto_sell
+  - experience
+  - compactor
+
+armor:
+  chestplate:
+    material: IRON_CHESTPLATE
+  leggings:
+    material: IRON_LEGGINGS
+  boots:
+    material: IRON_BOOTS

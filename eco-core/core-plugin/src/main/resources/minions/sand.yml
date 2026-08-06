@@ -1,0 +1,67 @@
+name: "&eSand Minion"
+target-blocks:
+  - SAND
+  - RED_SAND
+
+base-stats:
+  speed-ticks: 50
+  efficiency-ticks: 8
+  radius: 3
+  inventory-rows: 3
+  regen-delay-ticks: 80
+
+spawn-item:
+  mode: item
+  item: "SAND"
+  display-name: "&eSand Minion &7(Lvl %level%)"
+  lore:
+    - "&7Mines sand"
+    - "&7Level: &e%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "SCS"
+      - "CAC"
+      - "SCS"
+    ingredients:
+      S: SAND
+      C: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  SAND: 0.5
+  RED_SAND: 0.5
+  GLASS: 1.0
+  RED_STAINED_GLASS: 1.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_smelt
+  - auto_sell
+  - experience
+
+armor:
+  chestplate:
+    material: LEATHER_CHESTPLATE
+    color:
+      r: 220
+      g: 196
+      b: 135
+  leggings:
+    material: LEATHER_LEGGINGS
+    color:
+      r: 220
+      g: 196
+      b: 135
+  boots:
+    material: LEATHER_BOOTS
+    color:
+      r: 220
+      g: 196
+      b: 135

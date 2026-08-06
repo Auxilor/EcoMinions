@@ -1,0 +1,66 @@
+name: "&6Copper Minion"
+target-blocks:
+  - COPPER_ORE
+  - DEEPSLATE_COPPER_ORE
+
+base-stats:
+  speed-ticks: 100
+  efficiency-ticks: 16
+  radius: 2
+  inventory-rows: 3
+  regen-delay-ticks: 220
+
+spawn-item:
+  mode: item
+  item: "COPPER_BLOCK"
+  display-name: "&6Copper Minion &7(Lvl %level%)"
+  lore:
+    - "&7Mines copper ore"
+    - "&7Level: &6%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "CSC"
+      - "SAS"
+      - "CSC"
+    ingredients:
+      C: COPPER_BLOCK
+      S: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  RAW_COPPER: 8.0
+  COPPER_INGOT: 12.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_smelt
+  - auto_sell
+  - experience
+  - compactor
+
+armor:
+  chestplate:
+    material: LEATHER_CHESTPLATE
+    color:
+      r: 184
+      g: 115
+      b: 51
+  leggings:
+    material: LEATHER_LEGGINGS
+    color:
+      r: 184
+      g: 115
+      b: 51
+  boots:
+    material: LEATHER_BOOTS
+    color:
+      r: 184
+      g: 115
+      b: 51

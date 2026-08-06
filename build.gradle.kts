@@ -1,0 +1,110 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    kotlin("jvm") version "2.3.0"
+    id("java")
+    id("java-library")
+    id("maven-publish")
+    id("com.gradleup.shadow") version "9.3.1"
+    id("com.willfp.libreforge-gradle-plugin") version "2.1.0"
+}
+
+group = "com.exanthiax"
+version = findProperty("version")!!
+val libreforgeVersion = findProperty("libreforge-version")
+
+base {
+    archivesName.set(project.name)
+}
+
+dependencies {
+    implementation(project(":eco-core:core-plugin"))
+}
+
+tasks.register<Copy>("dist") {
+    dependsOn("libreforgeJar")
+    from(tasks.named("libreforgeJar").map { it.outputs.files })
+    into(layout.projectDirectory.dir("dist"))
+    rename { "${rootProject.name}-${project.version}.jar" }
+}
+
+tasks.named("build") {
+    finalizedBy("dist")
+}
+
+allprojects {
+    apply(plugin = "java")
+    apply(plugin = "kotlin")
+    apply(plugin = "maven-publish")
+    apply(plugin = "com.gradleup.shadow")
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven("https://repo.papermc.io/repository/maven-public/")
+        maven("https://repo.auxilor.io/repository/maven-public/")
+        maven("https://repo.codemc.org/repository/nms/")
+        maven("https://jitpack.io")
+    }
+
+    dependencies {
+        // eco/libreforge are declared per-module, NOT here: the published
+        // core-api module must not see them.
+        compileOnly("org.jetbrains:annotations:26.0.2")
+        compileOnly("org.jetbrains.kotlin:kotlin-stdlib:2.3.0")
+    }
+
+    tasks {
+        shadowJar {
+            exclude("META-INF/**")
+            relocate("com.willfp.libreforge.loader", "com.exanthiax.ecominions.libreforge.loader")
+            relocate("kotlin", "com.willfp.eco.libs.kotlin")
+            relocate("kotlin.jvm", "com.willfp.eco.libs.kotlin.jvm")
+            relocate("kotlin.coroutines", "com.willfp.eco.libs.kotlin.coroutines")
+            relocate("kotlin.reflect", "com.willfp.eco.libs.kotlin.reflect")
+        }
+
+        compileKotlin {
+            compilerOptions {
+                jvmTarget = JvmTarget.JVM_21
+            }
+        }
+
+        compileTestKotlin {
+            compilerOptions {
+                jvmTarget = JvmTarget.JVM_21
+            }
+        }
+
+        compileJava {
+            options.isDeprecation = true
+            options.encoding = "UTF-8"
+        }
+
+        processResources {
+            filesMatching(listOf("**plugin.yml", "**eco.yml")) {
+                expand(
+                    "version" to project.version,
+                    "libreforgeVersion" to libreforgeVersion!!,
+                    "pluginName" to rootProject.name
+                )
+            }
+        }
+
+        build {
+            dependsOn(shadowJar)
+        }
+
+        withType<JavaCompile>().configureEach {
+            options.release = 21
+        }
+    }
+
+    java {
+        withSourcesJar()
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+}

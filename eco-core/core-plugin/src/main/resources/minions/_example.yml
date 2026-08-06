@@ -1,0 +1,59 @@
+name: "&fExample Minion"
+
+target-blocks:
+  - STONE
+  - COBBLESTONE
+
+base-stats:
+  speed-ticks: 60
+  efficiency-ticks: 10
+  radius: 3
+  inventory-rows: 3
+  regen-delay-ticks: 100
+
+spawn-item:
+  mode: item
+  item: "STONE"
+  display-name: "&fExample Minion &7(Lvl %level%)"
+  lore:
+    - "&7Replace this with your description"
+    - "&7Level: &f%level%"
+  crafting:
+    enabled: false
+    shape:
+      - "SSS"
+      - "SAS"
+      - "SSS"
+    ingredients:
+      S: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+placement:
+  lift-regen: false
+  surface-block: ""
+
+particles:
+  full:
+    enabled: true
+    type: ANGRY_VILLAGER
+    interval-ticks: 20
+    count: 4
+    offset: 0.4
+    speed: 0.0
+    nearby-player-radius: 16
+
+sell-prices:
+  STONE: 1.0
+  COBBLESTONE: 1.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_smelt
+  - auto_sell
+  - experience

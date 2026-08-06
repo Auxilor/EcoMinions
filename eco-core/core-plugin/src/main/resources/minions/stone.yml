@@ -1,0 +1,67 @@
+name: "&7Stone Minion"
+target-blocks:
+  - STONE
+  - COBBLESTONE
+
+base-stats:
+  speed-ticks: 60
+  efficiency-ticks: 10
+  radius: 3
+  inventory-rows: 3
+  regen-delay-ticks: 100
+
+spawn-item:
+  mode: item
+  item: "STONE"
+  display-name: "&7Stone Minion &8(Lvl %level%)"
+  lore:
+    - "&8Mines stone and cobblestone"
+    - "&8Level: &7%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "SCS"
+      - "SAS"
+      - "SSS"
+    ingredients:
+      S: STONE
+      C: COAL
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  STONE: 1.0
+  COBBLESTONE: 1.0
+  SMOOTH_STONE: 2.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_smelt
+  - auto_sell
+  - experience
+  - compactor
+
+armor:
+  chestplate:
+    material: LEATHER_CHESTPLATE
+    color:
+      r: 125
+      g: 125
+      b: 125
+  leggings:
+    material: LEATHER_LEGGINGS
+    color:
+      r: 125
+      g: 125
+      b: 125
+  boots:
+    material: LEATHER_BOOTS
+    color:
+      r: 125
+      g: 125
+      b: 125

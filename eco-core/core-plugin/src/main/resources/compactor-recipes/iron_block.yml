@@ -1,0 +1,4 @@
+input: IRON_INGOT
+input-amount: 9
+output: IRON_BLOCK
+output-amount: 1

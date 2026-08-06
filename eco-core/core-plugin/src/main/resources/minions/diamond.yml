@@ -1,0 +1,52 @@
+name: "&bDiamond Minion"
+target-blocks:
+  - DIAMOND_ORE
+  - DEEPSLATE_DIAMOND_ORE
+
+base-stats:
+  speed-ticks: 140
+  efficiency-ticks: 25
+  radius: 2
+  inventory-rows: 3
+  regen-delay-ticks: 400
+
+spawn-item:
+  mode: item
+  item: "DIAMOND_BLOCK"
+  display-name: "&bDiamond Minion &7(Lvl %level%)"
+  lore:
+    - "&7Mines diamond ore"
+    - "&7Level: &b%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "DSD"
+      - "SAS"
+      - "DSD"
+    ingredients:
+      D: DIAMOND_BLOCK
+      S: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  DIAMOND: 200.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_sell
+  - experience
+  - compactor
+
+armor:
+  chestplate:
+    material: DIAMOND_CHESTPLATE
+  leggings:
+    material: DIAMOND_LEGGINGS
+  boots:
+    material: DIAMOND_BOOTS

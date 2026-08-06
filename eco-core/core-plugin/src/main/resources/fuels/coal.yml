@@ -1,0 +1,4 @@
+name: "&8Coal"
+item: COAL
+duration-ticks: 12000
+speed-multiplier: 1.25

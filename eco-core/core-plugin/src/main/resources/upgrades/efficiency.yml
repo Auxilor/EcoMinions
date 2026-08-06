@@ -1,0 +1,45 @@
+name: "&aEfficiency"
+effect: efficiency
+display:
+  icon: golden_pickaxe
+tiers:
+  1:
+    value: 2
+    stat-delta: "-2 ticks"
+    cost-options: [{ value: 4000, type: vault }]
+  2:
+    value: 4
+    stat-delta: "-4 ticks"
+    cost-options: [{ value: 9000, type: vault }]
+  3:
+    value: 6
+    stat-delta: "-6 ticks"
+    cost-options: [{ value: 18000, type: vault }]
+  4:
+    value: 8
+    stat-delta: "-8 ticks"
+    cost-options: [{ value: 35000, type: vault }]
+  5:
+    value: 10
+    stat-delta: "-10 ticks"
+    cost-options: [{ value: 70000, type: vault }]
+  6:
+    value: 12
+    stat-delta: "-12 ticks"
+    cost-options: [{ value: 130000, type: vault }]
+  7:
+    value: 14
+    stat-delta: "-14 ticks"
+    cost-options: [{ value: 220000, type: vault }]
+  8:
+    value: 15
+    stat-delta: "-15 ticks"
+    cost-options: [{ value: 360000, type: vault }]
+  9:
+    value: 17
+    stat-delta: "-17 ticks"
+    cost-options: [{ value: 550000, type: vault }]
+  10:
+    value: 18
+    stat-delta: "-18 ticks"
+    cost-options: [{ value: 900000, type: vault }]

@@ -1,0 +1,63 @@
+name: "&8Gravel Minion"
+target-blocks:
+  - GRAVEL
+
+base-stats:
+  speed-ticks: 55
+  efficiency-ticks: 10
+  radius: 3
+  inventory-rows: 3
+  regen-delay-ticks: 100
+
+spawn-item:
+  mode: item
+  item: "GRAVEL"
+  display-name: "&8Gravel Minion &7(Lvl %level%)"
+  lore:
+    - "&7Mines gravel"
+    - "&7Level: &8%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "GCG"
+      - "CAC"
+      - "GCG"
+    ingredients:
+      G: GRAVEL
+      C: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  GRAVEL: 0.5
+  FLINT: 2.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_sell
+  - experience
+
+armor:
+  chestplate:
+    material: LEATHER_CHESTPLATE
+    color:
+      r: 78
+      g: 78
+      b: 78
+  leggings:
+    material: LEATHER_LEGGINGS
+    color:
+      r: 78
+      g: 78
+      b: 78
+  boots:
+    material: LEATHER_BOOTS
+    color:
+      r: 78
+      g: 78
+      b: 78

@@ -1,0 +1,27 @@
+name: "&eExample Upgrade"
+
+effect: speed
+
+display:
+  icon: redstone
+
+tiers:
+  1:
+    value: 5
+    stat-delta: "-5 ticks"
+    cost-options:
+      - { value: 1000, type: vault }
+      - { value: 32, type: stone }
+
+  2:
+    value: 10
+    stat-delta: "-10 ticks"
+    cost-options:
+      - { value: 50, type: gems }
+      - { value: 5000, type: vault }
+
+  3:
+    value: 15
+    stat-delta: "-15 ticks"
+    cost-options:
+      - { value: 25000, type: vault }

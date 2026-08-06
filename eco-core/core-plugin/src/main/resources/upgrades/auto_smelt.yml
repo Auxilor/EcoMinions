@@ -1,0 +1,11 @@
+name: "&cAuto Smelt"
+effect: auto_smelt
+display:
+  icon: furnace
+tiers:
+  1:
+    value: 1
+    stat-delta: "Enabled"
+    cost-options:
+      - { value: 50000, type: vault }
+      - { value: 250, type: gems }

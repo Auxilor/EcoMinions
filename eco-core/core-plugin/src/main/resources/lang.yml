@@ -1,0 +1,116 @@
+messages:
+  placed: "&aMinion placed!"
+  picked-up: "&7Minion picked up."
+  limit-reached-player: "&cYou have reached your minion limit (&e%limit%&c)."
+  world-disabled: "&cMinions are disabled in this world."
+  not-owner: "&cYou are not the owner of this minion."
+  no-such-type: "&cNo minion type with id &e%id%&c."
+  no-such-player: "&cNo player with name &e%name%&c."
+  reload-success: "&aReloaded EcoMinions."
+  give-success: "&aGave &e%player% &aa &e%type% &aminion (level %level%)."
+  remove-success: "&aRemoved &e%count% &aminions for &e%player%&a."
+  info-no-target: "&cYou are not looking at a minion."
+  inventory-full: "&cMinion inventory is full!"
+  collected: "&aCollected &e%count% &aitems."
+  upgrade-purchased: "&aUpgraded &e%upgrade% &ato tier &e%tier%&a."
+  upgrade-cant-afford: "&cYou can't afford that upgrade."
+  upgrade-already-max: "&cThis upgrade is already at max tier."
+  no-payment-method: "&cNo valid payment options are available."
+  no-fuel: "&cYou have no fuel items in your inventory."
+  fuel-applied: "&aFueled with &e%fuel_name%&a."
+
+hologram:
+  line-1: "&f%minion_name%"
+  line-2: "&7Level &e%level%"
+  full: "&c&lINVENTORY FULL"
+  no-target: "&e&lRequires Air in a %radius%x%radius% Square"
+
+gui:
+  main:
+    title-item:
+      name: "&f%minion_name% &7(Lvl %level%)"
+      lore:
+        - "&7Type: &f%type%"
+        - "&7Owner: &f%owner%"
+    storage-item:
+      name: "&f%item_name% &7x %count%"
+      lore:
+        - "&7Amount: &f%count%"
+    collect-all:
+      name: "&aCollect All &8(%used%&8/&7%total% slots&8)"
+      lore:
+        - "&7Click to pull all items"
+        - "&7into your inventory."
+    pickup:
+      name: "&cPickup Minion"
+      lore:
+        - "&7Despawn this minion and"
+        - "&7return it as an item."
+    fuel:
+      name: "&6Fuel"
+      idle-lore:
+        - "&7No active fuel."
+        - "&7Click to feed a fuel item"
+        - "&7from your inventory."
+      active-lore:
+        - "&7Active: &f%fuel_name%"
+        - "&7Speed: &f%multiplier%"
+        - "&7Remaining: &f%seconds%s"
+        - ""
+        - "&7Click to feed another."
+    info:
+      name: "&bMinion Info"
+      lore:
+        - "&7Speed: &f%speed%"
+        - "&7Efficiency: &f%efficiency%"
+        - "&7Radius: &f%radius%"
+        - "&7Capacity: &f%capacity%"
+        - "&7auto_smelt: &f%auto_smelt%"
+        - "&7auto_sell: &f%auto_sell%"
+    upgrades-button:
+      name: "&eUpgrades"
+      lore:
+        - "&7Click to view all upgrades."
+    upgrade-button:
+      name: "&e%upgrade_name% &7(Tier %tier%/%max_tier%)"
+      lore:
+        - "&7Click to upgrade"
+        - "%multi_pay_indicator%"
+    multi-pay-indicator: "&8(Multiple payment options)"
+
+  upgrade:
+    title-item:
+      name: "&e%upgrade_name%"
+      lore:
+        - "&7Current tier: &e%tier%/%max_tier%"
+    tier:
+      current-prefix: "&a&l✓ "
+      next-prefix: "&e&l▶ "
+      locked-prefix: "&7"
+      cost-line: "&8 - &7%cost%"
+      stat-delta-line: "&7Effect: &f%delta%"
+    back:
+      name: "&fBack"
+
+  type-select:
+    title-item:
+      name: "&f%type_name%"
+      lore:
+        - "&7Target: &f%targets%"
+        - "&7Speed: &f%speed%"
+        - "&7Capacity: &f%capacity%"
+
+  cost-select:
+    option:
+      name: "&e%display%"
+      lore:
+        - "%status%"
+      affordable: "&a&lClick to pay"
+      not-affordable: "&c&lInsufficient"
+
+  filler:
+    material: "black_stained_glass_pane"
+    name: " "
+
+action-bar:
+  interact: "&f%minion_name% &7Lvl %level% &8| &7Inventory &f%used%&7/&f%total%"

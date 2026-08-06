@@ -1,0 +1,30 @@
+{
+  "promotions": {
+    "BAMBOO_SAPLING": "BAMBOO",
+    "KELP_PLANT": "KELP",
+    "SMALL_AMETHYST_BUD": "AMETHYST_CLUSTER",
+    "MEDIUM_AMETHYST_BUD": "AMETHYST_CLUSTER",
+    "LARGE_AMETHYST_BUD": "AMETHYST_CLUSTER"
+  },
+  "invalid-targets": [
+    "SMALL_AMETHYST_BUD",
+    "MEDIUM_AMETHYST_BUD",
+    "LARGE_AMETHYST_BUD",
+    "AMETHYST_CLUSTER",
+    "POINTED_DRIPSTONE",
+    "GLOW_LICHEN",
+    "SCULK_VEIN",
+    "VINE",
+    "TWISTING_VINES",
+    "TWISTING_VINES_PLANT",
+    "WEEPING_VINES",
+    "WEEPING_VINES_PLANT"
+  ],
+  "stacked-columns": [
+    "SUGAR_CANE",
+    "CACTUS",
+    "BAMBOO",
+    "KELP",
+    "KELP_PLANT"
+  ]
+}

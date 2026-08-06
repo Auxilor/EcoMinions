@@ -1,0 +1,65 @@
+name: "&6Wood Minion"
+target-blocks:
+  - OAK_LOG
+
+base-stats:
+  speed-ticks: 60
+  efficiency-ticks: 10
+  radius: 3
+  inventory-rows: 3
+  regen-delay-ticks: 200
+
+spawn-item:
+  mode: item
+  item: "OAK_LOG"
+  display-name: "&6Wood Minion &7(Lvl %level%)"
+  lore:
+    - "&7Chops logs"
+    - "&7Level: &6%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "LSL"
+      - "SAS"
+      - "LSL"
+    ingredients:
+      L: OAK_LOG
+      S: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  OAK_LOG: 4.0
+  OAK_SAPLING: 1.0
+  STICK: 0.2
+  APPLE: 5.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_sell
+  - experience
+
+armor:
+  chestplate:
+    material: LEATHER_CHESTPLATE
+    color:
+      r: 115
+      g: 78
+      b: 45
+  leggings:
+    material: LEATHER_LEGGINGS
+    color:
+      r: 115
+      g: 78
+      b: 45
+  boots:
+    material: LEATHER_BOOTS
+    color:
+      r: 115
+      g: 78
+      b: 45

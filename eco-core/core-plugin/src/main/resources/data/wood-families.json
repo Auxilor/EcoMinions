@@ -1,0 +1,76 @@
+{
+  "families": [
+    {
+      "id": "oak",
+      "sapling": "OAK_SAPLING",
+      "log": "OAK_LOG",
+      "leaves": "OAK_LEAVES",
+      "default-surface": "GRASS_BLOCK",
+      "members": ["OAK_SAPLING", "OAK_LOG", "OAK_WOOD", "STRIPPED_OAK_LOG", "STRIPPED_OAK_WOOD", "OAK_LEAVES"]
+    },
+    {
+      "id": "birch",
+      "sapling": "BIRCH_SAPLING",
+      "log": "BIRCH_LOG",
+      "leaves": "BIRCH_LEAVES",
+      "default-surface": "GRASS_BLOCK",
+      "members": ["BIRCH_SAPLING", "BIRCH_LOG", "BIRCH_WOOD", "STRIPPED_BIRCH_LOG", "STRIPPED_BIRCH_WOOD", "BIRCH_LEAVES"]
+    },
+    {
+      "id": "spruce",
+      "sapling": "SPRUCE_SAPLING",
+      "log": "SPRUCE_LOG",
+      "leaves": "SPRUCE_LEAVES",
+      "default-surface": "GRASS_BLOCK",
+      "members": ["SPRUCE_SAPLING", "SPRUCE_LOG", "SPRUCE_WOOD", "STRIPPED_SPRUCE_LOG", "STRIPPED_SPRUCE_WOOD", "SPRUCE_LEAVES"]
+    },
+    {
+      "id": "jungle",
+      "sapling": "JUNGLE_SAPLING",
+      "log": "JUNGLE_LOG",
+      "leaves": "JUNGLE_LEAVES",
+      "default-surface": "GRASS_BLOCK",
+      "members": ["JUNGLE_SAPLING", "JUNGLE_LOG", "JUNGLE_WOOD", "STRIPPED_JUNGLE_LOG", "STRIPPED_JUNGLE_WOOD", "JUNGLE_LEAVES"]
+    },
+    {
+      "id": "acacia",
+      "sapling": "ACACIA_SAPLING",
+      "log": "ACACIA_LOG",
+      "leaves": "ACACIA_LEAVES",
+      "default-surface": "GRASS_BLOCK",
+      "members": ["ACACIA_SAPLING", "ACACIA_LOG", "ACACIA_WOOD", "STRIPPED_ACACIA_LOG", "STRIPPED_ACACIA_WOOD", "ACACIA_LEAVES"]
+    },
+    {
+      "id": "dark_oak",
+      "sapling": "DARK_OAK_SAPLING",
+      "log": "DARK_OAK_LOG",
+      "leaves": "DARK_OAK_LEAVES",
+      "default-surface": "GRASS_BLOCK",
+      "members": ["DARK_OAK_SAPLING", "DARK_OAK_LOG", "DARK_OAK_WOOD", "STRIPPED_DARK_OAK_LOG", "STRIPPED_DARK_OAK_WOOD", "DARK_OAK_LEAVES"]
+    },
+    {
+      "id": "mangrove",
+      "sapling": "MANGROVE_PROPAGULE",
+      "log": "MANGROVE_LOG",
+      "leaves": "MANGROVE_LEAVES",
+      "default-surface": "MUD",
+      "members": ["MANGROVE_PROPAGULE", "MANGROVE_LOG", "MANGROVE_WOOD", "STRIPPED_MANGROVE_LOG", "STRIPPED_MANGROVE_WOOD", "MANGROVE_LEAVES", "MANGROVE_ROOTS"]
+    },
+    {
+      "id": "cherry",
+      "sapling": "CHERRY_SAPLING",
+      "log": "CHERRY_LOG",
+      "leaves": "CHERRY_LEAVES",
+      "default-surface": "GRASS_BLOCK",
+      "members": ["CHERRY_SAPLING", "CHERRY_LOG", "CHERRY_WOOD", "STRIPPED_CHERRY_LOG", "STRIPPED_CHERRY_WOOD", "CHERRY_LEAVES"]
+    },
+    {
+      "id": "pale_oak",
+      "sapling": "PALE_OAK_SAPLING",
+      "log": "PALE_OAK_LOG",
+      "leaves": "PALE_OAK_LEAVES",
+      "default-surface": "GRASS_BLOCK",
+      "members": ["PALE_OAK_SAPLING", "PALE_OAK_LOG", "PALE_OAK_WOOD", "STRIPPED_PALE_OAK_LOG", "STRIPPED_PALE_OAK_WOOD", "PALE_OAK_LEAVES"]
+    }
+  ]
+}

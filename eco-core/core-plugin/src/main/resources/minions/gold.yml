@@ -1,0 +1,54 @@
+name: "&6Gold Minion"
+target-blocks:
+  - GOLD_ORE
+  - DEEPSLATE_GOLD_ORE
+
+base-stats:
+  speed-ticks: 100
+  efficiency-ticks: 18
+  radius: 2
+  inventory-rows: 3
+  regen-delay-ticks: 240
+
+spawn-item:
+  mode: item
+  item: "GOLD_BLOCK"
+  display-name: "&6Gold Minion &7(Lvl %level%)"
+  lore:
+    - "&7Mines gold ore"
+    - "&7Level: &e%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "GSG"
+      - "SAS"
+      - "GSG"
+    ingredients:
+      G: GOLD_BLOCK
+      S: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  RAW_GOLD: 30.0
+  GOLD_INGOT: 50.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_smelt
+  - auto_sell
+  - experience
+  - compactor
+
+armor:
+  chestplate:
+    material: GOLDEN_CHESTPLATE
+  leggings:
+    material: GOLDEN_LEGGINGS
+  boots:
+    material: GOLDEN_BOOTS

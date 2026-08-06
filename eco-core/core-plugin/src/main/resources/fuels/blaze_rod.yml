@@ -1,0 +1,4 @@
+name: "&6Blaze Rod"
+item: BLAZE_ROD
+duration-ticks: 60000
+speed-multiplier: 2.0

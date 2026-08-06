@@ -1,0 +1,63 @@
+name: "&eWheat Minion"
+target-blocks:
+  - WHEAT
+
+base-stats:
+  speed-ticks: 80
+  efficiency-ticks: 10
+  radius: 3
+  inventory-rows: 3
+  regen-delay-ticks: 200
+
+spawn-item:
+  mode: item
+  item: "WHEAT"
+  display-name: "&eWheat Minion &7(Lvl %level%)"
+  lore:
+    - "&7Harvests fully grown wheat"
+    - "&7Level: &e%level%"
+  crafting:
+    enabled: true
+    shape:
+      - "WSW"
+      - "SAS"
+      - "WSW"
+    ingredients:
+      W: WHEAT
+      S: STONE
+      A: ARMOR_STAND
+    requires-crafting-table: true
+    permission: ""
+
+sell-prices:
+  WHEAT: 2.0
+  WHEAT_SEEDS: 0.5
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - fortune
+  - radius
+  - capacity
+  - auto_sell
+  - experience
+
+armor:
+  chestplate:
+    material: LEATHER_CHESTPLATE
+    color:
+      r: 201
+      g: 178
+      b: 99
+  leggings:
+    material: LEATHER_LEGGINGS
+    color:
+      r: 201
+      g: 178
+      b: 99
+  boots:
+    material: LEATHER_BOOTS
+    color:
+      r: 201
+      g: 178
+      b: 99

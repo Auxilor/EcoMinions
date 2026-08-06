@@ -1,0 +1,62 @@
+# EcoMinions main config
+
+worlds:
+  disabled: []
+
+limits:
+  per-player:
+    enabled: true
+    default: 5
+    permission-overrides: true
+
+unloaded-calculation:
+  enabled: true
+  # Multiplier applied to offline drops relative to live mining.
+  # 1.0 = full parity, 0.75 = 75% of live rate while offline.
+  offline-efficiency: 1.0
+
+minion:
+  # Hologram offset above the minion (Y axis blocks)
+  hologram-offset: 1.6
+  # How often (in ticks) to refresh the hologram contents
+  hologram-refresh-ticks: 20
+  # Glow / outline armor stand body? Future use.
+  invulnerable: true
+
+  # Block regen visual: replace block with bedrock briefly during regen?
+  # If false, block disappears entirely until regen tick.
+  show-regen-marker: true
+  # Block to place when a minion is picked up and regen markers haven't fired yet.
+  # Replaces any bedrock regen markers left behind. Use AIR to simply remove them.
+  regen-marker-fallback-block: AIR
+
+  # auto_sell upgrade interval (in ticks) when triggered automatically
+  auto_sell-interval-ticks: 200
+
+gui:
+  main:
+    title: "&8%minion_name% &8(&7Lvl %level%&8)"
+    rows: 6
+    # How collected item counts are shown: title | lore | both
+    storage-display: lore
+    # Max item types shown in the storage area; highest count first
+    storage-slots: 9
+  upgrade:
+    title: "&8Upgrade: &f%upgrade_name%"
+    rows: 6
+  type-select:
+    title: "&8Choose a Minion"
+    rows: 6
+  upgrade-list:
+    title: "&8Upgrades: &f%minion_name%"
+    rows: 6
+  cost-select:
+    title: "&8Choose Payment"
+    rows: 3
+
+storage:
+  # Storage backend: pdc-only or sqlite
+  # PDC-only relies entirely on per-item PDC + per-entity PDC.
+  # SQLite stores a registry of placed minion UUIDs and their owners
+  # to allow cross-server-restart limit enforcement and admin queries.
+  backend: pdc-only
