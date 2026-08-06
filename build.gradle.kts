@@ -21,6 +21,34 @@ dependencies {
     implementation(project(":eco-core:core-plugin"))
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("shadow") {
+            artifactId = rootProject.name
+        }
+    }
+    repositories {
+        maven {
+            name = "Auxilor"
+            url = uri("https://repo.auxilor.io/repository/maven-private/")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    publishing.publications.named<MavenPublication>("shadow") {
+        artifact(tasks.named("libreforgeJar"))
+    }
+}
+
+tasks.register("publishToAuxilor") {
+    dependsOn(tasks.named("publishShadowPublicationToAuxilorRepository"))
+}
+
 tasks.register<Copy>("dist") {
     dependsOn("libreforgeJar")
     from(tasks.named("libreforgeJar").map { it.outputs.files })
