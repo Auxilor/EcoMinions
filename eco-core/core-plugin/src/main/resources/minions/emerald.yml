@@ -19,16 +19,19 @@ spawn-item:
     - "&7Level: &a%level%"
   crafting:
     enabled: true
-    shape:
-      - "ESE"
-      - "SAS"
-      - "ESE"
-    ingredients:
-      E: EMERALD_BLOCK
-      S: STONE
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "EMERALD_BLOCK"
+      - "STONE"
+      - "EMERALD_BLOCK"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "EMERALD_BLOCK"
+      - "STONE"
+      - "EMERALD_BLOCK"
 
 sell-prices:
   EMERALD: 300.0

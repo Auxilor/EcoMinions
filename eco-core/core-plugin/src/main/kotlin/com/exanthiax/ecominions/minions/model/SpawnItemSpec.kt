@@ -13,10 +13,33 @@ data class SpawnItemSpec(
     enum class Mode { HEAD, ITEM }
 }
 
-/** How a minion type's item is crafted. Absent when crafting is disabled. */
+/**
+ * How a minion type's item is crafted. Absent when crafting is disabled.
+ *
+ * The grid is eco's flat nine-entry form - the same shape EcoItems and
+ * EcoCrafting use - so a recipe reads the same across the suite. Entries are
+ * item lookups with an optional amount, and an empty string is an empty slot.
+ */
 data class CraftingSpec(
-    val shape: List<String>,
-    val ingredients: Map<Char, String>,
-    val requiresCraftingTable: Boolean,
-    val permission: String
-)
+    val recipe: List<String>,
+    val shapeless: Boolean,
+    val permission: String?,
+    val giveAmount: Int
+) {
+    companion object {
+        const val GRID_SIZE = 9
+
+        /**
+         * @return [entries] padded to a full grid, or null if it cannot be a recipe.
+         */
+        fun normalise(entries: List<String>): List<String>? {
+            if (entries.isEmpty() || entries.size > GRID_SIZE) {
+                return null
+            }
+            if (entries.all { it.isBlank() }) {
+                return null
+            }
+            return entries + List(GRID_SIZE - entries.size) { "" }
+        }
+    }
+}

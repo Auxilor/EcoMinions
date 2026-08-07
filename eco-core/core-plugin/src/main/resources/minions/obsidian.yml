@@ -18,16 +18,19 @@ spawn-item:
     - "&7Level: &5%level%"
   crafting:
     enabled: true
-    shape:
-      - "OSO"
-      - "SAS"
-      - "OSO"
-    ingredients:
-      O: OBSIDIAN
-      S: STONE
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "OBSIDIAN"
+      - "STONE"
+      - "OBSIDIAN"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "OBSIDIAN"
+      - "STONE"
+      - "OBSIDIAN"
 
 sell-prices:
   OBSIDIAN: 100.0
