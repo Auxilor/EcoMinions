@@ -24,6 +24,7 @@ hologram:
   line-2: "&7Level &e%level%"
   full: "&c&lINVENTORY FULL"
   no-target: "&e&lRequires Air in a %radius%x%radius% Square"
+  idle: "&7&lIDLE &8- &7Owner offline"
 
 gui:
   main:

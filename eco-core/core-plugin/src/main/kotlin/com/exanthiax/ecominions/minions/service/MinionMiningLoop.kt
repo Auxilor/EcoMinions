@@ -9,7 +9,8 @@ import org.bukkit.Bukkit
  */
 class MinionMiningLoop(
     private val minions: MinionService,
-    private val mining: MiningService
+    private val mining: MiningService,
+    private val activity: MinionActivityService
 ) : Tickable {
 
     override val tickInterval = 1L
@@ -17,6 +18,9 @@ class MinionMiningLoop(
     override fun tick() {
         val now = Bukkit.getCurrentTick().toLong()
         for (minion in minions.all()) {
+            if (!activity.isActive(minion)) {
+                continue
+            }
             mining.tick(minion, now)
         }
     }

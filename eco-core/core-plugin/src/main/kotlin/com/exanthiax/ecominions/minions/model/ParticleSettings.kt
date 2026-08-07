@@ -7,7 +7,10 @@ import org.bukkit.Particle
 data class ParticleSettings(
     /** Emitted while storage is full and a player is nearby. */
     val full: Layer?,
-    val fullPlayerRadius: Int
+    val fullPlayerRadius: Int,
+    /** Emitted while the minion is idle (owner offline) and a player is nearby. */
+    val idle: Layer?,
+    val idlePlayerRadius: Int
 ) {
     data class Layer(
         val particle: Particle,
@@ -28,7 +31,9 @@ data class ParticleSettings(
                 speed = 0.0,
                 dustColor = null
             ),
-            fullPlayerRadius = 16
+            fullPlayerRadius = 16,
+            idle = null,
+            idlePlayerRadius = 16
         )
     }
 }

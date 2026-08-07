@@ -1,38 +1,52 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.model.DropRoll
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.OfflineProgress
 import org.bukkit.inventory.ItemStack
 import java.util.concurrent.ThreadLocalRandom
 
-/** Credits a minion for the time its chunk spent unloaded. */
+/** Credits a minion for the time it spent idle, and burns the fuel that took. */
 class OfflineProgressService(
     private val settings: SettingsHolder<MinionSettings>,
-    private val repository: MinionStateRepository
+    private val fuels: FuelService
 ) {
-    fun apply(minion: Minion) {
-        val shutdownAt = minion.state.shutdownTimestamp ?: return
-        val elapsed = System.currentTimeMillis() - shutdownAt
-
-        val cycles = OfflineProgress.cycles(elapsed, settings.value.offlineEfficiency, minion.stats)
-        if (cycles == 0) {
-            repository.clearShutdown(minion)
-            return
-        }
-
+    /**
+     * @param idleSince When the minion went idle.
+     * @param now The current wall-clock time.
+     */
+    fun apply(minion: Minion, idleSince: Long, now: Long) {
         val sampleBlock = minion.state.type.targetBlocks.firstOrNull() ?: return
-        var simulated = 0
-        while (simulated < cycles && !minion.isStorageFull) {
+
+        val result = OfflineProgress.simulate(
+            elapsedMillis = now - idleSince,
+            efficiency = settings.value.offlineEfficiency,
+            stats = minion.stats,
+            fuelRemainingMillis = minion.burningFuelRemainingMillis,
+            fueledCycleTicks = fueledCycleTicksOf(minion)
+        ) {
+            if (minion.isStorageFull) {
+                return@simulate false
+            }
             val amount = DropRoll.amount(1, minion.stats.fortuneMultiplier, ThreadLocalRandom.current().nextDouble())
             if (amount > 0) {
                 minion.storage.addItem(ItemStack(sampleBlock, amount))
             }
-            simulated++
+            true
         }
 
-        repository.clearShutdown(minion)
-        minion.state = minion.state.copy(shutdownTimestamp = null)
+        minion.burningFuelRemainingMillis =
+            (minion.burningFuelRemainingMillis - result.fuelMillisConsumed).coerceAtLeast(0L)
+    }
+
+    /**
+     * Fuel speed is read against the frozen remainder, so a minion that still has
+     * fuel when it went idle mines at the fuelled rate for as long as it lasts.
+     */
+    private fun fueledCycleTicksOf(minion: Minion): Int {
+        val fuel = minion.burningFuelId?.let { fuels.getById(it) } ?: return minion.stats.cycleTicks
+        return (fuel.applyTo(minion.stats.speedTicks) + minion.stats.efficiencyTicks).coerceAtLeast(1)
     }
 }

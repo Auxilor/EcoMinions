@@ -19,7 +19,7 @@ class MinionDataKeys(plugin: EcoPlugin) {
     val minionUuid: NamespacedKey = NamespacedKey(plugin, "uuid")
     val shutdownTimestamp: NamespacedKey = NamespacedKey(plugin, "shutdown_ts")
     val fuelId: NamespacedKey = NamespacedKey(plugin, "fuel_id")
-    val fuelEndsAt: NamespacedKey = NamespacedKey(plugin, "fuel_ends_at")
+    val fuelRemaining: NamespacedKey = NamespacedKey(plugin, "fuel_remaining")
 
     companion object {
         val STRING: PersistentDataType<String, String> = PersistentDataType.STRING

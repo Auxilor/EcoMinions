@@ -27,7 +27,7 @@ class MinionService(
     private val statsService: MinionStatsService,
     private val itemFactory: MinionItemFactory,
     private val limits: PlacementLimits,
-    private val offlineProgress: OfflineProgressService,
+    private val activity: MinionActivityService,
     private val settings: SettingsHolder<MinionSettings>
 ) : MinionsManager {
 
@@ -73,6 +73,10 @@ class MinionService(
         minion.hologram = null
     }
 
+    /** @return Every live minion owned by [owner]. Snapshotted, so callers may mutate. */
+    fun ownedMinions(owner: UUID): List<Minion> =
+        byOwner[owner].orEmpty().mapNotNull { byUuid[it] }
+
     /** Applies a state change and keeps derived stats in step with it. */
     fun updateState(minion: Minion, state: MinionState) {
         minion.state = state
@@ -111,23 +115,23 @@ class MinionService(
         val state = repository.read(container) ?: return null
         val minion = factory.create(state.copy(uuid = state.uuid ?: stand.uniqueId), stand)
 
-        repository.readActiveFuel(container)?.let { (id, endsAt) ->
+        repository.readStoredFuel(container)?.let { (id, remaining) ->
             minion.burningFuelId = id
-            minion.burningFuelEndsAt = endsAt
+            minion.burningFuelRemainingMillis = remaining
         }
 
-        if (state.shutdownTimestamp != null && settings.value.offlineEnabled) {
-            offlineProgress.apply(minion)
+        val registered = register(minion)
+        if (activity.isActive(registered)) {
+            activity.resume(registered)
         }
-
-        return register(minion)
+        return registered
     }
 
     /** Persists and drops every minion in [chunk]; they rehydrate when it reloads. */
     fun dehydrateChunk(chunk: Chunk) {
         for (entity in chunk.entities) {
             val minion = getByEntity(entity) ?: continue
-            repository.markShutdown(minion, System.currentTimeMillis())
+            activity.markIdle(minion)
             repository.save(minion)
             unregister(minion)
         }
@@ -136,7 +140,7 @@ class MinionService(
     fun shutdownAll() {
         val now = System.currentTimeMillis()
         for (minion in byUuid.values.toList()) {
-            repository.markShutdown(minion, now)
+            activity.markIdle(minion, now)
             repository.save(minion)
             minion.hologram?.remove()
         }

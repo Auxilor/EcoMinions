@@ -66,6 +66,34 @@ class Minion(
     override var burningFuelEndsAt: Long = 0L
         internal set
 
+    /**
+     * Fuel left when this minion went idle.
+     *
+     * Fuel only burns while a minion is active, so an absolute expiry is wrong
+     * across an idle window: the remaining duration is what survives it.
+     */
+    var burningFuelRemainingMillis: Long = 0L
+        internal set
+
+    /** Converts a live expiry into a frozen remainder. Idempotent. */
+    fun freezeFuel(now: Long) {
+        if (burningFuelEndsAt <= 0L) {
+            return
+        }
+        burningFuelRemainingMillis = (burningFuelEndsAt - now).coerceAtLeast(0L)
+        burningFuelEndsAt = 0L
+    }
+
+    /** Converts a frozen remainder back into a live expiry. */
+    fun thawFuel(now: Long) {
+        if (burningFuelRemainingMillis <= 0L) {
+            burningFuelId = null
+            burningFuelEndsAt = 0L
+            return
+        }
+        burningFuelEndsAt = now + burningFuelRemainingMillis
+    }
+
     /** Transient per-tick bookkeeping, owned by [MiningService]. */
     val mining = MiningState()
 
