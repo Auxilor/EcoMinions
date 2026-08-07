@@ -27,6 +27,7 @@ import com.exanthiax.ecominions.minions.integration.GameDataLoader
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCraftListener
+import com.exanthiax.ecominions.minions.integration.MinionCustomItems
 import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
@@ -161,6 +162,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory)
 
     // Lifecycle
+    private val customItems = MinionCustomItems(this, minionService, itemFactory)
     private val recipes = MinionRecipes(this, minionService, dataKeys)
     private val lifecycle = LifecycleManager(
         this,
@@ -182,6 +184,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         registerPlaceholders()
         registerApi()
 
+        customItems.registerAll()
         recipes.registerAll()
         minionService.hydrateLoadedWorlds()
         lifecycle.start()
@@ -193,6 +196,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         refreshSettings()
         registerPlaceholders()
 
+        customItems.registerAll()
         recipes.unregisterAll()
         recipes.registerAll()
         minionService.refreshAll()
