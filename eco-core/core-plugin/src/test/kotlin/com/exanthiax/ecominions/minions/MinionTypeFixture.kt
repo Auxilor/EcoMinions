@@ -40,7 +40,7 @@ object MinionTypeFixture {
         ),
         crafting = null,
         armor = MinionArmor.EMPTY,
-        particles = ParticleSettings(full = null, fullPlayerRadius = 16),
+        particles = ParticleSettings(full = null, fullPlayerRadius = 16, idle = null, idlePlayerRadius = 16),
         placement = PlacementSettings.NONE,
         sellPrices = emptyMap()
     )

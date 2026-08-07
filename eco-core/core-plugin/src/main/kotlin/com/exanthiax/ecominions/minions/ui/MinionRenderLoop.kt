@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions.ui
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.lifecycle.Tickable
 import com.exanthiax.ecominions.minions.model.MinionSettings
+import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionService
@@ -11,7 +12,7 @@ import org.bukkit.entity.Player
 
 /**
  * Draws every live minion from one repeating task: pose, hologram and the
- * storage-full particles.
+ * storage-full or idle particles.
  */
 class MinionRenderLoop(
     private val minions: MinionService,
@@ -34,7 +35,8 @@ class MinionRenderLoop(
             }
 
             // An idle minion keeps its nameplate so it does not look broken, but
-            // it must not bob, swing or emit particles - it is doing nothing.
+            // it must not bob, swing or emit its full-storage particles - it is
+            // doing nothing. It gets its own idle particles instead.
             val active = activity.isActive(minion)
             if (active) {
                 animator.apply(minion, now)
@@ -46,6 +48,8 @@ class MinionRenderLoop(
 
             if (active) {
                 emitFullParticles(minion, now)
+            } else {
+                emitIdleParticles(minion, now)
             }
         }
     }
@@ -56,13 +60,23 @@ class MinionRenderLoop(
             return
         }
         val layer = minion.state.type.particles.full ?: return
+        emitNearby(minion, now, layer, minion.state.type.particles.fullPlayerRadius)
+    }
+
+    /** Only drawn while the minion is idle, and only when someone is there to see it. */
+    private fun emitIdleParticles(minion: Minion, now: Long) {
+        val layer = minion.state.type.particles.idle ?: return
+        emitNearby(minion, now, layer, minion.state.type.particles.idlePlayerRadius)
+    }
+
+    private fun emitNearby(minion: Minion, now: Long, layer: ParticleSettings.Layer, radius: Int) {
         if (now % layer.intervalTicks.coerceAtLeast(1) >= RENDER_INTERVAL_TICKS) {
             return
         }
 
-        val radius = minion.state.type.particles.fullPlayerRadius.toDouble()
+        val watchRadius = radius.toDouble()
         val watched = minion.entity.world
-            .getNearbyEntities(minion.entity.location, radius, radius, radius)
+            .getNearbyEntities(minion.entity.location, watchRadius, watchRadius, watchRadius)
             .any { it is Player }
         if (!watched) {
             return

@@ -15,13 +15,16 @@ class ParticleSettingsLoader {
         }
 
         val full = section.getSubsection("full")
-        if (full == null || !full.has("enabled")) {
-            return ParticleSettings.DEFAULT
-        }
+        val idle = section.getSubsection("idle")
 
         return ParticleSettings(
-            full = readLayer(full, context.with("particles.full")),
-            fullPlayerRadius = section.getIntOrNull("full.nearby-player-radius") ?: DEFAULT_RADIUS
+            full = full?.takeIf { it.has("enabled") }
+                ?.let { readLayer(it, context.with("particles.full")) }
+                ?: ParticleSettings.DEFAULT.full,
+            fullPlayerRadius = section.getIntOrNull("full.nearby-player-radius") ?: DEFAULT_RADIUS,
+            idle = idle?.takeIf { it.has("enabled") }
+                ?.let { readLayer(it, context.with("particles.idle")) },
+            idlePlayerRadius = section.getIntOrNull("idle.nearby-player-radius") ?: DEFAULT_RADIUS
         )
     }
 

@@ -43,6 +43,16 @@ particles:
     offset: 0.4
     speed: 0.0
     nearby-player-radius: 16
+  # Shown instead of the full-storage particles while the minion is idle
+  # (its owner is offline), and only when a player is nearby to see it.
+  idle:
+    enabled: false
+    type: SMOKE
+    interval-ticks: 20
+    count: 2
+    offset: 0.3
+    speed: 0.0
+    nearby-player-radius: 16
 
 sell-prices:
   STONE: 1.0
