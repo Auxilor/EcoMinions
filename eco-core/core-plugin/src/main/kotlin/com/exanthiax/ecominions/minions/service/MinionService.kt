@@ -116,8 +116,9 @@ class MinionService(
             minion.burningFuelRemainingMillis = remaining
         }
 
-        if (state.shutdownTimestamp != null && settings.value.offlineEnabled) {
-            offlineProgress.apply(minion)
+        val idleSince = state.shutdownTimestamp
+        if (idleSince != null && settings.value.offlineEnabled) {
+            offlineProgress.apply(minion, idleSince, System.currentTimeMillis())
         }
 
         return register(minion)

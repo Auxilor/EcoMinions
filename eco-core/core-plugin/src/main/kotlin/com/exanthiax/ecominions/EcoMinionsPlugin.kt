@@ -123,7 +123,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val minionFactory = MinionFactory(statsService)
     private val itemFactory = MinionItemFactory(repository, renderer)
     private val limits = PlacementLimits(minionSettings)
-    private val offlineProgress = OfflineProgressService(minionSettings, repository)
+    private val offlineProgress = OfflineProgressService(minionSettings, fuelService)
     private val minionService = MinionService(
         minionTypes, minionFactory, repository, statsService,
         itemFactory, limits, offlineProgress, minionSettings
