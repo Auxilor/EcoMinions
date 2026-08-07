@@ -58,24 +58,33 @@ The minion item itself is also registered with eco's item lookup system as `ecom
 `ecominions:coal`), always resolving to a level-one item of that type. Any plugin or config that consumes eco
 item lookups - shops, crates, custom recipes - can reference or hand out a minion this way.
 
-## crafting
+### spawn-item.crafting
+
+`crafting` nests under `spawn-item`, alongside `mode`/`item`/`display-name`/`lore`:
 
 ```yaml
-crafting:
-  enabled: true
-  give-amount: 1
-  permission: ""
-  shapeless: false
-  recipe:
-    - "COAL_BLOCK"
-    - "STONE"
-    - "COAL_BLOCK"
-    - "STONE"
-    - "ARMOR_STAND"
-    - "STONE"
-    - "COAL_BLOCK"
-    - "STONE"
-    - "COAL_BLOCK"
+spawn-item:
+  mode: item
+  item: "COAL_BLOCK"
+  display-name: "&8Coal Minion &7(Lvl %level%)"
+  lore:
+    - "&8Mines coal ore"
+    - "&8Level: &7%level%"
+  crafting:
+    enabled: true
+    give-amount: 1
+    permission: ""
+    shapeless: false
+    recipe:
+      - "COAL_BLOCK"
+      - "STONE"
+      - "COAL_BLOCK"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "COAL_BLOCK"
+      - "STONE"
+      - "COAL_BLOCK"
 ```
 
 - `enabled` - whether this minion has a crafting recipe at all.
@@ -84,10 +93,10 @@ crafting:
   required.
 - `shapeless` - when `true`, ingredient position in the grid doesn't matter. Defaults to `false`.
 - `recipe` - nine entries, read left-to-right, top-to-bottom as a 3x3 crafting grid. Each entry is an eco item
-  lookup - a material name (`"STONE"`), a custom item id such as `"ecominions:coal"`, or `""` for an empty slot.
+  lookup with an optional amount - a material name (`"STONE"`), a material with a count (`"STONE:4"`), a custom
+  item id such as `"ecominions:coal"`, or `""` for an empty slot.
 
-Minions are craftable at a crafting table only. Recipes are registered and replaced through eco's recipe system,
-so permission enforcement for `permission` is handled by eco itself.
+Minions are craftable at a crafting table only. Recipes are registered and replaced through eco's recipe system.
 
 ## sell-prices
 
