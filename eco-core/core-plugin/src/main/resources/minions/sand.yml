@@ -19,16 +19,19 @@ spawn-item:
     - "&7Level: &e%level%"
   crafting:
     enabled: true
-    shape:
-      - "SCS"
-      - "CAC"
-      - "SCS"
-    ingredients:
-      S: SAND
-      C: STONE
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "SAND"
+      - "STONE"
+      - "SAND"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "SAND"
+      - "STONE"
+      - "SAND"
 
 sell-prices:
   SAND: 0.5

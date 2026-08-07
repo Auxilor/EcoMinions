@@ -19,16 +19,19 @@ spawn-item:
     - "&7Level: &e%level%"
   crafting:
     enabled: true
-    shape:
-      - "GSG"
-      - "SAS"
-      - "GSG"
-    ingredients:
-      G: GOLD_BLOCK
-      S: STONE
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "GOLD_BLOCK"
+      - "STONE"
+      - "GOLD_BLOCK"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "GOLD_BLOCK"
+      - "STONE"
+      - "GOLD_BLOCK"
 
 sell-prices:
   RAW_GOLD: 30.0
