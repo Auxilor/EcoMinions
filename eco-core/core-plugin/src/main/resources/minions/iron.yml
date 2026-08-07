@@ -19,16 +19,19 @@ spawn-item:
     - "&7Level: &f%level%"
   crafting:
     enabled: true
-    shape:
-      - "ISI"
-      - "SAS"
-      - "ISI"
-    ingredients:
-      I: IRON_BLOCK
-      S: STONE
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "IRON_BLOCK"
+      - "STONE"
+      - "IRON_BLOCK"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "IRON_BLOCK"
+      - "STONE"
+      - "IRON_BLOCK"
 
 sell-prices:
   RAW_IRON: 15.0

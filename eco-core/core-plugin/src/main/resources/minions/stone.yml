@@ -19,16 +19,19 @@ spawn-item:
     - "&8Level: &7%level%"
   crafting:
     enabled: true
-    shape:
-      - "SCS"
-      - "SAS"
-      - "SSS"
-    ingredients:
-      S: STONE
-      C: COAL
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "STONE"
+      - "COAL"
+      - "STONE"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "STONE"
+      - "STONE"
+      - "STONE"
 
 sell-prices:
   STONE: 1.0

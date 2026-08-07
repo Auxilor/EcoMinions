@@ -18,16 +18,19 @@ spawn-item:
     - "&7Level: &e%level%"
   crafting:
     enabled: true
-    shape:
-      - "WSW"
-      - "SAS"
-      - "WSW"
-    ingredients:
-      W: WHEAT
-      S: STONE
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "WHEAT"
+      - "STONE"
+      - "WHEAT"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "WHEAT"
+      - "STONE"
+      - "WHEAT"
 
 sell-prices:
   WHEAT: 2.0

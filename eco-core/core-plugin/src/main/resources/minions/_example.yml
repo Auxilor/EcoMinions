@@ -20,15 +20,19 @@ spawn-item:
     - "&7Level: &f%level%"
   crafting:
     enabled: false
-    shape:
-      - "SSS"
-      - "SAS"
-      - "SSS"
-    ingredients:
-      S: STONE
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "STONE"
+      - "STONE"
+      - "STONE"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "STONE"
+      - "STONE"
+      - "STONE"
 
 placement:
   lift-regen: false

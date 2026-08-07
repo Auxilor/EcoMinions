@@ -19,16 +19,19 @@ spawn-item:
     - "&7Level: &6%level%"
   crafting:
     enabled: true
-    shape:
-      - "CSC"
-      - "SAS"
-      - "CSC"
-    ingredients:
-      C: COPPER_BLOCK
-      S: STONE
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "COPPER_BLOCK"
+      - "STONE"
+      - "COPPER_BLOCK"
+      - "STONE"
+      - "ARMOR_STAND"
+      - "STONE"
+      - "COPPER_BLOCK"
+      - "STONE"
+      - "COPPER_BLOCK"
 
 sell-prices:
   RAW_COPPER: 8.0

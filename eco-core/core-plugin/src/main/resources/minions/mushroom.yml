@@ -19,16 +19,19 @@ spawn-item:
     - "&7Level: &c%level%"
   crafting:
     enabled: true
-    shape:
-      - "MSM"
-      - "SAS"
-      - "MSM"
-    ingredients:
-      M: RED_MUSHROOM
-      S: PODZOL
-      A: ARMOR_STAND
-    requires-crafting-table: true
+    give-amount: 1
     permission: ""
+    shapeless: false
+    recipe:
+      - "RED_MUSHROOM"
+      - "PODZOL"
+      - "RED_MUSHROOM"
+      - "PODZOL"
+      - "ARMOR_STAND"
+      - "PODZOL"
+      - "RED_MUSHROOM"
+      - "PODZOL"
+      - "RED_MUSHROOM"
 
 sell-prices:
   RED_MUSHROOM: 1.5
