@@ -111,9 +111,9 @@ class MinionService(
         val state = repository.read(container) ?: return null
         val minion = factory.create(state.copy(uuid = state.uuid ?: stand.uniqueId), stand)
 
-        repository.readActiveFuel(container)?.let { (id, endsAt) ->
+        repository.readStoredFuel(container)?.let { (id, remaining) ->
             minion.burningFuelId = id
-            minion.burningFuelEndsAt = endsAt
+            minion.burningFuelRemainingMillis = remaining
         }
 
         if (state.shutdownTimestamp != null && settings.value.offlineEnabled) {

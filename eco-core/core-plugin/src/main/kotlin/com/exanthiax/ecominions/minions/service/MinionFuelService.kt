@@ -40,8 +40,10 @@ class MinionFuelService(
     }
 
     private fun apply(minion: Minion, fuel: Fuel) {
+        val duration = fuel.durationTicks * MILLIS_PER_TICK
         minion.burningFuelId = fuel.id
-        minion.burningFuelEndsAt = System.currentTimeMillis() + fuel.durationTicks * MILLIS_PER_TICK
+        minion.burningFuelRemainingMillis = duration
+        minion.burningFuelEndsAt = System.currentTimeMillis() + duration
         repository.save(minion)
     }
 }

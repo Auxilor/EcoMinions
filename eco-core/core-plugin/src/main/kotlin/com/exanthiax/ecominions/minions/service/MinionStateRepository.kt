@@ -64,20 +64,26 @@ class MinionStateRepository(
         )
 
         val fuelId = minion.burningFuelId
-        if (fuelId != null && System.currentTimeMillis() < minion.burningFuelEndsAt) {
+        val remaining = if (minion.burningFuelEndsAt > 0L) {
+            (minion.burningFuelEndsAt - System.currentTimeMillis()).coerceAtLeast(0L)
+        } else {
+            minion.burningFuelRemainingMillis
+        }
+
+        if (fuelId != null && remaining > 0L) {
             container.set(keys.fuelId, MinionDataKeys.STRING, fuelId)
-            container.set(keys.fuelEndsAt, MinionDataKeys.LONG, minion.burningFuelEndsAt)
+            container.set(keys.fuelRemaining, MinionDataKeys.LONG, remaining)
         } else {
             container.remove(keys.fuelId)
-            container.remove(keys.fuelEndsAt)
+            container.remove(keys.fuelRemaining)
         }
     }
 
-    /** @return The fuel id and expiry stored on [container], if it is still burning. */
-    fun readActiveFuel(container: PersistentDataContainer): Pair<String, Long>? {
+    /** @return The fuel id and the millis left on it, if any is stored on [container]. */
+    fun readStoredFuel(container: PersistentDataContainer): Pair<String, Long>? {
         val id = container.get(keys.fuelId, MinionDataKeys.STRING) ?: return null
-        val endsAt = container.get(keys.fuelEndsAt, MinionDataKeys.LONG) ?: return null
-        return if (System.currentTimeMillis() < endsAt) id to endsAt else null
+        val remaining = container.get(keys.fuelRemaining, MinionDataKeys.LONG) ?: return null
+        return if (remaining > 0L) id to remaining else null
     }
 
     fun markShutdown(minion: Minion, timestamp: Long) {
