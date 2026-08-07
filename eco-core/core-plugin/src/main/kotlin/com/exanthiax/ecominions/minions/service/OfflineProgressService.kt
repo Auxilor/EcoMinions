@@ -15,21 +15,23 @@ class OfflineProgressService(
     fun apply(minion: Minion) {
         val shutdownAt = minion.state.shutdownTimestamp ?: return
         val elapsed = System.currentTimeMillis() - shutdownAt
-
-        val cycles = OfflineProgress.cycles(elapsed, settings.value.offlineEfficiency, minion.stats)
-        if (cycles == 0) {
-            repository.clearShutdown(minion)
-            return
-        }
-
         val sampleBlock = minion.state.type.targetBlocks.firstOrNull() ?: return
-        var simulated = 0
-        while (simulated < cycles && !minion.isStorageFull) {
+
+        OfflineProgress.simulate(
+            elapsedMillis = elapsed,
+            efficiency = settings.value.offlineEfficiency,
+            stats = minion.stats,
+            fuelRemainingMillis = 0L,
+            fueledCycleTicks = minion.stats.cycleTicks
+        ) {
+            if (minion.isStorageFull) {
+                return@simulate false
+            }
             val amount = DropRoll.amount(1, minion.stats.fortuneMultiplier, ThreadLocalRandom.current().nextDouble())
             if (amount > 0) {
                 minion.storage.addItem(ItemStack(sampleBlock, amount))
             }
-            simulated++
+            true
         }
 
         repository.clearShutdown(minion)
