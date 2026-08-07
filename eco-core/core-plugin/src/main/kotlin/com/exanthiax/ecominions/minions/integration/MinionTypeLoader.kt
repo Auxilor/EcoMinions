@@ -109,30 +109,21 @@ class MinionTypeLoader(
             return null
         }
 
-        val shape = config.getStrings("spawn-item.crafting.shape")
-        if (shape.size != CRAFTING_ROWS) {
+        val recipe = CraftingSpec.normalise(config.getStrings("spawn-item.crafting.recipe"))
+        if (recipe == null) {
             context.violation(
-                "spawn-item.crafting.shape",
-                "a shaped recipe needs exactly $CRAFTING_ROWS rows, found ${shape.size}"
+                "spawn-item.crafting.recipe",
+                "a recipe needs between one and ${CraftingSpec.GRID_SIZE} entries, " +
+                    "at least one of them an item"
             )
             return null
         }
 
-        val section = config.getSubsection("spawn-item.crafting.ingredients")
-        val ingredients = section.getKeys(false)
-            .filter { it.length == 1 }
-            .associate { it[0] to section.getString(it) }
-
-        if (ingredients.isEmpty()) {
-            context.violation("spawn-item.crafting.ingredients", "no ingredients - the recipe cannot be crafted")
-            return null
-        }
-
         return CraftingSpec(
-            shape = shape,
-            ingredients = ingredients,
-            requiresCraftingTable = config.getBool("spawn-item.crafting.requires-crafting-table"),
-            permission = config.getString("spawn-item.crafting.permission")
+            recipe = recipe,
+            shapeless = config.getBool("spawn-item.crafting.shapeless"),
+            permission = config.getStringOrNull("spawn-item.crafting.permission")?.takeIf { it.isNotBlank() },
+            giveAmount = (config.getIntOrNull("spawn-item.crafting.give-amount") ?: 1).coerceAtLeast(1)
         )
     }
 
@@ -214,6 +205,5 @@ class MinionTypeLoader(
         const val AUTO_SELL = "auto_sell"
         const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
         const val MAX_ROWS = 6
-        const val CRAFTING_ROWS = 3
     }
 }

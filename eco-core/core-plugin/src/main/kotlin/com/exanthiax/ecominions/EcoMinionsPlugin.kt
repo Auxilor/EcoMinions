@@ -26,7 +26,6 @@ import com.exanthiax.ecominions.libreforge.LibreforgeRegistrations
 import com.exanthiax.ecominions.minions.integration.GameDataLoader
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
-import com.exanthiax.ecominions.minions.integration.MinionCraftListener
 import com.exanthiax.ecominions.minions.integration.MinionCustomItems
 import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
@@ -163,7 +162,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     // Lifecycle
     private val customItems = MinionCustomItems(this, minionService, itemFactory)
-    private val recipes = MinionRecipes(this, minionService, dataKeys)
+    private val recipes = MinionRecipes(this, minionService, itemFactory)
     private val lifecycle = LifecycleManager(
         this,
         listOf(
@@ -197,7 +196,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         registerPlaceholders()
 
         customItems.registerAll()
-        recipes.unregisterAll()
         recipes.registerAll()
         minionService.refreshAll()
         lifecycle.restart()
@@ -212,7 +210,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     override fun loadListeners(): List<Listener> = listOf(
         MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages),
-        MinionCraftListener(minionService, itemFactory, dataKeys),
         MinionChunkListener(minionService),
         MinionOwnerListener(minionService, activityService)
     )
