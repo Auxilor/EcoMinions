@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.MinionActivityService
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
@@ -13,7 +14,8 @@ import org.bukkit.entity.TextDisplay
 /** The floating label above a minion. */
 class MinionHologram(
     private val messages: Messages,
-    private val settings: SettingsHolder<MinionSettings>
+    private val settings: SettingsHolder<MinionSettings>,
+    private val activity: MinionActivityService
 ) {
     fun refresh(minion: Minion) {
         val display = minion.hologram ?: spawn(minion) ?: return
@@ -49,6 +51,11 @@ class MinionHologram(
             messages.line("hologram.line-1", context),
             messages.line("hologram.line-2", context)
         )
+
+        if (!activity.isActive(minion)) {
+            lines += messages.line("hologram.idle", context)
+            return lines.joinToString("\n")
+        }
 
         when (minion.animation) {
             Minion.AnimationState.FULL -> lines += messages.line("hologram.full", context)

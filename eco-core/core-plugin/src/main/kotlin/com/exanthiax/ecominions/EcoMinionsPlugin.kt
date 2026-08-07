@@ -27,6 +27,7 @@ import com.exanthiax.ecominions.minions.integration.GameDataLoader
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCraftListener
+import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
@@ -35,6 +36,7 @@ import com.exanthiax.ecominions.minions.integration.MinionTypeLoader
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.service.DropWarningService
+import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
@@ -124,9 +126,12 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val itemFactory = MinionItemFactory(repository, renderer)
     private val limits = PlacementLimits(minionSettings)
     private val offlineProgress = OfflineProgressService(minionSettings, fuelService)
+    private val activityService = MinionActivityService(
+        repository, offlineProgress, minionSettings
+    ) { Bukkit.getPlayer(it) != null }
     private val minionService = MinionService(
         minionTypes, minionFactory, repository, statsService,
-        itemFactory, limits, offlineProgress, minionSettings
+        itemFactory, limits, activityService, minionSettings
     )
     private val dropWarnings = DropWarningService(logger)
     private val treeFarming = TreeFarmingService(gameData, TreeService(), dropWarnings)
@@ -160,10 +165,11 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val lifecycle = LifecycleManager(
         this,
         listOf(
-            MinionMiningLoop(minionService, miningService),
+            MinionMiningLoop(minionService, miningService, activityService),
             MinionRenderLoop(
                 minionService, MinionAnimator(),
-                MinionHologram(messages, minionSettings), ParticleEmitter(), minionSettings
+                MinionHologram(messages, minionSettings, activityService),
+                ParticleEmitter(), minionSettings, activityService
             )
         )
     )
@@ -203,7 +209,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     override fun loadListeners(): List<Listener> = listOf(
         MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages),
         MinionCraftListener(minionService, itemFactory, dataKeys),
-        MinionChunkListener(minionService)
+        MinionChunkListener(minionService),
+        MinionOwnerListener(minionService, activityService)
     )
 
     override fun loadPluginCommands(): List<PluginCommand> = listOf(

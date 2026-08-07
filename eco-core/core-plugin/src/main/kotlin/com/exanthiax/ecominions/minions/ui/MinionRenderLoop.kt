@@ -4,6 +4,7 @@ import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.lifecycle.Tickable
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionService
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -17,7 +18,8 @@ class MinionRenderLoop(
     private val animator: MinionAnimator,
     private val hologram: MinionHologram,
     private val particles: ParticleEmitter,
-    private val settings: SettingsHolder<MinionSettings>
+    private val settings: SettingsHolder<MinionSettings>,
+    private val activity: MinionActivityService
 ) : Tickable {
 
     override val tickInterval = RENDER_INTERVAL_TICKS
@@ -30,12 +32,21 @@ class MinionRenderLoop(
             if (minion.entity.isDead) {
                 continue
             }
-            animator.apply(minion, now)
+
+            // An idle minion keeps its nameplate so it does not look broken, but
+            // it must not bob, swing or emit particles - it is doing nothing.
+            val active = activity.isActive(minion)
+            if (active) {
+                animator.apply(minion, now)
+            }
 
             if (now % hologramInterval < RENDER_INTERVAL_TICKS) {
                 hologram.refresh(minion)
             }
-            emitFullParticles(minion, now)
+
+            if (active) {
+                emitFullParticles(minion, now)
+            }
         }
     }
 
