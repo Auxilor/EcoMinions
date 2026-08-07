@@ -30,7 +30,8 @@ class MiningService(
     private val compactor: CompactorService,
     private val selling: SellService,
     private val dropWarnings: DropWarningService,
-    private val fuels: FuelService
+    private val fuels: FuelService,
+    private val pricing: SellPricingService
 ) {
     fun tick(minion: Minion, now: Long) {
         if (minion.entity.isDead || worlds.isDisabled(minion.entity.world)) {
@@ -161,7 +162,7 @@ class MiningService(
                 gameData.smelt(item.type)?.let { item.type = it }
             }
 
-            if (minion.state.type.priceOf(item.type) == null) {
+            if (!pricing.isSellable(minion.state.type, item.type)) {
                 dropWarnings.warnUnsellable(minion, item.type)
                 continue
             }
