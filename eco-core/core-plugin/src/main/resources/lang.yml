@@ -7,7 +7,7 @@ messages:
   no-such-type: "&cNo minion type with id &e%id%&c."
   no-such-player: "&cNo player with name &e%name%&c."
   reload-success: "&aReloaded EcoMinions."
-  give-success: "&aGave &e%player% &aa &e%type% &aminion (level %level%)."
+  give-success: "&aGave &e%player% &aa &e%type% &aminion."
   remove-success: "&aRemoved &e%count% &aminions for &e%player%&a."
   info-no-target: "&cYou are not looking at a minion."
   inventory-full: "&cMinion inventory is full!"

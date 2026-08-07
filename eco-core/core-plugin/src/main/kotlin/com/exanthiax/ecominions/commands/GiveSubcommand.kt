@@ -11,7 +11,7 @@ import com.willfp.eco.util.StringUtils
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 
-/** `/minions give <player> <type> [level]`. */
+/** `/minions give <player> <type>`. Minions are always given at level one. */
 class GiveSubcommand(
     plugin: EcoPlugin,
     private val minions: MinionService,
@@ -37,16 +37,14 @@ class GiveSubcommand(
             return
         }
 
-        val level = args.getOrNull(2)?.toIntOrNull() ?: 1
-        target.inventory.addItem(itemFactory.build(MinionState(type = type, level = level)))
+        target.inventory.addItem(itemFactory.build(MinionState(type = type)))
 
         sender.sendMessage(
             messages.line(
                 "messages.give-success",
                 TemplateContext.of(
                     "player" to target.name,
-                    "type" to type.name,
-                    "level" to level
+                    "type" to type.name
                 )
             )
         )
@@ -55,12 +53,10 @@ class GiveSubcommand(
     override fun tabComplete(sender: CommandSender, args: List<String>): List<String> = when (args.size) {
         1 -> Bukkit.getOnlinePlayers().map { it.name }.filter { it.startsWith(args[0], true) }
         2 -> minions.types().map { it.id }.filter { it.startsWith(args[1], true) }
-        3 -> LEVEL_SUGGESTIONS.filter { it.startsWith(args[2]) }
         else -> emptyList()
     }
 
     private companion object {
-        const val USAGE = "&cUsage: /minions give <player> <type> [level]"
-        val LEVEL_SUGGESTIONS = listOf("1", "2", "3", "5", "10")
+        const val USAGE = "&cUsage: /minions give <player> <type>"
     }
 }
