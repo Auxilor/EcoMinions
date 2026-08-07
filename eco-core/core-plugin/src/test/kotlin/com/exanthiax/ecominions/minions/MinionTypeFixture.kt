@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
+import org.bukkit.Material
 
 /**
  * A minimal minion type for tests.
@@ -17,6 +18,7 @@ object MinionTypeFixture {
     fun build(
         id: String = "stone",
         allowedUpgradeIds: List<String> = listOf("speed", "capacity"),
+        sellPrices: Map<Material, Double> = emptyMap(),
         baseStats: MinionType.BaseStats = MinionType.BaseStats(
             speedTicks = 40,
             efficiencyTicks = 10,
@@ -42,6 +44,6 @@ object MinionTypeFixture {
         armor = MinionArmor.EMPTY,
         particles = ParticleSettings(full = null, fullPlayerRadius = 16, idle = null, idlePlayerRadius = 16),
         placement = PlacementSettings.NONE,
-        sellPrices = emptyMap()
+        sellPrices = sellPrices
     )
 }

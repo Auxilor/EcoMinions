@@ -15,5 +15,6 @@ data class MinionSettings(
     val offlineEfficiency: Double,
     val limitsEnabled: Boolean,
     val defaultLimit: Int,
-    val permissionOverrides: Boolean
+    val permissionOverrides: Boolean,
+    val sellPricing: SellPricingSettings
 )
