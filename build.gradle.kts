@@ -23,7 +23,12 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("shadow") {
+        // maven-private: the libreforge jar (shaded plugin with libreforge embedded)
+        create<MavenPublication>("private") {
+            artifactId = rootProject.name
+        }
+        // maven-releases (served publicly via the maven-public group): the API jar
+        create<MavenPublication>("release") {
             artifactId = rootProject.name
         }
     }
@@ -36,17 +41,48 @@ publishing {
                 password = System.getenv("MAVEN_PASSWORD")
             }
         }
+        maven {
+            name = "AuxilorReleases"
+            url = uri("https://repo.auxilor.io/repository/maven-releases/")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
     }
 }
 
+// The API spans core-api and core-plugin, so the published jar merges both. It is
+// the plain output, not shadowJar: shadowJar drops META-INF (taking the
+// .kotlin_module with it, which hides every top-level declaration from the Kotlin
+// compiler) and relocates kotlin.* into com.willfp.eco.libs.kotlin, which rewrites
+// @kotlin.Metadata and makes the whole API read as Java.
+val apiJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("api")
+
+    listOf(":eco-core:core-api", ":eco-core:core-plugin").forEach { path ->
+        from(project(path).tasks.named<Jar>("jar").map { zipTree(it.archiveFile) })
+    }
+}
+
+// Neither publication is attached to a software component, so only the single jar
+// and its pom are published - no sources, javadoc, or classified variants.
 afterEvaluate {
-    publishing.publications.named<MavenPublication>("shadow") {
+    publishing.publications.named<MavenPublication>("private") {
         artifact(tasks.named("libreforgeJar"))
+    }
+    publishing.publications.named<MavenPublication>("release") {
+        artifact(apiJar) {
+            classifier = ""
+        }
     }
 }
 
 tasks.register("publishToAuxilor") {
-    dependsOn(tasks.named("publishShadowPublicationToAuxilorRepository"))
+    dependsOn(
+        "publishPrivatePublicationToAuxilorRepository",
+        "publishReleasePublicationToAuxilorReleasesRepository",
+    )
 }
 
 tasks.register<Copy>("dist") {
