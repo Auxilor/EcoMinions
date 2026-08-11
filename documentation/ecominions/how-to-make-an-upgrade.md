@@ -1,5 +1,6 @@
 ---
 title: "How to Make an Upgrade"
+sidebar_position: 3
 ---
 
 ## Upgrades

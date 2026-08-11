@@ -1,5 +1,6 @@
 ---
 title: "Commands and Permissions"
+sidebar_position: 4
 ---
 
 Every EcoMinions command and the permission node it requires.

@@ -1,5 +1,6 @@
 ---
 title: "How to Make a Minion"
+sidebar_position: 1
 ---
 
 ## Minion Types
