@@ -1,5 +1,6 @@
 ---
 title: "Plugin Config"
+sidebar_position: 5
 ---
 
 The plugin-wide settings live in `config.yml` in the EcoMinions data folder (`/plugins/EcoMinions/config.yml`).

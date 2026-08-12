@@ -1,5 +1,6 @@
 ---
 title: "How to Make a Fuel"
+sidebar_position: 2
 ---
 
 ## Fuels
