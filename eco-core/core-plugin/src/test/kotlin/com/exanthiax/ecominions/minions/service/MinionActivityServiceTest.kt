@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.minions.MinionTypeFixture
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionStats
+import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -34,7 +35,8 @@ class MinionActivityServiceTest {
             offlineEfficiency = 1.0,
             limitsEnabled = true,
             defaultLimit = 5,
-            permissionOverrides = true
+            permissionOverrides = true,
+            sellPricing = SellPricingSettings(autoFromEcoShop = false, multiplier = 1.0)
         )
     )
 

@@ -34,6 +34,7 @@ import com.exanthiax.ecominions.minions.integration.MinionRecipes
 import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionTypeLoader
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
+import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.service.DropWarningService
 import com.exanthiax.ecominions.minions.service.MinionActivityService
@@ -49,6 +50,7 @@ import com.exanthiax.ecominions.minions.service.MiningService
 import com.exanthiax.ecominions.minions.service.OfflineProgressService
 import com.exanthiax.ecominions.minions.service.PlacementLimits
 import com.exanthiax.ecominions.minions.service.PlacementService
+import com.exanthiax.ecominions.minions.service.SellPricingService
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.minions.service.TreeFarmingService
 import com.exanthiax.ecominions.minions.service.TreeService
@@ -103,7 +105,12 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val gameData = GameDataLoader().load()
     private val minionTypes = ConfigDrivenRegistry(
         "minion_type", "minions", "minion types",
-        MinionTypeLoader(gameData, ParticleSettingsLoader()), report
+        MinionTypeLoader(
+            gameData,
+            ParticleSettingsLoader(),
+            { minionSettings.value.sellPricing.autoFromEcoShop }
+        ),
+        report
     )
     private val upgrades = ConfigDrivenRegistry<Upgrade>(
         "upgrade", "upgrades", "upgrades", UpgradeLoader(), report
@@ -135,9 +142,13 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val dropWarnings = DropWarningService(logger)
     private val treeFarming = TreeFarmingService(gameData, TreeService(), dropWarnings)
+    private val shopIntegration = ShopIntegrationService(minionSettings)
+    private val sellPricingSettings = SettingsHolder(minionSettings.value.sellPricing)
+    private val sellPricing = SellPricingService(sellPricingSettings) { shopIntegration.unitsFor(it) }
     private val miningService = MiningService(
         minionSettings, worlds, gameData, treeFarming,
-        compactorService, SellService(), dropWarnings, fuelService
+        compactorService, SellService(sellPricing, shopIntegration), dropWarnings,
+        fuelService, sellPricing
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings
@@ -179,6 +190,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
+        shopIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()
         registerApi()
@@ -255,6 +267,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     private fun refreshSettings() {
         minionSettings.update(minionSettingsLoader.load())
+        sellPricingSettings.update(minionSettings.value.sellPricing)
         menuSettings.update(menuSettingsLoader.load())
         upgradeMenuSettings.update(upgradeMenuSettingsLoader.load())
     }

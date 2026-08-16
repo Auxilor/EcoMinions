@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.minions.model.MinionSettings
+import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import com.willfp.eco.core.config.interfaces.Config
 import org.bukkit.Material
 
@@ -21,6 +22,10 @@ class MinionSettingsLoader(
         offlineEfficiency = config.getDouble("unloaded-calculation.offline-efficiency"),
         limitsEnabled = config.getBool("limits.per-player.enabled"),
         defaultLimit = config.getInt("limits.per-player.default"),
-        permissionOverrides = config.getBool("limits.per-player.permission-overrides")
+        permissionOverrides = config.getBool("limits.per-player.permission-overrides"),
+        sellPricing = SellPricingSettings(
+            autoFromEcoShop = config.getBool("sell-pricing.auto-from-ecoshop"),
+            multiplier = config.getDouble("sell-pricing.sell-price-multiplier")
+        )
     )
 }

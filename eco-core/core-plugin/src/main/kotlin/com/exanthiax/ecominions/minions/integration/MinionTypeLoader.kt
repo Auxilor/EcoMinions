@@ -17,7 +17,9 @@ import org.bukkit.Material
 /** Parses one file in `minions/` into a validated [MinionType]. */
 class MinionTypeLoader(
     private val gameData: GameData,
-    private val particles: ParticleSettingsLoader
+    private val particles: ParticleSettingsLoader,
+    /** Whether config.yml lets prices come from EcoShop, making sell-prices optional. */
+    private val autoPricingEnabled: () -> Boolean
 ) : ConfigLoader<MinionType> {
 
     override fun load(id: String, config: Config, context: LoadContext): MinionType? {
@@ -38,10 +40,11 @@ class MinionTypeLoader(
         val allowedUpgrades = config.getStrings("allowed-upgrades")
         val sellPrices = readSellPrices(config, context)
 
-        if (AUTO_SELL in allowedUpgrades && sellPrices.isEmpty()) {
+        if (AUTO_SELL in allowedUpgrades && sellPrices.isEmpty() && !autoPricingEnabled()) {
             context.violation(
                 "sell-prices",
-                "'$AUTO_SELL' is allowed but no prices are configured - auto sell would pay nothing"
+                "'$AUTO_SELL' is allowed but no prices are configured, and sell-pricing." +
+                    "auto-from-ecoshop is off - auto sell would pay nothing"
             )
         }
 

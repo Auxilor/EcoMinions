@@ -15,6 +15,13 @@ unloaded-calculation:
   # 1.0 = full parity, 0.75 = 75% of live rate while offline.
   offline-efficiency: 1.0
 
+sell-pricing:
+  # Pull sell prices from EcoShop for any material with no explicit price in a
+  # minion's sell-prices section. Requires EcoShop to be installed.
+  auto-from-ecoshop: true
+  # Scales EcoShop-sourced prices only. Explicit sell-prices are never scaled.
+  sell-price-multiplier: 1.0
+
 minion:
   # Hologram offset above the minion (Y axis blocks)
   hologram-offset: 1.6
