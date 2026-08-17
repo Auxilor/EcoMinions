@@ -47,9 +47,7 @@ class MinionPlaceholders(
         InternalPlaceholder("radius") { it.minion()?.stats?.radius?.toString() },
         InternalPlaceholder("speed") { it.minion()?.stats?.speedTicks?.toString() },
         InternalPlaceholder("efficiency") { it.minion()?.stats?.efficiencyTicks?.toString() },
-        InternalPlaceholder("capacity") { it.minion()?.stats?.storageSize?.toString() },
-        InternalPlaceholder("auto_smelt") { it.minion()?.stats?.autoSmelt?.toString() },
-        InternalPlaceholder("auto_sell") { it.minion()?.stats?.autoSell?.toString() }
+        InternalPlaceholder("capacity") { it.minion()?.stats?.storageSize?.toString() }
     )
 
     private fun ownerName(minion: Minion): String {

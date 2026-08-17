@@ -1,6 +1,5 @@
 package com.exanthiax.ecominions.upgrades.integration
 
-import com.exanthiax.ecominions.api.upgrade.UpgradeEffects
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.upgrades.model.TierCost
@@ -14,9 +13,6 @@ class UpgradeLoader : ConfigLoader<Upgrade> {
 
     override fun load(id: String, config: Config, context: LoadContext): Upgrade? {
         val effect = config.getString("effect").lowercase()
-        if (effect !in UpgradeEffects.ALL) {
-            return context.unknown("effect", effect, UpgradeEffects.ALL)
-        }
 
         val tiers = loadTiers(config, context)
         if (tiers.isEmpty()) {

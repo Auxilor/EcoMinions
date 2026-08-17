@@ -2,11 +2,9 @@ package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.fuel.service.FuelService
-import com.exanthiax.ecominions.minions.model.DropRoll
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.OfflineProgress
 import org.bukkit.inventory.ItemStack
-import java.util.concurrent.ThreadLocalRandom
 
 /** Credits a minion for the time it spent idle, and burns the fuel that took. */
 class OfflineProgressService(
@@ -30,10 +28,7 @@ class OfflineProgressService(
             if (minion.isStorageFull) {
                 return@simulate false
             }
-            val amount = DropRoll.amount(1, minion.stats.fortuneMultiplier, ThreadLocalRandom.current().nextDouble())
-            if (amount > 0) {
-                minion.storage.addItem(ItemStack(sampleBlock, amount))
-            }
+            minion.storage.addItem(ItemStack(sampleBlock, 1))
             true
         }
 

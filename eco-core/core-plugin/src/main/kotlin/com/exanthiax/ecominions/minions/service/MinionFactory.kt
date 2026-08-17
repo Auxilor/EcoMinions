@@ -2,15 +2,14 @@ package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.minions.model.MinionState
+import com.exanthiax.ecominions.minions.model.MinionStats
 import org.bukkit.Bukkit
 import org.bukkit.entity.ArmorStand
 
 /** Builds live minions from persisted state, restoring storage and stats. */
-class MinionFactory(
-    private val statsService: MinionStatsService
-) {
+class MinionFactory {
     fun create(state: MinionState, entity: ArmorStand): Minion {
-        val stats = statsService.statsFor(state)
+        val stats = MinionStats(state.type.baseStats)
         val storage = Bukkit.createInventory(null, stats.storageSize, STORAGE_TITLE)
 
         state.inventoryBytes?.let { bytes ->

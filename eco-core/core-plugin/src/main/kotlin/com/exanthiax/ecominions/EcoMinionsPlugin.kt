@@ -44,7 +44,6 @@ import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.MinionStateRepository
-import com.exanthiax.ecominions.minions.service.MinionStatsService
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
 import com.exanthiax.ecominions.minions.service.MiningService
 import com.exanthiax.ecominions.minions.service.OfflineProgressService
@@ -127,9 +126,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val upgradeService = UpgradeService(upgrades)
     private val fuelService = FuelService(fuels)
     private val compactorService = CompactorService(compactorRecipes)
-    private val statsService = MinionStatsService(upgradeService)
     private val repository = MinionStateRepository(dataKeys) { minionTypes.find(it) }
-    private val minionFactory = MinionFactory(statsService)
+    private val minionFactory = MinionFactory()
     private val itemFactory = MinionItemFactory(repository, renderer)
     private val limits = PlacementLimits(minionSettings)
     private val offlineProgress = OfflineProgressService(minionSettings, fuelService)
@@ -137,7 +135,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         repository, offlineProgress, minionSettings
     ) { Bukkit.getPlayer(it) != null }
     private val minionService = MinionService(
-        minionTypes, minionFactory, repository, statsService,
+        minionTypes, minionFactory, repository,
         itemFactory, limits, activityService, minionSettings
     )
     private val dropWarnings = DropWarningService(logger)
@@ -145,9 +143,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val shopIntegration = ShopIntegrationService(minionSettings)
     private val sellPricingSettings = SettingsHolder(minionSettings.value.sellPricing)
     private val sellPricing = SellPricingService(sellPricingSettings) { shopIntegration.unitsFor(it) }
+    private val sellService = SellService(sellPricing, shopIntegration)
     private val miningService = MiningService(
         minionSettings, worlds, gameData, treeFarming,
-        compactorService, SellService(sellPricing, shopIntegration), dropWarnings,
+        compactorService, dropWarnings,
         fuelService, sellPricing
     )
     private val placementService = PlacementService(

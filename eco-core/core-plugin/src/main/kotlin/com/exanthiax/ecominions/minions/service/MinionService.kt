@@ -24,7 +24,6 @@ class MinionService(
     private val types: ConfigDrivenRegistry<MinionType>,
     private val factory: MinionFactory,
     private val repository: MinionStateRepository,
-    private val statsService: MinionStatsService,
     private val itemFactory: MinionItemFactory,
     private val limits: PlacementLimits,
     private val activity: MinionActivityService,
@@ -80,14 +79,13 @@ class MinionService(
     /** Applies a state change and keeps derived stats in step with it. */
     fun updateState(minion: Minion, state: MinionState) {
         minion.state = state
-        minion.stats = statsService.statsFor(state)
         repository.save(minion)
     }
 
     /** Recomputes stats for every minion, e.g. after upgrade configs are reloaded. */
     fun refreshAll() {
         for (minion in byUuid.values) {
-            minion.stats = statsService.statsFor(minion.state)
+            minion.stats.clearContributions()
         }
     }
 

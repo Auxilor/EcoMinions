@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.minions.MinionTypeFixture
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionStats
+import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import io.mockk.every
 import io.mockk.mockk
@@ -41,16 +42,13 @@ class MinionActivityServiceTest {
     )
 
     private val stats = MinionStats(
-        speedTicks = 40,
-        efficiencyTicks = 10,
-        radius = 2,
-        inventoryRows = 1,
-        regenDelayTicks = 60,
-        fortuneMultiplier = 1.0,
-        autoSmelt = false,
-        autoSell = false,
-        xpDropAmount = 0,
-        compactorEnabled = false
+        MinionType.BaseStats(
+            speedTicks = 40,
+            efficiencyTicks = 10,
+            radius = 2,
+            inventoryRows = 1,
+            regenDelayTicks = 60
+        )
     )
 
     private fun minion(state: MinionState) = Minion(
