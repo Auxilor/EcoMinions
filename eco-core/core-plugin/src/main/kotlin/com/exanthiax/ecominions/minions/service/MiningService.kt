@@ -4,13 +4,18 @@ import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.libreforge.dispatchDrops
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionStats
+import com.willfp.libreforge.triggers.event.DropCause
+import com.willfp.libreforge.triggers.event.DropResult
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.BlockData
+import org.bukkit.entity.ExperienceOrb
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -125,7 +130,16 @@ class MiningService(
         val original = block.type
         val column = if (gameData.growthRules.isStackedColumn(original)) collectColumn(block) else listOf(block)
 
-        storeDrops(minion, column.flatMap { it.getDrops() })
+        val results = minion.dispatchDrops(
+            trigger = TriggerMinionMineBlock,
+            drops = column.flatMap { it.getDrops() },
+            block = block,
+            location = block.location,
+            cause = DropCause.BLOCK,
+            value = column.size.toDouble()
+        )
+
+        storeDrops(minion, results)
         dropOverflow(minion, compactor.compact(minion.storage))
 
         for (segment in column.drop(1)) {
@@ -140,16 +154,24 @@ class MiningService(
         queueRegen(minion, block, original, stats, now)
     }
 
-    private fun storeDrops(minion: Minion, drops: List<ItemStack>) {
-        for (drop in drops) {
-            if (!pricing.isSellable(minion.state.type, drop.type)) {
-                dropWarnings.warnUnsellable(minion, drop.type)
+    private fun storeDrops(minion: Minion, results: List<DropResult>) {
+        for ((item, xp) in results) {
+            if (xp > 0) {
+                spawnXp(minion, xp)
+            }
+            if (!pricing.isSellable(minion.state.type, item.type)) {
+                dropWarnings.warnUnsellable(minion, item.type)
                 continue
             }
-            if (minion.storage.addItem(drop).isNotEmpty()) {
+            if (minion.storage.addItem(item).isNotEmpty()) {
                 break
             }
         }
+    }
+
+    private fun spawnXp(minion: Minion, amount: Int) {
+        val location = minion.entity.location.clone().add(0.0, 0.5, 0.0)
+        minion.entity.world.spawn(location, ExperienceOrb::class.java).experience = amount
     }
 
     private fun dropOverflow(minion: Minion, overflow: List<ItemStack>) {

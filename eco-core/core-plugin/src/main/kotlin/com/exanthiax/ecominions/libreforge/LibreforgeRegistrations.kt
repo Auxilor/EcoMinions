@@ -7,10 +7,12 @@ import com.exanthiax.ecominions.libreforge.effects.EffectMinionCapacity
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionEfficiency
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.effects.Effects
 import com.willfp.libreforge.loader.configs.ConfigCategory
+import com.willfp.libreforge.triggers.Triggers
 
 /**
  * Single owner of everything the plugin hands to libreforge.
@@ -41,5 +43,7 @@ object LibreforgeRegistrations {
         Effects.register(EffectMinionEfficiency)
         Effects.register(EffectMinionRadius)
         Effects.register(EffectMinionCapacity)
+
+        Triggers.register(TriggerMinionMineBlock)
     }
 }
