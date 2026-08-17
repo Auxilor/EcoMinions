@@ -5,7 +5,11 @@ import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.libreforge.dispatchDrops
+import com.exanthiax.ecominions.libreforge.dispatchTrigger
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionStats
@@ -41,6 +45,7 @@ class MiningService(
 
         processRegen(minion, now)
         completePendingBreak(minion, now)
+        minion.dispatchTrigger(TriggerMinionTick)
 
         if (now < minion.mining.nextActionAt) {
             return
@@ -48,6 +53,7 @@ class MiningService(
 
         if (minion.isStorageFull) {
             minion.animation = Minion.AnimationState.FULL
+            minion.dispatchTrigger(TriggerMinionStorageFull)
             minion.mining.nextActionAt = now + FULL_RETRY_TICKS
             return
         }
@@ -211,6 +217,7 @@ class MiningService(
                 }
             }
             entry.location.block.blockData = entry.regenData
+            minion.dispatchTrigger(TriggerMinionRegenBlock, block = entry.location.block)
             minion.mining.pendingRegen.remove(entry.location)
             entries.remove()
         }

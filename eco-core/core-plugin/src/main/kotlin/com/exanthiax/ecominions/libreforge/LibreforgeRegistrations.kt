@@ -8,6 +8,9 @@ import com.exanthiax.ecominions.libreforge.effects.EffectMinionEfficiency
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.effects.Effects
@@ -45,5 +48,8 @@ object LibreforgeRegistrations {
         Effects.register(EffectMinionCapacity)
 
         Triggers.register(TriggerMinionMineBlock)
+        Triggers.register(TriggerMinionStorageFull)
+        Triggers.register(TriggerMinionRegenBlock)
+        Triggers.register(TriggerMinionTick)
     }
 }
