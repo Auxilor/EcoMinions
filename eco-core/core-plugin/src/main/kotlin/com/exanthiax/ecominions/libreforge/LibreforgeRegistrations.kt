@@ -3,8 +3,13 @@ package com.exanthiax.ecominions.libreforge
 import com.exanthiax.ecominions.compactor.model.CompactorRecipe
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.fuel.model.Fuel
+import com.exanthiax.ecominions.libreforge.effects.EffectMinionCapacity
+import com.exanthiax.ecominions.libreforge.effects.EffectMinionEfficiency
+import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
+import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.upgrades.model.Upgrade
+import com.willfp.libreforge.effects.Effects
 import com.willfp.libreforge.loader.configs.ConfigCategory
 
 /**
@@ -31,5 +36,10 @@ object LibreforgeRegistrations {
     fun registerAll(upgrades: ConfigDrivenRegistry<Upgrade>) {
         UpgradePlaceholderProvider(upgrades::all).register()
         MinionHolders(upgrades::find).register()
+
+        Effects.register(EffectMinionSpeed)
+        Effects.register(EffectMinionEfficiency)
+        Effects.register(EffectMinionRadius)
+        Effects.register(EffectMinionCapacity)
     }
 }
