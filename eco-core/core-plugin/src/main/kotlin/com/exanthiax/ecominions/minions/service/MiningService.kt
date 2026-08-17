@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.libreforge.dispatchDrops
 import com.exanthiax.ecominions.libreforge.dispatchTrigger
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
@@ -43,6 +44,8 @@ class MiningService(
             return
         }
 
+        checkFuelExpiry(minion)
+
         processRegen(minion, now)
         completePendingBreak(minion, now)
         minion.dispatchTrigger(TriggerMinionTick)
@@ -65,6 +68,20 @@ class MiningService(
         }
 
         beginBreak(minion, target, now)
+    }
+
+    /**
+     * Fuel expiry is never announced - it is inferred from the clock - so the
+     * transition has to be spotted by comparing against the previous tick.
+     */
+    private fun checkFuelExpiry(minion: Minion) {
+        val burning = fuels.activeFuelOf(minion) != null
+
+        if (minion.mining.wasBurningFuel && !burning) {
+            minion.dispatchTrigger(TriggerMinionFuelExpire)
+        }
+
+        minion.mining.wasBurningFuel = burning
     }
 
     private fun beginBreak(minion: Minion, target: Block, now: Long) {
