@@ -1,7 +1,11 @@
 name: "&7Compactor"
-effect: compactor
 display:
   icon: piston
+
+effects:
+  - id: minion_compact
+    triggers: [minion_mine_block]
+
 tiers:
   1:
     value: 1

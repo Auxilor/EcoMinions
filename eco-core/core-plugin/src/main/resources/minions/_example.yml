@@ -11,6 +11,17 @@ base-stats:
   inventory-rows: 3
   regen-delay-ticks: 100
 
+# Effects that are always active on this minion type, with no upgrade needed.
+# Any libreforge effect works; minion-specific ones are listed in the docs.
+# effects:
+#   - id: minion_radius
+#     args:
+#       blocks: 1
+#   - id: multiply_drops
+#     triggers: [minion_mine_block]
+#     args:
+#       multiplier: 1.5
+
 spawn-item:
   mode: item
   item: "STONE"

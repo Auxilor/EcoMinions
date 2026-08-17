@@ -1,7 +1,12 @@
-name: "&eSpeed"
-effect: speed
+name: "&bSpeed"
 display:
   icon: sugar
+
+effects:
+  - id: minion_speed
+    args:
+      ticks_faster: "%tier_value%"
+
 tiers:
   1:
     value: 5

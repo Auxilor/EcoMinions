@@ -1,7 +1,12 @@
 name: "&bRadius"
-effect: radius
 display:
   icon: spyglass
+
+effects:
+  - id: minion_radius
+    args:
+      blocks: "%tier_value%"
+
 tiers:
   1: { value: 1, stat-delta: "+1 block",  cost-options: [{ value: 6000,   type: vault }] }
   2: { value: 2, stat-delta: "+2 blocks", cost-options: [{ value: 14000,  type: vault }] }
