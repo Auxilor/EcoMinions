@@ -11,6 +11,8 @@ import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionLevelAbove
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionLevelBelow
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionOwnerOnline
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionStorageAbovePercent
+import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTargetBlock
+import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCapacity
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCompact
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionEfficiency
@@ -33,6 +35,7 @@ import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.conditions.Conditions
 import com.willfp.libreforge.effects.Effects
 import com.willfp.libreforge.loader.configs.ConfigCategory
+import com.willfp.libreforge.mutators.Mutators
 import com.willfp.libreforge.triggers.Triggers
 
 /**
@@ -70,6 +73,9 @@ object LibreforgeRegistrations {
         Effects.register(EffectMinionCapacity)
         Effects.register(EffectMinionSellStorage(selling))
         Effects.register(EffectMinionCompact(compactor))
+
+        Mutators.register(MutatorMinionOwnerAsDispatcher)
+        Mutators.register(MutatorMinionLocationToTargetBlock)
 
         Triggers.register(TriggerMinionMineBlock)
         Triggers.register(TriggerMinionStorageFull)
