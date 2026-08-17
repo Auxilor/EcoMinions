@@ -31,7 +31,6 @@ class MinionActivityServiceTest {
             invulnerable = true,
             showRegenMarker = true,
             regenMarkerFallback = Material.AIR,
-            autoSellIntervalTicks = 200,
             offlineEnabled = true,
             offlineEfficiency = 1.0,
             limitsEnabled = true,

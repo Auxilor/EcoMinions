@@ -146,7 +146,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val sellService = SellService(sellPricing, shopIntegration)
     private val miningService = MiningService(
         minionSettings, worlds, gameData, treeFarming,
-        compactorService, dropWarnings,
+        dropWarnings,
         fuelService, sellPricing
     )
     private val placementService = PlacementService(
@@ -189,7 +189,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
-        LibreforgeRegistrations.registerAll(upgrades)
+        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService)
         shopIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()
