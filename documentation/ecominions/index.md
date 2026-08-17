@@ -13,7 +13,9 @@ mines a configured set of blocks into its own storage for the owner to collect, 
 - **Per-minion storage** - mined items collect into the minion's own inventory rather than the world
 - **Idle while offline** - a minion only mines while its owner is online; when the owner logs back in, the
   offline span is credited in one go
-- **Upgrades** - speed, efficiency, radius, fortune, capacity, auto-smelt, auto-sell, experience, and a compactor
+- **Upgrades** - each upgrade is a config-authored libreforge effect holder, purchased tier by tier; the
+  shipped set includes speed, efficiency, radius, fortune, capacity, auto-smelt, auto-sell, experience, and a
+  compactor, but any libreforge effect can be wired up as an upgrade
 - **Fuel** - minions consume fuel to stay active, with different fuel items burning for different durations
 - **Item lookup integration** - every minion's spawn item is available to any eco item lookup as `ecominions:<id>`
 
@@ -26,7 +28,9 @@ storage. While its owner is online and its chunk is loaded, it mines on a timer,
 When the owner logs out, or the minion's chunk unloads, the minion goes idle: it stops animating, stops mining,
 and stops emitting its full-storage particles. When the owner logs back in, the elapsed absence is credited in
 one go - cycles are simulated for the time that passed (scaled by `unloaded-calculation.offline-efficiency`),
-fuel is consumed for that simulated span rather than the whole wall-clock absence, and then mining resumes live.
+fuel is consumed for that simulated span rather than the whole wall-clock absence, and the resulting drops are
+credited using each mined block's real drop table and passed through the minion's own effects in a single
+batch, so upgrades like fortune and auto-smelt still apply to offline mining. Mining then resumes live.
 
 Upgrades, fuels, and the compactor extend what a minion can do - see the how-to pages below. Every minion type's
 spawn item is also registered with eco's item lookup system as `ecominions:<id>`, so shops, crates, and other
