@@ -3,9 +3,11 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.api.minion.MinionsManager
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
+import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionType
+import com.willfp.libreforge.forceRefreshHolders
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.OfflinePlayer
@@ -80,13 +82,25 @@ class MinionService(
     fun updateState(minion: Minion, state: MinionState) {
         minion.state = state
         repository.save(minion)
+        refreshEffects(minion)
     }
 
     /** Recomputes stats for every minion, e.g. after upgrade configs are reloaded. */
     fun refreshAll() {
         for (minion in byUuid.values) {
-            minion.stats.clearContributions()
+            refreshEffects(minion)
         }
+    }
+
+    /**
+     * Recomputes which holders and effects apply.
+     *
+     * Called explicitly because libreforge only polls players, entities and the
+     * global dispatcher - a minion dispatcher is never swept automatically.
+     */
+    fun refreshEffects(minion: Minion) {
+        minion.stats.clearContributions()
+        minion.toDispatcher().forceRefreshHolders()
     }
 
     fun hydrateLoadedWorlds() {
@@ -122,6 +136,7 @@ class MinionService(
         if (activity.isActive(registered)) {
             activity.resume(registered)
         }
+        refreshEffects(registered)
         return registered
     }
 
