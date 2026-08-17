@@ -1,7 +1,12 @@
-name: "&2Auto Sell"
-effect: auto_sell
+name: "&eAuto Sell"
 display:
   icon: emerald
+
+effects:
+  - id: minion_sell_storage
+    triggers: [minion_tick]
+    every: 200
+
 tiers:
   1:
     value: 1

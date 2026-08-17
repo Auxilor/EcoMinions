@@ -1,7 +1,13 @@
 name: "&cAuto Smelt"
-effect: auto_smelt
 display:
   icon: furnace
+
+effects:
+  - id: autosmelt
+    triggers: [minion_mine_block]
+    args:
+      drop_xp: false
+
 tiers:
   1:
     value: 1

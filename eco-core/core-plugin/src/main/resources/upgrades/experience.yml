@@ -1,7 +1,13 @@
-name: "&5Experience"
-effect: experience
+name: "&aExperience"
 display:
   icon: experience_bottle
+
+effects:
+  - id: drop_xp
+    triggers: [minion_mine_block]
+    args:
+      amount: "%tier_value%"
+
 tiers:
   1: { value: 1,  stat-delta: "+1 XP per block",  cost-options: [{ value: 10000,  type: vault }] }
   2: { value: 2,  stat-delta: "+2 XP per block",  cost-options: [{ value: 22000,  type: vault }] }

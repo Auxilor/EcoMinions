@@ -1,7 +1,12 @@
 name: "&aEfficiency"
-effect: efficiency
 display:
   icon: golden_pickaxe
+
+effects:
+  - id: minion_efficiency
+    args:
+      ticks_faster: "%tier_value%"
+
 tiers:
   1:
     value: 2
