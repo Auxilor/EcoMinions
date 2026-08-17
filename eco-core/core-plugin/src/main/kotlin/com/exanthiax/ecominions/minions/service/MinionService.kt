@@ -78,14 +78,22 @@ class MinionService(
     fun ownedMinions(owner: UUID): List<Minion> =
         byOwner[owner].orEmpty().mapNotNull { byUuid[it] }
 
-    /** Applies a state change and keeps derived stats in step with it. */
+    /**
+     * Applies a state change and routes it through [refreshEffects], so any holder
+     * whose active/inactive status changed as a result has its stat contributions
+     * updated via libreforge's enable/disable lifecycle.
+     */
     fun updateState(minion: Minion, state: MinionState) {
         minion.state = state
         repository.save(minion)
         refreshEffects(minion)
     }
 
-    /** Recomputes stats for every minion, e.g. after upgrade configs are reloaded. */
+    /**
+     * Refreshes every minion's active holders, e.g. after upgrade configs are
+     * reloaded, letting libreforge's enable/disable lifecycle bring stat
+     * contributions back in step with the new configuration.
+     */
     fun refreshAll() {
         for (minion in byUuid.values) {
             refreshEffects(minion)
@@ -99,7 +107,6 @@ class MinionService(
      * global dispatcher - a minion dispatcher is never swept automatically.
      */
     fun refreshEffects(minion: Minion) {
-        minion.stats.clearContributions()
         minion.toDispatcher().forceRefreshHolders()
     }
 
