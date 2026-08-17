@@ -11,6 +11,11 @@ import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.WoodFamily
 import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.util.NamespacedKeyUtils
+import com.willfp.libreforge.Holder
+import com.willfp.libreforge.SimpleHolder
+import com.willfp.libreforge.conditions.Conditions
+import com.willfp.libreforge.effects.Effects
 import org.bukkit.Color
 import org.bukkit.Material
 
@@ -60,7 +65,23 @@ class MinionTypeLoader(
             armor = readArmor(config, context),
             particles = particles.load(config.getSubsection("particles"), context),
             placement = readPlacement(id, config, configured, woodFamily, context),
-            sellPrices = sellPrices
+            sellPrices = sellPrices,
+            holder = compileHolder(id, config, context)
+        )
+    }
+
+    private fun compileHolder(id: String, config: Config, context: LoadContext): Holder? {
+        val effectConfigs = config.getSubsections("effects")
+        if (effectConfigs.isEmpty()) {
+            return null
+        }
+
+        val violations = context.violationContext
+
+        return SimpleHolder(
+            NamespacedKeyUtils.create(NAMESPACE, "type_$id"),
+            Effects.compile(effectConfigs, violations.with("effects")),
+            Conditions.compile(config.getSubsections("conditions"), violations.with("conditions"))
         )
     }
 
@@ -208,5 +229,6 @@ class MinionTypeLoader(
         const val AUTO_SELL = "auto_sell"
         const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
         const val MAX_ROWS = 6
+        const val NAMESPACE = "ecominions"
     }
 }
