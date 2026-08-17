@@ -18,6 +18,10 @@ import java.util.stream.Stream
  * Minimal fake [RegistryAccess] so plain-JVM unit tests can construct real
  * [ItemStack]s.
  *
+ * This reaches into `ItemStack`'s specific constructor-delegation behaviour on
+ * Paper API `1.21.11-R0.1-SNAPSHOT`; re-verify (or replace) this fake if the
+ * project's pinned `paper-api` version is ever bumped.
+ *
  * A real Bukkit/Paper server supplies `RegistryAccess` via `ServiceLoader`;
  * nothing on a unit test classpath does, so touching `Material.asItemType()`
  * (which any `ItemStack` construction does, transitively) throws

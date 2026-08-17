@@ -89,7 +89,9 @@ class PlacementService(
 
         val minion = factory.create(state.copy(uuid = state.uuid ?: stand.uniqueId), stand)
         repository.save(minion)
-        return minions.register(minion)
+        val registered = minions.register(minion)
+        minions.refreshEffects(registered)
+        return registered
     }
 
     private fun dressStand(stand: ArmorStand, state: MinionState) {
