@@ -1,6 +1,5 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.service.FuelService
@@ -21,7 +20,6 @@ import org.bukkit.block.Block
 import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.BlockData
 import org.bukkit.entity.ExperienceOrb
-import org.bukkit.inventory.ItemStack
 
 /**
  * Drives one minion's mine/regen cycle for a single tick.
@@ -34,7 +32,6 @@ class MiningService(
     private val worlds: WorldSettings,
     private val gameData: GameData,
     private val treeFarming: TreeFarmingService,
-    private val compactor: CompactorService,
     private val dropWarnings: DropWarningService,
     private val fuels: FuelService,
     private val pricing: SellPricingService
@@ -163,7 +160,6 @@ class MiningService(
         )
 
         storeDrops(minion, results)
-        dropOverflow(minion, compactor.compact(minion.storage))
 
         for (segment in column.drop(1)) {
             segment.type = Material.AIR
@@ -195,12 +191,6 @@ class MiningService(
     private fun spawnXp(minion: Minion, amount: Int) {
         val location = minion.entity.location.clone().add(0.0, 0.5, 0.0)
         minion.entity.world.spawn(location, ExperienceOrb::class.java).experience = amount
-    }
-
-    private fun dropOverflow(minion: Minion, overflow: List<ItemStack>) {
-        for (item in overflow) {
-            minion.entity.world.dropItemNaturally(minion.entity.location, item)
-        }
     }
 
     private fun queueRegen(minion: Minion, block: Block, original: Material, stats: MinionStats, now: Long) {

@@ -1,11 +1,14 @@
 package com.exanthiax.ecominions.libreforge
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipe
+import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCapacity
+import com.exanthiax.ecominions.libreforge.effects.EffectMinionCompact
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionEfficiency
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
+import com.exanthiax.ecominions.libreforge.effects.EffectMinionSellStorage
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelStart
@@ -18,6 +21,7 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
 import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.effects.Effects
 import com.willfp.libreforge.loader.configs.ConfigCategory
@@ -44,7 +48,11 @@ object LibreforgeRegistrations {
      * Registered from one place so the plugin class stays wiring-only, and so
      * there is a single answer to "what does EcoMinions add to libreforge?".
      */
-    fun registerAll(upgrades: ConfigDrivenRegistry<Upgrade>) {
+    fun registerAll(
+        upgrades: ConfigDrivenRegistry<Upgrade>,
+        selling: SellService,
+        compactor: CompactorService
+    ) {
         UpgradePlaceholderProvider(upgrades::all).register()
         MinionHolders(upgrades::find).register()
 
@@ -52,6 +60,8 @@ object LibreforgeRegistrations {
         Effects.register(EffectMinionEfficiency)
         Effects.register(EffectMinionRadius)
         Effects.register(EffectMinionCapacity)
+        Effects.register(EffectMinionSellStorage(selling))
+        Effects.register(EffectMinionCompact(compactor))
 
         Triggers.register(TriggerMinionMineBlock)
         Triggers.register(TriggerMinionStorageFull)

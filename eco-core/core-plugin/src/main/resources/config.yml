@@ -37,8 +37,6 @@ minion:
   # Replaces any bedrock regen markers left behind. Use AIR to simply remove them.
   regen-marker-fallback-block: AIR
 
-  # auto_sell upgrade interval (in ticks) when triggered automatically
-  auto_sell-interval-ticks: 200
 
 gui:
   main:
