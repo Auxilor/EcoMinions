@@ -21,4 +21,14 @@ object LibreforgeRegistrations {
         fuels: ConfigDrivenRegistry<Fuel>,
         compactorRecipes: ConfigDrivenRegistry<CompactorRecipe>
     ): List<ConfigCategory> = listOf(upgrades, fuels, compactorRecipes, types)
+
+    /**
+     * Every libreforge component this plugin owns.
+     *
+     * Registered from one place so the plugin class stays wiring-only, and so
+     * there is a single answer to "what does EcoMinions add to libreforge?".
+     */
+    fun registerAll() {
+        // Components are added here as each task lands.
+    }
 }
