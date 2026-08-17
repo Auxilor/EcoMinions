@@ -10,6 +10,9 @@ class MiningState {
     var nextActionAt: Long = 0L
     var nextAutoSellAt: Long = 0L
 
+    /** Whether fuel was burning last tick, so expiry can be noticed the tick it happens. */
+    var wasBurningFuel: Boolean = false
+
     /** The block being swung at, and the tick the swing lands on. */
     var pendingTarget: Block? = null
     var breakAt: Long = 0L
