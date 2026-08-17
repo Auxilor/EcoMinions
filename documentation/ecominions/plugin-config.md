@@ -77,13 +77,11 @@ minion:
   # Block to place when a minion is picked up and regen markers haven't fired yet.
   # Replaces any bedrock regen markers left behind. Use AIR to simply remove them.
   regen-marker-fallback-block: AIR
-
-  # auto_sell upgrade interval (in ticks) when triggered automatically
-  auto_sell-interval-ticks: 200
 ```
 
-Controls the minion's hologram, its invulnerability, how mined block regeneration is shown, and how often the
-`auto_sell` upgrade triggers.
+Controls the minion's hologram, its invulnerability, and how mined block regeneration is shown. The auto-sell
+interval is no longer plugin-wide config - it's set with `every:` on the auto-sell upgrade's own effect block,
+see [How to Make an Upgrade](how-to-make-an-upgrade).
 
 ## gui
 

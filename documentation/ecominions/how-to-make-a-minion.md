@@ -35,6 +35,27 @@ base-stats:
   - `inventory-rows` - rows in the minion's own storage inventory.
   - `regen-delay-ticks` - how long a mined block takes to regenerate.
 
+## effects
+
+```yaml
+effects:
+  - id: minion_radius
+    args:
+      blocks: 1
+```
+
+`effects` is a list of libreforge effects that are **always active** on every minion of this type, at every
+level - no upgrade purchase is needed to enable them. It uses the same effect blocks as an upgrade's `effects`
+(see [How to Make an Upgrade](how-to-make-an-upgrade)), except there's no tier and no `%tier_value%` to bind to,
+so args are just plain values.
+
+A type-level effect stacks with any upgrade effects touching the same stat - the example above adds a flat
+`+1` to `radius` on top of whatever the `radius` upgrade contributes, since both are just contributions to the
+same stat accumulator.
+
+See [Libreforge Components](libreforge-components) for the full list of minion-specific effects, triggers,
+conditions, and mutators, plus the stock libreforge components that also work here.
+
 ## spawn-item
 
 ```yaml
