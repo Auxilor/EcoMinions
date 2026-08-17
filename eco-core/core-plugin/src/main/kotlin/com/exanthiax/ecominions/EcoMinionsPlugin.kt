@@ -190,6 +190,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
+        LibreforgeRegistrations.registerAll()
         shopIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()

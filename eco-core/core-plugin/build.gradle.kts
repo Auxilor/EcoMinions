@@ -17,6 +17,11 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.4")
 }
 
+// The libreforge-gradle-plugin injects libreforge/libreforge-loader as
+// compileOnly for main; mirror that onto the test classpath so tests can
+// reference libreforge types (e.g. Dispatcher) directly.
+configurations.testImplementation.get().extendsFrom(configurations.compileOnly.get())
+
 tasks.test {
     useJUnitPlatform()
     testLogging {
