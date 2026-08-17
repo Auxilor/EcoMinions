@@ -30,5 +30,6 @@ object LibreforgeRegistrations {
      */
     fun registerAll(upgrades: ConfigDrivenRegistry<Upgrade>) {
         UpgradePlaceholderProvider(upgrades::all).register()
+        MinionHolders(upgrades::find).register()
     }
 }
