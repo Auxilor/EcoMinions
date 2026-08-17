@@ -1,12 +1,12 @@
 package com.exanthiax.ecominions.upgrades.model
 
 import com.exanthiax.ecominions.api.upgrade.Upgrade as ApiUpgrade
+import com.willfp.libreforge.Holder
 
 /** A purchasable upgrade and its tier ladder. */
 class Upgrade(
     override val id: String,
     override val name: String,
-    override val effect: String,
     /** eco item lookup string for the menu icon. */
     val iconLookup: String,
     val tiers: Map<Int, UpgradeTier>
@@ -21,14 +21,22 @@ class Upgrade(
 
     /** Tiers in ascending order, for display. */
     fun orderedTiers(): List<UpgradeTier> = tiers.entries.sortedBy { it.key }.map { it.value }
+
+    /**
+     * @return The effect holder for the tier a minion actually owns, or null if
+     *   that tier is unowned, unconfigured, or declares no effects.
+     */
+    fun holderFor(tier: Int): Holder? = tiers[tier]?.holder
 }
 
 /** One rung of an upgrade ladder. */
 class UpgradeTier(
     val level: Int,
-    /** How much the stat moves, interpreted by the stat resolver. */
+    /** Whatever `%tier_value%` resolves to for this rung. */
     val value: Double,
     /** Admin-authored summary of the change, e.g. `-25 ticks`. */
     val statDelta: String,
-    val costs: List<TierCost>
+    val costs: List<TierCost>,
+    /** Compiled from the upgrade's `effects:` block with this tier's value bound. */
+    val holder: Holder?
 )

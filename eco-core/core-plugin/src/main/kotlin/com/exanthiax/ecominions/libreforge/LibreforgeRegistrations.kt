@@ -28,7 +28,7 @@ object LibreforgeRegistrations {
      * Registered from one place so the plugin class stays wiring-only, and so
      * there is a single answer to "what does EcoMinions add to libreforge?".
      */
-    fun registerAll() {
-        // Components are added here as each task lands.
+    fun registerAll(upgrades: ConfigDrivenRegistry<Upgrade>) {
+        UpgradePlaceholderProvider(upgrades::all).register()
     }
 }
