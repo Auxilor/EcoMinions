@@ -62,3 +62,21 @@ fun Minion.dispatchDrops(
 
     return event.items
 }
+
+/** Dispatches [trigger] against this minion with no drops attached. */
+fun Minion.dispatchTrigger(
+    trigger: Trigger,
+    block: Block? = null,
+    value: Double = 1.0
+) {
+    trigger.dispatch(
+        toDispatcher(),
+        TriggerData(
+            dispatcher = toDispatcher(),
+            player = ownerPlayer(),
+            block = block,
+            location = block?.location ?: location,
+            value = value
+        )
+    )
+}
