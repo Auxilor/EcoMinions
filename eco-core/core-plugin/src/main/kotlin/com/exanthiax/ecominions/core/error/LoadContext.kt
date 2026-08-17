@@ -9,13 +9,19 @@ import com.willfp.libreforge.ViolationContext
  * deletes behaviour is indistinguishable from working config.
  */
 class LoadContext(
-    private val violations: ViolationContext,
+    /**
+     * Exposed so loaders can hand it to libreforge's own compilers.
+     *
+     * Constructing a fresh one instead would report violations against the wrong
+     * file, which is worse than not reporting them at all.
+     */
+    val violationContext: ViolationContext,
     private val report: LoadReport
 ) {
     /** Reports a problem with [param] and counts it towards the startup summary. */
     fun violation(param: String, message: String) {
         report.recordViolation()
-        violations.log(ConfigViolation(param, message))
+        violationContext.log(ConfigViolation(param, message))
     }
 
     /**
@@ -49,5 +55,5 @@ class LoadContext(
     }
 
     /** @return A context scoped to a nested config section, for clearer paths. */
-    fun with(section: String): LoadContext = LoadContext(violations.with(section), report)
+    fun with(section: String): LoadContext = LoadContext(violationContext.with(section), report)
 }
