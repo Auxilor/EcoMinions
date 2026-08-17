@@ -1,14 +1,12 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.data.JsonData
-import com.exanthiax.ecominions.minions.model.DropRoll
 import com.exanthiax.ecominions.minions.model.WoodFamily
 import com.google.gson.JsonObject
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
-import java.util.concurrent.ThreadLocalRandom
 
 /** Grows and harvests the trees that tree-type minions farm. */
 class TreeService {
@@ -42,21 +40,11 @@ class TreeService {
         return leaves
     }
 
-    /** Breaks [leaves] and returns their drops, rolled against fortune. */
-    fun harvestLeaves(leaves: List<Block>, fortuneMultiplier: Double): List<ItemStack> {
+    /** Breaks [leaves] and returns their drops. */
+    fun harvestLeaves(leaves: List<Block>): List<ItemStack> {
         val harvested = mutableListOf<ItemStack>()
         for (leaf in leaves) {
-            for (drop in leaf.getDrops()) {
-                val amount = DropRoll.amount(
-                    drop.amount,
-                    fortuneMultiplier,
-                    ThreadLocalRandom.current().nextDouble()
-                )
-                if (amount <= 0) {
-                    continue
-                }
-                harvested += drop.clone().apply { this.amount = amount }
-            }
+            harvested += leaf.getDrops()
             leaf.type = Material.AIR
         }
         return harvested
