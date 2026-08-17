@@ -8,9 +8,6 @@ interface Upgrade {
     /** Formatted display name. */
     val name: String
 
-    /** Which stat this upgrade modifies. */
-    val effect: String
-
     /** Highest tier defined in config. */
     val maxTier: Int
 }
