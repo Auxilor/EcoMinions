@@ -4,6 +4,13 @@ import com.exanthiax.ecominions.compactor.model.CompactorRecipe
 import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.fuel.model.Fuel
+import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionHasFuel
+import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionHasUpgrade
+import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionIsType
+import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionLevelAbove
+import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionLevelBelow
+import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionOwnerOnline
+import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionStorageAbovePercent
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCapacity
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCompact
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionEfficiency
@@ -23,6 +30,7 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.upgrades.model.Upgrade
+import com.willfp.libreforge.conditions.Conditions
 import com.willfp.libreforge.effects.Effects
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import com.willfp.libreforge.triggers.Triggers
@@ -73,5 +81,13 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionFuelStart)
         Triggers.register(TriggerMinionFuelExpire)
         Triggers.register(TriggerMinionSell)
+
+        Conditions.register(ConditionMinionLevelAbove)
+        Conditions.register(ConditionMinionLevelBelow)
+        Conditions.register(ConditionMinionIsType)
+        Conditions.register(ConditionMinionHasUpgrade)
+        Conditions.register(ConditionMinionStorageAbovePercent)
+        Conditions.register(ConditionMinionHasFuel)
+        Conditions.register(ConditionMinionOwnerOnline)
     }
 }
