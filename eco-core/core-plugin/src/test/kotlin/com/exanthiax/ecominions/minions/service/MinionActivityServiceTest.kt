@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.minions.MinionTypeFixture
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionStats
+import com.exanthiax.ecominions.minions.model.MinionStorage
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import io.mockk.every
@@ -12,7 +13,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
-import org.bukkit.inventory.Inventory
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -55,7 +55,7 @@ class MinionActivityServiceTest {
     private fun minion(state: MinionState) = Minion(
         state = state,
         entity = mockk<ArmorStand>(relaxed = true),
-        storage = mockk<Inventory>(relaxed = true),
+        storage = MinionStorage(stats.storageSize),
         stats = stats
     )
 

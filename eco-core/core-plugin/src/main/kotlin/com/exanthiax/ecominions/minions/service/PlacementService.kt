@@ -64,7 +64,7 @@ class PlacementService(
             return null
         }
 
-        val snapshot: Array<ItemStack?> = Array(minion.storage.size) { minion.storage.getItem(it) }
+        val snapshot: Array<ItemStack?> = minion.storage.snapshot()
         val item = itemFactory.build(minion.state.copy(inventoryBytes = InventoryCodec.encode(snapshot)))
 
         clearRegenMarkers(minion)

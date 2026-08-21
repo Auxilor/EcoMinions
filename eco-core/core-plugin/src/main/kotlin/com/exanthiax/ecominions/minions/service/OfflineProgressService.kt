@@ -85,7 +85,7 @@ class OfflineProgressService(
             if (!pricing.isSellable(minion.state.type, item.type)) {
                 continue
             }
-            if (minion.storage.addItem(item).isNotEmpty()) {
+            if (minion.storage.add(item) != null) {
                 break
             }
         }
