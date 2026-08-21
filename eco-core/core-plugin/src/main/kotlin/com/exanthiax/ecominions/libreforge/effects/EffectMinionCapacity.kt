@@ -16,12 +16,10 @@ object EffectMinionCapacity : MinionStatEffect(
     override val categories = setOf("minion")
 
     override fun afterChange(minion: Minion) {
-        val overflow = minion.resizeStorage(minion.stats.storageSize, STORAGE_TITLE)
+        val overflow = minion.resizeStorage(minion.stats.storageSize)
 
         for (item in overflow) {
             minion.entity.world.dropItemNaturally(minion.entity.location, item)
         }
     }
-
-    private const val STORAGE_TITLE = "Minion"
 }

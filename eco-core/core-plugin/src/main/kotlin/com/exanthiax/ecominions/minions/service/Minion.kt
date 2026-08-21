@@ -3,11 +3,10 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionStats
-import org.bukkit.Bukkit
+import com.exanthiax.ecominions.minions.model.MinionStorage
 import org.bukkit.Location
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.TextDisplay
-import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import com.exanthiax.ecominions.api.minion.Minion as ApiMinion
@@ -23,7 +22,11 @@ import com.exanthiax.ecominions.api.minion.MinionType as ApiMinionType
 class Minion(
     state: MinionState,
     val entity: ArmorStand,
-    storage: Inventory,
+    /**
+     * The minion's storage. A [MinionStorage] rather than a Bukkit inventory
+     * because capacity is upgraded a slot at a time, and nothing ever opens it.
+     */
+    val storage: MinionStorage,
     val stats: MinionStats
 ) : ApiMinion, FuelService.FuelBurner {
 
@@ -31,39 +34,12 @@ class Minion(
         internal set
 
     /**
-     * The minion's storage.
-     *
-     * Reassignable because the capacity effect can change the row count at any
-     * refresh, not only at purchase time. [resizeStorage] is the only writer.
-     */
-    var storage: Inventory = storage
-        private set
-
-    /**
      * Grows or shrinks storage to [slots], preserving contents.
      *
      * Items that no longer fit after a shrink are returned rather than deleted -
      * the caller decides whether to drop them in the world.
      */
-    fun resizeStorage(slots: Int, title: String): List<ItemStack> {
-        // A chest inventory's size must be a multiple of nine; rounding up is the
-        // closest a Bukkit inventory gets to an exact slot count.
-        val size = ((slots + 8) / 9) * 9
-        if (size == storage.size) {
-            return emptyList()
-        }
-
-        val contents = (0 until storage.size).mapNotNull { storage.getItem(it) }
-        val resized = Bukkit.createInventory(null, size, title)
-        val overflow = contents.flatMap { resized.addItem(it).values }
-
-        for (viewer in storage.viewers.toList()) {
-            viewer.closeInventory()
-        }
-
-        storage = resized
-        return overflow
-    }
+    fun resizeStorage(slots: Int): List<ItemStack> = storage.resize(slots)
 
     override val uuid: UUID = state.uuid ?: entity.uniqueId
 
@@ -86,7 +62,7 @@ class Minion(
         get() = storage.size
 
     override val usedStorage: Int
-        get() = (0 until storage.size).count { storage.getItem(it) != null }
+        get() = storage.used
 
     var animation: AnimationState = AnimationState.IDLE
         internal set
@@ -132,7 +108,7 @@ class Minion(
     val mining = MiningState()
 
     val isStorageFull: Boolean
-        get() = (0 until storage.size).none { storage.getItem(it) == null }
+        get() = storage.isFull
 
     enum class AnimationState { IDLE, MINING, FULL, BLOCKED }
 }

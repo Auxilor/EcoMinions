@@ -48,7 +48,7 @@ class TreeFarmingService(
                 dropWarnings.warnUnsellable(minion, drop.type)
                 continue
             }
-            if (minion.storage.addItem(drop).isNotEmpty()) {
+            if (minion.storage.add(drop) != null) {
                 break
             }
         }
