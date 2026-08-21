@@ -7,17 +7,17 @@ import java.util.UUID
 class MinionStatsCapacityTest {
 
     private val base = MinionType.BaseStats(
-        speedTicks = 40,
-        efficiencyTicks = 10,
-        radius = 2,
-        storageSlots = 27,
+        speedTicks = "40",
+        efficiencyTicks = "10",
+        radius = "2",
+        storageSlots = "27",
         maxStorageSlots = 54,
-        regenDelayTicks = 60
+        regenDelayTicks = "60"
     )
 
     @Test
     fun `storage size tracks contributed slots`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         assertEquals(27, stats.storageSize)
 
         val id = UUID.randomUUID()
@@ -30,7 +30,7 @@ class MinionStatsCapacityTest {
 
     @Test
     fun `slots never exceed the type's own maximum`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         repeat(5) { stats.contribute(MinionStat.INVENTORY_SLOTS, UUID.randomUUID(), 20) }
 
         assertEquals(54, stats.storageSize)
@@ -38,7 +38,7 @@ class MinionStatsCapacityTest {
 
     @Test
     fun `a type may cap higher than a full double chest`() {
-        val stats = MinionStats(base.copy(storageSlots = 100, maxStorageSlots = 512))
+        val stats = MinionStats(base.copy(storageSlots = "100", maxStorageSlots = 512), level = 1)
         stats.contribute(MinionStat.INVENTORY_SLOTS, UUID.randomUUID(), 300)
 
         assertEquals(400, stats.storageSize)
@@ -46,7 +46,7 @@ class MinionStatsCapacityTest {
 
     @Test
     fun `slots never fall below one`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         stats.contribute(MinionStat.INVENTORY_SLOTS, UUID.randomUUID(), -999)
 
         assertEquals(1, stats.storageSize)

@@ -43,13 +43,14 @@ class MinionActivityServiceTest {
 
     private val stats = MinionStats(
         MinionType.BaseStats(
-            speedTicks = 40,
-            efficiencyTicks = 10,
-            radius = 2,
-            storageSlots = 1,
+            speedTicks = "40",
+            efficiencyTicks = "10",
+            radius = "2",
+            storageSlots = "1",
             maxStorageSlots = 54,
-            regenDelayTicks = 60
-        )
+            regenDelayTicks = "60"
+        ),
+        level = 1
     )
 
     private fun minion(state: MinionState) = Minion(
