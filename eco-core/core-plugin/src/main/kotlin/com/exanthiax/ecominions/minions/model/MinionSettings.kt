@@ -10,6 +10,8 @@ data class MinionSettings(
     val showRegenMarker: Boolean,
     /** Block left behind when a minion is picked up mid-regen. */
     val regenMarkerFallback: Material,
+    /** Upper bound on any type's declared storage slots. A typo guard, not balance. */
+    val hardSlotCap: Int,
     val offlineEnabled: Boolean,
     val offlineEfficiency: Double,
     val limitsEnabled: Boolean,

@@ -28,8 +28,8 @@ class MinionType(
     override val baseSpeedTicks: Int
         get() = baseStats.speedTicks
 
-    override val baseInventoryRows: Int
-        get() = baseStats.inventoryRows
+    override val baseStorageSlots: Int
+        get() = baseStats.storageSlots
 
     override val isTreeType: Boolean
         get() = woodFamily != null
@@ -41,7 +41,8 @@ class MinionType(
         val speedTicks: Int,
         val efficiencyTicks: Int,
         val radius: Int,
-        val inventoryRows: Int,
+        val storageSlots: Int,
+        val maxStorageSlots: Int,
         val regenDelayTicks: Int
     )
 }

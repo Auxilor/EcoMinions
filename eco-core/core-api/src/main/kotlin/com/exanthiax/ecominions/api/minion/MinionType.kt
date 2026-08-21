@@ -16,8 +16,8 @@ interface MinionType {
     /** Ticks between mining actions before upgrades are applied. */
     val baseSpeedTicks: Int
 
-    /** Inventory rows before upgrades are applied. */
-    val baseInventoryRows: Int
+    /** Storage slots before upgrades are applied. */
+    val baseStorageSlots: Int
 
     /** Ids of the upgrades this type is allowed to buy. */
     val allowedUpgradeIds: List<String>

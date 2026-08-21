@@ -40,13 +40,15 @@ class Minion(
         private set
 
     /**
-     * Grows or shrinks storage to [rows], preserving contents.
+     * Grows or shrinks storage to [slots], preserving contents.
      *
      * Items that no longer fit after a shrink are returned rather than deleted -
      * the caller decides whether to drop them in the world.
      */
-    fun resizeStorage(rows: Int, title: String): List<ItemStack> {
-        val size = rows * 9
+    fun resizeStorage(slots: Int, title: String): List<ItemStack> {
+        // A chest inventory's size must be a multiple of nine; rounding up is the
+        // closest a Bukkit inventory gets to an exact slot count.
+        val size = ((slots + 8) / 9) * 9
         if (size == storage.size) {
             return emptyList()
         }

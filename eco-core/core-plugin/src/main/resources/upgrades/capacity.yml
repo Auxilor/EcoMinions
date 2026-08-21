@@ -5,9 +5,9 @@ display:
 effects:
   - id: minion_capacity
     args:
-      rows: "%tier_value%"
+      slots: "%tier_value%"
 
 tiers:
-  1: { value: 1, stat-delta: "+1 row", cost-options: [{ value: 5000, type: vault }] }
-  2: { value: 2, stat-delta: "+2 rows", cost-options: [{ value: 12000, type: vault }] }
-  3: { value: 3, stat-delta: "+3 rows", cost-options: [{ value: 25000, type: vault }] }
+  1: { value: 9, stat-delta: "+9 slots", cost-options: [{ value: 5000, type: vault }] }
+  2: { value: 18, stat-delta: "+18 slots", cost-options: [{ value: 12000, type: vault }] }
+  3: { value: 27, stat-delta: "+27 slots", cost-options: [{ value: 25000, type: vault }] }

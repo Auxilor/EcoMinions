@@ -110,7 +110,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionTypeLoader(
             gameData,
             ParticleSettingsLoader(),
-            { minionSettings.value.sellPricing.autoFromEcoShop }
+            { minionSettings.value.sellPricing.autoFromEcoShop },
+            { minionSettings.value.hardSlotCap }
         ),
         report
     )

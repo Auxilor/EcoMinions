@@ -9,14 +9,14 @@ import com.exanthiax.ecominions.minions.service.Minion
  */
 object EffectMinionCapacity : MinionStatEffect(
     id = "minion_capacity",
-    stat = MinionStat.INVENTORY_ROWS,
-    argument = "rows"
+    stat = MinionStat.INVENTORY_SLOTS,
+    argument = "slots"
 ) {
-    override val description = "Adds rows to a minion's storage."
+    override val description = "Adds slots to a minion's storage."
     override val categories = setOf("minion")
 
     override fun afterChange(minion: Minion) {
-        val overflow = minion.resizeStorage(minion.stats.inventoryRows, STORAGE_TITLE)
+        val overflow = minion.resizeStorage(minion.stats.storageSize, STORAGE_TITLE)
 
         for (item in overflow) {
             minion.entity.world.dropItemNaturally(minion.entity.location, item)
