@@ -9,7 +9,13 @@ class Upgrade(
     override val name: String,
     /** eco item lookup string for the menu icon. */
     val iconLookup: String,
-    val tiers: Map<Int, UpgradeTier>
+    val tiers: Map<Int, UpgradeTier>,
+    /**
+     * Whether a minion can own a tier higher than the one currently in effect,
+     * and pick which owned tier runs. False means "own exactly one tier at a
+     * time" (today's behavior for every other upgrade).
+     */
+    val selectable: Boolean = false
 ) : ApiUpgrade {
 
     override val maxTier: Int = tiers.keys.maxOrNull() ?: 0
