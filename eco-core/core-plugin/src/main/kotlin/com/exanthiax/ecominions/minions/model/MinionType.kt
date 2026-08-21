@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.model
 
+import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.willfp.libreforge.Holder
 import org.bukkit.Material
 import com.exanthiax.ecominions.api.minion.MinionType as ApiMinionType
@@ -21,6 +22,8 @@ class MinionType(
     val particles: ParticleSettings,
     val placement: PlacementSettings,
     val sellPrices: Map<Material, Double>,
+    /** Parsed from the type's `levelling:` block. Disabled unless configured. */
+    val levelling: LevellingSpec = LevellingSpec.DISABLED,
     /** Compiled from the type's `effects:` block. Always active, no purchase needed. */
     val holder: Holder? = null
 ) : ApiMinionType {

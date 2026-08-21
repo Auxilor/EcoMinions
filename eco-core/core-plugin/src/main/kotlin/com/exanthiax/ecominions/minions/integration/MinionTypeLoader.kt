@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.registry.ConfigLoader
+import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionArmor
@@ -23,6 +24,7 @@ import org.bukkit.Material
 class MinionTypeLoader(
     private val gameData: GameData,
     private val particles: ParticleSettingsLoader,
+    private val levelling: LevellingLoader,
     /** Whether config.yml lets prices come from EcoShop, making sell-prices optional. */
     private val autoPricingEnabled: () -> Boolean,
     /** config.yml's ceiling on any type's declared slots. Read per load, so reloads apply. */
@@ -68,6 +70,7 @@ class MinionTypeLoader(
             particles = particles.load(config.getSubsection("particles"), context),
             placement = readPlacement(id, config, configured, woodFamily, context),
             sellPrices = sellPrices,
+            levelling = levelling.load(config, context),
             holder = compileHolder(id, config, context)
         )
     }

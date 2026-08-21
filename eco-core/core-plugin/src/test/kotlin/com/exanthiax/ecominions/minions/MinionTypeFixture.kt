@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions
 
+import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.model.MinionArmor
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.model.ParticleSettings
@@ -28,6 +29,7 @@ object MinionTypeFixture {
             maxStorageSlots = 54,
             regenDelayTicks = 60
         ),
+        levelling: LevellingSpec = LevellingSpec.DISABLED,
         holder: Holder? = null
     ) = MinionType(
         id = id,
@@ -48,6 +50,7 @@ object MinionTypeFixture {
         particles = ParticleSettings(full = null, fullPlayerRadius = 16, idle = null, idlePlayerRadius = 16),
         placement = PlacementSettings.NONE,
         sellPrices = sellPrices,
+        levelling = levelling,
         holder = holder
     )
 }
