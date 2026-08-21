@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.levelling.service
 
 import com.exanthiax.ecominions.api.event.MinionLevelUpEvent
+import com.exanthiax.ecominions.libreforge.MinionTriggerListener
 import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionLevelUp
@@ -22,7 +23,7 @@ class MinionXpService(
     private val applyState: (Minion, MinionState) -> Unit,
     private val onLevelChanged: (Minion) -> Unit,
     private val notifyLevelUp: (Minion, Int) -> Unit = { _, _ -> }
-) {
+) : MinionTriggerListener {
     /** @param levelsGained The levels crossed, or null if none were. */
     data class LevelUpResult(
         val newState: MinionState,
@@ -30,7 +31,7 @@ class MinionXpService(
     )
 
     /** Sums every gain method that applies to [dispatched] and banks the total. */
-    fun onTrigger(minion: Minion, dispatched: DispatchedTrigger) {
+    override fun onTrigger(minion: Minion, dispatched: DispatchedTrigger) {
         val levelling = minion.state.type.levelling
         if (!levelling.enabled || minion.state.isAtMaxLevel) {
             return

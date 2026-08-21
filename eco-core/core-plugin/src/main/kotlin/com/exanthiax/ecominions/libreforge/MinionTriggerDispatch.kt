@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemStack
  * would silently never gain XP.
  */
 class MinionTriggerDispatch(
-    private val onDispatch: (Minion, DispatchedTrigger) -> Unit = { _, _ -> }
+    private val listener: MinionTriggerListener = MinionTriggerListener.None
 ) {
     /**
      * Runs [drops] through [trigger] as an editable drop event, and returns what
@@ -91,6 +91,6 @@ class MinionTriggerDispatch(
     private fun dispatch(minion: Minion, trigger: Trigger, data: TriggerData) {
         val dispatcher = minion.toDispatcher()
         trigger.dispatch(dispatcher, data)
-        onDispatch(minion, DispatchedTrigger(dispatcher, trigger, data))
+        listener.onTrigger(minion, DispatchedTrigger(dispatcher, trigger, data))
     }
 }
