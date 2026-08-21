@@ -55,7 +55,7 @@ class MinionStateRepository(
     /** Persists a live minion, including its storage and burning fuel. */
     fun save(minion: Minion) {
         val container = minion.entity.persistentDataContainer
-        val snapshot: Array<ItemStack?> = Array(minion.storage.size) { minion.storage.getItem(it) }
+        val snapshot: Array<ItemStack?> = minion.storage.snapshot()
 
         write(
             container,

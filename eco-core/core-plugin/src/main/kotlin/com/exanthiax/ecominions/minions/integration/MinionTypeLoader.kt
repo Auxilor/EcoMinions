@@ -29,7 +29,9 @@ class MinionTypeLoader(
     private val particles: ParticleSettingsLoader,
     private val levelling: LevellingLoader,
     /** Whether config.yml lets prices come from EcoShop, making sell-prices optional. */
-    private val autoPricingEnabled: () -> Boolean
+    private val autoPricingEnabled: () -> Boolean,
+    /** config.yml's ceiling on any type's declared slots. Read per load, so reloads apply. */
+    private val hardSlotCap: () -> Int
 ) : ConfigLoader<MinionType> {
 
     override fun load(id: String, config: Config, context: LoadContext): MinionType? {
@@ -64,7 +66,7 @@ class MinionTypeLoader(
             targetBlocks = targets,
             allowedUpgradeIds = allowedUpgrades,
             woodFamily = woodFamily,
-            baseStats = readBaseStats(config),
+            baseStats = readBaseStats(config, context),
             spawnItem = spawnItem,
             crafting = readCrafting(config, context),
             armor = readArmor(config, context),
@@ -108,17 +110,43 @@ class MinionTypeLoader(
             .toSet()
     }
 
-    private fun readBaseStats(config: Config) = MinionType.BaseStats(
-        speedTicks = config.getString("base-stats.speed-ticks"),
-        efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
-        radius = config.getString("base-stats.radius"),
-        inventoryRows = config.getString("base-stats.inventory-rows"),
-        regenDelayTicks = config.getString("base-stats.regen-delay-ticks")
-    ) { expression, level ->
-        evaluateExpression(
-            expression,
-            placeholderContext(injectable = LevelInjectable(level))
-        ).toInt()
+    /**
+     * `storage-slots` may be a `%level%` expression, so only the type's declared
+     * `max-storage-slots` ceiling - a plain, non-level-scaled hard cap - can be
+     * validated against `minion.hard-slot-cap` at load time. The effective slot
+     * count still gets capped to that ceiling on every read, in
+     * [MinionStats.get], however high a formula pushes it at a given level.
+     */
+    private fun readBaseStats(config: Config, context: LoadContext): MinionType.BaseStats {
+        val cap = hardSlotCap()
+        val maxStorageSlots = clampSlots(
+            config.getInt("base-stats.max-storage-slots"),
+            "base-stats.max-storage-slots",
+            cap,
+            context
+        )
+
+        return MinionType.BaseStats(
+            speedTicks = config.getString("base-stats.speed-ticks"),
+            efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
+            radius = config.getString("base-stats.radius"),
+            storageSlots = config.getString("base-stats.storage-slots"),
+            maxStorageSlots = maxStorageSlots,
+            regenDelayTicks = config.getString("base-stats.regen-delay-ticks")
+        ) { expression, level ->
+            evaluateExpression(
+                expression,
+                placeholderContext(injectable = LevelInjectable(level))
+            ).toInt()
+        }
+    }
+
+    /** Clamps to `1..cap`, reporting when a configured value had to be cut down. */
+    private fun clampSlots(value: Int, param: String, cap: Int, context: LoadContext): Int {
+        if (value > cap) {
+            context.violation(param, "$value exceeds minion.hard-slot-cap ($cap) - using $cap")
+        }
+        return value.coerceIn(1, cap)
     }
 
     private fun readSpawnItem(config: Config, context: LoadContext): SpawnItemSpec? {

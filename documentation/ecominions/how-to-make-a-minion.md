@@ -22,7 +22,8 @@ base-stats:
   speed-ticks: 70
   efficiency-ticks: 12
   radius: 3
-  inventory-rows: 3
+  storage-slots: 27
+  max-storage-slots: 54
   regen-delay-ticks: 120
 ```
 
@@ -32,7 +33,9 @@ base-stats:
   - `speed-ticks` - ticks between mining attempts.
   - `efficiency-ticks` - additional ticks the mining animation/action takes.
   - `radius` - how far from the minion, in blocks, it searches for target blocks.
-  - `inventory-rows` - rows in the minion's own storage inventory.
+  - `storage-slots` - stack slots in the minion's own storage, before upgrades.
+  - `max-storage-slots` - the most slots capacity upgrades may reach on this type.
+    Both are capped by `minion.hard-slot-cap` in `config.yml`.
   - `regen-delay-ticks` - how long a mined block takes to regenerate.
 
 Every `base-stats` value may be a plain number or an expression in `%level%`, evaluated for the minion's

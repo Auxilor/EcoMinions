@@ -39,7 +39,7 @@ Bespoke minion effects, with the argument(s) each takes inside `args:`.
 | `minion_speed` | `ticks_faster` (expression) | Reduces the ticks between a minion's mine cycles. Permanent - no `triggers:` needed. |
 | `minion_efficiency` | `ticks_faster` (expression) | Reduces the ticks a minion spends breaking a block. Permanent - no `triggers:` needed. |
 | `minion_radius` | `blocks` (expression) | Widens the area a minion scans for target blocks. Permanent - no `triggers:` needed. |
-| `minion_capacity` | `rows` (expression) | Adds rows to a minion's storage. Permanent - no `triggers:` needed. Resizes the live inventory; any overflow is dropped in the world rather than lost. |
+| `minion_capacity` | `slots` (expression) | Adds stack slots to a minion's storage, up to the type's `max-storage-slots`. Permanent - no `triggers:` needed. Resizes live storage; any overflow is dropped in the world rather than lost. |
 | `minion_sell_storage` | none | Sells the entire contents of a minion's storage. Triggered - needs a `triggers:` list (e.g. `[minion_tick]` with `every:` for an auto-sell upgrade). |
 | `minion_compact` | none | Compacts a minion's storage using the configured compactor recipes. Triggered - needs a `triggers:` list. |
 | `give_minion_xp` | `amount` (expression) | Grants XP to a minion, letting a fuel or an upgrade tier feed levelling progression directly. Triggered - needs a `triggers:` list. |

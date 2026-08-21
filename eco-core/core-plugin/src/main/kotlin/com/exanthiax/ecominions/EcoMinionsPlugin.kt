@@ -42,7 +42,6 @@ import com.exanthiax.ecominions.minions.integration.MinionTypeLoader
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionType
-import com.exanthiax.ecominions.minions.service.DropWarningService
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionDropTables
 import com.exanthiax.ecominions.minions.service.MinionFactory
@@ -118,7 +117,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             gameData,
             ParticleSettingsLoader(),
             LevellingLoader(),
-            { minionSettings.value.sellPricing.autoFromEcoShop }
+            { minionSettings.value.sellPricing.autoFromEcoShop },
+            { minionSettings.value.hardSlotCap }
         ),
         report
     )
@@ -171,7 +171,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         table.populateLoot(java.util.Random(), context).toList()
     }
     private val offlineProgress = OfflineProgressService(
-        minionSettings, fuelService, dropTables, sellPricing, triggerDispatch
+        minionSettings, fuelService, dropTables, triggerDispatch
     )
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings
@@ -180,12 +180,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         minionTypes, minionFactory, repository,
         itemFactory, limits, activityService, minionSettings
     )
-    private val dropWarnings = DropWarningService(logger)
-    private val treeFarming = TreeFarmingService(gameData, TreeService(), dropWarnings)
+    private val treeFarming = TreeFarmingService(gameData, TreeService())
     private val miningService = MiningService(
-        minionSettings, worlds, gameData, treeFarming,
-        dropWarnings,
-        fuelService, sellPricing, triggerDispatch
+        minionSettings, worlds, gameData, treeFarming, fuelService, triggerDispatch
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings

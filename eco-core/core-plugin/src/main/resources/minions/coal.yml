@@ -7,7 +7,8 @@ base-stats:
   speed-ticks: 70
   efficiency-ticks: 12
   radius: 3
-  inventory-rows: 3
+  storage-slots: 27
+  max-storage-slots: 54
   regen-delay-ticks: 120
 
 spawn-item:

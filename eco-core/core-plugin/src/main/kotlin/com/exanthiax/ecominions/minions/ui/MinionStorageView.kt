@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions.ui
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.model.MenuSettings
+import com.exanthiax.ecominions.minions.model.MinionStorage
 import com.exanthiax.ecominions.minions.service.Minion
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
@@ -10,34 +11,43 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 /**
- * Renders minion storage as one display slot per sellable item type, showing how
- * much has been collected, rather than exposing the raw inventory grid.
+ * Aggregates a minion's storage for display: one entry per material, biggest
+ * first.
+ *
+ * Separate from [MinionStorageView] so it can be tested without eco's menu
+ * types, and driven by what is stored rather than by what is priced - a minion
+ * keeps everything it mines, so the display has to as well.
  */
-class MinionStorageView(
-    private val messages: Messages
-) {
-    /** @return One non-interactive slot per shown type, highest count first. */
-    fun slotsFor(minion: Minion, settings: MenuSettings, capacity: Int): List<Slot> {
-        val collected = countsByMaterial(minion)
+object StorageContents {
+    fun top(storage: MinionStorage, limit: Int): List<Pair<Material, Int>> {
+        val counts = LinkedHashMap<Material, Int>()
 
-        return minion.state.type.sellPrices.keys
-            .map { material -> material to (collected[material] ?: 0) }
-            .sortedByDescending { it.second }
-            .take(minOf(settings.storageSlots, capacity))
-            .map { (material, count) -> buildSlot(material, count, settings.storageDisplay) }
-    }
-
-    private fun countsByMaterial(minion: Minion): Map<Material, Int> {
-        val counts = mutableMapOf<Material, Int>()
-        for (index in 0 until minion.storage.size) {
-            val item = minion.storage.getItem(index) ?: continue
+        for (index in 0 until storage.size) {
+            val item = storage.getItem(index) ?: continue
             if (item.type == Material.AIR || item.amount <= 0) {
                 continue
             }
             counts[item.type] = (counts[item.type] ?: 0) + item.amount
         }
-        return counts
+
+        return counts.entries
+            .sortedByDescending { it.value }
+            .take(limit.coerceAtLeast(0))
+            .map { it.key to it.value }
     }
+}
+
+/**
+ * Renders minion storage as one display slot per stored item type, showing how
+ * much has been collected, rather than exposing the raw storage grid.
+ */
+class MinionStorageView(
+    private val messages: Messages
+) {
+    /** @return One non-interactive slot per stored material, highest count first. */
+    fun slotsFor(minion: Minion, settings: MenuSettings, capacity: Int): List<Slot> =
+        StorageContents.top(minion.storage, minOf(settings.storageSlots, capacity))
+            .map { (material, count) -> buildSlot(material, count, settings.storageDisplay) }
 
     private fun buildSlot(material: Material, count: Int, display: MenuSettings.StorageDisplay): Slot {
         val item = ItemStack(material)

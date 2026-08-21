@@ -46,7 +46,7 @@ class TypeSelectMenu(
             "type_name" to type.name,
             "targets" to type.targetBlocks.joinToString { it.name },
             "speed" to type.baseSpeedTicks,
-            "capacity" to type.baseInventoryRows * SLOTS_PER_ROW
+            "capacity" to type.baseStorageSlots
         )
 
         item.itemMeta?.let { meta ->
@@ -67,6 +67,5 @@ class TypeSelectMenu(
         const val FIRST_ROW = 2
         const val FIRST_COLUMN = 2
         const val COLUMNS = 7
-        const val SLOTS_PER_ROW = 9
     }
 }

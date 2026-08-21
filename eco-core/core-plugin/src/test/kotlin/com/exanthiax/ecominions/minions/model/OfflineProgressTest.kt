@@ -11,7 +11,8 @@ class OfflineProgressTest {
             speedTicks = "40",
             efficiencyTicks = "10",
             radius = "2",
-            inventoryRows = "1",
+            storageSlots = "1",
+            maxStorageSlots = 54,
             regenDelayTicks = "60"
         ),
         level = 1

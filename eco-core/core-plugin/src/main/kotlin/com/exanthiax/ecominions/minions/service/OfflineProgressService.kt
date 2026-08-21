@@ -14,7 +14,6 @@ class OfflineProgressService(
     private val settings: SettingsHolder<MinionSettings>,
     private val fuels: FuelService,
     private val dropTables: MinionDropTables,
-    private val pricing: SellPricingService,
     private val dispatch: MinionTriggerDispatch
 ) {
     /**
@@ -83,13 +82,6 @@ class OfflineProgressService(
             value = drops.size.toDouble()
         )
 
-        for ((item, _) in results) {
-            if (!pricing.isSellable(minion.state.type, item.type)) {
-                continue
-            }
-            if (minion.storage.addItem(item).isNotEmpty()) {
-                break
-            }
-        }
+        minion.storage.store(results.map { (item, _) -> item })
     }
 }
