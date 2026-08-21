@@ -64,7 +64,7 @@ class LevellingLoader {
         )
     }
 
-    private fun readCurve(section: Config, context: LoadContext): LevelCurve? {
+    internal fun readCurve(section: Config, context: LoadContext): LevelCurve? {
         val maxLevel = section.getIntOrNull("max-level")
         val formula = section.getStringOrNull("xp-formula")
         val requirements = section.getDoublesOrNull("xp-requirements")
@@ -86,7 +86,19 @@ class LevellingLoader {
         }
 
         if (!requirements.isNullOrEmpty()) {
-            return LevelCurve.Requirements(requirements, maxLevel)
+            val naturalMax = requirements.size + 1
+            val clampedMax = if (maxLevel != null && maxLevel > naturalMax) {
+                context.violation(
+                    "max-level",
+                    "max-level ($maxLevel) is higher than xp-requirements allows ($naturalMax) - " +
+                        "clamped to $naturalMax"
+                )
+                naturalMax
+            } else {
+                maxLevel
+            }
+
+            return LevelCurve.Requirements(requirements, clampedMax)
         }
 
         return null

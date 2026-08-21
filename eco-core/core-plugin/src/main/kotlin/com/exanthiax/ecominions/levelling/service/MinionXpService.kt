@@ -20,7 +20,8 @@ import org.bukkit.Bukkit
  */
 class MinionXpService(
     private val applyState: (Minion, MinionState) -> Unit,
-    private val onLevelChanged: (Minion) -> Unit
+    private val onLevelChanged: (Minion) -> Unit,
+    private val notifyLevelUp: (Minion, Int) -> Unit = { _, _ -> }
 ) {
     /** @param levelsGained The levels crossed, or null if none were. */
     data class LevelUpResult(
@@ -69,7 +70,6 @@ class MinionXpService(
                 MinionLevelUpEvent(minion, level - 1, level)
             )
 
-            val chain = minion.state.type.levelling.levelUpEffects ?: continue
             val dispatcher = minion.toDispatcher()
 
             val dispatched = DispatchedTrigger(
@@ -86,7 +86,8 @@ class MinionXpService(
             dispatched.addPlaceholder(NamedValue("previous_level", level - 1))
 
             TriggerMinionLevelUp.dispatch(dispatcher, dispatched.data)
-            chain.trigger(dispatched)
+            minion.state.type.levelling.levelUpEffects?.trigger(dispatched)
+            notifyLevelUp(minion, level)
         }
     }
 

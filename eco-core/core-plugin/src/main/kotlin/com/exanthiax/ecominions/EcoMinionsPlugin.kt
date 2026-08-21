@@ -15,6 +15,7 @@ import com.exanthiax.ecominions.core.error.LoadReport
 import com.exanthiax.ecominions.core.lifecycle.LifecycleManager
 import com.exanthiax.ecominions.core.persistence.MinionDataKeys
 import com.exanthiax.ecominions.core.placeholders.PlaceholderRegistrar
+import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.placeholders.TemplateRenderer
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.core.text.Messages
@@ -24,6 +25,7 @@ import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.libreforge.LibreforgeRegistrations
+import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.minions.integration.GameDataLoader
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
@@ -134,7 +136,18 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     // Services
     private val xpService: MinionXpService = MinionXpService(
         applyState = { minion, state -> minionService.updateState(minion, state) },
-        onLevelChanged = { minion -> minionService.onLevelChanged(minion) }
+        onLevelChanged = { minion -> minionService.onLevelChanged(minion) },
+        notifyLevelUp = { minion, level ->
+            minion.ownerPlayer()?.sendMessage(
+                messages.line(
+                    "messages.level-up",
+                    TemplateContext.of(
+                        "minion_name" to minion.state.type.name,
+                        "level" to level
+                    )
+                )
+            )
+        }
     )
     private val triggerDispatch = MinionTriggerDispatch { minion, dispatched ->
         xpService.onTrigger(minion, dispatched)
