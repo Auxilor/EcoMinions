@@ -35,6 +35,13 @@ base-stats:
   - `inventory-rows` - rows in the minion's own storage inventory.
   - `regen-delay-ticks` - how long a mined block takes to regenerate.
 
+Every `base-stats` value may be a plain number or an expression in `%level%`, evaluated for the minion's
+current level. This lets stats scale as a levelling minion progresses, without needing an upgrade for it -
+`"60 - %level%"` makes `speed-ticks` fall by one per level, and `"3 + floor(%level% / 10)"` makes `radius` grow
+by one every ten levels. Plain numbers still work exactly as before; a non-levelling minion is just always
+evaluated at level 1. See [How to Level a Minion](how-to-level-a-minion) for how a minion's level itself is
+earned.
+
 ## effects
 
 ```yaml
@@ -199,6 +206,22 @@ particle spawn parameters.
 An equivalent `particles.idle` block is also available, mirroring `full`'s fields. It's shown only while the
 minion is idle (owner offline or chunk unloaded) and only when a player is nearby, and is disabled by default.
 
+## levelling
+
+```yaml
+levelling:
+  enabled: true
+  xp-formula: "100 * %level% ^ 1.5"
+  max-level: 50
+  xp-gain-methods:
+    - trigger: minion_mine_block
+      multiplier: 1
+```
+
+Optional. Lets a minion earn XP toward explicit levels instead of levelling purely from purchased upgrade
+tiers. See [How to Level a Minion](how-to-level-a-minion) for the full block, including `xp-requirements`,
+`conditions`, and `level-up-effects`.
+
 ## placement
 
 ```yaml
@@ -216,5 +239,6 @@ placement:
 ## Where to go next
 
 - **Build an upgrade:** [How to Make an Upgrade](how-to-make-an-upgrade) for the `allowed-upgrades` list.
+- **Level a minion:** [How to Level a Minion](how-to-level-a-minion) for the `levelling:` block.
 - **Build a fuel:** [How to Make a Fuel](how-to-make-a-fuel) to keep minions active.
 - **Plugin config:** [Plugin Config](plugin-config) for `sell-pricing` and other plugin-wide settings.
