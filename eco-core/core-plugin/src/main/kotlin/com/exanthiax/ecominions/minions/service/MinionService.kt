@@ -113,14 +113,14 @@ class MinionService(
     /**
      * Brings everything derived from level back in step after a level change.
      *
-     * Base stats are level-scaled, so `inventory-rows` can move, which is
+     * Base stats are level-scaled, so storage capacity can move, which is
      * structural rather than merely numeric - the same resize path
      * `EffectMinionCapacity` uses applies here.
      */
     fun onLevelChanged(minion: Minion) {
         minion.stats.level = minion.state.level
 
-        val overflow = minion.resizeStorage(minion.stats.inventoryRows, STORAGE_TITLE)
+        val overflow = minion.resizeStorage(minion.stats.storageSize)
         for (item in overflow) {
             minion.entity.world.dropItemNaturally(minion.entity.location, item)
         }
@@ -184,9 +184,5 @@ class MinionService(
         }
         byUuid.clear()
         byOwner.clear()
-    }
-
-    private companion object {
-        const val STORAGE_TITLE = "Minion"
     }
 }
