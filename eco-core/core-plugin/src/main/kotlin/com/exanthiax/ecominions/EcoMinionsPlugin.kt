@@ -32,6 +32,7 @@ import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
 import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
+import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.integration.MinionTypeLoader
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
@@ -110,6 +111,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionTypeLoader(
             gameData,
             ParticleSettingsLoader(),
+            LevellingLoader(),
             { minionSettings.value.sellPricing.autoFromEcoShop }
         ),
         report
