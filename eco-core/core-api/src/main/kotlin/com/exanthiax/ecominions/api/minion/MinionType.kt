@@ -24,4 +24,10 @@ interface MinionType {
 
     /** Whether this type grows and fells trees rather than mining a fixed block set. */
     val isTreeType: Boolean
+
+    /** Whether this type levels from XP, rather than from purchased upgrade tiers. */
+    val isLevellable: Boolean
+
+    /** The highest level this type can reach, or 1 if it cannot level. */
+    val maxLevel: Int
 }

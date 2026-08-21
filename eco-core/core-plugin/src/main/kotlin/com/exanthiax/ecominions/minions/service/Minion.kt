@@ -71,6 +71,9 @@ class Minion(
     override val level: Int
         get() = state.level
 
+    override val xp: Double
+        get() = state.xp
+
     override val owner: UUID?
         get() = state.owner
 

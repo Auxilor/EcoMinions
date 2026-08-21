@@ -110,6 +110,24 @@ class MinionService(
         minion.toDispatcher().forceRefreshHolders()
     }
 
+    /**
+     * Brings everything derived from level back in step after a level change.
+     *
+     * Base stats are level-scaled, so `inventory-rows` can move, which is
+     * structural rather than merely numeric - the same resize path
+     * `EffectMinionCapacity` uses applies here.
+     */
+    fun onLevelChanged(minion: Minion) {
+        minion.stats.level = minion.state.level
+
+        val overflow = minion.resizeStorage(minion.stats.inventoryRows, STORAGE_TITLE)
+        for (item in overflow) {
+            minion.entity.world.dropItemNaturally(minion.entity.location, item)
+        }
+
+        refreshEffects(minion)
+    }
+
     fun hydrateLoadedWorlds() {
         for (world in Bukkit.getWorlds()) {
             for (chunk in world.loadedChunks) {
@@ -166,5 +184,9 @@ class MinionService(
         }
         byUuid.clear()
         byOwner.clear()
+    }
+
+    private companion object {
+        const val STORAGE_TITLE = "Minion"
     }
 }

@@ -22,6 +22,7 @@ import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.libreforge.LibreforgeRegistrations
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.minions.integration.GameDataLoader
@@ -129,7 +130,13 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
 
     // Services
-    private val triggerDispatch = MinionTriggerDispatch()
+    private val xpService: MinionXpService = MinionXpService(
+        applyState = { minion, state -> minionService.updateState(minion, state) },
+        onLevelChanged = { minion -> minionService.onLevelChanged(minion) }
+    )
+    private val triggerDispatch = MinionTriggerDispatch { minion, dispatched ->
+        xpService.onTrigger(minion, dispatched)
+    }
     private val upgradeService = UpgradeService(upgrades)
     private val fuelService = FuelService(fuels)
     private val compactorService = CompactorService(compactorRecipes)
