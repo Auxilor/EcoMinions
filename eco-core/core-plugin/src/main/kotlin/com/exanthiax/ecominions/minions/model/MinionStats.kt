@@ -29,14 +29,20 @@ class MinionStats(
         contributions.clear()
     }
 
-    operator fun get(stat: MinionStat): Int =
-        stat.clamp(baseOf(stat) + (contributions[stat]?.values?.sum() ?: 0))
+    operator fun get(stat: MinionStat): Int {
+        val raw = stat.clamp(baseOf(stat) + (contributions[stat]?.values?.sum() ?: 0))
+        return if (stat == MinionStat.INVENTORY_SLOTS) {
+            raw.coerceAtMost(base.maxStorageSlots)
+        } else {
+            raw
+        }
+    }
 
     private fun baseOf(stat: MinionStat): Int = when (stat) {
         MinionStat.SPEED_TICKS -> base.speedTicks
         MinionStat.EFFICIENCY_TICKS -> base.efficiencyTicks
         MinionStat.RADIUS -> base.radius
-        MinionStat.INVENTORY_ROWS -> base.inventoryRows
+        MinionStat.INVENTORY_SLOTS -> base.storageSlots
     }
 
     val speedTicks: Int
@@ -48,15 +54,13 @@ class MinionStats(
     val radius: Int
         get() = this[MinionStat.RADIUS]
 
-    val inventoryRows: Int
-        get() = this[MinionStat.INVENTORY_ROWS]
-
     /** Not upgradable, so it is read straight off the type. */
     val regenDelayTicks: Int
         get() = base.regenDelayTicks
 
+    /** Capacity in stack slots, already capped by the type's own maximum. */
     val storageSize: Int
-        get() = inventoryRows * 9
+        get() = this[MinionStat.INVENTORY_SLOTS]
 
     /** @return Ticks per full mine cycle, used for offline simulation. */
     val cycleTicks: Int

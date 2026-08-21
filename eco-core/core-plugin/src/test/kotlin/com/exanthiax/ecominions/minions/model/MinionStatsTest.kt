@@ -10,7 +10,8 @@ class MinionStatsTest {
         speedTicks = 40,
         efficiencyTicks = 10,
         radius = 2,
-        inventoryRows = 1,
+        storageSlots = 1,
+        maxStorageSlots = 54,
         regenDelayTicks = 60
     )
 
@@ -21,7 +22,7 @@ class MinionStatsTest {
         assertEquals(40, stats.speedTicks)
         assertEquals(10, stats.efficiencyTicks)
         assertEquals(2, stats.radius)
-        assertEquals(1, stats.inventoryRows)
+        assertEquals(1, stats.storageSize)
         assertEquals(60, stats.regenDelayTicks)
     }
 
@@ -68,11 +69,10 @@ class MinionStatsTest {
     }
 
     @Test
-    fun `inventory rows clamp between one and six`() {
+    fun `inventory slots clamp to the type maximum`() {
         val stats = MinionStats(base)
-        stats.contribute(MinionStat.INVENTORY_ROWS, UUID.randomUUID(), 99)
+        stats.contribute(MinionStat.INVENTORY_SLOTS, UUID.randomUUID(), 999)
 
-        assertEquals(6, stats.inventoryRows)
         assertEquals(54, stats.storageSize)
     }
 

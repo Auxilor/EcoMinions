@@ -31,6 +31,7 @@ class MinionActivityServiceTest {
             invulnerable = true,
             showRegenMarker = true,
             regenMarkerFallback = Material.AIR,
+            hardSlotCap = 54,
             offlineEnabled = true,
             offlineEfficiency = 1.0,
             limitsEnabled = true,
@@ -45,7 +46,8 @@ class MinionActivityServiceTest {
             speedTicks = 40,
             efficiencyTicks = 10,
             radius = 2,
-            inventoryRows = 1,
+            storageSlots = 1,
+            maxStorageSlots = 54,
             regenDelayTicks = 60
         )
     )

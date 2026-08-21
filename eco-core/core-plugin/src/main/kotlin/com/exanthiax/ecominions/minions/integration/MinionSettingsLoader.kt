@@ -17,6 +17,7 @@ class MinionSettingsLoader(
         regenMarkerFallback = Material.matchMaterial(
             config.getString("minion.regen-marker-fallback-block").uppercase()
         ) ?: Material.AIR,
+        hardSlotCap = config.getInt("minion.hard-slot-cap").coerceAtLeast(1),
         offlineEnabled = config.getBool("unloaded-calculation.enabled"),
         offlineEfficiency = config.getDouble("unloaded-calculation.offline-efficiency"),
         limitsEnabled = config.getBool("limits.per-player.enabled"),
