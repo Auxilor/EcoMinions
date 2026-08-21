@@ -35,6 +35,7 @@ import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
 import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
+import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionTypeLoader
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
@@ -96,6 +97,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val placeholderRegistrar = PlaceholderRegistrar(this)
     private val renderer = TemplateRenderer(placeholderRegistrar)
     private val messages = Messages(langYml, renderer)
+    private val levellingPlaceholders = LevellingPlaceholders { langYml.getFormattedString("infinity") }
     private val worlds = WorldSettings(configYml)
 
     // Settings
@@ -275,7 +277,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         placeholderRegistrar.registerAll(
             listOf(
                 MinionPlaceholders(minionService),
-                UpgradePlaceholders()
+                UpgradePlaceholders(),
+                levellingPlaceholders
             )
         )
     }

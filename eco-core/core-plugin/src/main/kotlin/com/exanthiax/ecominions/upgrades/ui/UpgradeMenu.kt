@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.upgrades.ui
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
+import com.exanthiax.ecominions.core.text.Numerals
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
 import com.exanthiax.ecominions.minions.ui.MenuChrome
@@ -79,7 +80,7 @@ class UpgradeMenu(
         val state = TierState.of(tier.level, owned)
         val item = chrome.named(
             state.material,
-            messages.render("${prefixFor(state)}${upgrade.name} ${roman(tier.level)}"),
+            messages.render("${prefixFor(state)}${upgrade.name} ${Numerals.roman(tier.level)}"),
             tierLore(player, upgrade, tier)
         )
 
@@ -153,8 +154,6 @@ class UpgradeMenu(
         else -> messages.raw("gui.upgrade.tier.locked-prefix")
     }
 
-    private fun roman(value: Int): String = ROMAN.getOrNull(value) ?: value.toString()
-
     private enum class TierState(val material: Material) {
         CURRENT(Material.GOLD_BLOCK),
         OWNED(Material.LIME_STAINED_GLASS_PANE),
@@ -176,7 +175,5 @@ class UpgradeMenu(
         const val FIRST_ROW = 2
         const val FIRST_COLUMN = 2
         const val COLUMNS = 7
-
-        val ROMAN = listOf("", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X")
     }
 }
