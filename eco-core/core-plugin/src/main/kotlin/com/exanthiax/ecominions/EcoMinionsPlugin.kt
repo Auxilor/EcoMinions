@@ -149,9 +149,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             )
         }
     )
-    private val triggerDispatch = MinionTriggerDispatch { minion, dispatched ->
-        xpService.onTrigger(minion, dispatched)
-    }
+    private val triggerDispatch = MinionTriggerDispatch(xpService)
     private val upgradeService = UpgradeService(upgrades)
     private val fuelService = FuelService(fuels)
     private val compactorService = CompactorService(compactorRecipes)

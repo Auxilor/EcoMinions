@@ -1,4 +1,11 @@
 messages:
+  # eco requires prefix, no-permission and not-player, and warns in console for
+  # every plugin missing one. EcoMinions writes its own messages in full rather
+  # than prefixing them, so the prefix is a no-op colour reset; eco prepends it
+  # to the two messages below, which eco sends on its own.
+  prefix: "&r"
+  no-permission: "&cYou don't have permission to do that."
+  not-player: "&cThis command can only be run by a player."
   placed: "&aMinion placed!"
   picked-up: "&7Minion picked up."
   limit-reached-player: "&cYou have reached your minion limit (&e%limit%&c)."
