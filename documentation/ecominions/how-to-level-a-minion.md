@@ -72,8 +72,9 @@ reaches level 2 at 100 XP, level 3 at 250 more XP, and level 4 at 500 more XP af
 `max-level` caps the highest level a minion of this type can reach.
 
 - With `xp-requirements`, it defaults to the length of the list plus one (i.e. the level reachable by the last
-  entry). Setting it lower stops progression early; setting it higher has no effect once the list runs out,
-  since there is no further requirement to evaluate.
+  entry). Setting it lower stops progression early; setting it higher than the list allows is clamped back down
+  to that natural ceiling and reported as a config violation, since XP would otherwise keep banking with no way
+  to ever reach the configured cap.
 - With `xp-formula`, it defaults to unbounded - omit it and a minion can level indefinitely, evaluating the
   formula for however high `%level%` climbs.
 
@@ -130,6 +131,11 @@ from an idle minion's simulated mining doesn't wait for a player to be online. B
 silently do nothing on an offline level-up, since there is no player to act on. Gate these with the
 `minion_owner_online` condition, as in the example above, or use the `minion_owner_as_dispatcher` mutator to
 retarget the chain explicitly.
+
+**Built-in notification:** independent of `level-up-effects`, EcoMinions sends the owner (if online, same
+offline no-op as above) the `messages.level-up` lang string on every level gained, with `%minion_name%` and
+`%level%` resolved. Edit that key in `lang.yml` to change or silence it; it isn't something you configure per
+minion type.
 
 ## Placeholders
 
