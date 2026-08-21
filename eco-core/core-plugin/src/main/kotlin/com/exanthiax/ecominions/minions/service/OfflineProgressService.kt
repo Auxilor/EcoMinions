@@ -13,8 +13,7 @@ import org.bukkit.inventory.ItemStack
 class OfflineProgressService(
     private val settings: SettingsHolder<MinionSettings>,
     private val fuels: FuelService,
-    private val dropTables: MinionDropTables,
-    private val pricing: SellPricingService
+    private val dropTables: MinionDropTables
 ) {
     /**
      * @param idleSince When the minion went idle.
@@ -81,13 +80,6 @@ class OfflineProgressService(
             value = drops.size.toDouble()
         )
 
-        for ((item, _) in results) {
-            if (!pricing.isSellable(minion.state.type, item.type)) {
-                continue
-            }
-            if (minion.storage.add(item) != null) {
-                break
-            }
-        }
+        minion.storage.store(results.map { (item, _) -> item })
     }
 }
