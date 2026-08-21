@@ -3,8 +3,7 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.service.FuelService
-import com.exanthiax.ecominions.libreforge.dispatchDrops
-import com.exanthiax.ecominions.libreforge.dispatchTrigger
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
@@ -34,7 +33,8 @@ class MiningService(
     private val treeFarming: TreeFarmingService,
     private val dropWarnings: DropWarningService,
     private val fuels: FuelService,
-    private val pricing: SellPricingService
+    private val pricing: SellPricingService,
+    private val dispatch: MinionTriggerDispatch
 ) {
     fun tick(minion: Minion, now: Long) {
         if (minion.entity.isDead || worlds.isDisabled(minion.entity.world)) {
@@ -45,7 +45,7 @@ class MiningService(
 
         processRegen(minion, now)
         completePendingBreak(minion, now)
-        minion.dispatchTrigger(TriggerMinionTick)
+        dispatch.trigger(minion, TriggerMinionTick)
 
         if (now < minion.mining.nextActionAt) {
             return
@@ -53,7 +53,7 @@ class MiningService(
 
         if (minion.isStorageFull) {
             minion.animation = Minion.AnimationState.FULL
-            minion.dispatchTrigger(TriggerMinionStorageFull)
+            dispatch.trigger(minion, TriggerMinionStorageFull)
             minion.mining.nextActionAt = now + FULL_RETRY_TICKS
             return
         }
@@ -75,7 +75,7 @@ class MiningService(
         val burning = fuels.activeFuelOf(minion) != null
 
         if (minion.mining.wasBurningFuel && !burning) {
-            minion.dispatchTrigger(TriggerMinionFuelExpire)
+            dispatch.trigger(minion, TriggerMinionFuelExpire)
         }
 
         minion.mining.wasBurningFuel = burning
@@ -150,7 +150,8 @@ class MiningService(
         val original = block.type
         val column = if (gameData.growthRules.isStackedColumn(original)) collectColumn(block) else listOf(block)
 
-        val results = minion.dispatchDrops(
+        val results = dispatch.drops(
+            minion = minion,
             trigger = TriggerMinionMineBlock,
             drops = column.flatMap { it.getDrops() },
             block = block,
@@ -224,7 +225,7 @@ class MiningService(
                 }
             }
             entry.location.block.blockData = entry.regenData
-            minion.dispatchTrigger(TriggerMinionRegenBlock, block = entry.location.block)
+            dispatch.trigger(minion, TriggerMinionRegenBlock, block = entry.location.block)
             minion.mining.pendingRegen.remove(entry.location)
             entries.remove()
         }
