@@ -9,7 +9,7 @@ import org.bukkit.entity.ArmorStand
 /** Builds live minions from persisted state, restoring storage and stats. */
 class MinionFactory {
     fun create(state: MinionState, entity: ArmorStand): Minion {
-        val stats = MinionStats(state.type.baseStats)
+        val stats = MinionStats(state.type.baseStats, state.level)
         val storage = Bukkit.createInventory(null, stats.storageSize, STORAGE_TITLE)
 
         state.inventoryBytes?.let { bytes ->

@@ -22,11 +22,11 @@ object MinionTypeFixture {
         allowedUpgradeIds: List<String> = listOf("speed", "capacity"),
         sellPrices: Map<Material, Double> = emptyMap(),
         baseStats: MinionType.BaseStats = MinionType.BaseStats(
-            speedTicks = 40,
-            efficiencyTicks = 10,
-            radius = 2,
-            inventoryRows = 1,
-            regenDelayTicks = 60
+            speedTicks = "40",
+            efficiencyTicks = "10",
+            radius = "2",
+            inventoryRows = "1",
+            regenDelayTicks = "60"
         ),
         levelling: LevellingSpec = LevellingSpec.DISABLED,
         holder: Holder? = null

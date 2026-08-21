@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.core.error.LoadContext
+import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
@@ -12,7 +13,9 @@ import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.WoodFamily
 import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.core.placeholder.context.placeholderContext
 import com.willfp.eco.util.NamespacedKeyUtils
+import com.willfp.eco.util.evaluateExpression
 import com.willfp.libreforge.Holder
 import com.willfp.libreforge.SimpleHolder
 import com.willfp.libreforge.conditions.Conditions
@@ -106,12 +109,17 @@ class MinionTypeLoader(
     }
 
     private fun readBaseStats(config: Config) = MinionType.BaseStats(
-        speedTicks = config.getInt("base-stats.speed-ticks").coerceAtLeast(1),
-        efficiencyTicks = config.getInt("base-stats.efficiency-ticks").coerceAtLeast(0),
-        radius = config.getInt("base-stats.radius").coerceAtLeast(1),
-        inventoryRows = config.getInt("base-stats.inventory-rows").coerceIn(1, MAX_ROWS),
-        regenDelayTicks = config.getInt("base-stats.regen-delay-ticks").coerceAtLeast(1)
-    )
+        speedTicks = config.getString("base-stats.speed-ticks"),
+        efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
+        radius = config.getString("base-stats.radius"),
+        inventoryRows = config.getString("base-stats.inventory-rows"),
+        regenDelayTicks = config.getString("base-stats.regen-delay-ticks")
+    ) { expression, level ->
+        evaluateExpression(
+            expression,
+            placeholderContext(injectable = LevelInjectable(level))
+        ).toInt()
+    }
 
     private fun readSpawnItem(config: Config, context: LoadContext): SpawnItemSpec? {
         val rawMode = config.getString("spawn-item.mode").uppercase()
@@ -231,7 +239,6 @@ class MinionTypeLoader(
     private companion object {
         const val AUTO_SELL = "auto_sell"
         const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
-        const val MAX_ROWS = 6
         const val NAMESPACE = "ecominions"
     }
 }

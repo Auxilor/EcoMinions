@@ -7,16 +7,16 @@ import java.util.UUID
 class MinionStatsCapacityTest {
 
     private val base = MinionType.BaseStats(
-        speedTicks = 40,
-        efficiencyTicks = 10,
-        radius = 2,
-        inventoryRows = 3,
-        regenDelayTicks = 60
+        speedTicks = "40",
+        efficiencyTicks = "10",
+        radius = "2",
+        inventoryRows = "3",
+        regenDelayTicks = "60"
     )
 
     @Test
     fun `storage size tracks the clamped row count`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         assertEquals(27, stats.storageSize)
 
         val id = UUID.randomUUID()
@@ -29,7 +29,7 @@ class MinionStatsCapacityTest {
 
     @Test
     fun `rows never exceed six however many effects contribute`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         repeat(5) { stats.contribute(MinionStat.INVENTORY_ROWS, UUID.randomUUID(), 2) }
 
         assertEquals(6, stats.inventoryRows)
