@@ -1,6 +1,6 @@
 ---
 title: "Libreforge Components"
-sidebar_position: 6
+sidebar_position: 7
 ---
 
 ## Libreforge Components
@@ -28,6 +28,7 @@ Triggers decide *when* a triggered effect runs. Pass one or more in an effect's 
 | `minion_fuel_start` | A minion starts burning a fuel. | `player`, `location`, `text` (the id of the fuel that started burning) |
 | `minion_fuel_expire` | The tick a minion's fuel runs out. Only fires for an active minion - an idle minion's fuel is frozen, so it cannot expire while idle. | `player`, `location` |
 | `minion_sell` | A minion's storage is sold. | `player`, `location`, `event` (an editable drop event over the stacks being sold), `value` (the money the sale earned) |
+| `minion_level_up` | A minion gains a level. Dispatched by EcoMinions itself, not a Bukkit listener - can fire while the owner is offline. | `player` (the owning player, if online), `location`, `value` (the level reached) |
 
 ## Effects
 
@@ -41,6 +42,7 @@ Bespoke minion effects, with the argument(s) each takes inside `args:`.
 | `minion_capacity` | `slots` (expression) | Adds stack slots to a minion's storage, up to the type's `max-storage-slots`. Permanent - no `triggers:` needed. Resizes live storage; any overflow is dropped in the world rather than lost. |
 | `minion_sell_storage` | none | Sells the entire contents of a minion's storage. Triggered - needs a `triggers:` list (e.g. `[minion_tick]` with `every:` for an auto-sell upgrade). |
 | `minion_compact` | none | Compacts a minion's storage using the configured compactor recipes. Triggered - needs a `triggers:` list. |
+| `give_minion_xp` | `amount` (expression) | Grants XP to a minion, letting a fuel or an upgrade tier feed levelling progression directly. Triggered - needs a `triggers:` list. |
 
 `minion_speed`, `minion_efficiency`, `minion_radius`, and `minion_capacity` are permanent stat effects: they
 contribute to a stat while their holder (the type or upgrade tier) is active, and remove that contribution the
@@ -96,3 +98,7 @@ offline, because there is no player for it to act on.
 If an effect needs to reach the owner regardless, gate it with the `minion_owner_online` condition so it's
 clear the effect is owner-dependent, or use the `minion_owner_as_dispatcher` mutator to retarget the chain at
 the owner explicitly.
+
+This caveat applies just as much to a minion type's `level-up-effects` (see
+[How to Level a Minion](how-to-level-a-minion)) - a minion can level up while its owner is offline, so an
+owner-targeting effect there needs the same `minion_owner_online` guard.
