@@ -38,6 +38,12 @@ class MinionType(
     override val isTreeType: Boolean
         get() = woodFamily != null
 
+    override val isLevellable: Boolean
+        get() = levelling.enabled
+
+    override val maxLevel: Int
+        get() = levelling.maxLevel
+
     /** @return The configured price of [material], or null if it is not sellable. */
     fun priceOf(material: Material): Double? = sellPrices[material]
 
