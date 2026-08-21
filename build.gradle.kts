@@ -6,7 +6,7 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.gradleup.shadow") version "9.3.1"
-    id("com.willfp.libreforge-gradle-plugin") version "2.1.0"
+    id("com.willfp.libreforge-gradle-plugin") version "2.0.1"
 }
 
 group = "com.exanthiax"
@@ -18,7 +18,7 @@ base {
 }
 
 dependencies {
-    implementation(project(":eco-core:core-plugin"))
+    implementation(project(path = ":eco-core:core-plugin", configuration = "shadow"))
 }
 
 publishing {
