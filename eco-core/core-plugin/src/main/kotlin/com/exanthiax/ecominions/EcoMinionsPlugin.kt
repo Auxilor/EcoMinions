@@ -23,6 +23,7 @@ import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.libreforge.LibreforgeRegistrations
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.minions.integration.GameDataLoader
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
@@ -128,6 +129,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
 
     // Services
+    private val triggerDispatch = MinionTriggerDispatch()
     private val upgradeService = UpgradeService(upgrades)
     private val fuelService = FuelService(fuels)
     private val compactorService = CompactorService(compactorRecipes)
@@ -146,7 +148,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         val context = LootContext.Builder(location).build()
         table.populateLoot(java.util.Random(), context).toList()
     }
-    private val offlineProgress = OfflineProgressService(minionSettings, fuelService, dropTables)
+    private val offlineProgress = OfflineProgressService(
+        minionSettings, fuelService, dropTables, triggerDispatch
+    )
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings
     ) { Bukkit.getPlayer(it) != null }
@@ -156,7 +160,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val treeFarming = TreeFarmingService(gameData, TreeService())
     private val miningService = MiningService(
-        minionSettings, worlds, gameData, treeFarming, fuelService
+        minionSettings, worlds, gameData, treeFarming, fuelService, triggerDispatch
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings
@@ -198,7 +202,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
-        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService)
+        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService, triggerDispatch)
         shopIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()

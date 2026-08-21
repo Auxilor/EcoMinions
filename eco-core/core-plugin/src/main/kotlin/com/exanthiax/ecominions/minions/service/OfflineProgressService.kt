@@ -2,7 +2,7 @@ package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.fuel.service.FuelService
-import com.exanthiax.ecominions.libreforge.dispatchDrops
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.OfflineProgress
@@ -13,7 +13,8 @@ import org.bukkit.inventory.ItemStack
 class OfflineProgressService(
     private val settings: SettingsHolder<MinionSettings>,
     private val fuels: FuelService,
-    private val dropTables: MinionDropTables
+    private val dropTables: MinionDropTables,
+    private val dispatch: MinionTriggerDispatch
 ) {
     /**
      * @param idleSince When the minion went idle.
@@ -71,7 +72,8 @@ class OfflineProgressService(
             return
         }
 
-        val results = minion.dispatchDrops(
+        val results = dispatch.drops(
+            minion = minion,
             trigger = TriggerMinionMineBlock,
             drops = drops,
             block = null,
