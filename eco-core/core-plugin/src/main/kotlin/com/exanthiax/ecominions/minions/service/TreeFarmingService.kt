@@ -13,8 +13,7 @@ import org.bukkit.block.Block
  */
 class TreeFarmingService(
     private val gameData: GameData,
-    private val trees: TreeService,
-    private val dropWarnings: DropWarningService
+    private val trees: TreeService
 ) {
     fun tick(minion: Minion, now: Long): Boolean {
         val family = minion.state.type.woodFamily ?: return false
@@ -43,15 +42,7 @@ class TreeFarmingService(
         sapling.block.type = Material.AIR
 
         val leaves = trees.growTree(sapling, family)
-        for (drop in trees.harvestLeaves(leaves)) {
-            if (minion.state.type.priceOf(drop.type) == null) {
-                dropWarnings.warnUnsellable(minion, drop.type)
-                continue
-            }
-            if (minion.storage.add(drop) != null) {
-                break
-            }
-        }
+        minion.storage.store(trees.harvestLeaves(leaves))
 
         minion.mining.saplingPosition = null
     }
