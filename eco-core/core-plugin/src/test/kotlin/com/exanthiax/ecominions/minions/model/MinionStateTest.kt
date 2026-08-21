@@ -1,12 +1,26 @@
 package com.exanthiax.ecominions.minions.model
 
+import com.exanthiax.ecominions.levelling.model.LevelCurve
+import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.MinionTypeFixture
+import com.willfp.libreforge.conditions.ConditionList
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 
 class MinionStateTest {
 
     private val type = MinionTypeFixture.build()
+
+    private val levellingType = MinionTypeFixture.build(
+        levelling = LevellingSpec(
+            enabled = true,
+            curve = LevelCurve.Requirements(listOf(50.0, 125.0), configuredMaxLevel = null),
+            gainMethods = emptyList(),
+            conditions = ConditionList(emptyList()),
+            levelUpEffects = null
+        )
+    )
 
     @Test
     fun `a fresh minion is level one`() {
@@ -44,5 +58,33 @@ class MinionStateTest {
 
         assertEquals(first, second)
         assertEquals(first.hashCode(), second.hashCode())
+    }
+
+    @Test
+    fun `buying an upgrade does not move the level of a levelling minion`() {
+        val state = MinionState(type = levellingType, storedLevel = 2)
+            .withUpgrade("speed", 3)
+
+        assertEquals(2, state.level)
+    }
+
+    @Test
+    fun `a levelling minion carries its xp`() {
+        val state = MinionState(type = levellingType).withXp(xp = 30.0, level = 2)
+
+        assertEquals(30.0, state.xp)
+        assertEquals(2, state.level)
+    }
+
+    @Test
+    fun `a level is clamped to the curve's maximum on read`() {
+        val state = MinionState(type = levellingType, storedLevel = 99)
+
+        assertEquals(3, state.level)
+    }
+
+    @Test
+    fun `a non-levelling minion is never at max level`() {
+        assertFalse(MinionState(type = type).isAtMaxLevel)
     }
 }

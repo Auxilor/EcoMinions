@@ -13,6 +13,7 @@ class MinionDataKeys(plugin: EcoPlugin) {
     val isMinion: NamespacedKey = NamespacedKey(plugin, "is_minion")
     val type: NamespacedKey = NamespacedKey(plugin, "type")
     val level: NamespacedKey = NamespacedKey(plugin, "level")
+    val xp: NamespacedKey = NamespacedKey(plugin, "xp")
     val owner: NamespacedKey = NamespacedKey(plugin, "owner")
     val upgrades: NamespacedKey = NamespacedKey(plugin, "upgrades")
     val inventory: NamespacedKey = NamespacedKey(plugin, "inventory")
@@ -27,5 +28,6 @@ class MinionDataKeys(plugin: EcoPlugin) {
         val LONG: PersistentDataType<Long, Long> = PersistentDataType.LONG
         val BYTE: PersistentDataType<Byte, Byte> = PersistentDataType.BYTE
         val BYTES: PersistentDataType<ByteArray, ByteArray> = PersistentDataType.BYTE_ARRAY
+        val DOUBLE: PersistentDataType<Double, Double> = PersistentDataType.DOUBLE
     }
 }

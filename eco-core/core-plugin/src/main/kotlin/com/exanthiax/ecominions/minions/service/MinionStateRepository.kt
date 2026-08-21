@@ -29,7 +29,8 @@ class MinionStateRepository(
 
         return MinionState(
             type = type,
-            level = container.get(keys.level, MinionDataKeys.INT) ?: 1,
+            storedLevel = container.get(keys.level, MinionDataKeys.INT) ?: 1,
+            xp = container.get(keys.xp, MinionDataKeys.DOUBLE) ?: 0.0,
             owner = container.get(keys.owner, MinionDataKeys.STRING)?.toUuidOrNull(),
             upgrades = UpgradeCodec.decode(container.get(keys.upgrades, MinionDataKeys.STRING) ?: ""),
             inventoryBytes = container.get(keys.inventory, MinionDataKeys.BYTES),
@@ -43,6 +44,7 @@ class MinionStateRepository(
         container.set(keys.isMinion, MinionDataKeys.BYTE, MARKER)
         container.set(keys.type, MinionDataKeys.STRING, state.type.id)
         container.set(keys.level, MinionDataKeys.INT, state.level)
+        container.set(keys.xp, MinionDataKeys.DOUBLE, state.xp)
         container.set(keys.upgrades, MinionDataKeys.STRING, UpgradeCodec.encode(state.upgrades))
         state.owner?.let { container.set(keys.owner, MinionDataKeys.STRING, it.toString()) }
         state.uuid?.let { container.set(keys.minionUuid, MinionDataKeys.STRING, it.toString()) }
