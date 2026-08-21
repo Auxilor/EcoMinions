@@ -36,6 +36,7 @@ class UpgradeMenu(
         val current = settings.value
         val rows = current.upgradeRows
         val owned = upgrades.tierOf(minion, upgrade)
+        val active = minion.state.activeTierOf(upgrade.id)
         val context = TemplateContext.of(
             UpgradePlaceholders.UPGRADE to upgrade,
             "tier" to owned
@@ -51,7 +52,7 @@ class UpgradeMenu(
                 if (row >= rows) {
                     break
                 }
-                setSlot(row, FIRST_COLUMN + (index % COLUMNS), tierSlot(player, minion, upgrade, tier, owned))
+                setSlot(row, FIRST_COLUMN + (index % COLUMNS), tierSlot(player, minion, upgrade, tier, owned, active))
             }
 
             setSlot(rows, 1, slot(chrome.backButton()) {
@@ -75,9 +76,10 @@ class UpgradeMenu(
         minion: Minion,
         upgrade: Upgrade,
         tier: UpgradeTier,
-        owned: Int
+        owned: Int,
+        active: Int
     ): Slot {
-        val state = TierState.of(tier.level, owned)
+        val state = TierState.of(tier.level, owned, active)
         val item = chrome.named(
             state.material,
             messages.render("${prefixFor(state)}${upgrade.name} ${Numerals.roman(tier.level)}"),
@@ -85,9 +87,24 @@ class UpgradeMenu(
         )
 
         return slot(item) {
-            if (state == TierState.NEXT) {
-                onLeftClick { _, _ -> buy(player, minion, upgrade, tier) }
+            when {
+                state == TierState.NEXT -> onLeftClick { _, _ -> buy(player, minion, upgrade, tier) }
+                state == TierState.OWNED && upgrade.selectable ->
+                    onLeftClick { _, _ -> activate(player, minion, upgrade, tier) }
             }
+        }
+    }
+
+    private fun activate(player: Player, minion: Minion, upgrade: Upgrade, tier: UpgradeTier) {
+        val result = purchases.activate(minion, upgrade, tier.level)
+        if (result == MinionUpgradeService.ActivateResult.ACTIVATED) {
+            player.sendMessage(
+                messages.line(
+                    "messages.tier-activated",
+                    TemplateContext.of(UpgradePlaceholders.UPGRADE to upgrade, "tier" to tier.level)
+                )
+            )
+            open(player, minion, upgrade)
         }
     }
 
@@ -149,21 +166,22 @@ class UpgradeMenu(
     }
 
     private fun prefixFor(state: TierState): String = when (state) {
-        TierState.CURRENT -> messages.raw("gui.upgrade.tier.current-prefix")
+        TierState.ACTIVE -> messages.raw("gui.upgrade.tier.current-prefix")
+        TierState.OWNED -> messages.raw("gui.upgrade.tier.owned-prefix")
         TierState.NEXT -> messages.raw("gui.upgrade.tier.next-prefix")
         else -> messages.raw("gui.upgrade.tier.locked-prefix")
     }
 
     private enum class TierState(val material: Material) {
-        CURRENT(Material.GOLD_BLOCK),
+        ACTIVE(Material.GOLD_BLOCK),
         OWNED(Material.LIME_STAINED_GLASS_PANE),
         NEXT(Material.YELLOW_STAINED_GLASS_PANE),
         LOCKED(Material.GRAY_STAINED_GLASS_PANE);
 
         companion object {
-            fun of(level: Int, owned: Int): TierState = when {
-                level == owned -> CURRENT
-                level < owned -> OWNED
+            fun of(level: Int, owned: Int, active: Int): TierState = when {
+                level == active -> ACTIVE
+                level <= owned -> OWNED
                 level == owned + 1 -> NEXT
                 else -> LOCKED
             }

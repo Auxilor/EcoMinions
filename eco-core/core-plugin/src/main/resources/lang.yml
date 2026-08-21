@@ -20,6 +20,7 @@ messages:
   inventory-full: "&cMinion inventory is full!"
   collected: "&aCollected &e%count% &aitems."
   upgrade-purchased: "&aUpgraded &e%upgrade% &ato tier &e%tier%&a."
+  tier-activated: "&aNow running %upgrade_name% tier %tier%."
   upgrade-cant-afford: "&cYou can't afford that upgrade."
   upgrade-already-max: "&cThis upgrade is already at max tier."
   no-payment-method: "&cNo valid payment options are available."
@@ -96,6 +97,7 @@ gui:
         - "&7Current tier: &e%tier%/%max_tier%"
     tier:
       current-prefix: "&a&l✓ "
+      owned-prefix: "&e&l◆ "
       next-prefix: "&e&l▶ "
       locked-prefix: "&7"
       cost-line: "&8 - &7%cost%"
