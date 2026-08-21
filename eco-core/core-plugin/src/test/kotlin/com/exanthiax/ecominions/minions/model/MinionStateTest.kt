@@ -87,4 +87,27 @@ class MinionStateTest {
     fun `a non-levelling minion is never at max level`() {
         assertFalse(MinionState(type = type).isAtMaxLevel)
     }
+
+    @Test
+    fun `an upgrade with no active selection reads its owned tier as active`() {
+        val state = MinionState(type = type).withUpgrade("compactor", 2)
+
+        assertEquals(2, state.activeTierOf("compactor"))
+    }
+
+    @Test
+    fun `buying a higher tier does not move a previously selected active tier`() {
+        val state = MinionState(type = type)
+            .withUpgrade("compactor", 1)
+            .withActiveTier("compactor", 1)
+            .withUpgrade("compactor", 2)
+
+        assertEquals(1, state.activeTierOf("compactor"))
+        assertEquals(2, state.upgradeLevel("compactor"))
+    }
+
+    @Test
+    fun `an unbought upgrade has no active tier`() {
+        assertEquals(0, MinionState(type = type).activeTierOf("compactor"))
+    }
 }
