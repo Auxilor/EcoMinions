@@ -214,7 +214,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
-        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService, triggerDispatch)
+        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService, triggerDispatch, xpService)
         shopIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()

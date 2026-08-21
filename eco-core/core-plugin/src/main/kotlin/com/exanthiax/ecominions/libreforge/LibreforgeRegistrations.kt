@@ -17,10 +17,12 @@ import com.exanthiax.ecominions.libreforge.effects.EffectMinionCapacity
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCompact
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionEfficiency
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
+import com.exanthiax.ecominions.libreforge.effects.EffectGiveMinionXp
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSellStorage
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelStart
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionLevelUp
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPickup
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPlace
@@ -29,6 +31,7 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionSell
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
+import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.upgrades.model.Upgrade
@@ -63,7 +66,8 @@ object LibreforgeRegistrations {
         upgrades: ConfigDrivenRegistry<Upgrade>,
         selling: SellService,
         compactor: CompactorService,
-        dispatch: MinionTriggerDispatch
+        dispatch: MinionTriggerDispatch,
+        xpService: MinionXpService
     ) {
         UpgradePlaceholderProvider(upgrades::all).register()
         MinionHolders(upgrades::find).register()
@@ -74,6 +78,7 @@ object LibreforgeRegistrations {
         Effects.register(EffectMinionCapacity)
         Effects.register(EffectMinionSellStorage(selling))
         Effects.register(EffectMinionCompact(compactor))
+        Effects.register(EffectGiveMinionXp(xpService))
 
         Mutators.register(MutatorMinionOwnerAsDispatcher)
         Mutators.register(MutatorMinionLocationToTargetBlock)
@@ -88,6 +93,7 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionFuelStart)
         Triggers.register(TriggerMinionFuelExpire)
         Triggers.register(TriggerMinionSell)
+        Triggers.register(TriggerMinionLevelUp)
 
         Conditions.register(ConditionMinionLevelAbove)
         Conditions.register(ConditionMinionLevelBelow)
