@@ -78,11 +78,16 @@ private object ItemTypeRegistry : Registry<ItemType> {
     override fun keyStream(): Stream<NamespacedKey> = Stream.empty()
     override fun size(): Int = 0
 
+    /** Every material the tests use stacks to 64; the real server answers this properly. */
+    private const val DEFAULT_MAX_STACK_SIZE = 64
+
     private fun proxyFor(key: NamespacedKey): ItemType {
         val material = Material.matchMaterial(key.key) ?: Material.STONE
         val handler = InvocationHandler { proxy, method, args ->
             when (method.name) {
                 "createItemStack" -> FakeItemStack(material, (args?.getOrNull(0) as? Int) ?: 1)
+                // Material.getMaxStackSize() delegates here; storage needs a stack limit.
+                "getMaxStackSize" -> DEFAULT_MAX_STACK_SIZE
                 "equals" -> proxy === args?.get(0)
                 "hashCode" -> System.identityHashCode(proxy)
                 "toString" -> "FakeItemType($key)"
