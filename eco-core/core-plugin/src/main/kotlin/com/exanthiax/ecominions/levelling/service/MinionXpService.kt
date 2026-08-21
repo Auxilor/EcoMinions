@@ -3,13 +3,13 @@ package com.exanthiax.ecominions.levelling.service
 import com.exanthiax.ecominions.api.event.MinionLevelUpEvent
 import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.libreforge.toDispatcher
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionLevelUp
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
 import com.willfp.libreforge.EmptyProvidedHolder
 import com.willfp.libreforge.NamedValue
 import com.willfp.libreforge.triggers.DispatchedTrigger
 import com.willfp.libreforge.triggers.TriggerData
-import com.willfp.libreforge.triggers.impl.TriggerBlank
 import org.bukkit.Bukkit
 
 /**
@@ -74,7 +74,7 @@ class MinionXpService(
 
             val dispatched = DispatchedTrigger(
                 dispatcher,
-                TriggerBlank,
+                TriggerMinionLevelUp,
                 TriggerData(
                     dispatcher = dispatcher,
                     player = minion.ownerPlayer(),
@@ -85,6 +85,7 @@ class MinionXpService(
             dispatched.addPlaceholder(NamedValue("level", level))
             dispatched.addPlaceholder(NamedValue("previous_level", level - 1))
 
+            TriggerMinionLevelUp.dispatch(dispatcher, dispatched.data)
             chain.trigger(dispatched)
         }
     }
