@@ -9,19 +9,25 @@ import com.willfp.libreforge.get
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 
-/** Runs the configured compactor recipes over a minion's storage. */
+/** Runs a minion's active compactor tier's recipes over its storage. */
 class EffectMinionCompact(
     private val compactor: CompactorService
 ) : Effect<NoCompileData>("minion_compact") {
-    override val description = "Compacts a minion's storage using the configured compactor recipes."
+    override val description = "Compacts a minion's storage using its active compactor tier's recipes."
     override val categories = setOf("minion", "inventory")
 
     override val parameters = setOf(TriggerParameter.LOCATION)
 
     override fun onTrigger(config: Config, data: TriggerData, compileData: NoCompileData): Boolean {
         val minion = data.dispatcher.get<Minion>() ?: return false
+        val upgrade = minion.state.type.compactorUpgrade ?: return false
+        val active = minion.state.activeTierOf(upgrade.id)
+        val recipes = (1..active).flatMap { level -> minion.state.type.compactorRecipesByTier[level].orEmpty() }
+        if (recipes.isEmpty()) {
+            return false
+        }
 
-        val overflow = compactor.compact(minion.storage)
+        val overflow = compactor.compact(minion.storage, recipes)
         for (item in overflow) {
             minion.entity.world.dropItemNaturally(minion.entity.location, item)
         }
