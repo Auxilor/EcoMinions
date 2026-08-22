@@ -96,9 +96,12 @@ effects:
     every: 200
 ```
 
-On/off upgrades such as `auto_smelt`, `auto_sell`, and `compactor` typically only need a single tier, since the
-effect is either present or not. Numeric upgrades such as `speed`, `efficiency`, `radius`, `fortune`, `capacity`,
-and `experience` are usually laddered across several tiers, each with its own cost and its own `%tier_value%`.
+On/off upgrades such as `auto_smelt` and `auto_sell` typically only need a single tier, since the effect is
+either present or not. Numeric upgrades such as `speed`, `efficiency`, `radius`, `fortune`, `capacity`, and
+`experience` are usually laddered across several tiers, each with its own cost and its own `%tier_value%`.
+
+Compacting is not authored as a hand-written upgrade file at all - it is generated per minion type from the
+`compactor-tiers/` catalog. See [How to Make a Compactor Tier](how-to-make-a-compactor-tier).
 
 See [Libreforge Components](libreforge-components) for the full list of minion-specific triggers, effects,
 conditions, and mutators available inside `effects`, plus the stock libreforge components that also work here.

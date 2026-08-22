@@ -1,6 +1,6 @@
 ---
 title: "How to Level a Minion"
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 ## Levelling

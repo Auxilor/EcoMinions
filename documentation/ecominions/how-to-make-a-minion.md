@@ -154,11 +154,32 @@ allowed-upgrades:
   - auto_smelt
   - auto_sell
   - experience
-  - compactor
 ```
 
 The list of upgrade IDs (matching file names under `upgrades/`) this minion type can have purchased on it.
-Omitting an upgrade from this list hides it from this type's upgrade menu entirely.
+Omitting an upgrade from this list hides it from this type's upgrade menu entirely. Compacting is not listed
+here - see `compactor-tiers` below.
+
+## compactor-tiers
+
+```yaml
+compactor-tiers:
+  - basic_block
+  - rare_block
+
+effects:
+  - id: minion_compact
+    triggers: [minion_mine_block]
+```
+
+An ordered list of `compactor-tiers/` catalog ids this minion type unlocks - **position in the list is the
+tier level**, so `basic_block` above is tier 1 and `rare_block` is tier 2. Omitting this key (or leaving it
+empty) means the type has no compactor ladder at all. The resulting upgrade's id is always
+`compactor_<minion type id>`, and it is automatically added to the type's allowed upgrades.
+
+This key alone does not make compacting run - the type also needs `minion_compact` in its own top-level
+`effects:` block, as shown above. See [How to Make a Compactor Tier](how-to-make-a-compactor-tier) for the
+tier file format.
 
 ## armor
 
