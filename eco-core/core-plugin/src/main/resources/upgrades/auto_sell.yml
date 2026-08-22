@@ -5,8 +5,7 @@ display:
 effects:
   - id: minion_sell_storage
     triggers:
-      - minion_tick
-    every: 200
+      - minion_static_200
 
 tiers:
   1:

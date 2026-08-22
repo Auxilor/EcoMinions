@@ -21,6 +21,7 @@ import com.exanthiax.ecominions.libreforge.effects.EffectGiveMinionXp
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSellStorage
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
+import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelStart
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionLevelUp
@@ -95,6 +96,7 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionStorageFull)
         Triggers.register(TriggerMinionRegenBlock)
         Triggers.register(TriggerMinionTick)
+        Triggers.register(TriggerGroupMinionStatic)
         Triggers.register(TriggerMinionPlace(dispatch))
         Triggers.register(TriggerMinionPickup(dispatch))
         Triggers.register(TriggerMinionUpgrade)

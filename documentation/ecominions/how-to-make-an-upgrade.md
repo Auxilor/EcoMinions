@@ -103,19 +103,21 @@ effects:
       multiplier: "1 + %tier_value%"
 ```
 
-### every: for interval behaviour
+### Interval behaviour
 
-Add `every:` (in ticks) to a `minion_tick`-triggered effect to make it fire on an interval instead of every
-single tick. The auto-sell upgrade uses this to sell the minion's storage roughly every 200 ticks instead of
-constantly:
+Use `minion_static_<n>` instead of `minion_tick` for anything that should fire every `n` ticks rather than
+every single tick - it skips dispatch entirely on the ticks it doesn't fire, unlike `minion_tick` + `every:`,
+which dispatches every tick and discards most of it at the effect layer. The auto-sell upgrade uses this to
+sell the minion's storage roughly every 200 ticks:
 
 ```yaml
 effects:
   - id: minion_sell_storage
     triggers:
-      - minion_tick
-    every: 200
+      - minion_static_200
 ```
+
+`n` can also be an expression (e.g. a placeholder), re-evaluated on every check.
 
 On/off upgrades such as `auto_smelt` and `auto_sell` typically only need a single tier, since the effect is
 either present or not. Numeric upgrades such as `speed`, `efficiency`, `radius`, `fortune`, `capacity`, and
