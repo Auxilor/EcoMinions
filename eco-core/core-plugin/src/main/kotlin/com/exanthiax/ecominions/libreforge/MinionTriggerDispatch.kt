@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.libreforge
 
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
 import com.exanthiax.ecominions.minions.service.Minion
 import com.willfp.libreforge.triggers.DispatchedTrigger
 import com.willfp.libreforge.triggers.Trigger
@@ -86,6 +87,48 @@ class MinionTriggerDispatch(
                 value = value
             )
         )
+    }
+
+    /** Dispatches [trigger] against [minion] for one item it just collected. */
+    fun collect(minion: Minion, trigger: Trigger, item: ItemStack, value: Double) {
+        dispatch(
+            minion,
+            trigger,
+            TriggerData(
+                dispatcher = minion.toDispatcher(),
+                player = minion.ownerPlayer(),
+                item = item,
+                location = minion.location,
+                value = value
+            )
+        )
+    }
+
+    /**
+     * Stores [items] and dispatches [TriggerMinionCollect] for what actually
+     * landed in storage.
+     *
+     * A full minion collects nothing, so it must credit nothing: collections and
+     * skills level off this trigger, and crediting a drop that bounced would pay
+     * a player for items they never received.
+     *
+     * @return Everything that did not fit, as [MinionStorage.store] would.
+     */
+    fun storeAndDispatchCollect(minion: Minion, items: List<ItemStack>): List<ItemStack> {
+        val leftovers = mutableListOf<ItemStack>()
+
+        for (item in items) {
+            val intended = item.amount
+            val remainder = minion.storage.add(item)
+            remainder?.let { leftovers += it }
+
+            val stored = intended - (remainder?.amount ?: 0)
+            if (stored > 0) {
+                collect(minion, TriggerMinionCollect, item, stored.toDouble())
+            }
+        }
+
+        return leftovers
     }
 
     private fun dispatch(minion: Minion, trigger: Trigger, data: TriggerData) {

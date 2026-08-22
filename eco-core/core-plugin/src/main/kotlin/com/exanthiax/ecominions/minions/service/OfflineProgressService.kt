@@ -82,6 +82,6 @@ class OfflineProgressService(
             value = drops.size.toDouble()
         )
 
-        minion.storage.store(results.map { (item, _) -> item })
+        dispatch.storeAndDispatchCollect(minion, results.map { (item, _) -> item })
     }
 }

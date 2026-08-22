@@ -179,7 +179,7 @@ class MiningService(
             }
         }
 
-        minion.storage.store(results.map { (item, _) -> item })
+        dispatch.storeAndDispatchCollect(minion, results.map { (item, _) -> item })
     }
 
     private fun spawnXp(minion: Minion, amount: Int) {
