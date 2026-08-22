@@ -13,14 +13,7 @@ import com.willfp.eco.core.price.ConfiguredPrice
 import com.willfp.libreforge.conditions.ConditionList
 import com.willfp.libreforge.conditions.Conditions
 
-/**
- * Parses one file in `compactor-recipes/` into a [CompactorRecipeDefinition]:
- * a compaction rule, plus the single-tier [Upgrade] a player buys to unlock it.
- *
- * Each recipe is bought independently - there is no shared "compactor" upgrade
- * or tier ladder any more. `higher-level-of` is an optional ordering hint only
- * (see [CompactorRecipe.higherLevelOf]); it does not gate purchase.
- */
+/** Parses one file in `compactor-recipes/` into a compaction rule and the [Upgrade] that unlocks it. */
 class CompactorRecipeLoader : ConfigLoader<CompactorRecipeDefinition> {
 
     override fun load(id: String, config: Config, context: LoadContext): CompactorRecipeDefinition? {
@@ -58,12 +51,7 @@ class CompactorRecipeLoader : ConfigLoader<CompactorRecipeDefinition> {
         return CompactorRecipeDefinition(recipe, upgrade)
     }
 
-    /**
-     * Exposed for testing: takes [conditions] pre-compiled so a test can pass
-     * an empty [ConditionList] without going through [Conditions.compile] -
-     * that needs a live plugin instance to resolve stock condition ids, unlike
-     * everything else this method parses.
-     */
+    /** Exposed for testing: [conditions] pre-compiled so a test can pass an empty [ConditionList]. */
     fun readRecipe(id: String, config: Config, context: LoadContext, conditions: ConditionList): CompactorRecipe? {
         val input = config.getStringOrNull("input")
         if (input.isNullOrBlank()) {

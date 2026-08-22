@@ -85,12 +85,7 @@ class MinionTypeLoader(
         )
     }
 
-    /**
-     * Resolves this type's `compactor-recipes:` list of catalog ids into the
-     * matching [CompactorRecipeDefinition]s, in the order authored. Each recipe
-     * is bought and gated independently - an unresolvable id is just dropped
-     * (with a violation), not treated as truncating anything after it.
-     */
+    /** Resolves this type's `compactor-recipes:` ids; an unresolvable one is dropped, not fatal. */
     private fun readCompactorRecipes(config: Config, context: LoadContext): List<CompactorRecipeDefinition> =
         config.getStrings("compactor-recipes").mapNotNull { recipeId ->
             compactorRecipe(recipeId) ?: context.unknown("compactor-recipes", recipeId, compactorRecipeIds())

@@ -34,12 +34,7 @@ class CompactorService {
         return overflow
     }
 
-    /**
-     * Orders recipes so one declaring `higher-level-of` runs after the recipe it
-     * builds on, e.g. `coal -> coal_block` before `coal_block -> enchanted_coal`.
-     * Not required for correctness - the loop above already converges over
-     * multiple passes regardless of order - but keeps a linear chain predictable.
-     */
+    /** Runs a recipe after the one it's a `higher-level-of`, e.g. coal -> coal_block first. */
     private fun orderByChain(recipes: List<CompactorRecipe>): List<CompactorRecipe> {
         val byId = recipes.associateBy { it.id }
         val ordered = mutableListOf<CompactorRecipe>()

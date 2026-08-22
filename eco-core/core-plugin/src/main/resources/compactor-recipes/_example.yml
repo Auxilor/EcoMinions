@@ -1,10 +1,6 @@
-# Referenced by a minion type's `compactor-recipes:` list. Each recipe here is
-# bought independently, with its own price, and (optionally) its own gates:
-# `buy-conditions` decide whether it can be bought at all, `conditions` decide
-# whether it currently compacts (checked every time a minion tries).
-#
-# `output` must never be the same item as `input`, and `input-amount` must be
-# larger than `output-amount`, or the compact loop churns or destroys items.
+# Referenced by a minion type's compactor-recipes: list. Bought independently,
+# with its own price. output must differ from input and shrink the stack, or
+# the compact loop churns/destroys items.
 name: "&eExample Compactor Recipe"
 display:
   icon: furnace
@@ -19,24 +15,10 @@ cost-options:
     type: vault
     display: "&a$%value_commas%"
 
-# Optional: gates the purchase itself. Any minion condition works here - see
-# libreforge-components for the full list.
-# buy-conditions:
-#   - id: minion_has_upgrade
-#     args:
-#       upgrade: compactor_coal_block
+# buy-conditions: []   # (optional) gates the purchase itself
+# conditions: []       # (optional) gates whether it currently compacts
 
-# Optional: gates whether this recipe currently compacts, re-checked every time
-# a minion tries. Owning the recipe is not enough on its own if this is set.
-# conditions:
-#   - id: minion_level_above
-#     args:
-#       level: 5
-
-# Optional: purely an ordering hint for chained recipes - e.g. a fictional
-# "enchanted_coal" recipe consuming COAL_BLOCK would set
-# `higher-level-of: coal_block`, so the compactor processes coal -> coal_block
-# before coal_block -> enchanted_coal. Does not gate purchase or ownership;
-# pair it with a `buy-conditions: minion_has_upgrade` entry like the one above
-# if a recipe should require the lower one to be bought first.
+# (optional) ordering hint for a chained recipe - e.g. an enchanted_coal recipe
+# consuming COAL_BLOCK sets higher-level-of: coal_block, so coal -> coal_block
+# runs before coal_block -> enchanted_coal. Doesn't gate purchase on its own.
 # higher-level-of: coal_block

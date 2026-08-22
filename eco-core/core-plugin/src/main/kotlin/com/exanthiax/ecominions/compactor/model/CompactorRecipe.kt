@@ -13,11 +13,6 @@ class CompactorRecipe(
     val outputAmount: Int,
     /** Gates whether this recipe currently compacts, checked each time a minion tries. */
     val conditions: ConditionList,
-    /**
-     * The id of another catalog recipe this one builds on, e.g. an
-     * `enchanted_coal` recipe consuming `COAL_BLOCK` declares `higher-level-of:
-     * coal_block`. Purely an ordering hint for [com.exanthiax.ecominions.compactor.service.CompactorService] -
-     * it does not gate purchase or ownership on its own.
-     */
+    /** The id of another catalog recipe this one builds on, purely an ordering hint. */
     val higherLevelOf: String?
 )
