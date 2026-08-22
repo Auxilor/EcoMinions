@@ -42,7 +42,7 @@ Bespoke minion effects, with the argument(s) each takes inside `args:`.
 | `minion_radius` | `blocks` (expression) | Widens the area a minion scans for target blocks. Permanent - no `triggers:` needed. |
 | `minion_capacity` | `slots` (expression) | Adds stack slots to a minion's storage, up to the type's `max-storage-slots`. Permanent - no `triggers:` needed. Resizes live storage; any overflow is dropped in the world rather than lost. |
 | `minion_sell_storage` | none | Sells the entire contents of a minion's storage. Triggered - needs a `triggers:` list (e.g. `[minion_tick]` with `every:` for an auto-sell upgrade). |
-| `minion_compact` | none | Compacts a minion's storage using its active compactor tier's recipes (every recipe from tier 1 up to the tier currently selected). Does nothing if the minion's type declares no compactor ladder. Triggered - needs a `triggers:` list. |
+| `minion_compact` | none | Compacts a minion's storage using every compactor recipe the minion owns and currently meets the `conditions:` for. Does nothing if the minion owns no recipes. Triggered - needs a `triggers:` list. |
 | `give_minion_xp` | `amount` (expression) | Grants XP to a minion, letting a fuel or an upgrade tier feed levelling progression directly. Triggered - needs a `triggers:` list. |
 
 `minion_speed`, `minion_efficiency`, `minion_radius`, and `minion_capacity` are permanent stat effects: they
@@ -57,7 +57,7 @@ work.
 | `minion_level_above` | `level` (expression) | The minion's level is at or above the given level. |
 | `minion_level_below` | `level` (expression) | The minion's level is at or below the given level. |
 | `minion_is_type` | `types` (string list) | The minion is one of the given minion type ids. |
-| `minion_has_upgrade` | `upgrade` (string, required), `tier` (expression, optional - defaults to `1`), `mode` (string, optional - `unlocked` or `active`, defaults to `unlocked`) | `unlocked` mode: the minion owns the given upgrade at or above the specified tier. `active` mode: the tier currently *selected* for a selectable upgrade (e.g. a compactor ladder) is at or above the specified tier - for a non-selectable upgrade the two modes are always equal. |
+| `minion_has_upgrade` | `upgrade` (string, required), `tier` (expression, optional - defaults to `1`) | The minion owns the given upgrade at or above the specified tier. Also works for a compactor recipe's `compactor_<recipe id>` upgrade id. |
 | `minion_storage_above_percent` | `percent` (expression, 0-100) | The minion's storage is at least the given percentage full. |
 | `minion_has_fuel` | none | The minion is currently burning fuel. |
 | `minion_owner_online` | none | The minion's owner is online. |
