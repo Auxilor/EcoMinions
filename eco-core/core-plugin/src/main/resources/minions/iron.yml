@@ -49,13 +49,7 @@ allowed-upgrades:
   - experience
 
 compactor-recipes:
-  - hay_block
-  - coal_block
-  - copper_block
   - iron_block
-  - gold_block
-  - emerald_block
-  - diamond_block
 
 effects:
   - id: minion_compact
