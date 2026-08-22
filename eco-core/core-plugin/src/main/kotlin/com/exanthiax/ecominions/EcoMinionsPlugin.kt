@@ -7,8 +7,8 @@ import com.exanthiax.ecominions.commands.InfoSubcommand
 import com.exanthiax.ecominions.commands.OpenSubcommand
 import com.exanthiax.ecominions.commands.RemoveSubcommand
 import com.exanthiax.ecominions.commands.ReloadSubcommand
-import com.exanthiax.ecominions.compactor.integration.CompactorRecipeLoader
-import com.exanthiax.ecominions.compactor.model.CompactorRecipe
+import com.exanthiax.ecominions.compactor.integration.CompactorTierDefinitionLoader
+import com.exanthiax.ecominions.compactor.model.CompactorTierDefinition
 import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.error.LoadReport
@@ -111,6 +111,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     // Registries
     private val gameData = GameDataLoader().load()
+    private val compactorTierDefinitions = ConfigDrivenRegistry(
+        "compactor_tier", "compactor-tiers", "compactor tiers",
+        CompactorTierDefinitionLoader(), report
+    )
     private val minionTypes = ConfigDrivenRegistry(
         "minion_type", "minions", "minion types",
         MinionTypeLoader(
@@ -118,7 +122,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             ParticleSettingsLoader(),
             LevellingLoader(),
             { minionSettings.value.sellPricing.autoFromEcoShop },
-            { minionSettings.value.hardSlotCap }
+            { minionSettings.value.hardSlotCap },
+            compactorTierDefinitions::find,
+            compactorTierDefinitions::ids
         ),
         report
     )
@@ -127,10 +133,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val fuels = ConfigDrivenRegistry<Fuel>(
         "fuel", "fuels", "fuels", FuelLoader(), report
-    )
-    private val compactorRecipes = ConfigDrivenRegistry<CompactorRecipe>(
-        "compactor_recipe", "compactor-recipes", "compactor recipes",
-        CompactorRecipeLoader(), report
     )
 
     // Services
@@ -152,7 +154,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val triggerDispatch = MinionTriggerDispatch(xpService)
     private val upgradeService = UpgradeService(upgrades)
     private val fuelService = FuelService(fuels)
-    private val compactorService = CompactorService(compactorRecipes)
+    private val compactorService = CompactorService()
     private val repository = MinionStateRepository(dataKeys) { minionTypes.find(it) }
     private val minionFactory = MinionFactory()
     private val itemFactory = MinionItemFactory(repository, renderer)
@@ -219,7 +221,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
 
     override fun loadConfigCategories(): List<ConfigCategory> =
-        LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
+        LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorTierDefinitions)
 
     override fun handleEnable() {
         LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService, triggerDispatch, xpService)
