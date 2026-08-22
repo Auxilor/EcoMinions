@@ -12,5 +12,9 @@ tiers:
     value: 1
     stat-delta: "Enabled"
     cost-options:
-      - { value: 75000, type: vault }
-      - { value: 400, type: gems }
+      - value: 75000
+        type: vault
+        display: "&a$%value_commas%"
+      - value: 400
+        type: gems
+        display: "&b%value_commas% Gems"

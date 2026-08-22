@@ -8,11 +8,59 @@ effects:
       blocks: "%tier_value%"
 
 tiers:
-  1: { value: 1, stat-delta: "+1 block",  cost-options: [{ value: 6000,   type: vault }] }
-  2: { value: 2, stat-delta: "+2 blocks", cost-options: [{ value: 14000,  type: vault }] }
-  3: { value: 3, stat-delta: "+3 blocks", cost-options: [{ value: 30000,  type: vault }] }
-  4: { value: 4, stat-delta: "+4 blocks", cost-options: [{ value: 60000,  type: vault }] }
-  5: { value: 5, stat-delta: "+5 blocks", cost-options: [{ value: 120000, type: vault }] }
-  6: { value: 6, stat-delta: "+6 blocks", cost-options: [{ value: 220000, type: vault }] }
-  7: { value: 7, stat-delta: "+7 blocks", cost-options: [{ value: 380000, type: vault }] }
-  8: { value: 8, stat-delta: "+8 blocks", cost-options: [{ value: 600000, type: vault }] }
+  1:
+    value: 1
+    stat-delta: "+1 block"
+    cost-options:
+      - value: 6000
+        type: vault
+        display: "&a$%value_commas%"
+  2:
+    value: 2
+    stat-delta: "+2 blocks"
+    cost-options:
+      - value: 14000
+        type: vault
+        display: "&a$%value_commas%"
+  3:
+    value: 3
+    stat-delta: "+3 blocks"
+    cost-options:
+      - value: 30000
+        type: vault
+        display: "&a$%value_commas%"
+  4:
+    value: 4
+    stat-delta: "+4 blocks"
+    cost-options:
+      - value: 60000
+        type: vault
+        display: "&a$%value_commas%"
+  5:
+    value: 5
+    stat-delta: "+5 blocks"
+    cost-options:
+      - value: 120000
+        type: vault
+        display: "&a$%value_commas%"
+  6:
+    value: 6
+    stat-delta: "+6 blocks"
+    cost-options:
+      - value: 220000
+        type: vault
+        display: "&a$%value_commas%"
+  7:
+    value: 7
+    stat-delta: "+7 blocks"
+    cost-options:
+      - value: 380000
+        type: vault
+        display: "&a$%value_commas%"
+  8:
+    value: 8
+    stat-delta: "+8 blocks"
+    cost-options:
+      - value: 600000
+        type: vault
+        display: "&a$%value_commas%"
