@@ -4,7 +4,8 @@ display:
 
 effects:
   - id: drop_xp
-    triggers: [minion_mine_block]
+    triggers:
+      - minion_mine_block
     args:
       amount: "%tier_value%"
 

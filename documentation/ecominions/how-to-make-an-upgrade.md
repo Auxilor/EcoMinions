@@ -97,7 +97,8 @@ a mine event:
 ```yaml
 effects:
   - id: multiply_drops
-    triggers: [minion_mine_block]
+    triggers:
+      - minion_mine_block
     args:
       multiplier: "1 + %tier_value%"
 ```
@@ -111,7 +112,8 @@ constantly:
 ```yaml
 effects:
   - id: minion_sell_storage
-    triggers: [minion_tick]
+    triggers:
+      - minion_tick
     every: 200
 ```
 

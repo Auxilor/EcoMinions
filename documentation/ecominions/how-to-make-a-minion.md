@@ -169,7 +169,8 @@ compactor-recipes:
 
 effects:
   - id: minion_compact
-    triggers: [minion_mine_block]
+    triggers:
+      - minion_mine_block
 ```
 
 A list of `compactor-recipes/` catalog ids this minion type allows - the order shown is just the order they're

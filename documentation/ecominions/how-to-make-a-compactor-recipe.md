@@ -96,7 +96,8 @@ compactor-recipes:
 
 effects:
   - id: minion_compact
-    triggers: [minion_mine_block]
+    triggers:
+      - minion_mine_block
 ```
 
 - `compactor-recipes` - the list of catalog ids this type allows. The order here is just menu display order -

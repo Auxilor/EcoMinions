@@ -52,7 +52,8 @@ compactor-recipes:
 
 effects:
   - id: minion_compact
-    triggers: [minion_mine_block]
+    triggers:
+      - minion_mine_block
 
 armor:
   chestplate:
