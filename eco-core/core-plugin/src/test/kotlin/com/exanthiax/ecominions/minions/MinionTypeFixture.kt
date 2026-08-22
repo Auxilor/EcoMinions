@@ -1,11 +1,13 @@
 package com.exanthiax.ecominions.minions
 
+import com.exanthiax.ecominions.compactor.model.CompactorRecipe
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.model.MinionArmor
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
+import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.Holder
 import org.bukkit.Material
 
@@ -30,7 +32,9 @@ object MinionTypeFixture {
             regenDelayTicks = "60"
         ),
         levelling: LevellingSpec = LevellingSpec.DISABLED,
-        holder: Holder? = null
+        holder: Holder? = null,
+        compactorUpgrade: Upgrade? = null,
+        compactorRecipesByTier: Map<Int, List<CompactorRecipe>> = emptyMap()
     ) = MinionType(
         id = id,
         name = "Stone Minion",
@@ -51,6 +55,8 @@ object MinionTypeFixture {
         placement = PlacementSettings.NONE,
         sellPrices = sellPrices,
         levelling = levelling,
-        holder = holder
+        holder = holder,
+        compactorUpgrade = compactorUpgrade,
+        compactorRecipesByTier = compactorRecipesByTier
     )
 }
