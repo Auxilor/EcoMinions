@@ -14,8 +14,12 @@ upgrades, it is not authored as a single `upgrades/*.yml` file - it is built fro
 
 ```yaml
 cost-options:
-  - { value: 100000, type: vault }
-  - { value: 500, type: gems }
+  - value: 100000
+    type: vault
+    display: "&a$%value_commas%"
+  - value: 500
+    type: gems
+    display: "&b%value_commas% Gems"
 
 recipes:
   coal_block:
@@ -31,7 +35,8 @@ recipes:
 ```
 
 - `cost-options` - one or more ways a player can pay to unlock this tier, same format as an upgrade tier's
-  `cost-options` (see [How to Make an Upgrade](how-to-make-an-upgrade)).
+  `cost-options` (see [How to Make an Upgrade](how-to-make-an-upgrade)) - each entry needs its own `display`
+  string or the upgrade menu throws trying to render that price.
 - `recipes` - a map of recipe id to recipe. Each recipe:
   - `input` - the eco item lookup consumed.
   - `input-amount` - how many of `input` are consumed per compaction.

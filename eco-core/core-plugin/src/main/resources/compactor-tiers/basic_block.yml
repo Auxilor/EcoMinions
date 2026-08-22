@@ -1,6 +1,10 @@
 cost-options:
-  - { value: 100000, type: vault }
-  - { value: 500, type: gems }
+  - value: 100000
+    type: vault
+    display: "&a$%value_commas%"
+  - value: 500
+    type: gems
+    display: "&b%value_commas% Gems"
 
 recipes:
   coal_block:

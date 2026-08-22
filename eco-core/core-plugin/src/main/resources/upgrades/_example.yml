@@ -19,22 +19,34 @@ effects:
   #     multiplier: "1 + %tier_value%"
 
 tiers:
+  # Every cost-options entry needs its own `display` string, or the upgrade
+  # menu has nothing to render for that price and throws when it tries.
   1:
     value: 5
     stat-delta: "-5 ticks"
     cost-options:
-      - { value: 1000, type: vault }
-      - { value: 32, type: stone }
+      - value: 1000
+        type: vault
+        display: "&a$%value_commas%"
+      - value: 32
+        type: stone
+        display: "&7%value_commas%x Stone"
 
   2:
     value: 10
     stat-delta: "-10 ticks"
     cost-options:
-      - { value: 50, type: gems }
-      - { value: 5000, type: vault }
+      - value: 50
+        type: gems
+        display: "&b%value_commas% Gems"
+      - value: 5000
+        type: vault
+        display: "&a$%value_commas%"
 
   3:
     value: 15
     stat-delta: "-15 ticks"
     cost-options:
-      - { value: 25000, type: vault }
+      - value: 25000
+        type: vault
+        display: "&a$%value_commas%"

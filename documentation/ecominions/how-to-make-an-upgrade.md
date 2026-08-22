@@ -25,14 +25,22 @@ tiers:
     value: 5
     stat-delta: "-5 ticks"
     cost-options:
-      - { value: 5000, type: vault }
-      - { value: 64, type: stone }
+      - value: 5000
+        type: vault
+        display: "&a$%value_commas%"
+      - value: 64
+        type: stone
+        display: "&7%value_commas%x Stone"
   2:
     value: 10
     stat-delta: "-10 ticks"
     cost-options:
-      - { value: 12000, type: vault }
-      - { value: 64, type: coal }
+      - value: 12000
+        type: vault
+        display: "&a$%value_commas%"
+      - value: 64
+        type: coal
+        display: "&8%value_commas%x Coal"
 ```
 
 - `name` - the upgrade's display name, shown in the upgrade menu.
@@ -47,8 +55,16 @@ tiers:
   - `stat-delta` - display-only text describing the tier's effect, shown in the upgrade menu (e.g. `"-5 ticks"`,
     `"+10% drops"`, `"Enabled"`).
   - `cost-options` - one or more ways a player can pay for this tier; the player picks one at purchase time.
-    Each entry has a `value` (amount) and a `type`. `type` can be `vault` for Vault economy money, a material
-    name to charge an item, or another registered currency id (e.g. a custom currency plugin's `gems`).
+    Each entry has:
+    - `value` (amount) and `type` - `type` can be `vault` for Vault economy money, a material name to charge
+      an item, or another registered currency id (e.g. a custom currency plugin's `gems`).
+    - `display` (**required**) - the text shown for this price option in the upgrade menu, e.g. `"&a$%value_commas%"`.
+      `%value%` and `%value_commas%` (comma-grouped) are available inside it. Omitting `display` isn't just
+      cosmetic - eco has no fallback for it, so the menu throws trying to render that cost option.
+
+Write each cost option as its own list item across multiple lines (`- value: ...` / `type: ...` /
+`display: ...`), not the inline `{ value: ..., type: ... }` flow-map form - it's harder to scan and easy to
+mistype once a `display` line is added.
 
 ### effects and placeholders
 

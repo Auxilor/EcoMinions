@@ -9,8 +9,13 @@
 # `output` must never be the same item as `input`, and `input-amount` must be
 # larger than `output-amount`. A recipe that feeds itself will grind a player's
 # storage away.
+#
+# Every cost-options entry needs its own `display` string, or the upgrade menu
+# has nothing to render for that price and throws when it tries.
 cost-options:
-  - { value: 100000, type: vault }
+  - value: 100000
+    type: vault
+    display: "&a$%value_commas%"
 
 recipes:
   example_recipe:

@@ -2,7 +2,9 @@
 # `compactor-tiers:` list at `basic_block` then `rare_block` to sell it as an
 # upgrade path.
 cost-options:
-  - { value: 750000, type: vault }
+  - value: 750000
+    type: vault
+    display: "&a$%value_commas%"
 
 recipes:
   redstone_block:
