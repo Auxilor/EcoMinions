@@ -1,28 +1,25 @@
 package com.exanthiax.ecominions.compactor.service
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipe
-import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.minions.model.MinionStorage
 import com.willfp.eco.core.items.Items
 import org.bukkit.inventory.ItemStack
 
 /** Compresses bulk drops in a minion's storage into their block form. */
-class CompactorService(
-    private val recipes: ConfigDrivenRegistry<CompactorRecipe>
-) {
+class CompactorService {
     /**
      * Applies every recipe until nothing more can be compacted, so nine iron ore
      * becoming a block can in turn feed a block-of-blocks recipe.
      *
      * @return Items that did not fit back into [storage].
      */
-    fun compact(storage: MinionStorage): List<ItemStack> {
+    fun compact(storage: MinionStorage, recipes: List<CompactorRecipe>): List<ItemStack> {
         val overflow = mutableListOf<ItemStack>()
         var changed = true
 
         while (changed) {
             changed = false
-            for (recipe in recipes.all()) {
+            for (recipe in recipes) {
                 while (countMatching(storage, recipe) >= recipe.inputAmount) {
                     if (!consume(storage, recipe)) {
                         break
