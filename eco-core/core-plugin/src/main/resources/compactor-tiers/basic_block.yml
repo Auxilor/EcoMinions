@@ -1,0 +1,40 @@
+cost-options:
+  - { value: 100000, type: vault }
+  - { value: 500, type: gems }
+
+recipes:
+  coal_block:
+    input: COAL
+    input-amount: 9
+    output: COAL_BLOCK
+    output-amount: 1
+  iron_block:
+    input: IRON_INGOT
+    input-amount: 9
+    output: IRON_BLOCK
+    output-amount: 1
+  gold_block:
+    input: GOLD_INGOT
+    input-amount: 9
+    output: GOLD_BLOCK
+    output-amount: 1
+  diamond_block:
+    input: DIAMOND
+    input-amount: 9
+    output: DIAMOND_BLOCK
+    output-amount: 1
+  emerald_block:
+    input: EMERALD
+    input-amount: 9
+    output: EMERALD_BLOCK
+    output-amount: 1
+  hay_block:
+    input: WHEAT
+    input-amount: 9
+    output: HAY_BLOCK
+    output-amount: 1
+  copper_block:
+    input: COPPER_INGOT
+    input-amount: 9
+    output: COPPER_BLOCK
+    output-amount: 1

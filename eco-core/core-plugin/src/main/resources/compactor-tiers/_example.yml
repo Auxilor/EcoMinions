@@ -1,0 +1,20 @@
+# Referenced by a minion type's `compactor-tiers:` list, in the order that
+# type unlocks them - position in that list becomes the tier's level, so two
+# minion types can share a tier id while unlocking it at different levels, or
+# skip it entirely.
+#
+# A minion type also needs `minion_compact` in its own `effects:` block for any
+# of this to run - see how-to-make-a-compactor-tier.
+#
+# `output` must never be the same item as `input`, and `input-amount` must be
+# larger than `output-amount`. A recipe that feeds itself will grind a player's
+# storage away.
+cost-options:
+  - { value: 100000, type: vault }
+
+recipes:
+  example_recipe:
+    input: COBBLESTONE
+    input-amount: 9
+    output: STONE
+    output-amount: 1
