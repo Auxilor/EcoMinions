@@ -33,7 +33,6 @@ class MinionStateRepository(
             xp = container.get(keys.xp, MinionDataKeys.DOUBLE) ?: 0.0,
             owner = container.get(keys.owner, MinionDataKeys.STRING)?.toUuidOrNull(),
             upgrades = UpgradeCodec.decode(container.get(keys.upgrades, MinionDataKeys.STRING) ?: ""),
-            activeTiers = UpgradeCodec.decode(container.get(keys.activeTiers, MinionDataKeys.STRING) ?: ""),
             inventoryBytes = container.get(keys.inventory, MinionDataKeys.BYTES),
             uuid = container.get(keys.minionUuid, MinionDataKeys.STRING)?.toUuidOrNull(),
             shutdownTimestamp = container.get(keys.shutdownTimestamp, MinionDataKeys.LONG)
@@ -47,7 +46,6 @@ class MinionStateRepository(
         container.set(keys.level, MinionDataKeys.INT, state.level)
         container.set(keys.xp, MinionDataKeys.DOUBLE, state.xp)
         container.set(keys.upgrades, MinionDataKeys.STRING, UpgradeCodec.encode(state.upgrades))
-        container.set(keys.activeTiers, MinionDataKeys.STRING, UpgradeCodec.encode(state.activeTiers))
         state.owner?.let { container.set(keys.owner, MinionDataKeys.STRING, it.toString()) }
         state.uuid?.let { container.set(keys.minionUuid, MinionDataKeys.STRING, it.toString()) }
         state.inventoryBytes?.let { container.set(keys.inventory, MinionDataKeys.BYTES, it) }

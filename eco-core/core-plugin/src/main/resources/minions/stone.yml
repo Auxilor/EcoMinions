@@ -49,8 +49,14 @@ allowed-upgrades:
   - auto_sell
   - experience
 
-compactor-tiers:
-  - basic_block
+compactor-recipes:
+  - hay_block
+  - coal_block
+  - copper_block
+  - iron_block
+  - gold_block
+  - emerald_block
+  - diamond_block
 
 effects:
   - id: minion_compact

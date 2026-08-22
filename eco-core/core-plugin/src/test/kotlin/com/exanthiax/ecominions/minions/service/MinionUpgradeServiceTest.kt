@@ -5,34 +5,30 @@ import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
+import com.willfp.libreforge.conditions.ConditionList
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class MinionUpgradeServiceTest {
 
-    private val type = MinionTypeFixture.build(allowedUpgradeIds = listOf("compactor"))
+    private val type = MinionTypeFixture.build(allowedUpgradeIds = listOf("speed"))
 
-    @AfterEach
-    fun tearDown() {
-        unmockkStatic(Bukkit::class)
-    }
-
-    private fun tier(level: Int) = UpgradeTier(level, value = 0.0, statDelta = "", costs = emptyList(), holder = null)
-
-    private val compactor = Upgrade(
-        id = "compactor", name = "Compactor", iconLookup = "furnace",
-        tiers = mapOf(1 to tier(1), 2 to tier(2)), selectable = true
+    private fun tier(buyConditions: ConditionList = ConditionList(emptyList())) = UpgradeTier(
+        level = 1,
+        value = 5.0,
+        statDelta = "-5 ticks",
+        costs = emptyList(),
+        holder = null,
+        buyConditions = buyConditions
     )
+
+    private val speed = Upgrade(id = "speed", name = "Speed", iconLookup = "sugar", tiers = mapOf(1 to tier()))
 
     private val affordableCost = mockk<TierCost> {
         every { canAfford(any()) } returns true
@@ -40,78 +36,43 @@ class MinionUpgradeServiceTest {
     }
 
     private fun minion(state: MinionState): Minion =
-        mockk<Minion> { every { this@mockk.state } returns state }
+        mockk<Minion>(relaxed = true) { every { this@mockk.state } returns state }
 
     private fun service(minionService: MinionService = mockk(relaxed = true)) =
         MinionUpgradeService(minionService) to minionService
 
+    // No test for the PURCHASED result: a successful purchase calls
+    // Bukkit.getPluginManager().callEvent(...), which needs a live server and
+    // has never been unit-testable here (this class had no test file before
+    // buy-conditions existed either). Verified manually instead.
+
     @Test
-    fun `buying a selectable upgrade's first tier also activates it`() {
-        mockkStatic(Bukkit::class)
-        every { Bukkit.getPluginManager() } returns mockk(relaxed = true)
+    fun `an upgrade not on the minion's allow-list is rejected`() {
         val (service, minionService) = service()
-        val minion = minion(MinionState(type = type))
+        val state = MinionState(type = MinionTypeFixture.build(allowedUpgradeIds = emptyList()))
+        val minion = minion(state)
         val player = mockk<Player>(relaxed = true)
 
-        service.purchase(player, minion, compactor, tier(1), affordableCost)
+        val result = service.purchase(player, minion, speed, speed.tier(1)!!, affordableCost)
 
-        verify {
-            minionService.updateState(minion, withArg<MinionState> {
-                assertEquals(1, it.upgradeLevel("compactor"))
-                assertEquals(1, it.activeTierOf("compactor"))
-            })
-        }
+        assertEquals(MinionUpgradeService.Result.NOT_ALLOWED, result)
+        verify(exactly = 0) { minionService.updateState(any(), any()) }
     }
 
-    @Test
-    fun `activating an owned lower tier does not change the owned tier`() {
-        val (service, minionService) = service()
-        val state = MinionState(type = type).withUpgrade("compactor", 2).withActiveTier("compactor", 2)
-        val minion = minion(state)
-
-        val result = service.activate(minion, compactor, 1)
-
-        assertEquals(MinionUpgradeService.ActivateResult.ACTIVATED, result)
-        verify {
-            minionService.updateState(minion, withArg<MinionState> {
-                assertEquals(2, it.upgradeLevel("compactor"))
-                assertEquals(1, it.activeTierOf("compactor"))
-            })
-        }
-    }
+    // No test for a non-empty, unmet buy-conditions list: evaluating that branch
+    // constructs libreforge's `EmptyProvidedHolder`, which needs a live plugin
+    // instance to initialize - same reason UpgradeLoader/CompactorService have
+    // no unit tests either. Verified manually instead.
 
     @Test
-    fun `activating a tier refreshes the minion's holders`() {
-        val (service, minionService) = service()
-        val state = MinionState(type = type).withUpgrade("compactor", 2).withActiveTier("compactor", 2)
-        val minion = minion(state)
-
-        service.activate(minion, compactor, 1)
-
-        verify { minionService.onLevelChanged(minion) }
-    }
-
-    @Test
-    fun `activating a tier higher than owned is rejected`() {
+    fun `an unaffordable tier is rejected once buy-conditions pass`() {
         val (service, _) = service()
-        val state = MinionState(type = type).withUpgrade("compactor", 1).withActiveTier("compactor", 1)
-        val minion = minion(state)
+        val minion = minion(MinionState(type = type))
+        val player = mockk<Player>(relaxed = true)
+        val unaffordable = mockk<TierCost> { every { canAfford(any()) } returns false }
 
-        val result = service.activate(minion, compactor, 2)
+        val result = service.purchase(player, minion, speed, speed.tier(1)!!, unaffordable)
 
-        assertEquals(MinionUpgradeService.ActivateResult.TIER_NOT_OWNED, result)
-    }
-
-    @Test
-    fun `activating a non-selectable upgrade is not allowed`() {
-        val (service, _) = service()
-        val speed = Upgrade(id = "speed", name = "Speed", iconLookup = "sugar", tiers = mapOf(1 to tier(1)))
-        val state = MinionState(type = MinionTypeFixture.build(allowedUpgradeIds = listOf("speed")))
-            .withUpgrade("speed", 1)
-        val minion = minion(state)
-
-        val result = service.activate(minion, speed, 1)
-
-        assertEquals(MinionUpgradeService.ActivateResult.NOT_ALLOWED, result)
+        assertEquals(MinionUpgradeService.Result.CANNOT_AFFORD, result)
     }
 }

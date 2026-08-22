@@ -8,16 +8,11 @@ import com.willfp.libreforge.registerSpecificHolderProvider
 
 /**
  * Everything that gives a minion effects: its type, and each purchased upgrade at
- * the tier it is running.
+ * the tier actually owned.
  *
  * Tier holders are pre-compiled per rung, so buying tier 3 swaps holder `..._2`
  * out for `..._3` and libreforge's own diffing disables and enables the right
  * permanent effects. There is no bespoke bookkeeping here on purpose.
- *
- * The tier a minion runs is not always the tier it owns: a selectable upgrade
- * lets a player run a lower tier than the one purchased, so the holder is
- * resolved through `MinionState.activeTierOf`, which falls back to the owned
- * tier for every non-selectable upgrade.
  */
 class MinionHolders(
     private val upgradeById: (String) -> Upgrade?
@@ -28,12 +23,12 @@ class MinionHolders(
 
         state.type.holder?.let { holders += SimpleProvidedHolder(it) }
 
-        for (upgradeId in state.upgrades.keys) {
+        for ((upgradeId, tier) in state.upgrades) {
             if (upgradeId !in state.type.allowedUpgradeIds) {
                 continue
             }
             val upgrade = upgradeById(upgradeId) ?: continue
-            upgrade.holderFor(state.activeTierOf(upgradeId))?.let { holders += SimpleProvidedHolder(it) }
+            upgrade.holderFor(tier)?.let { holders += SimpleProvidedHolder(it) }
         }
 
         return holders

@@ -7,8 +7,7 @@ import com.exanthiax.ecominions.commands.InfoSubcommand
 import com.exanthiax.ecominions.commands.OpenSubcommand
 import com.exanthiax.ecominions.commands.RemoveSubcommand
 import com.exanthiax.ecominions.commands.ReloadSubcommand
-import com.exanthiax.ecominions.compactor.integration.CompactorTierDefinitionLoader
-import com.exanthiax.ecominions.compactor.model.CompactorTierDefinition
+import com.exanthiax.ecominions.compactor.integration.CompactorRecipeLoader
 import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.error.LoadReport
@@ -111,9 +110,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     // Registries
     private val gameData = GameDataLoader().load()
-    private val compactorTierDefinitions = ConfigDrivenRegistry(
-        "compactor_tier", "compactor-tiers", "compactor tiers",
-        CompactorTierDefinitionLoader(), report
+    private val compactorRecipes = ConfigDrivenRegistry(
+        "compactor_recipe", "compactor-recipes", "compactor recipes",
+        CompactorRecipeLoader(), report
     )
     private val minionTypes = ConfigDrivenRegistry(
         "minion_type", "minions", "minion types",
@@ -123,8 +122,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             LevellingLoader(),
             { minionSettings.value.sellPricing.autoFromEcoShop },
             { minionSettings.value.hardSlotCap },
-            compactorTierDefinitions::find,
-            compactorTierDefinitions::ids
+            compactorRecipes::find,
+            compactorRecipes::ids
         ),
         report
     )
@@ -221,7 +220,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
 
     override fun loadConfigCategories(): List<ConfigCategory> =
-        LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorTierDefinitions)
+        LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
         LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService, triggerDispatch, xpService)

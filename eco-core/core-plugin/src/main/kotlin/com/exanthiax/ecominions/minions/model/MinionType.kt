@@ -1,8 +1,7 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.exanthiax.ecominions.compactor.model.CompactorRecipe
+import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
-import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.Holder
 import org.bukkit.Material
 import com.exanthiax.ecominions.api.minion.MinionType as ApiMinionType
@@ -29,12 +28,11 @@ class MinionType(
     /** Compiled from the type's `effects:` block. Always active, no purchase needed. */
     val holder: Holder? = null,
     /**
-     * Resolved from this type's `compactor-tiers:` list, where position (1-based)
-     * becomes the tier's level; null if the type declares no compactor ladder.
+     * Resolved from this type's `compactor-recipes:` list of catalog ids, in the
+     * order authored (used for menu display order only - each is bought and
+     * gated independently).
      */
-    val compactorUpgrade: Upgrade? = null,
-    /** This type's compactor ladder recipes, keyed by tier level. */
-    val compactorRecipesByTier: Map<Int, List<CompactorRecipe>> = emptyMap()
+    val compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
 ) : ApiMinionType {
 
     /** Preview value shown before a minion's actual level is known, e.g. in the type-select menu. */

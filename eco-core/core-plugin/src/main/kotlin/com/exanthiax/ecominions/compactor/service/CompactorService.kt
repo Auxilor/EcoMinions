@@ -14,12 +14,13 @@ class CompactorService {
      * @return Items that did not fit back into [storage].
      */
     fun compact(storage: MinionStorage, recipes: List<CompactorRecipe>): List<ItemStack> {
+        val ordered = orderByChain(recipes)
         val overflow = mutableListOf<ItemStack>()
         var changed = true
 
         while (changed) {
             changed = false
-            for (recipe in recipes) {
+            for (recipe in ordered) {
                 while (countMatching(storage, recipe) >= recipe.inputAmount) {
                     if (!consume(storage, recipe)) {
                         break
@@ -31,6 +32,29 @@ class CompactorService {
         }
 
         return overflow
+    }
+
+    /**
+     * Orders recipes so one declaring `higher-level-of` runs after the recipe it
+     * builds on, e.g. `coal -> coal_block` before `coal_block -> enchanted_coal`.
+     * Not required for correctness - the loop above already converges over
+     * multiple passes regardless of order - but keeps a linear chain predictable.
+     */
+    private fun orderByChain(recipes: List<CompactorRecipe>): List<CompactorRecipe> {
+        val byId = recipes.associateBy { it.id }
+        val ordered = mutableListOf<CompactorRecipe>()
+        val visited = mutableSetOf<String>()
+
+        fun visit(recipe: CompactorRecipe) {
+            if (!visited.add(recipe.id)) {
+                return
+            }
+            recipe.higherLevelOf?.let { byId[it] }?.let(::visit)
+            ordered += recipe
+        }
+
+        recipes.forEach(::visit)
+        return ordered
     }
 
     private fun outputOf(recipe: CompactorRecipe): ItemStack {

@@ -1,0 +1,13 @@
+name: "&fIron Compactor"
+display:
+  icon: iron_block
+
+input: IRON_INGOT
+input-amount: 9
+output: IRON_BLOCK
+output-amount: 1
+
+cost-options:
+  - value: 20000
+    type: vault
+    display: "&a$%value_commas%"

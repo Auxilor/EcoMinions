@@ -66,7 +66,11 @@ class UpgradeLoader : ConfigLoader<Upgrade> {
             value = value,
             statDelta = tierConfig.getStringOrNull("stat-delta") ?: "",
             costs = readCosts(tierConfig, context),
-            holder = compileHolder(upgradeId, level, upgradeConfig, tierConfig, context)
+            holder = compileHolder(upgradeId, level, upgradeConfig, tierConfig, context),
+            buyConditions = Conditions.compile(
+                tierConfig.getSubsections("buy-conditions"),
+                context.violationContext.with("buy-conditions")
+            )
         )
     }
 

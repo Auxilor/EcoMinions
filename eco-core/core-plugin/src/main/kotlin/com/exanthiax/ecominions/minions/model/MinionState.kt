@@ -9,12 +9,6 @@ data class MinionState(
     val xp: Double = 0.0,
     val owner: UUID? = null,
     val upgrades: Map<String, Int> = emptyMap(),
-    /**
-     * Which tier of a [selectable][com.exanthiax.ecominions.upgrades.model.Upgrade.selectable]
-     * upgrade is currently in effect, keyed by upgrade id. Absent means "the
-     * owned tier" - the only meaningful value for a non-selectable upgrade.
-     */
-    val activeTiers: Map<String, Int> = emptyMap(),
     val inventoryBytes: ByteArray? = null,
     val uuid: UUID? = null,
     val shutdownTimestamp: Long? = null
@@ -34,13 +28,6 @@ data class MinionState(
         get() = type.levelling.enabled && level >= type.levelling.maxLevel
 
     fun upgradeLevel(upgradeId: String): Int = upgrades[upgradeId] ?: 0
-
-    /** @return The tier currently in effect for [upgradeId] - the selection if one was made, else the owned tier. */
-    fun activeTierOf(upgradeId: String): Int = activeTiers[upgradeId] ?: upgradeLevel(upgradeId)
-
-    /** @return A copy with [tier] selected as the active tier for [upgradeId]. */
-    fun withActiveTier(upgradeId: String, tier: Int): MinionState =
-        copy(activeTiers = activeTiers + (upgradeId to tier))
 
     /**
      * @return A copy with [upgradeId] set to [tier].
@@ -69,7 +56,6 @@ data class MinionState(
             xp == other.xp &&
             owner == other.owner &&
             upgrades == other.upgrades &&
-            activeTiers == other.activeTiers &&
             uuid == other.uuid &&
             shutdownTimestamp == other.shutdownTimestamp &&
             (inventoryBytes?.contentEquals(other.inventoryBytes) ?: (other.inventoryBytes == null))
@@ -81,7 +67,6 @@ data class MinionState(
         result = 31 * result + xp.hashCode()
         result = 31 * result + (owner?.hashCode() ?: 0)
         result = 31 * result + upgrades.hashCode()
-        result = 31 * result + activeTiers.hashCode()
         result = 31 * result + (uuid?.hashCode() ?: 0)
         result = 31 * result + (shutdownTimestamp?.hashCode() ?: 0)
         result = 31 * result + (inventoryBytes?.contentHashCode() ?: 0)

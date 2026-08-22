@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.libreforge
 
-import com.exanthiax.ecominions.compactor.model.CompactorTierDefinition
+import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.fuel.model.Fuel
@@ -51,18 +51,18 @@ import com.willfp.libreforge.triggers.Triggers
 object LibreforgeRegistrations {
 
     /**
-     * `compactorTierDefinitions` must load before `types`: [MinionTypeLoader]
-     * resolves each type's compactor ladder during `load()`, so a type parsed
-     * before the catalog is populated silently gets no compactor at all. This
-     * ordering has to survive `/minions reload` too, not just first boot -
-     * reload calls `clear()` on every category and reloads them in this order.
+     * `compactorRecipes` must load before `types`: [MinionTypeLoader] resolves
+     * each type's `compactor-recipes:` list during `load()`, so a type parsed
+     * before the catalog is populated silently gets none of them. This ordering
+     * has to survive `/minions reload` too, not just first boot - reload calls
+     * `clear()` on every category and reloads them in this order.
      */
     fun configCategories(
         types: ConfigDrivenRegistry<MinionType>,
         upgrades: ConfigDrivenRegistry<Upgrade>,
         fuels: ConfigDrivenRegistry<Fuel>,
-        compactorTierDefinitions: ConfigDrivenRegistry<CompactorTierDefinition>
-    ): List<ConfigCategory> = listOf(upgrades, fuels, compactorTierDefinitions, types)
+        compactorRecipes: ConfigDrivenRegistry<CompactorRecipeDefinition>
+    ): List<ConfigCategory> = listOf(upgrades, fuels, compactorRecipes, types)
 
     /**
      * Every libreforge component this plugin owns.

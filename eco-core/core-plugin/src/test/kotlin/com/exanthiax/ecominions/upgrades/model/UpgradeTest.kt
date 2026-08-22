@@ -2,10 +2,8 @@ package com.exanthiax.ecominions.upgrades.model
 
 import com.willfp.libreforge.Holder
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class UpgradeTest {
@@ -56,30 +54,5 @@ class UpgradeTest {
         )
 
         assertNull(upgrade.holderFor(1))
-    }
-
-    @Test
-    fun `selectable defaults to false`() {
-        val upgrade = Upgrade(
-            id = "speed",
-            name = "Speed",
-            iconLookup = "sugar",
-            tiers = mapOf(1 to tier(1, null))
-        )
-
-        assertFalse(upgrade.selectable)
-    }
-
-    @Test
-    fun `selectable can be turned on`() {
-        val upgrade = Upgrade(
-            id = "compactor",
-            name = "Compactor",
-            iconLookup = "furnace",
-            tiers = mapOf(1 to tier(1, null)),
-            selectable = true
-        )
-
-        assertTrue(upgrade.selectable)
     }
 }

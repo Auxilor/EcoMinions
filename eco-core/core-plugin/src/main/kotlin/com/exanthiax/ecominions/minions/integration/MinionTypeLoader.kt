@@ -1,7 +1,6 @@
 package com.exanthiax.ecominions.minions.integration
 
-import com.exanthiax.ecominions.compactor.model.CompactorRecipe
-import com.exanthiax.ecominions.compactor.model.CompactorTierDefinition
+import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.core.registry.ConfigLoader
@@ -14,8 +13,6 @@ import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.WoodFamily
-import com.exanthiax.ecominions.upgrades.model.Upgrade
-import com.exanthiax.ecominions.upgrades.model.UpgradeTier
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.placeholder.context.placeholderContext
 import com.willfp.eco.util.NamespacedKeyUtils
@@ -36,10 +33,10 @@ class MinionTypeLoader(
     private val autoPricingEnabled: () -> Boolean,
     /** config.yml's ceiling on any type's declared slots. Read per load, so reloads apply. */
     private val hardSlotCap: () -> Int,
-    /** Looks one entry out of the `compactor-tiers/` catalog. */
-    private val compactorTier: (String) -> CompactorTierDefinition?,
+    /** Looks one entry out of the `compactor-recipes/` catalog. */
+    private val compactorRecipe: (String) -> CompactorRecipeDefinition?,
     /** Every catalog id, for the "known: [...]" half of an unresolvable-id violation. */
-    private val compactorTierIds: () -> Collection<String>
+    private val compactorRecipeIds: () -> Collection<String>
 ) : ConfigLoader<MinionType> {
 
     override fun load(id: String, config: Config, context: LoadContext): MinionType? {
@@ -57,8 +54,8 @@ class MinionTypeLoader(
         }
 
         val spawnItem = readSpawnItem(config, context) ?: return null
-        val ladder = readCompactorLadder(id, config, context)
-        val allowedUpgrades = config.getStrings("allowed-upgrades") + listOfNotNull(ladder.upgrade?.id)
+        val compactorRecipes = readCompactorRecipes(config, context)
+        val allowedUpgrades = config.getStrings("allowed-upgrades") + compactorRecipes.map { it.upgrade.id }
         val sellPrices = readSellPrices(config, context)
 
         if (AUTO_SELL in allowedUpgrades && sellPrices.isEmpty() && !autoPricingEnabled()) {
@@ -84,71 +81,20 @@ class MinionTypeLoader(
             sellPrices = sellPrices,
             levelling = levelling.load(config, context),
             holder = compileHolder(id, config, context),
-            compactorUpgrade = ladder.upgrade,
-            compactorRecipesByTier = ladder.recipesByTier
+            compactorRecipes = compactorRecipes
         )
-    }
-
-    internal class CompactorLadder(
-        val upgrade: Upgrade?,
-        val recipesByTier: Map<Int, List<CompactorRecipe>>
-    ) {
-        companion object {
-            val NONE = CompactorLadder(null, emptyMap())
-        }
     }
 
     /**
-     * Resolves this type's own compactor ladder from the shared `compactor-tiers/`
-     * catalog: position in the type's `compactor-tiers:` list becomes that tier's
-     * level, so different types can share catalog entries while unlocking them in
-     * a different order (or skipping some entirely).
-     *
-     * An unresolvable id truncates the ladder rather than leaving a hole in it:
-     * `Upgrade.nextTier` walks `tiers[current + 1]`, so a gap at level 2 would
-     * make level 3 permanently unbuyable while still counting towards `maxTier`.
-     * Truncating keeps the ladder coherent, and the violation says what was lost.
+     * Resolves this type's `compactor-recipes:` list of catalog ids into the
+     * matching [CompactorRecipeDefinition]s, in the order authored. Each recipe
+     * is bought and gated independently - an unresolvable id is just dropped
+     * (with a violation), not treated as truncating anything after it.
      */
-    internal fun readCompactorLadder(minionTypeId: String, config: Config, context: LoadContext): CompactorLadder {
-        val tierIds = config.getStrings("compactor-tiers")
-        if (tierIds.isEmpty()) {
-            return CompactorLadder.NONE
+    private fun readCompactorRecipes(config: Config, context: LoadContext): List<CompactorRecipeDefinition> =
+        config.getStrings("compactor-recipes").mapNotNull { recipeId ->
+            compactorRecipe(recipeId) ?: context.unknown("compactor-recipes", recipeId, compactorRecipeIds())
         }
-
-        val tiers = mutableMapOf<Int, UpgradeTier>()
-        val recipesByTier = mutableMapOf<Int, List<CompactorRecipe>>()
-
-        for ((index, tierId) in tierIds.withIndex()) {
-            val level = index + 1
-            val definition = compactorTier(tierId)
-            if (definition == null) {
-                context.unknown<Unit>("compactor-tiers", tierId, compactorTierIds())
-                if (index < tierIds.lastIndex) {
-                    context.violation(
-                        "compactor-tiers",
-                        "'$tierId' is tier $level, so the ${tierIds.size - level} tier(s) after it " +
-                            "are unreachable and were dropped"
-                    )
-                }
-                break
-            }
-            tiers[level] = UpgradeTier(level, value = 0.0, statDelta = "", costs = definition.costs, holder = null)
-            recipesByTier[level] = definition.recipes
-        }
-
-        if (tiers.isEmpty()) {
-            return CompactorLadder.NONE
-        }
-
-        val upgrade = Upgrade(
-            id = "compactor_$minionTypeId",
-            name = COMPACTOR_UPGRADE_NAME,
-            iconLookup = COMPACTOR_ICON,
-            tiers = tiers,
-            selectable = true
-        )
-        return CompactorLadder(upgrade, recipesByTier)
-    }
 
     private fun compileHolder(id: String, config: Config, context: LoadContext): Holder? {
         val effectConfigs = config.getSubsections("effects")
@@ -333,7 +279,5 @@ class MinionTypeLoader(
         const val AUTO_SELL = "auto_sell"
         const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
         const val NAMESPACE = "ecominions"
-        const val COMPACTOR_UPGRADE_NAME = "&7Compactor"
-        const val COMPACTOR_ICON = "furnace"
     }
 }

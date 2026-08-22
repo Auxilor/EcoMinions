@@ -13,7 +13,7 @@ import com.willfp.libreforge.getIntFromExpression
 import com.willfp.libreforge.triggers.TriggerData
 
 object ConditionMinionHasUpgrade : Condition<NoCompileData>("minion_has_upgrade") {
-    override val description = "Passes when the minion owns, or is running, the given upgrade at or above a tier."
+    override val description = "Passes when the minion owns the given upgrade at or above a tier."
     override val categories = setOf("minion")
 
     override val arguments = arguments {
@@ -29,13 +29,6 @@ object ConditionMinionHasUpgrade : Condition<NoCompileData>("minion_has_upgrade"
             type = ArgType.EXPRESSION,
             default = "1"
         )
-        optional(
-            "mode",
-            description = "'unlocked' (owns at/above tier) or 'active' (the currently " +
-                "selected tier, for a selectable upgrade, is at/above tier). Defaults to 'unlocked'.",
-            type = ArgType.STRING,
-            default = "unlocked"
-        )
     }
 
     override fun isMet(
@@ -45,11 +38,8 @@ object ConditionMinionHasUpgrade : Condition<NoCompileData>("minion_has_upgrade"
         compileData: NoCompileData
     ): Boolean {
         val minion = dispatcher.get<Minion>() ?: return false
-        val id = config.getString("upgrade").lowercase()
         val required = if (config.has("tier")) config.getIntFromExpression("tier", null as TriggerData?) else 1
-        val mode = config.getStringOrNull("mode")?.lowercase() ?: "unlocked"
 
-        val actual = if (mode == "active") minion.state.activeTierOf(id) else minion.state.upgradeLevel(id)
-        return actual >= required
+        return minion.state.upgradeLevel(config.getString("upgrade").lowercase()) >= required
     }
 }

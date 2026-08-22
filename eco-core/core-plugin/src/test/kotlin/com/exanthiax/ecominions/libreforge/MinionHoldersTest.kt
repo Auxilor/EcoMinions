@@ -81,25 +81,4 @@ class MinionHoldersTest {
     fun `an unknown upgrade id is ignored rather than throwing`() {
         assertTrue(holders.holdersFor(minion(mapOf("ghost" to 3), null)).isEmpty())
     }
-
-    @Test
-    fun `a selectable upgrade provides the active tier's holder, not the owned one`() {
-        val selectableSpeed = Upgrade(
-            id = "speed",
-            name = "Speed",
-            iconLookup = "sugar",
-            tiers = mapOf(1 to tier(1, tierOneHolder), 2 to tier(2, tierTwoHolder)),
-            selectable = true
-        )
-        val holders = MinionHolders { id -> if (id == "speed") selectableSpeed else null }
-        val type = MinionTypeFixture.build(allowedUpgradeIds = listOf("speed"))
-        val state = MinionState(type = type)
-            .withUpgrade("speed", 2)
-            .withActiveTier("speed", 1)
-        val minion = mockk<Minion> { every { this@mockk.state } returns state }
-
-        val provided = holders.holdersFor(minion)
-
-        assertEquals(listOf(tierOneHolder), provided.map { it.holder })
-    }
 }

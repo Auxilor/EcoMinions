@@ -1,0 +1,13 @@
+name: "&bDiamond Compactor"
+display:
+  icon: diamond_block
+
+input: DIAMOND
+input-amount: 9
+output: DIAMOND_BLOCK
+output-amount: 1
+
+cost-options:
+  - value: 40000
+    type: vault
+    display: "&a$%value_commas%"

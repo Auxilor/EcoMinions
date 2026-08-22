@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.upgrades.model
 
 import com.exanthiax.ecominions.api.upgrade.Upgrade as ApiUpgrade
 import com.willfp.libreforge.Holder
+import com.willfp.libreforge.conditions.ConditionList
 
 /** A purchasable upgrade and its tier ladder. */
 class Upgrade(
@@ -9,13 +10,7 @@ class Upgrade(
     override val name: String,
     /** eco item lookup string for the menu icon. */
     val iconLookup: String,
-    val tiers: Map<Int, UpgradeTier>,
-    /**
-     * Whether a minion can own a tier higher than the one currently in effect,
-     * and pick which owned tier runs. False means "own exactly one tier at a
-     * time" (today's behavior for every other upgrade).
-     */
-    val selectable: Boolean = false
+    val tiers: Map<Int, UpgradeTier>
 ) : ApiUpgrade {
 
     override val maxTier: Int = tiers.keys.maxOrNull() ?: 0
@@ -44,5 +39,7 @@ class UpgradeTier(
     val statDelta: String,
     val costs: List<TierCost>,
     /** Compiled from the upgrade's `effects:` block with this tier's value bound. */
-    val holder: Holder?
+    val holder: Holder?,
+    /** Gates whether this tier can be bought at all, checked before affordability. */
+    val buyConditions: ConditionList = ConditionList(emptyList())
 )
