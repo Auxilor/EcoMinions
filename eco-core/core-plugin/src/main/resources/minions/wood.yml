@@ -11,7 +11,6 @@ base-stats:
   regen-delay-ticks: 200
 
 spawn-item:
-  mode: item
   item: "OAK_LOG"
   display-name: "&6Wood Minion &7(Lvl %level%)"
   lore:
@@ -48,22 +47,9 @@ allowed-upgrades:
   - auto_sell
   - experience
 
-armor:
-  chestplate:
-    material: LEATHER_CHESTPLATE
-    color:
-      r: 115
-      g: 78
-      b: 45
-  leggings:
-    material: LEATHER_LEGGINGS
-    color:
-      r: 115
-      g: 78
-      b: 45
-  boots:
-    material: LEATHER_BOOTS
-    color:
-      r: 115
-      g: 78
-      b: 45
+equipment:
+  helmet: LEATHER_HELMET
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS
+  hand: IRON_AXE

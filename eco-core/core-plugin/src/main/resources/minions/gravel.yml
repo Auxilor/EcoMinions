@@ -11,7 +11,6 @@ base-stats:
   regen-delay-ticks: 100
 
 spawn-item:
-  mode: item
   item: "GRAVEL"
   display-name: "&8Gravel Minion &7(Lvl %level%)"
   lore:
@@ -46,22 +45,7 @@ allowed-upgrades:
   - auto_sell
   - experience
 
-armor:
-  chestplate:
-    material: LEATHER_CHESTPLATE
-    color:
-      r: 78
-      g: 78
-      b: 78
-  leggings:
-    material: LEATHER_LEGGINGS
-    color:
-      r: 78
-      g: 78
-      b: 78
-  boots:
-    material: LEATHER_BOOTS
-    color:
-      r: 78
-      g: 78
-      b: 78
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS

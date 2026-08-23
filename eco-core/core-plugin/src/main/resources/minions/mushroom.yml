@@ -12,7 +12,6 @@ base-stats:
   regen-delay-ticks: 200
 
 spawn-item:
-  mode: item
   item: "RED_MUSHROOM"
   display-name: "&cMushroom Minion &7(Lvl %level%)"
   lore:
@@ -47,22 +46,7 @@ allowed-upgrades:
   - auto_sell
   - experience
 
-armor:
-  chestplate:
-    material: LEATHER_CHESTPLATE
-    color:
-      r: 150
-      g: 70
-      b: 50
-  leggings:
-    material: LEATHER_LEGGINGS
-    color:
-      r: 150
-      g: 70
-      b: 50
-  boots:
-    material: LEATHER_BOOTS
-    color:
-      r: 150
-      g: 70
-      b: 50
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS

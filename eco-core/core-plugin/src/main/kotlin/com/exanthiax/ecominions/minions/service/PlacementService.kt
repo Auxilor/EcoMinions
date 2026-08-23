@@ -5,16 +5,15 @@ import com.exanthiax.ecominions.api.event.MinionPlaceEvent
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.core.world.WorldSettings
-import com.exanthiax.ecominions.minions.model.MinionArmorSlot
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
+import com.willfp.eco.core.items.Items
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.LeatherArmorMeta
 import java.util.UUID
 
 /** Places minions in the world and takes them back out of it. */
@@ -105,13 +104,13 @@ class PlacementService(
         stand.setMarker(false)
         stand.removeWhenFarAway = false
 
-        val armor = state.type.armor
+        val configured = state.type.equipment
         val equipment = stand.equipment
-        equipment.helmet = armor.helmet?.toItemStack() ?: itemFactory.headFor(state.type)
-        armor.chestplate?.let { equipment.chestplate = it.toItemStack() }
-        armor.leggings?.let { equipment.leggings = it.toItemStack() }
-        armor.boots?.let { equipment.boots = it.toItemStack() }
-        equipment.setItemInMainHand(ItemStack(Material.IRON_PICKAXE))
+        equipment.helmet = configured.helmet?.toItemStack() ?: itemFactory.headFor(state.type)
+        configured.chestplate?.toItemStack()?.let { equipment.chestplate = it }
+        configured.leggings?.toItemStack()?.let { equipment.leggings = it }
+        configured.boots?.toItemStack()?.let { equipment.boots = it }
+        equipment.setItemInMainHand(configured.hand?.toItemStack() ?: ItemStack(Material.IRON_PICKAXE))
     }
 
     /** Regen markers are real bedrock; leaving them behind would grief the world. */
@@ -126,14 +125,7 @@ class PlacementService(
         minion.mining.pendingRegen.clear()
     }
 
-    private fun MinionArmorSlot.toItemStack(): ItemStack {
-        val item = ItemStack(material)
-        val color = color ?: return item
-        val meta = item.itemMeta as? LeatherArmorMeta ?: return item
-        meta.setColor(color)
-        item.itemMeta = meta
-        return item
-    }
+    private fun String.toItemStack(): ItemStack = Items.lookup(this).item.clone()
 
     private companion object {
         const val ADMIN_PERMISSION = "ecominions.admin"

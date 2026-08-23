@@ -2,7 +2,7 @@ package com.exanthiax.ecominions.minions
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
-import com.exanthiax.ecominions.minions.model.MinionArmor
+import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
@@ -27,8 +27,9 @@ object MinionTypeFixture {
             efficiencyTicks = "10",
             radius = "2",
             storageSlots = "1",
-            maxStorageSlots = 54,
-            regenDelayTicks = "60"
+            maxStorageSlots = "54",
+            regenDelayTicks = "60",
+            hardSlotCap = 54
         ),
         levelling: LevellingSpec = LevellingSpec.DISABLED,
         holder: Holder? = null,
@@ -41,14 +42,12 @@ object MinionTypeFixture {
         woodFamily = null,
         baseStats = baseStats,
         spawnItem = SpawnItemSpec(
-            mode = SpawnItemSpec.Mode.ITEM,
-            texture = "",
             itemLookup = "armor_stand",
             displayName = "Stone Minion",
             lore = emptyList()
         ),
         crafting = null,
-        armor = MinionArmor.EMPTY,
+        equipment = MinionEquipment.EMPTY,
         particles = ParticleSettings(full = null, fullPlayerRadius = 16, idle = null, idlePlayerRadius = 16),
         placement = PlacementSettings.NONE,
         sellPrices = sellPrices,

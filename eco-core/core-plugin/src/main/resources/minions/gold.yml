@@ -12,7 +12,6 @@ base-stats:
   regen-delay-ticks: 240
 
 spawn-item:
-  mode: item
   item: "GOLD_BLOCK"
   display-name: "&6Gold Minion &7(Lvl %level%)"
   lore:
@@ -56,10 +55,7 @@ effects:
     triggers:
       - minion_mine_block
 
-armor:
-  chestplate:
-    material: GOLDEN_CHESTPLATE
-  leggings:
-    material: GOLDEN_LEGGINGS
-  boots:
-    material: GOLDEN_BOOTS
+equipment:
+  chestplate: GOLDEN_CHESTPLATE
+  leggings: GOLDEN_LEGGINGS
+  boots: GOLDEN_BOOTS
