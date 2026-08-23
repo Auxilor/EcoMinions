@@ -50,7 +50,14 @@ object MinionTypeFixture {
         ),
         crafting = null,
         equipment = MinionEquipment.EMPTY,
-        particles = ParticleSettings(full = null, fullPlayerRadius = 16, idle = null, idlePlayerRadius = 16),
+        particles = ParticleSettings(
+            full = null,
+            fullPlayerRadius = 16,
+            idle = null,
+            idlePlayerRadius = 16,
+            blocked = null,
+            blockedPlayerRadius = 16
+        ),
         placement = placement,
         sellPrices = sellPrices,
         levelling = levelling,

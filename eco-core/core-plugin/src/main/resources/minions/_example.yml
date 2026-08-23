@@ -115,23 +115,34 @@ placement:
   # seed-block: ""   # omit to seed the block this minion mines
 
 particles:
+  # `particle` is an eco particle string: a particle name like `flame`, or a
+  # factory form like `dust:ff5050` or `dust_transition:ff0000:0000ff`.
+  # `count` particles are spawned per burst, scattered within `offset` blocks.
   full:
     enabled: true
-    type: ANGRY_VILLAGER
+    particle: "angry_villager"
     interval-ticks: 20
     count: 4
     offset: 0.4
-    speed: 0.0
     nearby-player-radius: 16
   # Shown instead of the full-storage particles while the minion is idle
   # (its owner is offline), and only when a player is nearby to see it.
   idle:
     enabled: false
-    type: SMOKE
+    particle: "smoke"
     interval-ticks: 20
     count: 2
     offset: 0.3
-    speed: 0.0
+    nearby-player-radius: 16
+  # Traces a wireframe box around the mining area while the minion has nothing
+  # to mine, so its owner can see what needs clearing. Sized from radius and
+  # height above. Shown to the owner alone, never to other players.
+  blocked:
+    enabled: true
+    particle: "dust:ff5050"
+    interval-ticks: 20
+    count: 1
+    offset: 0.0
     nearby-player-radius: 16
 
 # Prices for auto_sell, keyed by material. Leave empty (or omit entirely) to
