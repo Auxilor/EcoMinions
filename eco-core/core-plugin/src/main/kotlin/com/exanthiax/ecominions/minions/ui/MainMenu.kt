@@ -12,13 +12,22 @@ import com.exanthiax.ecominions.minions.service.MinionStateRepository
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.willfp.eco.core.gui.menu
+import com.willfp.eco.core.gui.onClose
+import com.willfp.eco.core.gui.onOpen
+import com.willfp.eco.core.gui.onRender
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-/** The menu shown when a player clicks a minion. */
+/**
+ * The menu shown when a player clicks a minion.
+ *
+ * Every slot is provider-backed rather than a fixed item: the minion keeps
+ * mining and burning fuel while the menu is open, so the items are rebuilt on
+ * each render and [MenuViewers] drives those renders.
+ */
 class MainMenu(
     private val settings: SettingsHolder<MenuSettings>,
     private val messages: Messages,
@@ -28,28 +37,40 @@ class MainMenu(
     private val fuels: FuelService,
     private val fuelService: MinionFuelService,
     private val repository: MinionStateRepository,
-    private val upgradeList: UpgradeListMenu
+    private val upgradeList: UpgradeListMenu,
+    private val viewers: MenuViewers
 ) {
     fun open(player: Player, minion: Minion) {
         val current = settings.value
         val rows = current.mainRows
-        val context = TemplateContext.of(MinionPlaceholders.MINION to minion)
+        val positions = storagePositions(rows)
+
+        // Built once per render and then read by each storage slot, so the
+        // aggregation runs once for the whole area instead of once per slot.
+        var contents: List<ItemStack> = emptyList()
 
         menu(rows) {
-            setTitle(messages.render(current.mainTitle, context))
+            setTitle(messages.render(current.mainTitle, context(minion)))
             setMask(chrome.fillerMask(rows))
 
-            setSlot(1, TITLE_COLUMN, titleSlot(minion, context))
+            onRender { _, _ ->
+                contents = storageView.itemsFor(minion, settings.value, positions.size)
+            }
 
-            val positions = storagePositions(rows)
-            positions.zip(storageView.slotsFor(minion, current, positions.size))
-                .forEach { (position, slot) -> setSlot(position.first, position.second, slot) }
+            setSlot(1, TITLE_COLUMN, slot({ _, _ -> titleItem(minion) }))
 
-            setSlot(rows, 2, collectAllSlot(player, minion, context))
+            positions.forEachIndexed { index, (row, column) ->
+                setSlot(row, column, slot({ _, _ -> contents.getOrNull(index) ?: chrome.fillerItem() }))
+            }
+
+            setSlot(rows, 2, collectAllSlot(player, minion))
             setSlot(rows, 4, fuelSlot(player, minion))
             setSlot(rows, 5, pickupSlot(player, minion))
             setSlot(rows, 7, upgradesSlot(player, minion))
-            setSlot(rows, 8, infoSlot(context))
+            setSlot(rows, 8, infoSlot(minion))
+
+            onOpen { viewer, menu -> viewers.watch(viewer, menu) }
+            onClose { event, menu -> viewers.forget(event.player as Player, menu) }
         }.open(player)
     }
 
@@ -57,32 +78,40 @@ class MainMenu(
     private fun storagePositions(rows: Int): List<Pair<Int, Int>> =
         (2 until rows).flatMap { row -> (2..8).map { column -> row to column } }
 
-    private fun titleSlot(minion: Minion, context: TemplateContext): Slot {
+    private fun context(minion: Minion): TemplateContext =
+        TemplateContext.of(MinionPlaceholders.MINION to minion)
+
+    private fun titleItem(minion: Minion): ItemStack {
+        val context = context(minion)
         val item = ItemStack(Material.PLAYER_HEAD)
-        val meta = item.itemMeta ?: return slot(item)
+        val meta = item.itemMeta ?: return item
         meta.setDisplayName(messages.line("gui.main.title-item.name", context))
         meta.lore = messages.lines("gui.main.title-item.lore", context)
         item.itemMeta = meta
-        return slot(item)
+        return item
     }
 
-    private fun collectAllSlot(player: Player, minion: Minion, context: TemplateContext): Slot {
-        val item = chrome.named(
-            Material.HOPPER,
-            messages.line("gui.main.collect-all.name", context),
-            messages.lines("gui.main.collect-all.lore", context)
-        )
-
-        return slot(item) {
-            onLeftClick { _, _ ->
+    private fun collectAllSlot(player: Player, minion: Minion): Slot =
+        slot({ _, _ -> collectAllItem(minion) }) {
+            // Refreshed here as well as on the loop so the storage area empties
+            // the moment it is clicked, not on the next tick of the loop.
+            onLeftClick { _, _, menu ->
                 val collected = collectInto(player, minion)
                 repository.save(minion)
                 player.sendMessage(
                     messages.line("messages.collected", TemplateContext.of("count" to collected))
                 )
-                open(player, minion)
+                menu.refresh(player)
             }
         }
+
+    private fun collectAllItem(minion: Minion): ItemStack {
+        val context = context(minion)
+        return chrome.named(
+            Material.HOPPER,
+            messages.line("gui.main.collect-all.name", context),
+            messages.lines("gui.main.collect-all.lore", context)
+        )
     }
 
     /** @return How many items made it into the player's inventory. */
@@ -104,7 +133,25 @@ class MainMenu(
         return collected
     }
 
-    private fun fuelSlot(player: Player, minion: Minion): Slot {
+    private fun fuelSlot(player: Player, minion: Minion): Slot =
+        slot({ _, _ -> fuelItem(minion) }) {
+            onLeftClick { _, _, menu ->
+                val applied = fuelService.fuelFrom(player, minion)
+                if (applied == null) {
+                    player.sendMessage(messages.line("messages.no-fuel"))
+                } else {
+                    player.sendMessage(
+                        messages.line(
+                            "messages.fuel-applied",
+                            TemplateContext.of("fuel_name" to applied.displayName)
+                        )
+                    )
+                }
+                menu.refresh(player)
+            }
+        }
+
+    private fun fuelItem(minion: Minion): ItemStack {
         val active = fuels.activeFuelOf(minion)
         val lore = if (active == null) {
             messages.lines("gui.main.fuel.idle-lore")
@@ -119,28 +166,11 @@ class MainMenu(
             )
         }
 
-        val item = chrome.named(
+        return chrome.named(
             if (active != null) Material.BLAZE_ROD else Material.COAL,
             messages.line("gui.main.fuel.name"),
             lore
         )
-
-        return slot(item) {
-            onLeftClick { _, _ ->
-                val applied = fuelService.fuelFrom(player, minion)
-                if (applied == null) {
-                    player.sendMessage(messages.line("messages.no-fuel"))
-                } else {
-                    player.sendMessage(
-                        messages.line(
-                            "messages.fuel-applied",
-                            TemplateContext.of("fuel_name" to applied.displayName)
-                        )
-                    )
-                }
-                open(player, minion)
-            }
-        }
     }
 
     private fun pickupSlot(player: Player, minion: Minion): Slot {
@@ -177,14 +207,14 @@ class MainMenu(
         }
     }
 
-    private fun infoSlot(context: TemplateContext): Slot =
-        slot(
+    private fun infoSlot(minion: Minion): Slot =
+        slot({ _, _ ->
             chrome.named(
                 Material.BOOK,
                 messages.line("gui.main.info.name"),
-                messages.lines("gui.main.info.lore", context)
+                messages.lines("gui.main.info.lore", context(minion))
             )
-        )
+        })
 
     private companion object {
         const val TITLE_COLUMN = 5

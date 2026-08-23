@@ -61,6 +61,7 @@ import com.exanthiax.ecominions.minions.service.TreeFarmingService
 import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.minions.ui.MainMenu
 import com.exanthiax.ecominions.minions.ui.MenuChrome
+import com.exanthiax.ecominions.minions.ui.MenuViewers
 import com.exanthiax.ecominions.minions.ui.MinionAnimator
 import com.exanthiax.ecominions.minions.ui.MinionHologram
 import com.exanthiax.ecominions.minions.ui.MinionRenderLoop
@@ -200,9 +201,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val upgradeListMenu = UpgradeListMenu(
         upgradeMenuSettings, messages, chrome, upgradeService, upgradeMenu
     )
+    private val menuViewers = MenuViewers()
     private val mainMenu = MainMenu(
         menuSettings, messages, chrome, MinionStorageView(messages), placementService,
-        fuelService, minionFuelService, repository, upgradeListMenu
+        fuelService, minionFuelService, repository, upgradeListMenu, menuViewers
     )
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory)
 
@@ -217,7 +219,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
                 minionService, MinionAnimator(),
                 MinionHologram(messages, minionSettings, activityService),
                 ParticleEmitter(), minionSettings, activityService
-            )
+            ),
+            menuViewers
         )
     )
 

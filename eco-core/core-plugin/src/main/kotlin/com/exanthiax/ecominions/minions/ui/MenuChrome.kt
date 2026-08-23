@@ -13,6 +13,12 @@ class MenuChrome(
     fun fillerMask(rows: Int): FillerMask =
         FillerMask(MaskItems(fillerMaterial()), *Array(rows) { FULL_ROW })
 
+    /**
+     * The same item [fillerMask] paints, for slots that are set on every render
+     * and so have to draw their own background when they have nothing to show.
+     */
+    fun fillerItem(): ItemStack = ItemStack(fillerMaterial())
+
     fun backButton(): ItemStack = named(Material.ARROW, messages.line("gui.upgrade.back.name"))
 
     fun named(material: Material, name: String, lore: List<String> = emptyList()): ItemStack {

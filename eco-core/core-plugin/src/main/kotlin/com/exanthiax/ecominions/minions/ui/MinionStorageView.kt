@@ -5,8 +5,6 @@ import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.model.MenuSettings
 import com.exanthiax.ecominions.minions.model.MinionStorage
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.gui.slot
-import com.willfp.eco.core.gui.slot.Slot
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -44,14 +42,19 @@ object StorageContents {
 class MinionStorageView(
     private val messages: Messages
 ) {
-    /** @return One non-interactive slot per stored material, highest count first. */
-    fun slotsFor(minion: Minion, settings: MenuSettings, capacity: Int): List<Slot> =
+    /**
+     * @return One display item per stored material, highest count first.
+     *
+     * Called on every menu render rather than once at open, so the counts track
+     * what the minion is mining while the player watches.
+     */
+    fun itemsFor(minion: Minion, settings: MenuSettings, capacity: Int): List<ItemStack> =
         StorageContents.top(minion.storage, minOf(settings.storageSlots, capacity))
-            .map { (material, count) -> buildSlot(material, count, settings.storageDisplay) }
+            .map { (material, count) -> buildItem(material, count, settings.storageDisplay) }
 
-    private fun buildSlot(material: Material, count: Int, display: MenuSettings.StorageDisplay): Slot {
+    private fun buildItem(material: Material, count: Int, display: MenuSettings.StorageDisplay): ItemStack {
         val item = ItemStack(material)
-        val meta = item.itemMeta ?: return slot(item)
+        val meta = item.itemMeta ?: return item
         val context = TemplateContext.of(
             "item_name" to titleCase(material),
             "count" to count
@@ -69,7 +72,7 @@ class MinionStorageView(
         }
 
         item.itemMeta = meta
-        return slot(item)
+        return item
     }
 
     /** `SMOOTH_STONE` reads as `Smooth Stone`. */
