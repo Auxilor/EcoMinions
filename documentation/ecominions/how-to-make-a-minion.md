@@ -22,6 +22,7 @@ base-stats:
   speed-ticks: 70
   efficiency-ticks: 12
   radius: 3
+  height: 3
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 120
@@ -33,6 +34,10 @@ base-stats:
   - `speed-ticks` - ticks between mining attempts.
   - `efficiency-ticks` - additional ticks the mining animation/action takes.
   - `radius` - how far from the minion, in blocks, it searches for target blocks.
+  - `height` - the vertical span of that search, in blocks, measured from one block below the minion
+    upward. Defaults to `3` - one below, the minion's own level, and one above - which is the box every
+    type had before this was configurable. Raise it for tall targets: the wood minion uses `6`, exactly
+    the reach needed for the top log of a full tree.
   - `storage-slots` - stack slots in the minion's own storage, before upgrades.
   - `max-storage-slots` - the most slots capacity upgrades may reach on this type.
     Both are capped by `minion.hard-slot-cap` in `config.yml`.
@@ -217,20 +222,26 @@ leather armor.
 particles:
   full:
     enabled: true
-    type: ANGRY_VILLAGER
+    particle: "angry_villager"
     interval-ticks: 20
     count: 4
     offset: 0.4
-    speed: 0.0
     nearby-player-radius: 16
 ```
 
 `full` is emitted while the minion's storage is full and a player is within `nearby-player-radius` blocks.
-`type` is a Bukkit particle name, `interval-ticks` how often it emits, `count`/`offset`/`speed` the usual
-particle spawn parameters.
+`particle` is an eco particle string, so anything eco knows works - a particle name like `flame`, or a
+factory form like `dust:ff5050` or `dust_transition:ff0000:0000ff`. `interval-ticks` is how often it emits,
+`count` how many particles per burst, and `offset` how far, in blocks, they're scattered from the emit point.
 
-An equivalent `particles.idle` block is also available, mirroring `full`'s fields. It's shown only while the
-minion is idle (owner offline or chunk unloaded) and only when a player is nearby, and is disabled by default.
+Two more layers use the same fields:
+
+- `idle` - shown only while the minion is idle (owner offline or chunk unloaded) and a player is nearby.
+  Disabled by default.
+- `blocked` - a wireframe box traced around the minion's mining area while it has nothing left to mine, so
+  the area that needs clearing is visible. Sized from `radius` and `height`. Unlike the other two, it's shown
+  to the minion's owner alone - a stalled farm would otherwise blanket every passer-by in outlines. Give it
+  `offset: 0.0` so the outline lands exactly on its points rather than near them.
 
 ## levelling
 

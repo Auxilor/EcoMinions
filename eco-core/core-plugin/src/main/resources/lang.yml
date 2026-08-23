@@ -78,6 +78,7 @@ gui:
         - "&7Speed: &f%speed%"
         - "&7Efficiency: &f%efficiency%"
         - "&7Radius: &f%radius%"
+        - "&7Height: &f%height%"
         - "&7Capacity: &f%capacity%"
     upgrades-button:
       name: "&eUpgrades"
