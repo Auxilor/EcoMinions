@@ -254,11 +254,22 @@ tiers. See [How to Level a Minion](how-to-level-a-minion) for the full block, in
 placement:
   lift-regen: false
   surface-block: ""
+  self-seed: false
+  seed-block: ""
 ```
 
 - `lift-regen` - when `true`, a mined block regenerates one block higher than where it was broken.
 - `surface-block` - the material required beneath a spot for `lift-regen` to place a block there. Leave blank
   to allow any surface.
+- `self-seed` - when `true`, a minion with nothing left to mine places its own block: the nearest air spot in
+  range with a valid surface beneath it. Place the minion on a floor and it runs on its own. When `false`, a
+  player must place the starting blocks and the minion reports being blocked until they do. Tree types default
+  to `true`, since they have always planted their own saplings; every other type defaults to `false`.
+- `seed-block` - what `self-seed` places. Leave blank to seed the block the minion mines - its first
+  `target-blocks` entry, or the sapling of its wood family for a tree type.
+
+A seeded spot needs a surface: `surface-block` if one is set, otherwise any solid block directly beneath.
+A crop minion therefore seeds only onto farmland, and a minion standing over a hole stays blocked.
 
 <hr/>
 

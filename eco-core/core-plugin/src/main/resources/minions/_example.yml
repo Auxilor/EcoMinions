@@ -99,9 +99,16 @@ equipment:
 # sapling's dirt) when the minion is placed, and puts it back on pickup.
 # Left off, trees and crops default this on automatically from their target
 # blocks; anything else defaults it off.
+#
+# self-seed lets the minion supply its own blocks: whenever it has nothing to
+# mine, it places seed-block on the nearest air spot in range that has a valid
+# surface beneath it. Left off, a player must place the starting blocks.
+# Tree types default it on, everything else defaults it off.
 placement:
   lift-regen: false
   surface-block: ""
+  self-seed: false
+  # seed-block: ""   # omit to seed the block this minion mines
 
 particles:
   full:

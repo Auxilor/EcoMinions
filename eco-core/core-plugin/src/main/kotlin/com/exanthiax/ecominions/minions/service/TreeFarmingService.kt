@@ -17,6 +17,9 @@ class TreeFarmingService(
 ) {
     fun tick(minion: Minion, now: Long): Boolean {
         val family = minion.state.type.woodFamily ?: return false
+        if (!minion.state.type.placement.selfSeed) {
+            return false
+        }
         val planted = minion.mining.saplingPosition
 
         if (planted != null) {
