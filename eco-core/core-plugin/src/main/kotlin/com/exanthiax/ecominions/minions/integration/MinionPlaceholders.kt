@@ -45,6 +45,7 @@ class MinionPlaceholders(
         InternalPlaceholder("used") { it.minion()?.usedStorage?.toString() },
         InternalPlaceholder("total") { it.minion()?.storageSize?.toString() },
         InternalPlaceholder("radius") { it.minion()?.stats?.radius?.toString() },
+        InternalPlaceholder("diameter") { it.minion()?.stats?.radius?.let { radius -> (radius * 2 + 1).toString() } },
         InternalPlaceholder("speed") { it.minion()?.stats?.speedTicks?.toString() },
         InternalPlaceholder("efficiency") { it.minion()?.stats?.efficiencyTicks?.toString() },
         InternalPlaceholder("capacity") { it.minion()?.stats?.storageSize?.toString() }
