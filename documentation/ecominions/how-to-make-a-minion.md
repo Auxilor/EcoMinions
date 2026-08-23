@@ -188,33 +188,26 @@ This key alone does not make compacting run - the type also needs `minion_compac
 `effects:` block, as shown above. See [How to Make a Compactor Recipe](how-to-make-a-compactor-recipe) for the
 recipe file format.
 
-## armor
+## equipment
 
 ```yaml
-armor:
-  chestplate:
-    material: LEATHER_CHESTPLATE
-    color:
-      r: 54
-      g: 54
-      b: 54
-  leggings:
-    material: LEATHER_LEGGINGS
-    color:
-      r: 54
-      g: 54
-      b: 54
-  boots:
-    material: LEATHER_BOOTS
-    color:
-      r: 54
-      g: 54
-      b: 54
+equipment:
+  chestplate: "LEATHER_CHESTPLATE"
+  leggings: "LEATHER_LEGGINGS"
+  boots: "LEATHER_BOOTS"
 ```
 
-Optional. Any of `helmet`, `chestplate`, `leggings`, `boots` can be set to dress the minion's armor stand.
-`material` is required per piece; `color` (an `r`/`g`/`b` triple) is optional and only takes effect on dyeable
-leather armor.
+Optional. Dresses the minion's armor stand. Each of `helmet`, `chestplate`, `leggings`, `boots` and `hand` is
+an eco item lookup string - the same syntax as `spawn-item.item` - so custom items, `#tags` and player heads
+all work, and a dyed leather piece is written the way eco writes any other dyed item rather than through a
+separate `color` block.
+
+Every slot is optional, and two have defaults: an omitted `helmet` uses this type's own `spawn-item.item` as
+its head, and an omitted `hand` becomes an iron pickaxe. Set a slot to `""` to leave it deliberately bare.
+
+> Renamed from `armor` in an earlier version, where each piece was a `material` plus an optional `r`/`g`/`b`
+> `color`. There is no fallback to the old key, so a config still using `armor:` is ignored entirely and the
+> minion falls back to the defaults above.
 
 ## particles
 
@@ -283,6 +276,29 @@ A seeded spot needs a surface: `surface-block` if one is set, otherwise any soli
 A crop minion therefore seeds only onto farmland, and a minion standing over a hole stays blocked.
 
 <hr/>
+
+## Placeholders
+
+These resolve anywhere minion placeholders work - holograms, `lang.yml`, menu titles and item names,
+`spawn-item.lore`, and the `args` of any effect on the minion.
+
+| Placeholder | Resolves to |
+| --- | --- |
+| `%minion_name%` | The type's display `name`, colour codes included. |
+| `%type%` | The type's ID, i.e. its filename without `.yml`. |
+| `%level%` | The minion's current level. |
+| `%owner%` | The owner's name, or `Unowned` if it has none. |
+| `%used%` | Stack slots currently filled in the minion's storage. |
+| `%total%` | Stack slots the minion's storage currently holds. |
+| `%capacity%` | Slots its capacity stat allows, after upgrades and the type's `max-storage-slots`. Matches `%total%` in normal operation. |
+| `%radius%` | How far the minion reaches horizontally, in blocks. |
+| `%diameter%` | The full width of the mining box, i.e. `radius * 2 + 1`. |
+| `%height%` | The vertical span of the mining box, in blocks. |
+| `%speed%` | Ticks between mining attempts, after upgrades. Active fuel speeds the minion up without changing this number. |
+| `%efficiency%` | Ticks each mining action itself takes. |
+
+Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%` and `%level_numeral%` - see
+[How to Level a Minion](how-to-level-a-minion#placeholders).
 
 ## Where to go next
 
