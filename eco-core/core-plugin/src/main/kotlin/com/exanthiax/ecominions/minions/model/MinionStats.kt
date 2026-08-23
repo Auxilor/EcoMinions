@@ -79,6 +79,10 @@ class MinionStats(
     val radius: Int
         get() = this[MinionStat.RADIUS]
 
+    /** Vertical span of the mining box in blocks, from one below the minion upward. */
+    val height: Int
+        get() = this[MinionStat.HEIGHT]
+
     /** Not upgradable, so it is read straight off the type. */
     val regenDelayTicks: Int
         get() = base.regenDelayAt(level)

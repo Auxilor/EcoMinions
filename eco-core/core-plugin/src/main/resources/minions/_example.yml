@@ -22,6 +22,10 @@ base-stats:
   speed-ticks: 60
   efficiency-ticks: 10
   radius: 3
+  # Vertical span of the mining box in blocks, measured from one block below
+  # the minion upward. Defaults to 3 (one below, level, one above). Raise it for
+  # tall targets such as trees. Supports %level% expressions like the stats above.
+  height: 3
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 100

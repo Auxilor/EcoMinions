@@ -17,6 +17,7 @@ enum class MinionStat(
     SPEED_TICKS(min = 1, max = null),
     EFFICIENCY_TICKS(min = 0, max = null),
     RADIUS(min = 0, max = null),
+    HEIGHT(min = 1, max = null),
     INVENTORY_SLOTS(min = 1, max = null);
 
     fun clamp(value: Int): Int {

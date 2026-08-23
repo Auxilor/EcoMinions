@@ -46,6 +46,22 @@ class MinionStatsTest {
         assertEquals(60, stats.regenDelayTicks)
     }
 
+    /** Configs written before `height` existed must keep the three-block box they had. */
+    @Test
+    fun `height defaults to three when the type does not configure it`() {
+        val stats = MinionStats(base, level = 1)
+
+        assertEquals(3, stats.height)
+    }
+
+    @Test
+    fun `height never drops below one block`() {
+        val stats = MinionStats(base, level = 1)
+        stats.contribute(MinionStat.HEIGHT, UUID.randomUUID(), -999)
+
+        assertEquals(1, stats.height)
+    }
+
     @Test
     fun `base stats are evaluated at the minion's level`() {
         assertEquals(59, stats(level = 1).speedTicks)
