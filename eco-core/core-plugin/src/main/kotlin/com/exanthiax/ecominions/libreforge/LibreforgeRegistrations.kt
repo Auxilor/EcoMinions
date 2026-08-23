@@ -16,6 +16,7 @@ import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatch
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCapacity
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCompact
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionEfficiency
+import com.exanthiax.ecominions.libreforge.effects.EffectMinionHeight
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
 import com.exanthiax.ecominions.libreforge.effects.EffectGiveMinionXp
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSellStorage
@@ -84,6 +85,7 @@ object LibreforgeRegistrations {
         Effects.register(EffectMinionSpeed)
         Effects.register(EffectMinionEfficiency)
         Effects.register(EffectMinionRadius)
+        Effects.register(EffectMinionHeight)
         Effects.register(EffectMinionCapacity)
         Effects.register(EffectMinionSellStorage(selling))
         Effects.register(EffectMinionCompact(compactor))

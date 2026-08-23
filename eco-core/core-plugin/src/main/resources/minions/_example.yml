@@ -159,6 +159,7 @@ allowed-upgrades:
   - efficiency
   - fortune
   - radius
+  - height
   - capacity
   - auto_smelt
   - auto_sell

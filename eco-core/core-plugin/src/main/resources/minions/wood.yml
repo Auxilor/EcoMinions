@@ -46,6 +46,7 @@ allowed-upgrades:
   - efficiency
   - fortune
   - radius
+  - height
   - capacity
   - auto_sell
   - experience

@@ -120,7 +120,7 @@ effects:
 `n` can also be an expression (e.g. a placeholder), re-evaluated on every check.
 
 On/off upgrades such as `auto_smelt` and `auto_sell` typically only need a single tier, since the effect is
-either present or not. Numeric upgrades such as `speed`, `efficiency`, `radius`, `fortune`, `capacity`, and
+either present or not. Numeric upgrades such as `speed`, `efficiency`, `radius`, `height`, `fortune`, `capacity`, and
 `experience` are usually laddered across several tiers, each with its own cost and its own `%tier_value%`.
 
 Compacting is not authored as a hand-written upgrade file at all - each compactor recipe generates its own
