@@ -3,9 +3,9 @@ package com.exanthiax.ecominions.levelling.integration
 import com.exanthiax.ecominions.core.placeholders.InternalPlaceholder
 import com.exanthiax.ecominions.core.placeholders.PlaceholderSource
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
-import com.exanthiax.ecominions.core.text.Numerals
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.service.Minion
+import com.willfp.eco.util.toNumeral
 
 /**
  * The levelling slice's internal placeholders.
@@ -30,7 +30,7 @@ class LevellingPlaceholders(
             ((minion.state.xp / required) * 100).toInt().coerceIn(0, 100).toString()
         },
         InternalPlaceholder("max_level") { it.minion()?.state?.type?.levelling?.maxLevel?.toString() },
-        InternalPlaceholder("level_numeral") { it.minion()?.level?.let(Numerals::roman) }
+        InternalPlaceholder("level_numeral") { it.minion()?.level?.toNumeral() }
     )
 
     /** @return XP needed for the next level, or null when there is no next level. */

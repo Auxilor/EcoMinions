@@ -3,7 +3,6 @@ package com.exanthiax.ecominions.upgrades.ui
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
-import com.exanthiax.ecominions.core.text.Numerals
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
 import com.exanthiax.ecominions.minions.ui.MenuChrome
@@ -16,6 +15,7 @@ import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
 import com.willfp.eco.core.items.Items
+import com.willfp.eco.util.toNumeral
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -80,7 +80,7 @@ class UpgradeMenu(
         val state = TierState.of(tier.level, owned)
         val item = chrome.named(
             state.material,
-            messages.render("${prefixFor(state)}${upgrade.name} ${Numerals.roman(tier.level)}"),
+            messages.render("${prefixFor(state)}${upgrade.name} ${tier.level.toNumeral()}"),
             tierLore(player, upgrade, tier)
         )
 
