@@ -1,0 +1,4 @@
+block: NETHER_WART
+restore: replant
+plant: NETHER_WART
+surface: SOUL_SAND

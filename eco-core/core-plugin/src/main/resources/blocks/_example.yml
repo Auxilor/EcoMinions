@@ -1,0 +1,36 @@
+# The ID of the definition is the name of the .yml file,
+# for example oak.yml has the ID of oak.
+# _example.yml is not loaded.
+#
+# A block with no definition here is simply regenerated after a minion mines it,
+# so you only need a file for blocks that grow, and for custom blocks.
+
+# The block this definition describes.
+# Any block id eco understands, including custom blocks from
+# ItemsAdder, Oraxen, Nexo and CraftEngine.
+block: OAK_LOG
+
+# How the block comes back after a minion mines it:
+#   regen   - put back exactly as it was (the default)
+#   replant - placed again as a young plant, and left to ripen
+#   tree    - felled, and a sapling planted to grow a new one
+restore: tree
+
+# What the minion plants. Required by 'replant' and 'tree'.
+plant: OAK_SAPLING
+
+# The canopy of the grown tree. Required by 'tree'.
+leaves: OAK_LEAVES
+
+# (Optional) What must be underneath for the minion to plant here.
+# Leave it out to accept any solid block.
+surface: GRASS_BLOCK
+
+# (Optional) Which tree shape to grow. Defaults to this definition's ID,
+# and falls back to a generic shape if there is no shape by that name.
+# tree-pattern: oak
+
+# (Optional) What this block is worth during offline catch-up.
+# Only needed for custom blocks, whose drops cannot be read while nobody is online.
+# drops:
+#   - "itemsadder:ruby"

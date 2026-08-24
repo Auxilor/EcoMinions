@@ -1,0 +1,4 @@
+block: WHEAT
+restore: replant
+plant: WHEAT
+surface: FARMLAND

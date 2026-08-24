@@ -1,0 +1,5 @@
+block: CHERRY_LOG
+restore: tree
+plant: CHERRY_SAPLING
+leaves: CHERRY_LEAVES
+surface: GRASS_BLOCK

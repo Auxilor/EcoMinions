@@ -1,0 +1,5 @@
+block: OAK_LOG
+restore: tree
+plant: OAK_SAPLING
+leaves: OAK_LEAVES
+surface: GRASS_BLOCK

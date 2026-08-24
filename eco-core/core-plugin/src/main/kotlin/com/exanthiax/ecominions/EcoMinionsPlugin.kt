@@ -18,6 +18,7 @@ import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.placeholders.TemplateRenderer
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.core.text.Messages
+import com.exanthiax.ecominions.core.world.EcoBlockLookup
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
@@ -34,14 +35,17 @@ import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
+import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
 import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionTypeLoader
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.service.MinionActivityService
+import com.exanthiax.ecominions.minions.service.MinionBlockIndex
 import com.exanthiax.ecominions.minions.service.MinionDropTables
 import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
@@ -117,6 +121,12 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         "compactor_recipe", "compactor-recipes", "compactor recipes",
         CompactorRecipeLoader(), report
     )
+    private val blockLookup = EcoBlockLookup()
+    private val blockDefinitions = ConfigDrivenRegistry(
+        "minion_block", "blocks", "block definitions",
+        MinionBlockLoader(blockLookup), report
+    )
+    private val blockIndex = MinionBlockIndex { blockDefinitions.all() }
     private val minionTypes = ConfigDrivenRegistry(
         "minion_type", "minions", "minion types",
         MinionTypeLoader(
@@ -227,7 +237,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
 
     override fun loadConfigCategories(): List<ConfigCategory> =
-        LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
+        LibreforgeRegistrations.configCategories(blockDefinitions, minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
         LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService, triggerDispatch, xpService)
@@ -245,6 +255,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     }
 
     override fun handleReload() {
+        blockIndex.invalidate()
         refreshSettings()
         registerPlaceholders()
         dropTables.clear()

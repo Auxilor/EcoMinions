@@ -1,0 +1,5 @@
+block: JUNGLE_LOG
+restore: tree
+plant: JUNGLE_SAPLING
+leaves: JUNGLE_LEAVES
+surface: GRASS_BLOCK

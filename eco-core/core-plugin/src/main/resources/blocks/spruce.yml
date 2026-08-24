@@ -1,0 +1,5 @@
+block: SPRUCE_LOG
+restore: tree
+plant: SPRUCE_SAPLING
+leaves: SPRUCE_LEAVES
+surface: GRASS_BLOCK
