@@ -28,7 +28,6 @@ import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.libreforge.LibreforgeRegistrations
 import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
-import com.exanthiax.ecominions.minions.integration.GameDataLoader
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCustomItems
@@ -122,7 +121,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val upgradeMenuSettings = SettingsHolder(upgradeMenuSettingsLoader.load())
 
     // Registries
-    private val gameData = GameDataLoader().load()
     private val compactorRecipes = ConfigDrivenRegistry(
         "compactor_recipe", "compactor-recipes", "compactor recipes",
         CompactorRecipeLoader(), report
@@ -137,7 +135,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val minionTypes = ConfigDrivenRegistry(
         "minion_type", "minions", "minion types",
         MinionDefinitionLoader(
-            gameData,
             blockLookup,
             blockDefinitions::find,
             itemLookup,
@@ -216,9 +213,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         woodcutter = WoodcutterBehaviour(TreeService()),
         farmer = FarmerBehaviour(regenService, seedingService)
     )
-    private val miningTargets = MiningTargetFinder(gameData)
+    private val miningTargets = MiningTargetFinder()
     private val miningService = MiningService(
-        minionSettings, worlds, gameData, miningTargets, blockIndex, regenService, behaviours,
+        minionSettings, worlds, miningTargets, blockIndex, regenService, behaviours,
         fuelService, triggerDispatch
     )
     private val placementService = PlacementService(

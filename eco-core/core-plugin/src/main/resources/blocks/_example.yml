@@ -35,6 +35,20 @@ surface: GRASS_BLOCK
 # and falls back to a generic shape if there is no shape by that name.
 # tree-pattern: oak
 
+# (Optional) Whether a minion may target this block at all. Defaults to true.
+# Set it false for blocks that break badly - amethyst buds, dripstone, vines -
+# so no minion can be configured onto them however it is written.
+# mineable: false
+
+# (Optional) Whether this block grows upward in a column, like sugar cane or
+# bamboo. A minion only ever cuts a column at its base, taking the whole stack
+# in one action. Defaults to false.
+# stacked-column: true
+
+# (Optional) What targeting this block really means. A minion configured to
+# target seeds should mine the grown crop, so the seed promotes to it.
+# promotes-to: WHEAT
+
 # (Optional) What this block is worth during offline catch-up.
 # Only needed for custom blocks, whose drops cannot be read while nobody is online.
 # drops:

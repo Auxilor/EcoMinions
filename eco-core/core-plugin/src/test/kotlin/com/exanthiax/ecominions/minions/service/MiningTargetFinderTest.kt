@@ -1,7 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
-import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
@@ -15,7 +14,7 @@ import org.junit.jupiter.api.Test
 
 class MiningTargetFinderTest {
 
-    private val finder = MiningTargetFinder(GameData.EMPTY)
+    private val finder = MiningTargetFinder()
 
     /** The default three-block box is exactly the one every type had before height existed. */
     @Test

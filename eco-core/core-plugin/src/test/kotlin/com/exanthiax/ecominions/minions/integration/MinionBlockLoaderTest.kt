@@ -12,6 +12,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import org.bukkit.Material
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -110,7 +112,10 @@ class MinionBlockLoaderTest {
         leaves: String? = null,
         surface: String? = null,
         pattern: String? = null,
-        drops: List<String> = emptyList()
+        drops: List<String> = emptyList(),
+        mineable: Boolean? = null,
+        stackedColumn: Boolean? = null,
+        promotesTo: String? = null
     ): Config {
         val config = mockk<Config>()
         every { config.getStringOrNull("block") } returns block
@@ -119,8 +124,60 @@ class MinionBlockLoaderTest {
         every { config.getStringOrNull("leaves") } returns leaves
         every { config.getStringOrNull("surface") } returns surface
         every { config.getStringOrNull("tree-pattern") } returns pattern
+        every { config.getStringOrNull("promotes-to") } returns promotesTo
         every { config.getStrings("drops") } returns drops
+        every { config.getBoolOrNull("mineable") } returns mineable
+        every { config.getBoolOrNull("stacked-column") } returns stackedColumn
         return config
+    }
+
+    @Test
+    fun `a block is mineable unless it says otherwise`() {
+        assertTrue(MinionBlockLoader(lookup).load("oak", config(block = "OAK_LOG"), context())!!.mineable)
+    }
+
+    @Test
+    fun `a block can declare itself unmineable`() {
+        val config = config(block = "OAK_LOG", mineable = false)
+
+        assertFalse(MinionBlockLoader(lookup).load("oak", config, context())!!.mineable)
+    }
+
+    @Test
+    fun `a block is not a stacked column unless it says so`() {
+        val loaded = MinionBlockLoader(lookup).load("oak", config(block = "OAK_LOG"), context())
+
+        assertFalse(loaded!!.stackedColumn)
+    }
+
+    @Test
+    fun `a block can declare itself a stacked column`() {
+        val config = config(block = "OAK_LOG", stackedColumn = true)
+
+        assertTrue(MinionBlockLoader(lookup).load("oak", config, context())!!.stackedColumn)
+    }
+
+    @Test
+    fun `a block promotes to nothing by default`() {
+        assertNull(MinionBlockLoader(lookup).load("oak", config(block = "OAK_LOG"), context())!!.promotesTo)
+    }
+
+    @Test
+    fun `a block can promote to the block it becomes`() {
+        val config = config(block = "OAK_LOG", promotesTo = "OAK_SAPLING")
+
+        assertEquals("OAK_SAPLING", MinionBlockLoader(lookup).load("oak", config, context())!!.promotesTo)
+    }
+
+    @Test
+    fun `an unresolvable promotion target is reported`() {
+        val violations = mutableListOf<String>()
+        val config = config(block = "OAK_LOG", promotesTo = "NOT_A_BLOCK")
+
+        val loaded = MinionBlockLoader(lookup).load("oak", config, context(violations))
+
+        assertNull(loaded!!.promotesTo)
+        assertEquals(listOf("promotes-to"), violations)
     }
 
     private fun context(violations: MutableList<String> = mutableListOf()): LoadContext {

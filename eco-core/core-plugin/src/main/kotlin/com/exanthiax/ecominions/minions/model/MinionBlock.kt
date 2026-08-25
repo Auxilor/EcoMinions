@@ -40,6 +40,26 @@ data class MinionBlock(
     /** Item ids credited during offline catch-up, for blocks whose drops cannot be read. */
     val drops: List<String>,
     /**
+     * Whether a minion may target this block at all.
+     *
+     * False for blocks that break wrong - amethyst buds, dripstone, vines - so
+     * no minion can be configured onto them however it is written.
+     */
+    val mineable: Boolean = true,
+    /**
+     * Whether this block grows upward in a column, like sugar cane or bamboo.
+     *
+     * A column is only ever cut at its base, taking the whole stack in one action.
+     */
+    val stackedColumn: Boolean = false,
+    /**
+     * The id this block really means when targeted, e.g. a seed targets its crop.
+     *
+     * An id rather than a resolved block, because it is looked up against the
+     * `blocks/` catalog, which is not loaded yet while this is being parsed.
+     */
+    val promotesTo: String? = null,
+    /**
      * The plain material this definition names, or null if it is a custom block.
      *
      * Resolved by the loader rather than computed here, because the model layer

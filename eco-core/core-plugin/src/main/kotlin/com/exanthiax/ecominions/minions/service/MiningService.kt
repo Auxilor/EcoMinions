@@ -9,7 +9,6 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
-import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
@@ -28,7 +27,6 @@ import org.bukkit.entity.ExperienceOrb
 class MiningService(
     private val settings: SettingsHolder<MinionSettings>,
     private val worlds: WorldSettings,
-    private val gameData: GameData,
     private val targets: MiningTargetFinder,
     private val blocks: MinionBlockIndex,
     private val regen: RegenService,
@@ -112,10 +110,6 @@ class MiningService(
         minion.mining.nextActionAt = now + effectiveSpeedTicks(minion)
     }
 
-    /** The behaviour for a specific block, so its `restore:` override can win. */
-    private fun behaviourOf(minion: Minion, block: Block): MinionBehaviour =
-        behaviours.forBlock(minion.state.type.type, blocks.forBlock(block))
-
     /** The minion's own behaviour, for when it has no block in hand to override with. */
     private fun behaviourOf(minion: Minion): MinionBehaviour = behaviours[minion.state.type.type]
 
@@ -124,8 +118,9 @@ class MiningService(
 
     private fun breakBlock(minion: Minion, block: Block, now: Long) {
         val original = block.type
-        val behaviour = behaviourOf(minion, block)
-        val column = if (gameData.growthRules.isStackedColumn(original)) collectColumn(block) else listOf(block)
+        val definition = blocks.forBlock(block)
+        val behaviour = behaviours.forBlock(minion.state.type.type, definition)
+        val column = if (definition?.stackedColumn == true) collectColumn(block) else listOf(block)
 
         val results = dispatch.drops(
             minion = minion,

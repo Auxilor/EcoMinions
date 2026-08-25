@@ -3,7 +3,6 @@ package com.exanthiax.ecominions.minions.integration
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.error.LoadReport
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
-import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import com.exanthiax.ecominions.testsupport.FakeItemLookup
 import com.willfp.eco.core.config.interfaces.Config
@@ -58,7 +57,6 @@ class MinionDefinitionLoaderTest {
         loader().load("coal", config(type), context)
 
     private fun loader() = MinionDefinitionLoader(
-        gameData = GameData.EMPTY,
         blocks = FakeBlockLookup(),
         blockDefinition = { null },
         items = FakeItemLookup(),

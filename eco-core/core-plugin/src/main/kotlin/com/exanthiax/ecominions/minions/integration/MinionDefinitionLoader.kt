@@ -8,7 +8,6 @@ import com.exanthiax.ecominions.core.world.BlockLookup
 import com.exanthiax.ecominions.core.world.ItemLookup
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
-import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionDefinition
@@ -31,7 +30,6 @@ import kotlin.math.roundToInt
 
 /** Parses one file in `minions/` into a validated [MinionDefinition]. */
 class MinionDefinitionLoader(
-    private val gameData: GameData,
     /** Resolves a configured id to a block on this server, vanilla or custom. */
     private val blocks: BlockLookup,
     /** Looks one entry out of the `blocks/` catalog. */
@@ -134,35 +132,33 @@ class MinionDefinitionLoader(
      *
      * An id with no definition file gets a plain regen default rather than
      * being dropped, which is the behaviour `blocks/_example.yml` has always
-     * promised. Seeds are promoted to the crop they become, and anything on the
-     * bundled invalid-targets list is dropped - both vanilla-only, because
-     * neither list can name a custom block.
+     * promised. A definition that promotes - a seed to its crop - is followed
+     * once, and one that is not mineable is dropped with a violation, so a
+     * config asking a minion to farm dripstone says why it will not.
      */
     private fun resolveTargets(configured: List<String>, context: LoadContext): TargetSet {
         val resolved = configured.mapNotNull { id ->
-            val promoted = promote(id)
-            val definition = blockDefinition(promoted)
-                ?: blocks.lookup(promoted)?.let {
-                    MinionBlock.regenDefault(
-                        id = promoted.lowercase(),
-                        lookup = promoted,
-                        block = it
-                    ).copy(vanillaMaterial = Material.matchMaterial(promoted)?.takeIf { m -> m.isBlock })
-                }
-                ?: return@mapNotNull context.invalid<MinionBlock>(
-                    "target-blocks", id, "a block or custom block id"
+            val definition = resolve(id, context) ?: return@mapNotNull null
+            val promoted = definition.promotesTo?.let { resolve(it, context) } ?: definition
+
+            if (!promoted.mineable) {
+                return@mapNotNull context.invalid<MinionBlock>(
+                    "target-blocks", id, "a block a minion can mine"
                 )
-
-            definition.takeIf { it.vanillaMaterial == null || gameData.growthRules.isValidTarget(it.vanillaMaterial) }
+            }
+            promoted
         }
-        return TargetSet(resolved)
+        return TargetSet(resolved.distinctBy { it.lookup })
     }
 
-    /** Seeds target the crop they become. Vanilla only - the list is Material-keyed. */
-    private fun promote(id: String): String {
-        val material = Material.matchMaterial(id) ?: return id
-        return gameData.growthRules.promote(material).name
-    }
+    /** @return [id]'s definition, or a plain regen default if no file defines it. */
+    private fun resolve(id: String, context: LoadContext): MinionBlock? =
+        blockDefinition(id)
+            ?: blocks.lookup(id)?.let {
+                MinionBlock.regenDefault(id = id.lowercase(), lookup = id, block = it)
+                    .copy(vanillaMaterial = Material.matchMaterial(id)?.takeIf { m -> m.isBlock })
+            }
+            ?: context.invalid("target-blocks", id, "a block or custom block id")
 
     /**
      * `max-storage-slots`, like every other stat here, may be a `%level%`

@@ -41,6 +41,9 @@ class MinionBlockLoader(
             surface = surface,
             treePattern = config.getStringOrNull("tree-pattern")?.takeIf { it.isNotBlank() },
             drops = config.getStrings("drops"),
+            mineable = config.getBoolOrNull("mineable") ?: true,
+            stackedColumn = config.getBoolOrNull("stacked-column") ?: false,
+            promotesTo = readPromotion(config, context),
             vanillaMaterial = Material.matchMaterial(lookup)?.takeIf { it.isBlock }
         )
     }
@@ -80,6 +83,21 @@ class MinionBlockLoader(
         }
 
         return mode
+    }
+
+    /**
+     * @return The id this block promotes to, validated against this server.
+     *
+     * Kept as a string rather than the resolved block: it is looked up against
+     * the `blocks/` catalog later, and resolving it here would only prove that
+     * eco knows it, which is what this check already does.
+     */
+    private fun readPromotion(config: Config, context: LoadContext): String? {
+        val raw = config.getStringOrNull("promotes-to")?.takeIf { it.isNotBlank() } ?: return null
+        if (blocks.lookup(raw) == null) {
+            return context.invalid("promotes-to", raw, "a block or custom block id")
+        }
+        return raw
     }
 
     private fun readBlock(config: Config, param: String, context: LoadContext): TestableBlock? {

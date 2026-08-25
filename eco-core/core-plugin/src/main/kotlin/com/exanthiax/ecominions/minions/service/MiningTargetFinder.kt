@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.minions.model.GameData
+import com.exanthiax.ecominions.minions.model.TargetSet
 import org.bukkit.block.Block
 import org.bukkit.block.data.Ageable
 
@@ -12,9 +12,7 @@ import org.bukkit.block.data.Ageable
  * reason height is configurable, since their upper logs sit well above the
  * three-block box that used to be hardcoded here.
  */
-class MiningTargetFinder(
-    private val gameData: GameData
-) {
+class MiningTargetFinder {
     fun find(minion: Minion): Block? {
         val radius = minion.stats.radius
         val center = minion.entity.location.block
@@ -26,7 +24,7 @@ class MiningTargetFinder(
             for (y in FLOOR_OFFSET..topOffset(minion)) {
                 for (z in -radius..radius) {
                     val candidate = world.getBlockAt(center.x + x, center.y + y, center.z + z)
-                    if (targets.matches(candidate) && isMineableNow(candidate)) {
+                    if (targets.matches(candidate) && isMineableNow(candidate, targets)) {
                         candidates += candidate
                     }
                 }
@@ -39,12 +37,12 @@ class MiningTargetFinder(
     private fun topOffset(minion: Minion): Int = FLOOR_OFFSET + minion.stats.height - 1
 
     /** Crops must be ripe, and stacked plants are only cut at their base. */
-    private fun isMineableNow(block: Block): Boolean {
+    private fun isMineableNow(block: Block, targets: TargetSet): Boolean {
         val data = block.blockData
         if (data is Ageable && data.age < data.maximumAge) {
             return false
         }
-        if (gameData.growthRules.isStackedColumn(block.type)) {
+        if (targets.definitionFor(block)?.stackedColumn == true) {
             val below = block.world.getBlockAt(block.x, block.y - 1, block.z)
             if (below.type == block.type) {
                 return false
