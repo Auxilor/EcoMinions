@@ -326,12 +326,49 @@ surface: GRASS_BLOCK
 | `plant` | What is planted to bring the block back - a sapling for a woodcutter, a crop for a farmer. |
 | `leaves` | The canopy of the grown tree. Needed by woodcutters. |
 | `surface` | What must be underneath to plant here. Leave it out to accept any solid block. Also supplies the default lift-regen surface, which is how a crop lands on farmland without anyone configuring it. |
-| `tree-pattern` | Which of the built-in tree shapes to grow, by name: `oak`, `birch`, `spruce`, `jungle`, `acacia`, `dark_oak`, `cherry`, `pale_oak`, `mangrove`. Defaults to the definition's own ID, falling back to a generic small tree. Point a custom log at `spruce` and it grows a conifer. |
+| `tree-pattern` | Which built-in tree shape to grow - see [Tree Shapes](#tree-shapes). Defaults to the definition's own ID, falling back to a generic small tree. |
 | `drops` | Item IDs credited during offline catch-up. Only needed for custom blocks, whose loot tables cannot be read while nobody is online. A custom block with no `drops` credits nothing offline. |
 | `mineable` | Defaults to `true`. Set it `false` for blocks that break badly - amethyst buds, dripstone, vines - so no minion can be configured onto them. Targeting one is reported as a config violation. |
 | `stacked-column` | Defaults to `false`. Marks a block that grows upward in a column, like sugar cane or bamboo. A column is only ever cut at its base, taking the whole stack in one action. |
 | `promotes-to` | What targeting this block really means. A minion configured onto seeds mines the grown crop, so the seed promotes to it. |
 | `restore` | **Override.** Forces `regen` (as a miner), `replant` (as a farmer) or `tree` (as a woodcutter) for this one block, beating the minion's `type`. Almost never needed. An override the definition cannot satisfy - `tree` with no `leaves` - is reported and dropped, leaving the type to decide. |
+
+<hr/>
+
+## Tree Shapes
+
+A woodcutter grows its tree from a built-in shape. Which one comes from the block definition's
+`tree-pattern`, or - if that is not set - from the definition's own file name. A name that matches nothing
+grows the generic shape, so a custom log in `blocks/ebony.yml` gets the generic tree unless it names one.
+
+| Shape | Canopy | Looks like |
+| --- | --- | --- |
+| `oak` | round, radius 2, 2 layers | A standard broadleaf. |
+| `jungle` | round, radius 2, 2 layers | Same build as oak. |
+| `pale_oak` | round, radius 2, 2 layers | Same build as oak. |
+| `mangrove` | round, radius 2, 2 layers | Same build as oak. |
+| `birch` | round, radius 1, 3 layers | Narrow and tall-canopied. |
+| `spruce` | conifer, radius 2, 3 layers | Rings that narrow towards the top. |
+| `acacia` | flat, radius 3, 1 layer | One wide slab, no depth. |
+| `dark_oak` | round, radius 3, 2 layers | The widest canopy. |
+| `cherry` | round, radius 3, 2 layers | Same build as dark oak. |
+| *(unrecognised)* | round, radius 1, 1 layer | A small, plain tree. |
+
+Four of the nine deliberately share the oak build - vanilla does not give those species a distinct enough
+silhouette to be worth a separate shape, and inventing one would only make them wrong in a different way.
+
+### Trunk height and the minion's reach
+
+**Every shape has a four-log trunk, and that is not arbitrary.** A woodcutter fells its tree by *mining the
+logs*, so every log has to fall inside the minion's search box. That box reaches `height - 2` blocks above
+the minion, and a sapling can be planted one block above it - so with `height: 6` the highest reachable log
+is exactly four above the sapling.
+
+A five-log trunk would leave its top log standing forever and the minion would never clear the tree. If you
+ever want taller trees, `height` has to rise with them.
+
+Shapes live in `TreeShape.SPECIES` in the plugin rather than in a config file, so adding a tenth needs a
+build. Ask if you want them exposed as config - it is a small change.
 
 <hr/>
 

@@ -9,8 +9,11 @@ data class TreeBlock(val x: Int, val y: Int, val z: Int, val kind: Kind) {
  * The shape a tree grows in, as parameters rather than a list of coordinates.
  *
  * Authoring nine species as explicit block lists is several hundred numbers
- * nobody can check by eye, which is how `trees.json` ended up shipping an empty
- * `by-family` and growing every species as the same generic stub.
+ * nobody can check by eye, which is how the bundled `trees.json` ended up
+ * shipping an empty species map and growing everything as the same stub. Four
+ * numbers per species is small enough to read, so it lives in [SPECIES] rather
+ * than in a data file - the same reasoning that put the vanilla block facts in
+ * VanillaBlockDefaults.
  *
  * ### Trunk height and the minion's reach
  *
@@ -108,6 +111,31 @@ data class TreeShape(
          */
         const val MAX_REACHABLE_TRUNK = 4
 
+        /** What an unrecognised species grows: a small, unremarkable tree. */
         val DEFAULT = TreeShape(trunk = MAX_REACHABLE_TRUNK, radius = 1, layers = 1, style = Style.ROUND)
+
+        /**
+         * Every shape the plugin knows, by the name `tree-pattern` selects.
+         *
+         * Trunks are [MAX_REACHABLE_TRUNK] everywhere on purpose - see the note
+         * on this class about reach. Species differ by canopy, not by height.
+         */
+        val SPECIES: Map<String, TreeShape> = mapOf(
+            "oak" to round(radius = 2, layers = 2),
+            "birch" to round(radius = 1, layers = 3),
+            "spruce" to TreeShape(MAX_REACHABLE_TRUNK, radius = 2, layers = 3, style = Style.CONIFER),
+            "jungle" to round(radius = 2, layers = 2),
+            "acacia" to TreeShape(MAX_REACHABLE_TRUNK, radius = 3, layers = 1, style = Style.FLAT),
+            "dark_oak" to round(radius = 3, layers = 2),
+            "cherry" to round(radius = 3, layers = 2),
+            "pale_oak" to round(radius = 2, layers = 2),
+            "mangrove" to round(radius = 2, layers = 2)
+        )
+
+        /** @return The shape [species] names, or null if nothing grows by that name. */
+        fun forSpecies(species: String): TreeShape? = SPECIES[species.lowercase()]
+
+        private fun round(radius: Int, layers: Int) =
+            TreeShape(MAX_REACHABLE_TRUNK, radius, layers, Style.ROUND)
     }
 }
