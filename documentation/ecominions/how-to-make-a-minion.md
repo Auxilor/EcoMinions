@@ -3,9 +3,9 @@ title: "How to Make a Minion"
 sidebar_position: 1
 ---
 
-## Minion Types
+## Minions
 
-Each minion type is a YAML file in `minions/`. The file name (without `.yml`) is the type ID, and is what
+Each minion is a YAML file in `minions/`. The file name (without `.yml`) is the minion's ID, and is what
 players and admins refer to elsewhere - `/minions give <player> coal`, the `ecominions:coal` item lookup, and
 so on. An `_example.yml` is provided in the folder to copy from.
 
@@ -13,6 +13,7 @@ so on. An `_example.yml` is provided in the folder to copy from.
 
 ```yaml
 name: "&8Coal Minion"
+type: miner
 
 target-blocks:
   - COAL_ORE
@@ -29,7 +30,15 @@ base-stats:
 ```
 
 - `name` - the minion's display name, shown on its hologram and in its item lore.
-- `target-blocks` - the block types this minion mines. Only these blocks are broken and regenerated.
+- `type` - **required.** What the minion does with the blocks it breaks:
+  - `miner` - breaks the block and puts it back after the regen delay.
+  - `woodcutter` - fells the tree, plants a sapling, and waits for it to grow.
+  - `farmer` - harvests the ripe crop and replants it.
+
+  A woodcutter lists its log in `target-blocks` like any other minion lists its block; there is no
+  auto-detection. A single block can override its minion's type - see [Block Definitions](#block-definitions).
+- `target-blocks` - the blocks this minion mines. Only these are broken and restored. Custom block IDs from
+  ItemsAdder, Oraxen, Nexo and CraftEngine work anywhere a vanilla material name does.
 - `base-stats` - level-one stats before any upgrades are applied:
   - `speed-ticks` - ticks between mining attempts.
   - `efficiency-ticks` - additional ticks the mining animation/action takes.
@@ -140,12 +149,14 @@ Minions are craftable at a crafting table only. Recipes are registered and repla
 ```yaml
 sell-prices:
   COAL: 5.0
+  "itemsadder:ruby": 100.0
 ```
 
-The price paid per item when a minion's storage is sold, keyed by material name. A minion type's own
-`sell-prices` entries always win over any EcoShop-sourced price and are never scaled by
-`sell-pricing.sell-price-multiplier` (see [Plugin Config](plugin-config)). Materials with no entry here fall
-back to EcoShop pricing if `sell-pricing.auto-from-ecoshop` is enabled.
+The price paid per item when a minion's storage is sold, keyed by **item ID** - what the block drops, not the
+block itself. Custom item IDs work here too, which is the only way to price a drop from ItemsAdder, Oraxen,
+Nexo or CraftEngine. A minion's own `sell-prices` entries always win over any EcoShop-sourced price and are
+never scaled by `sell-pricing.sell-price-multiplier` (see [Plugin Config](plugin-config)). Items with no entry
+here fall back to EcoShop pricing if `sell-pricing.auto-from-ecoshop` is enabled.
 
 ## allowed-upgrades
 
@@ -161,7 +172,7 @@ allowed-upgrades:
   - experience
 ```
 
-The list of upgrade IDs (matching file names under `upgrades/`) this minion type can have purchased on it.
+The list of upgrade IDs (matching file names under `upgrades/`) this minion can have purchased on it.
 Omitting an upgrade from this list hides it from this type's upgrade menu entirely. Compacting is not listed
 here - see `compactor-recipes` below.
 
@@ -178,7 +189,7 @@ effects:
       - minion_mine_block
 ```
 
-A list of `compactor-recipes/` catalog ids this minion type allows - the order shown is just the order they're
+A list of `compactor-recipes/` catalog ids this minion allows - the order shown is just the order they're
 listed in the upgrade menu. Each one is bought and gated independently (its own price, its own
 `buy-conditions`); there is no shared "compactor" upgrade or tier ladder. Omitting this key (or leaving it
 empty) means the type has no compactor recipes at all. Each resolved upgrade's id is
@@ -267,13 +278,47 @@ placement:
   to allow any surface.
 - `self-seed` - when `true`, a minion with nothing left to mine places its own block: the nearest air spot in
   range with a valid surface beneath it. Place the minion on a floor and it runs on its own. When `false`, a
-  player must place the starting blocks and the minion reports being blocked until they do. Tree types default
+  player must place the starting blocks and the minion reports being blocked until they do. Woodcutters default
   to `true`, since they have always planted their own saplings; every other type defaults to `false`.
-- `seed-block` - what `self-seed` places. Leave blank to seed the block the minion mines - its first
-  `target-blocks` entry, or the sapling of its wood family for a tree type.
+- `seed-block` - what `self-seed` places. Any block or custom block ID. Leave blank to seed what the target's
+  block definition names as its `plant` - a sapling for a woodcutter, a crop for a farmer - falling back to
+  the mined block itself.
 
 A seeded spot needs a surface: `surface-block` if one is set, otherwise any solid block directly beneath.
 A crop minion therefore seeds only onto farmland, and a minion standing over a hole stays blocked.
+
+<hr/>
+
+## Block Definitions
+
+`blocks/` describes what a block **is**. The minion's `type` decides what is **done** with it. That split is
+why the same `OAK_LOG` is felled by a woodcutter and regenerated by a miner, with no per-block config for
+either.
+
+You only need a file here for blocks that grow, for custom blocks, and to override what a minion's type would
+otherwise do. Everything else - stone, ores, deepslate, gravel - needs nothing.
+
+The file name (without `.yml`) is the definition's ID, so `blocks/oak.yml` has the ID `oak`.
+
+```yaml
+block: OAK_LOG
+plant: OAK_SAPLING
+leaves: OAK_LEAVES
+surface: GRASS_BLOCK
+```
+
+| Key | Meaning |
+| --- | --- |
+| `block` | **Required.** The block this describes. Any block ID eco understands, custom blocks included. |
+| `plant` | What is planted to bring the block back - a sapling for a woodcutter, a crop for a farmer. |
+| `leaves` | The canopy of the grown tree. Needed by woodcutters. |
+| `surface` | What must be underneath to plant here. Leave it out to accept any solid block. Also supplies the default lift-regen surface, which is how a crop lands on farmland without anyone configuring it. |
+| `tree-pattern` | Which tree shape to grow. Defaults to the definition's ID, falling back to a generic shape. |
+| `drops` | Item IDs credited during offline catch-up. Only needed for custom blocks, whose loot tables cannot be read while nobody is online. A custom block with no `drops` credits nothing offline. |
+| `mineable` | Defaults to `true`. Set it `false` for blocks that break badly - amethyst buds, dripstone, vines - so no minion can be configured onto them. Targeting one is reported as a config violation. |
+| `stacked-column` | Defaults to `false`. Marks a block that grows upward in a column, like sugar cane or bamboo. A column is only ever cut at its base, taking the whole stack in one action. |
+| `promotes-to` | What targeting this block really means. A minion configured onto seeds mines the grown crop, so the seed promotes to it. |
+| `restore` | **Override.** Forces `regen`, `replant` or `tree` for this one block, beating the minion's `type`. Almost never needed. An override the definition cannot satisfy - `tree` with no `leaves` - is reported and dropped, leaving the type to decide. |
 
 <hr/>
 
@@ -284,8 +329,8 @@ These resolve anywhere minion placeholders work - holograms, `lang.yml`, menu ti
 
 | Placeholder | Resolves to |
 | --- | --- |
-| `%minion_name%` | The type's display `name`, colour codes included. |
-| `%type%` | The type's ID, i.e. its filename without `.yml`. |
+| `%minion_name%` | The minion's display `name`, colour codes included. |
+| `%type%` | The minion's ID, i.e. its filename without `.yml`. |
 | `%level%` | The minion's current level. |
 | `%owner%` | The owner's name, or `Unowned` if it has none. |
 | `%used%` | Stack slots currently filled in the minion's storage. |
