@@ -32,7 +32,11 @@ import kotlin.math.roundToInt
 class MinionDefinitionLoader(
     /** Resolves a configured id to a block on this server, vanilla or custom. */
     private val blocks: BlockLookup,
-    /** Looks one entry out of the `blocks/` catalog. */
+    /**
+     * Looks one entry out of the `blocks/` catalog **by its block id**, not by
+     * its file name: `target-blocks` names `OAK_LOG`, while the file that
+     * defines it is `oak.yml`.
+     */
     private val blockDefinition: (String) -> MinionBlock?,
     /** Resolves a `sell-prices:` key to an item on this server, vanilla or custom. */
     private val items: ItemLookup,

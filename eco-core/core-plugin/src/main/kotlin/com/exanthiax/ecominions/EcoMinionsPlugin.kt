@@ -136,7 +136,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         "minion_type", "minions", "minion types",
         MinionDefinitionLoader(
             blockLookup,
-            blockDefinitions::find,
+            blockIndex::forLookup,
             itemLookup,
             ParticleSettingsLoader(),
             LevellingLoader(),

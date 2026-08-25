@@ -89,6 +89,42 @@ class MinionDefinitionLoaderTest {
         assertNull(loaded)
     }
 
+    /**
+     * A regression guard for the key `blockDefinition` is called with.
+     *
+     * `target-blocks` names a block id (`OAK_LOG`); the file defining it is
+     * `oak.yml`, whose registry id is `oak`. Looking the catalog up by file name
+     * finds nothing, every target degrades to a regen default with no plant, and
+     * every woodcutter in the plugin is then rejected as "not a tree".
+     *
+     * The load still throws further down - stat expressions need a server - so
+     * this asserts on the violation rather than on the returned definition.
+     */
+    @Test
+    fun `resolves a block definition by its block id, not its file name`() {
+        val oak = MinionBlock.regenDefault("oak", "OAK_LOG", FakeBlockLookup.testable(Material.OAK_LOG))
+            .copy(
+                plant = FakeBlockLookup.testable(Material.OAK_SAPLING),
+                leaves = FakeBlockLookup.testable(Material.OAK_LEAVES)
+            )
+        val messages = mutableListOf<String>()
+
+        runCatching {
+            load(
+                type = "woodcutter",
+                targets = listOf("OAK_LOG"),
+                blocks = FakeBlockLookup(mapOf("OAK_LOG" to FakeBlockLookup.testable(Material.OAK_LOG))),
+                blockDefinition = { id -> oak.takeIf { id == "OAK_LOG" } },
+                context = context(messages = messages)
+            )
+        }
+
+        assertTrue(
+            messages.none { it.contains("is not a tree") },
+            "a properly defined oak was not recognised as a tree: $messages"
+        )
+    }
+
     private fun load(type: String?, context: LoadContext) =
         loader().load("coal", config(type), context)
 
