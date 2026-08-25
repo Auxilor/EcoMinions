@@ -11,9 +11,9 @@ import com.willfp.eco.core.config.interfaces.Config
 /**
  * Parses one file in `blocks/` into a validated [MinionBlock].
  *
- * A file that names a block this server does not have is rejected outright; a
- * file that is merely incomplete degrades to [RestoreMode.REGEN], because
- * regenerating is always safe and never destroys what an owner already built.
+ * A file that names a block this server does not have is rejected outright; an
+ * incomplete `restore:` override is dropped rather than repaired, and the
+ * minion's own type decides instead.
  */
 class MinionBlockLoader(
     private val blocks: BlockLookup
@@ -35,7 +35,7 @@ class MinionBlockLoader(
             lookup = lookup,
             block = block,
             restore = restore,
-            plant = plant.takeIf { restore != RestoreMode.REGEN },
+            plant = plant,
             leaves = leaves,
             surface = surface,
             treePattern = config.getStringOrNull("tree-pattern")?.takeIf { it.isNotBlank() },
@@ -43,32 +43,38 @@ class MinionBlockLoader(
         )
     }
 
-    /** Anything a tree needs but does not have drops the definition to regen. */
+    /**
+     * @return The override this block declares, or null to leave it to the minion.
+     *
+     * An override that asks for something the definition cannot do is dropped
+     * rather than downgraded: the minion's type is a better guess than a
+     * half-honoured override.
+     */
     private fun readRestore(
         id: String,
         config: Config,
         plant: TestableBlock?,
         leaves: TestableBlock?,
         context: LoadContext
-    ): RestoreMode {
-        val raw = config.getStringOrNull("restore")?.takeIf { it.isNotBlank() } ?: return RestoreMode.REGEN
+    ): RestoreMode? {
+        val raw = config.getStringOrNull("restore")?.takeIf { it.isNotBlank() } ?: return null
         val mode = RestoreMode.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
         if (mode == null) {
-            context.unknown<RestoreMode>("restore", raw, RestoreMode.entries.map { it.name.lowercase() })
-            return RestoreMode.REGEN
+            return context.unknown("restore", raw, RestoreMode.entries.map { it.name.lowercase() })
         }
 
         if (mode == RestoreMode.TREE && (plant == null || leaves == null)) {
             context.violation(
                 "restore",
-                "'$id' grows a tree but has no ${if (plant == null) "plant" else "leaves"} - regenerating instead"
+                "'$id' grows a tree but has no ${if (plant == null) "plant" else "leaves"} - " +
+                    "leaving it to the minion's type"
             )
-            return RestoreMode.REGEN
+            return null
         }
 
         if (mode == RestoreMode.REPLANT && plant == null) {
-            context.violation("restore", "'$id' replants but has no plant - regenerating instead")
-            return RestoreMode.REGEN
+            context.violation("restore", "'$id' replants but has no plant - leaving it to the minion's type")
+            return null
         }
 
         return mode

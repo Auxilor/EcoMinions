@@ -3,8 +3,6 @@ package com.exanthiax.ecominions.minions.integration
 import com.exanthiax.ecominions.core.data.JsonData
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.GrowthRules
-import com.exanthiax.ecominions.minions.model.WoodFamilies
-import com.exanthiax.ecominions.minions.model.WoodFamily
 import com.google.gson.JsonObject
 import org.bukkit.Material
 
@@ -19,8 +17,6 @@ class GameDataLoader {
 
     fun load(): GameData = GameData(
         growthRules = loadGrowthRules(),
-        woodFamilies = WoodFamilies(loadWoodFamilies()),
-        cropSurfaces = loadMaterialMap("/data/crop-defaults.json"),
         smelting = loadMaterialMap("/data/smelting.json")
     )
 
@@ -36,21 +32,6 @@ class GameDataLoader {
             stackedColumns = root.materialSet("stacked-columns")
         )
     }
-
-    private fun loadWoodFamilies(): List<WoodFamily> =
-        JsonData.read("/data/wood-families.json")
-            .getAsJsonArray("families")
-            .mapNotNull { element ->
-                val obj = element.asJsonObject
-                WoodFamily(
-                    id = obj["id"].asString,
-                    sapling = Material.matchMaterial(obj["sapling"].asString) ?: return@mapNotNull null,
-                    log = Material.matchMaterial(obj["log"].asString) ?: return@mapNotNull null,
-                    leaves = Material.matchMaterial(obj["leaves"].asString) ?: return@mapNotNull null,
-                    defaultSurface = obj["default-surface"]?.asString?.let { Material.matchMaterial(it) },
-                    members = obj.materialSet("members")
-                )
-            }
 
     private fun loadMaterialMap(path: String): Map<Material, Material> =
         JsonData.read(path).entrySet().mapNotNull { (from, to) ->

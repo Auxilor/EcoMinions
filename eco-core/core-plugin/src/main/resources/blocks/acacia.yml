@@ -1,5 +1,4 @@
 block: ACACIA_LOG
-restore: tree
 plant: ACACIA_SAPLING
 leaves: ACACIA_LEAVES
 surface: GRASS_BLOCK

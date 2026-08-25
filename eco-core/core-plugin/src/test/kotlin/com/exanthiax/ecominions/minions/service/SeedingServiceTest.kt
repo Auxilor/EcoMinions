@@ -1,7 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
-import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
@@ -79,7 +78,7 @@ class SeedingServiceTest {
         assertEquals(Material.WHEAT, world.typeAt(1, 0, 0))
     }
 
-    private fun service() = SeedingService(GameData.EMPTY)
+    private fun service() = SeedingService()
 
     private fun selfSeeding(seed: Material) = PlacementSettings(
         liftRegen = false,

@@ -30,6 +30,7 @@ class MiningService(
     private val worlds: WorldSettings,
     private val gameData: GameData,
     private val targets: MiningTargetFinder,
+    private val blocks: MinionBlockIndex,
     private val regen: RegenService,
     private val behaviours: MinionBehaviours,
     private val fuels: FuelService,
@@ -111,6 +112,11 @@ class MiningService(
         minion.mining.nextActionAt = now + effectiveSpeedTicks(minion)
     }
 
+    /** The behaviour for a specific block, so its `restore:` override can win. */
+    private fun behaviourOf(minion: Minion, block: Block): MinionBehaviour =
+        behaviours.forBlock(minion.state.type.type, blocks.forBlock(block))
+
+    /** The minion's own behaviour, for when it has no block in hand to override with. */
     private fun behaviourOf(minion: Minion): MinionBehaviour = behaviours[minion.state.type.type]
 
     private fun effectiveSpeedTicks(minion: Minion): Int =
@@ -118,6 +124,7 @@ class MiningService(
 
     private fun breakBlock(minion: Minion, block: Block, now: Long) {
         val original = block.type
+        val behaviour = behaviourOf(minion, block)
         val column = if (gameData.growthRules.isStackedColumn(original)) collectColumn(block) else listOf(block)
 
         val results = dispatch.drops(
@@ -136,7 +143,7 @@ class MiningService(
             segment.type = Material.AIR
         }
 
-        behaviourOf(minion).onBlockBroken(minion, block, original, now)
+        behaviour.onBlockBroken(minion, block, original, now)
     }
 
     private fun storeDrops(minion: Minion, results: List<DropResult>) {

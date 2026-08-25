@@ -1,5 +1,4 @@
 block: MANGROVE_LOG
-restore: tree
 plant: MANGROVE_PROPAGULE
 leaves: MANGROVE_LEAVES
 surface: MUD

@@ -4,20 +4,21 @@ import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import org.bukkit.Material
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class MinionBlockTest {
 
     @Test
-    fun `a regen default plants nothing`() {
+    fun `a regen default overrides nothing and plants nothing`() {
         val definition = MinionBlock.regenDefault(
             id = "diamond_ore",
             lookup = "DIAMOND_ORE",
             block = FakeBlockLookup.testable(Material.DIAMOND_ORE)
         )
 
-        assertEquals(RestoreMode.REGEN, definition.restore)
+        assertNull(definition.restore)
         assertFalse(definition.isPlantable)
     }
 

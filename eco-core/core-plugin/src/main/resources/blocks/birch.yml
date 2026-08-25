@@ -1,5 +1,4 @@
 block: BIRCH_LOG
-restore: tree
 plant: BIRCH_SAPLING
 leaves: BIRCH_LEAVES
 surface: GRASS_BLOCK

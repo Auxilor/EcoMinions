@@ -196,7 +196,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         minionTypes, minionFactory, repository,
         itemFactory, limits, activityService, minionSettings
     )
-    private val seedingService = SeedingService(gameData)
+    private val seedingService = SeedingService()
     private val regenService = RegenService(minionSettings, triggerDispatch)
     private val behaviours = MinionBehaviours(
         miner = MinerBehaviour(regenService, seedingService),
@@ -205,7 +205,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val miningTargets = MiningTargetFinder(gameData)
     private val miningService = MiningService(
-        minionSettings, worlds, gameData, miningTargets, regenService, behaviours,
+        minionSettings, worlds, gameData, miningTargets, blockIndex, regenService, behaviours,
         fuelService, triggerDispatch
     )
     private val placementService = PlacementService(

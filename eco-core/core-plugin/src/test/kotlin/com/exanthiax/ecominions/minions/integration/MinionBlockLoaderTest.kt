@@ -48,13 +48,13 @@ class MinionBlockLoaderTest {
     }
 
     @Test
-    fun `a tree without leaves degrades to regen and is reported`() {
+    fun `a tree without leaves drops the override and is reported`() {
         val violations = mutableListOf<String>()
         val config = config(block = "OAK_LOG", restore = "tree", plant = "OAK_SAPLING")
 
         val loaded = MinionBlockLoader(lookup).load("oak", config, context(violations))
 
-        assertEquals(RestoreMode.REGEN, loaded!!.restore)
+        assertNull(loaded!!.restore)
         assertEquals(1, violations.size)
     }
 
@@ -68,20 +68,38 @@ class MinionBlockLoaderTest {
     }
 
     @Test
-    fun `a missing restore defaults to regen`() {
+    fun `a missing restore leaves the minion type to decide`() {
         val loaded = MinionBlockLoader(lookup).load("oak", config(block = "OAK_LOG"), context())
 
-        assertEquals(RestoreMode.REGEN, loaded!!.restore)
+        assertNull(loaded!!.restore)
     }
 
     @Test
-    fun `an unknown restore mode is reported and degrades to regen`() {
+    fun `a declared restore overrides the minion type`() {
+        val config = config(block = "OAK_LOG", restore = "replant", plant = "OAK_SAPLING")
+
+        val loaded = MinionBlockLoader(lookup).load("oak", config, context())
+
+        assertEquals(RestoreMode.REPLANT, loaded!!.restore)
+    }
+
+    @Test
+    fun `a plant is kept even when nothing overrides the restore mode`() {
+        val config = config(block = "OAK_LOG", plant = "OAK_SAPLING")
+
+        val loaded = MinionBlockLoader(lookup).load("oak", config, context())
+
+        assertNotNull(loaded!!.plant)
+    }
+
+    @Test
+    fun `an unknown restore mode is reported and dropped`() {
         val violations = mutableListOf<String>()
         val config = config(block = "OAK_LOG", restore = "explode")
 
         val loaded = MinionBlockLoader(lookup).load("oak", config, context(violations))
 
-        assertEquals(RestoreMode.REGEN, loaded!!.restore)
+        assertNull(loaded!!.restore)
         assertEquals(1, violations.size)
     }
 

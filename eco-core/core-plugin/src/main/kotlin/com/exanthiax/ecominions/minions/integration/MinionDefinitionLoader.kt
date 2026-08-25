@@ -213,7 +213,7 @@ class MinionDefinitionLoader(
         context: LoadContext
     ): PlacementSettings {
         val section = config.getSubsection("placement")
-        val regen = readRegenPlacement(id, section, configured, context)
+        val regen = readRegenPlacement(id, section, context)
 
         if (section.getBoolOrNull("self-seed") ?: (type == MinionType.WOODCUTTER)) {
             readSeedBlock(section, targets, context)
@@ -222,16 +222,20 @@ class MinionDefinitionLoader(
         return regen
     }
 
+    /**
+     * TODO(task-7): a crop's default lift-regen surface comes from its block
+     * definition's `surface`, which is a TestableBlock and does not yet fit
+     * PlacementSettings. Until then only an explicit `placement.lift-regen`
+     * lifts anything.
+     */
     private fun readRegenPlacement(
         id: String,
         section: Config?,
-        configured: List<Material>,
         context: LoadContext
     ): PlacementSettings {
         if (section != null && section.getBoolOrNull("lift-regen") != null) {
             return readExplicitPlacement(id, section, context)
         }
-        gameData.anyCropSurfaceIn(configured)?.let { return PlacementSettings(true, it) }
         return PlacementSettings.NONE
     }
 

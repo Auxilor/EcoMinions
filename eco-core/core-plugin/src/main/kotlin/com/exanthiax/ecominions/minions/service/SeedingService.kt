@@ -1,6 +1,5 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.minions.model.GameData
 import org.bukkit.Material
 import org.bukkit.block.Block
 
@@ -12,9 +11,7 @@ import org.bukkit.block.Block
  * [com.exanthiax.ecominions.minions.service.behaviour.WoodcutterBehaviour]
  * instead, which has a plant-wait-fell cycle of its own.
  */
-class SeedingService(
-    private val gameData: GameData
-) {
+class SeedingService {
     /** @return true if a block was seeded, so the minion idles rather than reporting blocked. */
     fun tick(minion: Minion): Boolean {
         val placement = minion.state.type.placement
@@ -22,7 +19,8 @@ class SeedingService(
             return false
         }
         val seed = placement.seedBlock ?: return false
-        val surface = placement.surfaceBlock ?: gameData.surfaceForCrop(seed)
+        // TODO(task-7): fall back to the seeded block's definition surface
+        val surface = placement.surfaceBlock
 
         val spot = findSpot(minion, surface) ?: return false
         spot.type = seed
