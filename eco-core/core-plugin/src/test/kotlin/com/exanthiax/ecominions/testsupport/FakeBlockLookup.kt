@@ -13,18 +13,10 @@ import org.bukkit.block.Block
  * below the eco seam knows what a custom block is.
  */
 class FakeBlockLookup(
-    private val registered: Map<String, TestableBlock> = emptyMap(),
-    private val custom: Set<Material> = emptySet()
+    private val registered: Map<String, TestableBlock> = emptyMap()
 ) : BlockLookup {
 
     override fun lookup(id: String): TestableBlock? = registered[id]
-
-    override fun isCustom(block: Block): Boolean = block.type in custom
-
-    override fun lookupStringOf(block: Block): String = block.type.name
-
-    override fun matchesAny(block: Block, candidates: Collection<TestableBlock>): Boolean =
-        candidates.any { it.matches(block) }
 
     companion object {
         /** A [TestableBlock] that matches, and places, one material. */
