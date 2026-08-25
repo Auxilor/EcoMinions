@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.service.behaviour
 
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.service.Minion
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -18,10 +19,11 @@ interface MinionBehaviour {
      * with. Implementations own what the block becomes: air, a regen entry, or
      * a replanted seedling.
      *
+     * @param definition What [block] is, or null if nothing defines it.
      * @param original The material the block was before it was broken, needed
      * because [block] has already been emptied of its drops.
      */
-    fun onBlockBroken(minion: Minion, block: Block, original: Material, now: Long)
+    fun onBlockBroken(minion: Minion, block: Block, definition: MinionBlock?, original: Material, now: Long)
 
     /**
      * Called when the minion has nothing in range to break.

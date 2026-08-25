@@ -19,7 +19,13 @@ class WoodcutterBehaviour(
     private val trees: TreeService
 ) : MinionBehaviour {
 
-    override fun onBlockBroken(minion: Minion, block: Block, original: Material, now: Long) {
+    override fun onBlockBroken(
+        minion: Minion,
+        block: Block,
+        definition: MinionBlock?,
+        original: Material,
+        now: Long
+    ) {
         block.type = Material.AIR
     }
 

@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.service.behaviour
 
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.RegenService
 import com.exanthiax.ecominions.minions.service.SeedingService
@@ -17,8 +18,13 @@ class MinerBehaviour(
     private val seeding: SeedingService
 ) : MinionBehaviour {
 
-    override fun onBlockBroken(minion: Minion, block: Block, original: Material, now: Long) =
-        regen.queue(minion, block, original, now)
+    override fun onBlockBroken(
+        minion: Minion,
+        block: Block,
+        definition: MinionBlock?,
+        original: Material,
+        now: Long
+    ) = regen.queue(minion, block, original, now)
 
     override fun onIdle(minion: Minion, now: Long): Boolean = seeding.tick(minion)
 }

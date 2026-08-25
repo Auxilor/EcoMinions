@@ -1,8 +1,10 @@
 package com.exanthiax.ecominions.minions.service.behaviour
 
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.RegenService
 import com.exanthiax.ecominions.minions.service.SeedingService
+import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,9 +25,21 @@ class MinerBehaviourTest {
         val minion = mockk<Minion>()
         val block = mockk<Block>()
 
-        behaviour.onBlockBroken(minion, block, Material.STONE, now = 100L)
+        behaviour.onBlockBroken(minion, block, definition = null, original = Material.STONE, now = 100L)
 
         verify { regen.queue(minion, block, Material.STONE, 100L) }
+    }
+
+    @Test
+    fun `regenerates even when the block could be replanted`() {
+        val minion = mockk<Minion>()
+        val block = mockk<Block>()
+        val wheat = MinionBlock.regenDefault("wheat", "WHEAT", FakeBlockLookup.testable(Material.WHEAT))
+            .copy(plant = FakeBlockLookup.testable(Material.WHEAT))
+
+        behaviour.onBlockBroken(minion, block, wheat, Material.WHEAT, now = 100L)
+
+        verify { regen.queue(minion, block, Material.WHEAT, 100L) }
     }
 
     @Test

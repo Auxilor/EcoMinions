@@ -138,7 +138,7 @@ class MiningService(
             segment.type = Material.AIR
         }
 
-        behaviour.onBlockBroken(minion, block, original, now)
+        behaviour.onBlockBroken(minion, block, definition, original, now)
     }
 
     private fun storeDrops(minion: Minion, results: List<DropResult>) {
