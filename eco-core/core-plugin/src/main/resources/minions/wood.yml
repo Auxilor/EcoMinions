@@ -1,4 +1,5 @@
 name: "&6Wood Minion"
+type: woodcutter
 target-blocks:
   - OAK_LOG
 

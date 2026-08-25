@@ -1,4 +1,5 @@
 name: "&eWheat Minion"
+type: farmer
 target-blocks:
   - WHEAT
 

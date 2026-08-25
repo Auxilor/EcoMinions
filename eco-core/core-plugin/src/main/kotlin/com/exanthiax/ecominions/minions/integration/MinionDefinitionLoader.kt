@@ -10,8 +10,8 @@ import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.PlacementSettings
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
-import com.exanthiax.ecominions.minions.model.WoodFamily
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.placeholder.context.placeholderContext
 import com.willfp.eco.util.NamespacedKeyUtils
@@ -39,14 +39,22 @@ class MinionDefinitionLoader(
 ) : ConfigLoader<MinionDefinition> {
 
     override fun load(id: String, config: Config, context: LoadContext): MinionDefinition? {
+        val type = MinionType.parse(config.getStringOrNull("type"))
+        if (type == null) {
+            context.violation(
+                "type",
+                "must be one of ${MinionType.entries.joinToString(", ") { it.id }}"
+            )
+            return null
+        }
+
         val configured = readTargetBlocks(config, context)
         if (configured.isEmpty()) {
             context.violation("target-blocks", "no valid blocks - the minion would never mine")
             return null
         }
 
-        val woodFamily = gameData.woodFamilies.detect(configured)
-        val targets = resolveTargets(configured, woodFamily)
+        val targets = resolveTargets(configured)
         if (targets.isEmpty()) {
             context.violation("target-blocks", "every configured block is an invalid mining target")
             return null
@@ -70,13 +78,13 @@ class MinionDefinitionLoader(
             name = config.getFormattedString("name"),
             targetBlocks = targets,
             allowedUpgradeIds = allowedUpgrades,
-            woodFamily = woodFamily,
+            type = type,
             baseStats = readBaseStats(config),
             spawnItem = spawnItem,
             crafting = readCrafting(config, context),
             equipment = readEquipment(config),
             particles = particles.load(config.getSubsection("particles"), context),
-            placement = readPlacement(id, config, configured, targets, woodFamily, context),
+            placement = readPlacement(id, config, configured, targets, type, context),
             sellPrices = sellPrices,
             levelling = levelling.load(config, context),
             holder = compileHolder(id, config, context),
@@ -111,16 +119,12 @@ class MinionDefinitionLoader(
                 ?: context.invalid("target-blocks", name, "a material on this server version")
         }
 
-    /** Tree types mine only logs; everything else promotes seeds to their crop. */
-    private fun resolveTargets(configured: List<Material>, woodFamily: WoodFamily?): Set<Material> {
-        if (woodFamily != null) {
-            return setOf(woodFamily.log)
-        }
-        return configured
+    /** Seeds are promoted to the crop they become; anything unmineable is dropped. */
+    private fun resolveTargets(configured: List<Material>): Set<Material> =
+        configured
             .map { gameData.growthRules.promote(it) }
             .filter { gameData.growthRules.isValidTarget(it) }
             .toSet()
-    }
 
     /**
      * `max-storage-slots`, like every other stat here, may be a `%level%`
@@ -205,14 +209,14 @@ class MinionDefinitionLoader(
         config: Config,
         configured: List<Material>,
         targets: Set<Material>,
-        woodFamily: WoodFamily?,
+        type: MinionType,
         context: LoadContext
     ): PlacementSettings {
         val section = config.getSubsection("placement")
-        val regen = readRegenPlacement(id, section, configured, woodFamily, context)
+        val regen = readRegenPlacement(id, section, configured, context)
 
-        if (section.getBoolOrNull("self-seed") ?: (woodFamily != null)) {
-            readSeedBlock(section, targets, woodFamily, context)
+        if (section.getBoolOrNull("self-seed") ?: (type == MinionType.WOODCUTTER)) {
+            readSeedBlock(section, targets, context)
                 ?.let { return regen.copy(selfSeed = true, seedBlock = it) }
         }
         return regen
@@ -222,13 +226,11 @@ class MinionDefinitionLoader(
         id: String,
         section: Config?,
         configured: List<Material>,
-        woodFamily: WoodFamily?,
         context: LoadContext
     ): PlacementSettings {
         if (section != null && section.getBoolOrNull("lift-regen") != null) {
             return readExplicitPlacement(id, section, context)
         }
-        woodFamily?.defaultSurface?.let { return PlacementSettings(true, it) }
         gameData.anyCropSurfaceIn(configured)?.let { return PlacementSettings(true, it) }
         return PlacementSettings.NONE
     }
@@ -237,7 +239,6 @@ class MinionDefinitionLoader(
     private fun readSeedBlock(
         section: Config,
         targets: Set<Material>,
-        woodFamily: WoodFamily?,
         context: LoadContext
     ): Material? {
         val raw = section.getStringOrNull("seed-block")
@@ -249,7 +250,7 @@ class MinionDefinitionLoader(
             return material
         }
 
-        val fallback = woodFamily?.sapling ?: targets.firstOrNull()
+        val fallback = targets.firstOrNull()
         if (fallback == null) {
             context.violation(
                 "placement.self-seed",

@@ -1,4 +1,4 @@
-package com.exanthiax.ecominions.minions.model
+package com.exanthiax.ecominions.api.minion
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

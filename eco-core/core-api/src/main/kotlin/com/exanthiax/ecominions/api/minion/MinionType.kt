@@ -1,4 +1,4 @@
-package com.exanthiax.ecominions.minions.model
+package com.exanthiax.ecominions.api.minion
 
 /**
  * What a minion does with the blocks it breaks.

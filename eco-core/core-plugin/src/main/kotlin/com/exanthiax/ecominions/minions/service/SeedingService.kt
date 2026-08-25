@@ -7,9 +7,10 @@ import org.bukkit.block.Block
 /**
  * Places a minion's own block to mine when there is nothing left in range.
  *
- * Only types that opt in via `placement.self-seed` seed themselves; the rest
- * stay blocked until a player supplies blocks. Tree minions are seeded by
- * [TreeFarmingService] instead, which has a plant-wait-fell cycle of its own.
+ * Only minions that opt in via `placement.self-seed` seed themselves; the rest
+ * stay blocked until a player supplies blocks. Woodcutters are seeded by
+ * [com.exanthiax.ecominions.minions.service.behaviour.WoodcutterBehaviour]
+ * instead, which has a plant-wait-fell cycle of its own.
  */
 class SeedingService(
     private val gameData: GameData

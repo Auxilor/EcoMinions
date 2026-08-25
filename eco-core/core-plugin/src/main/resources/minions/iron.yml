@@ -1,4 +1,5 @@
 name: "&fIron Minion"
+type: miner
 target-blocks:
   - IRON_ORE
   - DEEPSLATE_IRON_ORE

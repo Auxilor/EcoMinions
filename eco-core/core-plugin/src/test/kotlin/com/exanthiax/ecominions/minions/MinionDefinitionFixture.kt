@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionDefinition
@@ -20,6 +21,7 @@ object MinionDefinitionFixture {
 
     fun build(
         id: String = "stone",
+        type: MinionType = MinionType.MINER,
         targetBlocks: Set<Material> = emptySet(),
         allowedUpgradeIds: List<String> = listOf("speed", "capacity"),
         sellPrices: Map<Material, Double> = emptyMap(),
@@ -41,7 +43,7 @@ object MinionDefinitionFixture {
         name = "Stone Minion",
         targetBlocks = targetBlocks,
         allowedUpgradeIds = allowedUpgradeIds,
-        woodFamily = null,
+        type = type,
         baseStats = baseStats,
         spawnItem = SpawnItemSpec(
             itemLookup = "armor_stand",

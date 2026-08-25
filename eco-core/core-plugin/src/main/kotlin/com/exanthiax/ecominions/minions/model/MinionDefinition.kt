@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.minions.model
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.willfp.libreforge.Holder
 import org.bukkit.Material
 import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefinition
@@ -16,7 +17,7 @@ class MinionDefinition(
     override val name: String,
     override val targetBlocks: Set<Material>,
     override val allowedUpgradeIds: List<String>,
-    val woodFamily: WoodFamily?,
+    override val type: MinionType,
     val baseStats: BaseStats,
     val spawnItem: SpawnItemSpec,
     val crafting: CraftingSpec?,
@@ -42,9 +43,6 @@ class MinionDefinition(
 
     override val baseStorageSlots: Int
         get() = baseStats.valueOf(MinionStat.INVENTORY_SLOTS, PREVIEW_LEVEL)
-
-    override val isTreeType: Boolean
-        get() = woodFamily != null
 
     override val isLevellable: Boolean
         get() = levelling.enabled

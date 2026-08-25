@@ -11,6 +11,8 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionSettings
+import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviour
+import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
 import com.willfp.libreforge.triggers.event.DropCause
 import com.willfp.libreforge.triggers.event.DropResult
 import org.bukkit.Material
@@ -29,8 +31,7 @@ class MiningService(
     private val gameData: GameData,
     private val targets: MiningTargetFinder,
     private val regen: RegenService,
-    private val treeFarming: TreeFarmingService,
-    private val seeding: SeedingService,
+    private val behaviours: MinionBehaviours,
     private val fuels: FuelService,
     private val dispatch: MinionTriggerDispatch
 ) {
@@ -105,14 +106,12 @@ class MiningService(
 
     /** Tree types run their own plant-wait-fell cycle; everything else may seed a single block. */
     private fun handleNoTarget(minion: Minion, now: Long) {
-        val busy = if (minion.state.type.isTreeType) {
-            treeFarming.tick(minion, now)
-        } else {
-            seeding.tick(minion)
-        }
+        val busy = behaviourOf(minion).onIdle(minion, now)
         minion.animation = if (busy) Minion.AnimationState.IDLE else Minion.AnimationState.BLOCKED
         minion.mining.nextActionAt = now + effectiveSpeedTicks(minion)
     }
+
+    private fun behaviourOf(minion: Minion): MinionBehaviour = behaviours[minion.state.type.type]
 
     private fun effectiveSpeedTicks(minion: Minion): Int =
         fuels.effectiveSpeedTicks(minion, minion.stats.speedTicks)
@@ -137,12 +136,7 @@ class MiningService(
             segment.type = Material.AIR
         }
 
-        if (minion.state.type.isTreeType) {
-            block.type = Material.AIR
-            return
-        }
-
-        regen.queue(minion, block, original, now)
+        behaviourOf(minion).onBlockBroken(minion, block, original, now)
     }
 
     private fun storeDrops(minion: Minion, results: List<DropResult>) {

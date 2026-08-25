@@ -61,9 +61,12 @@ import com.exanthiax.ecominions.minions.service.PlacementLimits
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.service.RegenService
 import com.exanthiax.ecominions.minions.service.SeedingService
+import com.exanthiax.ecominions.minions.service.behaviour.FarmerBehaviour
+import com.exanthiax.ecominions.minions.service.behaviour.MinerBehaviour
+import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
+import com.exanthiax.ecominions.minions.service.behaviour.WoodcutterBehaviour
 import com.exanthiax.ecominions.minions.service.SellPricingService
 import com.exanthiax.ecominions.minions.service.SellService
-import com.exanthiax.ecominions.minions.service.TreeFarmingService
 import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.minions.ui.MainMenu
 import com.exanthiax.ecominions.minions.ui.MenuChrome
@@ -193,12 +196,16 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         minionTypes, minionFactory, repository,
         itemFactory, limits, activityService, minionSettings
     )
-    private val treeFarming = TreeFarmingService(gameData, TreeService())
     private val seedingService = SeedingService(gameData)
     private val regenService = RegenService(minionSettings, triggerDispatch)
+    private val behaviours = MinionBehaviours(
+        miner = MinerBehaviour(regenService, seedingService),
+        woodcutter = WoodcutterBehaviour(TreeService(), blockIndex),
+        farmer = FarmerBehaviour(regenService, seedingService)
+    )
     private val miningTargets = MiningTargetFinder(gameData)
     private val miningService = MiningService(
-        minionSettings, worlds, gameData, miningTargets, regenService, treeFarming, seedingService,
+        minionSettings, worlds, gameData, miningTargets, regenService, behaviours,
         fuelService, triggerDispatch
     )
     private val placementService = PlacementService(

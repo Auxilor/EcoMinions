@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.data.JsonData
-import com.exanthiax.ecominions.minions.model.WoodFamily
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.google.gson.JsonObject
 import org.bukkit.Location
 import org.bukkit.Material
@@ -13,10 +13,16 @@ class TreeService {
 
     private val patterns: Patterns by lazy { loadPatterns() }
 
-    /** Replaces the sapling at [base] with a full tree. */
-    fun growTree(base: Location, family: WoodFamily): List<Block> {
+    /**
+     * Replaces the sapling at [base] with a full tree.
+     *
+     * @return The leaf blocks placed, for the caller to harvest. A definition
+     * with no [MinionBlock.leaves] grows a bare trunk rather than nothing, so a
+     * half-configured tree still farms wood.
+     */
+    fun growTree(base: Location, definition: MinionBlock): List<Block> {
         val world = base.world ?: return emptyList()
-        val pattern = patterns.byFamily[family.id] ?: patterns.default
+        val pattern = patterns.byFamily[definition.patternKey] ?: patterns.default
         val leaves = mutableListOf<Block>()
 
         for (placement in pattern.blocks) {
@@ -26,13 +32,15 @@ class TreeService {
                 base.blockZ + placement.z
             )
             when (placement.kind) {
-                "log" -> if (block.type == Material.AIR || block.type == family.log) {
-                    block.type = family.log
+                "log" -> if (block.type == Material.AIR || definition.block.matches(block)) {
+                    definition.block.place(block.location)
                 }
 
                 "leaf" -> if (block.type == Material.AIR) {
-                    block.type = family.leaves
-                    leaves += block
+                    definition.leaves?.let {
+                        it.place(block.location)
+                        leaves += block
+                    }
                 }
             }
         }

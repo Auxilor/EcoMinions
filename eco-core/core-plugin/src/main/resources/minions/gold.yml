@@ -1,4 +1,5 @@
 name: "&6Gold Minion"
+type: miner
 target-blocks:
   - GOLD_ORE
   - DEEPSLATE_GOLD_ORE

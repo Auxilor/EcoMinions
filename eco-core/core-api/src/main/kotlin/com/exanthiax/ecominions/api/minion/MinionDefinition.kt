@@ -10,8 +10,11 @@ interface MinionDefinition {
     /** Formatted display name. */
     val name: String
 
-    /** Blocks this type mines. */
+    /** Blocks this minion mines. */
     val targetBlocks: Set<Material>
+
+    /** What this minion does with the blocks it breaks. */
+    val type: MinionType
 
     /** Ticks between mining actions before upgrades are applied. */
     val baseSpeedTicks: Int
@@ -21,9 +24,6 @@ interface MinionDefinition {
 
     /** Ids of the upgrades this type is allowed to buy. */
     val allowedUpgradeIds: List<String>
-
-    /** Whether this type grows and fells trees rather than mining a fixed block set. */
-    val isTreeType: Boolean
 
     /** Whether this type levels from XP, rather than from purchased upgrade tiers. */
     val isLevellable: Boolean

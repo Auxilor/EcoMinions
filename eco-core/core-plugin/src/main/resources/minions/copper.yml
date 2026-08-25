@@ -1,4 +1,5 @@
 name: "&6Copper Minion"
+type: miner
 target-blocks:
   - COPPER_ORE
   - DEEPSLATE_COPPER_ORE

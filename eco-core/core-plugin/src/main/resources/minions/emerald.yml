@@ -1,4 +1,5 @@
 name: "&aEmerald Minion"
+type: miner
 target-blocks:
   - EMERALD_ORE
   - DEEPSLATE_EMERALD_ORE

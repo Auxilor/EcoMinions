@@ -1,4 +1,5 @@
 name: "&cMushroom Minion"
+type: farmer
 target-blocks:
   - RED_MUSHROOM
   - BROWN_MUSHROOM
