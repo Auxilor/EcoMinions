@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions.integration
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.error.LoadReport
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import com.exanthiax.ecominions.testsupport.FakeItemLookup
 import com.willfp.eco.core.config.interfaces.Config
@@ -11,6 +12,7 @@ import com.willfp.libreforge.ViolationContext
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import org.bukkit.Material
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -53,12 +55,57 @@ class MinionDefinitionLoaderTest {
         )
     }
 
+    @Test
+    fun `rejects a woodcutter aimed at something that is not a tree`() {
+        val messages = mutableListOf<String>()
+
+        val loaded = load(
+            type = "woodcutter",
+            targets = listOf("DIAMOND_BLOCK"),
+            blocks = FakeBlockLookup(mapOf("DIAMOND_BLOCK" to FakeBlockLookup.testable(Material.DIAMOND_BLOCK))),
+            context = context(messages = messages)
+        )
+
+        assertNull(loaded, "a woodcutter would clear this block and never put it back")
+        assertTrue(
+            messages.single().contains("DIAMOND_BLOCK"),
+            "the violation should name the offending block, was: ${messages.single()}"
+        )
+    }
+
+    @Test
+    fun `rejects a woodcutter whose target has a plant but no leaves`() {
+        val oak = MinionBlock.regenDefault("oak", "OAK_LOG", FakeBlockLookup.testable(Material.OAK_LOG))
+            .copy(plant = FakeBlockLookup.testable(Material.OAK_SAPLING))
+
+        val loaded = load(
+            type = "woodcutter",
+            targets = listOf("OAK_LOG"),
+            blocks = FakeBlockLookup(mapOf("OAK_LOG" to FakeBlockLookup.testable(Material.OAK_LOG))),
+            blockDefinition = { oak },
+            context = context()
+        )
+
+        assertNull(loaded)
+    }
+
     private fun load(type: String?, context: LoadContext) =
         loader().load("coal", config(type), context)
 
-    private fun loader() = MinionDefinitionLoader(
-        blocks = FakeBlockLookup(),
-        blockDefinition = { null },
+    private fun load(
+        type: String?,
+        targets: List<String>,
+        blocks: FakeBlockLookup,
+        blockDefinition: (String) -> MinionBlock? = { null },
+        context: LoadContext
+    ) = loader(blocks, blockDefinition).load("coal", config(type, targets), context)
+
+    private fun loader(
+        blocks: FakeBlockLookup = FakeBlockLookup(),
+        blockDefinition: (String) -> MinionBlock? = { null }
+    ) = MinionDefinitionLoader(
+        blocks = blocks,
+        blockDefinition = blockDefinition,
         items = FakeItemLookup(),
         particles = ParticleSettingsLoader(),
         levelling = LevellingLoader(),
@@ -68,9 +115,10 @@ class MinionDefinitionLoaderTest {
         compactorRecipeIds = { emptyList() }
     )
 
-    private fun config(type: String?): Config {
+    private fun config(type: String?, targets: List<String> = emptyList()): Config {
         val config = mockk<Config>(relaxed = true)
         every { config.getStringOrNull("type") } returns type
+        every { config.getStrings("target-blocks") } returns targets
         return config
     }
 

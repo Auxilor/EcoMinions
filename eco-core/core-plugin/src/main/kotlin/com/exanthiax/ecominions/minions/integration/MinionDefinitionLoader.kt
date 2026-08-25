@@ -69,6 +69,9 @@ class MinionDefinitionLoader(
             context.violation("target-blocks", "every configured block is an invalid mining target")
             return null
         }
+        if (!rejectUnfellableTargets(type, targets, context)) {
+            return null
+        }
 
         val spawnItem = readSpawnItem(config)
         val compactorRecipes = readCompactorRecipes(config, context)
@@ -121,6 +124,37 @@ class MinionDefinitionLoader(
             Effects.compile(effectConfigs, violations.with("effects")),
             Conditions.compile(config.getSubsections("conditions"), violations.with("conditions"))
         )
+    }
+
+    /**
+     * @return false if this is a woodcutter aimed at something that is not a tree.
+     *
+     * Fatal rather than a warning, because a woodcutter clears what it breaks
+     * instead of regenerating it. Loading one anyway would let it strip a block
+     * it can never replant - it would eat a player's build and then sit blocked.
+     */
+    private fun rejectUnfellableTargets(
+        type: MinionType,
+        targets: TargetSet,
+        context: LoadContext
+    ): Boolean {
+        if (type != MinionType.WOODCUTTER) {
+            return true
+        }
+
+        val unfellable = targets.definitions.filter { it.plant == null || it.leaves == null }
+        if (unfellable.isEmpty()) {
+            return true
+        }
+
+        context.violation(
+            "target-blocks",
+            unfellable.joinToString(", ") { it.lookup } +
+                " is not a tree - a woodcutter fells what it breaks and never puts it back, so it " +
+                "would destroy this permanently. Give it a 'plant' and 'leaves' in blocks/, or use " +
+                "type: miner."
+        )
+        return false
     }
 
     /** Ids as authored - eco resolves them, so a custom block id is as valid as a material. */
