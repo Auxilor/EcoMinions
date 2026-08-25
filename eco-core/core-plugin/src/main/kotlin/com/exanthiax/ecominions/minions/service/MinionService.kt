@@ -6,7 +6,7 @@ import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.willfp.libreforge.forceRefreshHolders
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
@@ -16,14 +16,14 @@ import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import com.exanthiax.ecominions.api.minion.MinionType as ApiMinionType
+import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefinition
 
 /**
  * Owns the set of live minions: what exists, who owns it, and how stands in the
  * world become minions again after a restart.
  */
 class MinionService(
-    private val types: ConfigDrivenRegistry<MinionType>,
+    private val types: ConfigDrivenRegistry<MinionDefinition>,
     private val factory: MinionFactory,
     private val repository: MinionStateRepository,
     private val itemFactory: MinionItemFactory,
@@ -49,13 +49,13 @@ class MinionService(
 
     override fun placementLimit(player: OfflinePlayer): Int = limits.limitFor(player)
 
-    override fun types(): Collection<MinionType> = types.all()
+    override fun types(): Collection<MinionDefinition> = types.all()
 
-    override fun getType(id: String): MinionType? = types.find(id)
+    override fun getType(id: String): MinionDefinition? = types.find(id)
 
-    override fun createItem(type: ApiMinionType, level: Int): ItemStack {
+    override fun createItem(type: ApiMinionDefinition, level: Int): ItemStack {
         val resolved = types.find(type.id)
-            ?: throw IllegalArgumentException("Unknown minion type: ${type.id}")
+            ?: throw IllegalArgumentException("Unknown minion: ${type.id}")
         return itemFactory.build(MinionState(type = resolved, storedLevel = level))
     }
 

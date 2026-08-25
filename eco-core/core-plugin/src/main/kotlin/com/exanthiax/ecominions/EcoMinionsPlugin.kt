@@ -39,11 +39,11 @@ import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
 import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
-import com.exanthiax.ecominions.minions.integration.MinionTypeLoader
+import com.exanthiax.ecominions.minions.integration.MinionDefinitionLoader
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionBlock
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionBlockIndex
 import com.exanthiax.ecominions.minions.service.MinionDropTables
@@ -129,7 +129,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val blockIndex = MinionBlockIndex { blockDefinitions.all() }
     private val minionTypes = ConfigDrivenRegistry(
         "minion_type", "minions", "minion types",
-        MinionTypeLoader(
+        MinionDefinitionLoader(
             gameData,
             ParticleSettingsLoader(),
             LevellingLoader(),

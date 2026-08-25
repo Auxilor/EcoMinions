@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -19,7 +19,7 @@ class MinionDropTables(
 ) {
     private val cache = HashMap<Key, List<ItemStack>>()
 
-    fun dropsFor(type: MinionType, material: Material, location: Location): List<ItemStack> {
+    fun dropsFor(type: MinionDefinition, material: Material, location: Location): List<ItemStack> {
         val cached = cache.getOrPut(Key(type.id, material)) {
             resolve(material, location).ifEmpty { listOf(ItemStack(material, 1)) }
         }

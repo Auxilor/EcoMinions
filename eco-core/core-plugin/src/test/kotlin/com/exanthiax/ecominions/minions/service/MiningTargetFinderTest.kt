@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.minions.MinionTypeFixture
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
@@ -67,7 +67,7 @@ class MiningTargetFinderTest {
         radius: Int = 1,
         height: Int
     ): Minion {
-        val type = MinionTypeFixture.build(targetBlocks = setOf(Material.OAK_LOG))
+        val type = MinionDefinitionFixture.build(targetBlocks = setOf(Material.OAK_LOG))
         return mockk<Minion>().also { minion ->
             every { minion.state } returns mockk { every { this@mockk.type } returns type }
             every { minion.stats } returns mockk {

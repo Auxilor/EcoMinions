@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.minions.MinionTypeFixture
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.testsupport.FakeWorld
@@ -93,7 +93,7 @@ class SeedingServiceTest {
         placement: PlacementSettings,
         radius: Int = 1
     ): Minion {
-        val type = MinionTypeFixture.build(placement = placement)
+        val type = MinionDefinitionFixture.build(placement = placement)
         return mockk<Minion>().also { minion ->
             every { minion.state } returns mockk { every { this@mockk.type } returns type }
             every { minion.stats } returns mockk { every { this@mockk.radius } returns radius }

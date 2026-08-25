@@ -3,7 +3,7 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.core.persistence.MinionDataKeys
 import com.exanthiax.ecominions.minions.model.MinionState
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.UpgradeCodec
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataContainer
@@ -15,7 +15,7 @@ import java.util.UUID
  */
 class MinionStateRepository(
     private val keys: MinionDataKeys,
-    private val typeById: (String) -> MinionType?
+    private val typeById: (String) -> MinionDefinition?
 ) {
     fun isMinion(container: PersistentDataContainer): Boolean =
         container.get(keys.isMinion, MinionDataKeys.BYTE) == MARKER

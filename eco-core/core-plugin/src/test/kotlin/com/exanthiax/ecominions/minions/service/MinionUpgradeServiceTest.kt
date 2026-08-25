@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.minions.MinionTypeFixture
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 
 class MinionUpgradeServiceTest {
 
-    private val type = MinionTypeFixture.build(allowedUpgradeIds = listOf("speed"))
+    private val type = MinionDefinitionFixture.build(allowedUpgradeIds = listOf("speed"))
 
     private fun tier(buyConditions: ConditionList = ConditionList(emptyList())) = UpgradeTier(
         level = 1,
@@ -49,7 +49,7 @@ class MinionUpgradeServiceTest {
     @Test
     fun `an upgrade not on the minion's allow-list is rejected`() {
         val (service, minionService) = service()
-        val state = MinionState(type = MinionTypeFixture.build(allowedUpgradeIds = emptyList()))
+        val state = MinionState(type = MinionDefinitionFixture.build(allowedUpgradeIds = emptyList()))
         val minion = minion(state)
         val player = mockk<Player>(relaxed = true)
 

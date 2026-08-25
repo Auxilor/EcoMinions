@@ -4,7 +4,7 @@ import java.util.UUID
 
 /** The persisted identity of a minion: what survives pickup, restart and reload. */
 data class MinionState(
-    val type: MinionType,
+    val type: MinionDefinition,
     private val storedLevel: Int = 1,
     val xp: Double = 0.0,
     val owner: UUID? = null,

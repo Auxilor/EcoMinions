@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.libreforge
 
-import com.exanthiax.ecominions.minions.MinionTypeFixture
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.upgrades.model.TierCost
@@ -35,7 +35,7 @@ class MinionHoldersTest {
     )
 
     private fun minion(upgrades: Map<String, Int>, typeHolder: Holder?): Minion {
-        val type = MinionTypeFixture.build(allowedUpgradeIds = listOf("speed"), holder = typeHolder)
+        val type = MinionDefinitionFixture.build(allowedUpgradeIds = listOf("speed"), holder = typeHolder)
         val state = MinionState(type = type, upgrades = upgrades)
         return mockk<Minion> { every { this@mockk.state } returns state }
     }
@@ -70,7 +70,7 @@ class MinionHoldersTest {
 
     @Test
     fun `an upgrade the type does not allow is ignored`() {
-        val type = MinionTypeFixture.build(allowedUpgradeIds = emptyList(), holder = null)
+        val type = MinionDefinitionFixture.build(allowedUpgradeIds = emptyList(), holder = null)
         val state = MinionState(type = type, upgrades = mapOf("speed" to 1))
         val minion = mockk<Minion> { every { this@mockk.state } returns state }
 

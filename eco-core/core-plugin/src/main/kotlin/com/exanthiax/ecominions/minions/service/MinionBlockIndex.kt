@@ -6,7 +6,7 @@ import org.bukkit.block.Block
 /**
  * Finds the `blocks/` definition that describes a block.
  *
- * Two questions get asked, and they are not the same one. Loading a minion type
+ * Two questions get asked, and they are not the same one. Loading a minion
  * resolves a configured id; mining resolves a block in the world, which may have
  * been broken by a libreforge effect and so carries no id at all.
  *

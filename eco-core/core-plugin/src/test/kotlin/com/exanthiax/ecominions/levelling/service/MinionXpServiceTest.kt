@@ -2,7 +2,7 @@ package com.exanthiax.ecominions.levelling.service
 
 import com.exanthiax.ecominions.levelling.model.LevelCurve
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
-import com.exanthiax.ecominions.minions.MinionTypeFixture
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.willfp.libreforge.conditions.ConditionList
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 
 class MinionXpServiceTest {
 
-    private fun typeWith(curve: LevelCurve) = MinionTypeFixture.build(
+    private fun typeWith(curve: LevelCurve) = MinionDefinitionFixture.build(
         levelling = LevellingSpec(
             enabled = true,
             curve = curve,
@@ -71,7 +71,7 @@ class MinionXpServiceTest {
 
     @Test
     fun `a non-levelling minion banks nothing`() {
-        val state = MinionState(type = MinionTypeFixture.build())
+        val state = MinionState(type = MinionDefinitionFixture.build())
 
         val result = MinionXpService.progress(state, 500.0)
 

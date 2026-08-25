@@ -2,8 +2,8 @@ package com.exanthiax.ecominions.api.minion
 
 import org.bukkit.Material
 
-/** A configured kind of minion, e.g. `stone` or `wheat`. */
-interface MinionType {
+/** A configured minion, e.g. `stone` or `wheat`. */
+interface MinionDefinition {
     /** Config file name, without extension. */
     val id: String
 

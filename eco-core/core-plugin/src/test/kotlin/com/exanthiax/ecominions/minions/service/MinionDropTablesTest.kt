@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.minions.MinionTypeFixture
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import io.mockk.mockk
 import org.bukkit.Location
 import org.bukkit.Material
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class MinionDropTablesTest {
 
     private val location = mockk<Location>()
-    private val type = MinionTypeFixture.build()
+    private val type = MinionDefinitionFixture.build()
 
     @Test
     fun `resolves drops through the supplied loot table`() {

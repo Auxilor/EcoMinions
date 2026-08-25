@@ -8,7 +8,7 @@ import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionEquipment
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.WoodFamily
@@ -23,8 +23,8 @@ import com.willfp.libreforge.effects.Effects
 import org.bukkit.Material
 import kotlin.math.roundToInt
 
-/** Parses one file in `minions/` into a validated [MinionType]. */
-class MinionTypeLoader(
+/** Parses one file in `minions/` into a validated [MinionDefinition]. */
+class MinionDefinitionLoader(
     private val gameData: GameData,
     private val particles: ParticleSettingsLoader,
     private val levelling: LevellingLoader,
@@ -36,9 +36,9 @@ class MinionTypeLoader(
     private val compactorRecipe: (String) -> CompactorRecipeDefinition?,
     /** Every catalog id, for the "known: [...]" half of an unresolvable-id violation. */
     private val compactorRecipeIds: () -> Collection<String>
-) : ConfigLoader<MinionType> {
+) : ConfigLoader<MinionDefinition> {
 
-    override fun load(id: String, config: Config, context: LoadContext): MinionType? {
+    override fun load(id: String, config: Config, context: LoadContext): MinionDefinition? {
         val configured = readTargetBlocks(config, context)
         if (configured.isEmpty()) {
             context.violation("target-blocks", "no valid blocks - the minion would never mine")
@@ -65,7 +65,7 @@ class MinionTypeLoader(
             )
         }
 
-        return MinionType(
+        return MinionDefinition(
             id = id,
             name = config.getFormattedString("name"),
             targetBlocks = targets,
@@ -125,15 +125,15 @@ class MinionTypeLoader(
     /**
      * `max-storage-slots`, like every other stat here, may be a `%level%`
      * expression - it is just rounded rather than truncated, and always clamped
-     * to `minion.hard-slot-cap` on every read, in [MinionType.BaseStats.maxStorageSlotsAt].
+     * to `minion.hard-slot-cap` on every read, in [MinionDefinition.BaseStats.maxStorageSlotsAt].
      */
-    private fun readBaseStats(config: Config): MinionType.BaseStats =
-        MinionType.BaseStats(
+    private fun readBaseStats(config: Config): MinionDefinition.BaseStats =
+        MinionDefinition.BaseStats(
             speedTicks = config.getString("base-stats.speed-ticks"),
             efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
             radius = config.getString("base-stats.radius"),
             height = config.getStringOrNull("base-stats.height")?.takeIf { it.isNotBlank() }
-                ?: MinionType.DEFAULT_HEIGHT,
+                ?: MinionDefinition.DEFAULT_HEIGHT,
             storageSlots = config.getString("base-stats.storage-slots"),
             maxStorageSlots = config.getString("base-stats.max-storage-slots"),
             regenDelayTicks = config.getString("base-stats.regen-delay-ticks"),

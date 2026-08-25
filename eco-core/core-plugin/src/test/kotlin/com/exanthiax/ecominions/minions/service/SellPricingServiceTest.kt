@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.config.SettingsHolder
-import com.exanthiax.ecominions.minions.MinionTypeFixture
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import org.bukkit.Material
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,7 +21,7 @@ class SellPricingServiceTest {
         return SellPricingService(settings, shopUnitsFor)
     }
 
-    private val type = MinionTypeFixture.build(sellPrices = mapOf(Material.COAL to 5.0))
+    private val type = MinionDefinitionFixture.build(sellPrices = mapOf(Material.COAL to 5.0))
 
     @Test
     fun `a configured price wins and ignores the multiplier`() {

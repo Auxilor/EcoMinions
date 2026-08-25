@@ -3,7 +3,7 @@ package com.exanthiax.ecominions.minions
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.model.MinionEquipment
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
@@ -11,19 +11,19 @@ import com.willfp.libreforge.Holder
 import org.bukkit.Material
 
 /**
- * A minimal minion type for tests.
+ * A minimal minion definition for tests.
  *
  * Deliberately avoids Bukkit enums so the pure layers can be tested without a
  * server present.
  */
-object MinionTypeFixture {
+object MinionDefinitionFixture {
 
     fun build(
         id: String = "stone",
         targetBlocks: Set<Material> = emptySet(),
         allowedUpgradeIds: List<String> = listOf("speed", "capacity"),
         sellPrices: Map<Material, Double> = emptyMap(),
-        baseStats: MinionType.BaseStats = MinionType.BaseStats(
+        baseStats: MinionDefinition.BaseStats = MinionDefinition.BaseStats(
             speedTicks = "40",
             efficiencyTicks = "10",
             radius = "2",
@@ -36,7 +36,7 @@ object MinionTypeFixture {
         levelling: LevellingSpec = LevellingSpec.DISABLED,
         holder: Holder? = null,
         compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
-    ) = MinionType(
+    ) = MinionDefinition(
         id = id,
         name = "Stone Minion",
         targetBlocks = targetBlocks,

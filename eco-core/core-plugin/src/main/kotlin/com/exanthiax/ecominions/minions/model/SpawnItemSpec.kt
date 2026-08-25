@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.model
 
-/** How a minion type's placeable item looks. */
+/** How a minion's placeable item looks. */
 data class SpawnItemSpec(
     /** eco item lookup string - a plain material, a custom item, or `player_head texture:<base64>` for a head. */
     val itemLookup: String,
@@ -9,7 +9,7 @@ data class SpawnItemSpec(
 )
 
 /**
- * How a minion type's item is crafted. Absent when crafting is disabled.
+ * How a minion's item is crafted. Absent when crafting is disabled.
  *
  * The grid is eco's flat nine-entry form - the same shape EcoItems and
  * EcoCrafting use - so a recipe reads the same across the suite. Entries are

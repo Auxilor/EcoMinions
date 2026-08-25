@@ -4,14 +4,14 @@ import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.willfp.libreforge.Holder
 import org.bukkit.Material
-import com.exanthiax.ecominions.api.minion.MinionType as ApiMinionType
+import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefinition
 import kotlin.math.roundToInt
 
 /**
- * A configured kind of minion. Immutable, fully validated by the time it exists:
+ * A configured minion. Immutable, fully validated by the time it exists:
  * everything questionable was rejected by the loader.
  */
-class MinionType(
+class MinionDefinition(
     override val id: String,
     override val name: String,
     override val targetBlocks: Set<Material>,
@@ -34,7 +34,7 @@ class MinionType(
      * still bought and gated independently, so this only controls display order.
      */
     val compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
-) : ApiMinionType {
+) : ApiMinionDefinition {
 
     /** Preview value shown before a minion's actual level is known, e.g. in the type-select menu. */
     override val baseSpeedTicks: Int

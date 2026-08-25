@@ -7,7 +7,7 @@ class OfflineProgressTest {
 
     /** 50 ticks per cycle, so 2500ms of wall clock per unfuelled cycle. */
     private val stats = MinionStats(
-        MinionType.BaseStats(
+        MinionDefinition.BaseStats(
             speedTicks = "40",
             efficiencyTicks = "10",
             radius = "2",

@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.config.SettingsHolder
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import org.bukkit.Material
 
@@ -26,7 +26,7 @@ class SellPricingService(
         data class Shop(val units: Int, val multiplier: Double) : Quote
     }
 
-    fun quote(type: MinionType, material: Material, amount: Int): Quote? {
+    fun quote(type: MinionDefinition, material: Material, amount: Int): Quote? {
         if (amount <= 0) {
             return null
         }
@@ -45,7 +45,7 @@ class SellPricingService(
     }
 
     /** @return Whether [material] has a price from either source. */
-    fun isSellable(type: MinionType, material: Material): Boolean {
+    fun isSellable(type: MinionDefinition, material: Material): Boolean {
         if (type.priceOf(material) != null) {
             return true
         }

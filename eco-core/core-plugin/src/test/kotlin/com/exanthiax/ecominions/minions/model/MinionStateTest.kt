@@ -2,7 +2,7 @@ package com.exanthiax.ecominions.minions.model
 
 import com.exanthiax.ecominions.levelling.model.LevelCurve
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
-import com.exanthiax.ecominions.minions.MinionTypeFixture
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.willfp.libreforge.conditions.ConditionList
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test
 
 class MinionStateTest {
 
-    private val type = MinionTypeFixture.build()
+    private val type = MinionDefinitionFixture.build()
 
-    private val levellingType = MinionTypeFixture.build(
+    private val levellingType = MinionDefinitionFixture.build(
         levelling = LevellingSpec(
             enabled = true,
             curve = LevelCurve.Requirements(listOf(50.0, 125.0), configuredMaxLevel = null),
