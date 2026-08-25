@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -15,7 +16,9 @@ import org.bukkit.block.Block
  * reload and does not care which config category loaded first.
  */
 class MinionBlockIndex(
-    private val definitions: () -> Collection<MinionBlock>
+    private val definitions: () -> Collection<MinionBlock>,
+    /** What the plugin knows without being told. A `blocks/` file with the same id wins. */
+    private val defaults: VanillaBlockDefaults
 ) {
     private var index: Index? = null
 
@@ -43,7 +46,9 @@ class MinionBlockIndex(
     private fun index(): Index = index ?: build().also { index = it }
 
     private fun build(): Index {
-        val all = definitions()
+        // Defaults first: associateBy keeps the last entry, so an authored
+        // definition overrides the built-in one for the same block.
+        val all = defaults.all() + definitions()
         return Index(
             byLookup = all.associateBy { it.lookup },
             byMaterial = all.mapNotNull { definition ->

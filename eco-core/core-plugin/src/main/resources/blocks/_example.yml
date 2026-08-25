@@ -2,9 +2,18 @@
 # for example oak.yml has the ID of oak.
 # _example.yml is not loaded.
 #
-# A block with no definition here is handled entirely by the minion's 'type:',
-# so you only need a file for blocks that grow, for custom blocks, and to
-# override what a minion type would otherwise do.
+# This folder starts empty, and that is normal.
+#
+# Vanilla Minecraft is already built in: the plugin knows every tree's sapling
+# and leaves, that wheat sits on farmland, that cactus is cut at its base, and
+# which blocks break too badly for a minion to touch. A block with no file here
+# is handled by that, plus the minion's own 'type:'.
+#
+# Write a file here only to:
+#   - describe a custom block from ItemsAdder, Oraxen, Nexo or CraftEngine
+#   - change a built-in default (a file wins over the built-in definition for
+#     the same block)
+#   - override what a minion's type would otherwise do, with 'restore:' below
 
 # The block this definition describes.
 # Any block id eco understands, including custom blocks from

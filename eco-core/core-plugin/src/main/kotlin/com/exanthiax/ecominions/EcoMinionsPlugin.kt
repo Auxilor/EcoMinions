@@ -36,6 +36,7 @@ import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
 import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
+import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
 import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
@@ -131,7 +132,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         "minion_block", "blocks", "block definitions",
         MinionBlockLoader(blockLookup), report
     )
-    private val blockIndex = MinionBlockIndex { blockDefinitions.all() }
+    private val vanillaBlocks = VanillaBlockDefaults(blockLookup)
+    private val blockIndex = MinionBlockIndex({ blockDefinitions.all() }, vanillaBlocks)
     private val minionTypes = ConfigDrivenRegistry(
         "minion_type", "minions", "minion types",
         MinionDefinitionLoader(
