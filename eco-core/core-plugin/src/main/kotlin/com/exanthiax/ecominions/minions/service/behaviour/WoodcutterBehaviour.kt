@@ -2,8 +2,8 @@ package com.exanthiax.ecominions.minions.service.behaviour
 
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.service.Minion
-import com.exanthiax.ecominions.minions.service.MinionBlockIndex
 import com.exanthiax.ecominions.minions.service.TreeService
+import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -16,8 +16,7 @@ import org.bukkit.block.Block
  * wood in the same place.
  */
 class WoodcutterBehaviour(
-    private val trees: TreeService,
-    private val blocks: MinionBlockIndex
+    private val trees: TreeService
 ) : MinionBehaviour {
 
     override fun onBlockBroken(minion: Minion, block: Block, original: Material, now: Long) {
@@ -57,9 +56,7 @@ class WoodcutterBehaviour(
      * log and nothing else has no sapling to plant, and stays blocked.
      */
     private fun definitionFor(minion: Minion): MinionBlock? =
-        minion.state.type.targetBlocks
-            .mapNotNull { blocks.forLookup(it.name) } // TODO(task-7): read TargetSet.definitions
-            .firstOrNull { it.plant != null }
+        minion.state.type.targetBlocks.definitions.firstOrNull { it.plant != null }
 
     private fun fellTree(minion: Minion, definition: MinionBlock, sapling: Location) {
         sapling.block.type = Material.AIR
@@ -101,14 +98,14 @@ class WoodcutterBehaviour(
         return best
     }
 
-    private fun isPlantable(block: Block, definition: MinionBlock, expectedSurface: Material?): Boolean {
+    private fun isPlantable(block: Block, definition: MinionBlock, expectedSurface: TestableBlock?): Boolean {
         if (block.type != Material.AIR) {
             return false
         }
         val below = block.world.getBlockAt(block.x, block.y - 1, block.z)
         val surfaceOk = when {
             definition.surface != null -> definition.surface.matches(below)
-            expectedSurface != null -> below.type == expectedSurface
+            expectedSurface != null -> expectedSurface.matches(below)
             else -> below.type.isSolid
         }
         return surfaceOk && hasClearance(block)

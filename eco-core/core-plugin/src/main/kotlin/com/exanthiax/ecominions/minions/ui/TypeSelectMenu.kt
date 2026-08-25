@@ -44,7 +44,7 @@ class TypeSelectMenu(
         val item = itemFactory.build(state)
         val context = TemplateContext.of(
             "type_name" to type.name,
-            "targets" to type.targetBlocks.joinToString { it.name },
+            "targets" to type.targetBlockIds.joinToString(),
             "speed" to type.baseSpeedTicks,
             "capacity" to type.baseStorageSlots
         )

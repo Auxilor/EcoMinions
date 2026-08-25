@@ -15,7 +15,7 @@ import kotlin.math.roundToInt
 class MinionDefinition(
     override val id: String,
     override val name: String,
-    override val targetBlocks: Set<Material>,
+    val targetBlocks: TargetSet,
     override val allowedUpgradeIds: List<String>,
     override val type: MinionType,
     val baseStats: BaseStats,
@@ -43,6 +43,9 @@ class MinionDefinition(
 
     override val baseStorageSlots: Int
         get() = baseStats.valueOf(MinionStat.INVENTORY_SLOTS, PREVIEW_LEVEL)
+
+    override val targetBlockIds: Set<String>
+        get() = targetBlocks.ids
 
     override val isLevellable: Boolean
         get() = levelling.enabled

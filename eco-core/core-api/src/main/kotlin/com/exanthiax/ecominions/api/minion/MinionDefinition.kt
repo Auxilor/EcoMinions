@@ -10,8 +10,14 @@ interface MinionDefinition {
     /** Formatted display name. */
     val name: String
 
-    /** Blocks this minion mines. */
-    val targetBlocks: Set<Material>
+    /**
+     * Ids of the blocks this minion mines, as written in its config.
+     *
+     * Ids rather than materials because a target may be a custom block from
+     * ItemsAdder, Oraxen, Nexo or CraftEngine, which no [Material] names - and
+     * because this module deliberately depends on nothing but Paper.
+     */
+    val targetBlockIds: Set<String>
 
     /** What this minion does with the blocks it breaks. */
     val type: MinionType

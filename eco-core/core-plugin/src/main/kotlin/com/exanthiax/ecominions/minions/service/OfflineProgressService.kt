@@ -21,7 +21,7 @@ class OfflineProgressService(
      * @param now The current wall-clock time.
      */
     fun apply(minion: Minion, idleSince: Long, now: Long) {
-        val targets = minion.state.type.targetBlocks.toList()
+        val targets = minion.state.type.targetBlocks.definitions
         if (targets.isEmpty()) {
             return
         }
@@ -38,8 +38,8 @@ class OfflineProgressService(
             if (accumulated.size >= minion.storageSize) {
                 return@simulate false
             }
-            val material = targets.random()
-            accumulated += dropTables.dropsFor(minion.state.type, material, minion.location)
+            val block = targets.random()
+            accumulated += dropTables.dropsFor(minion.state.type, block, minion.location)
             true
         }
 

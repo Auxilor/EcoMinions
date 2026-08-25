@@ -99,7 +99,7 @@ class MiningService(
         }
         minion.mining.pendingTarget = null
 
-        if (target.type !in minion.state.type.targetBlocks) {
+        if (!minion.state.type.targetBlocks.matches(target)) {
             return
         }
         breakBlock(minion, target, now)

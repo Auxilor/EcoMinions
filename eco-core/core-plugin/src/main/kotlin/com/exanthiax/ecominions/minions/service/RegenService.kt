@@ -46,8 +46,8 @@ class RegenService(
             }
             entry.surfaceBlock?.let { surface ->
                 val below = entry.location.clone().subtract(0.0, 1.0, 0.0).block
-                if (below.type != surface) {
-                    below.type = surface
+                if (!surface.matches(below)) {
+                    surface.place(below.location)
                 }
             }
             entry.location.block.blockData = entry.regenData

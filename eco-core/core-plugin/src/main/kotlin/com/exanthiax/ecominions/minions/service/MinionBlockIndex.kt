@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.minions.model.MinionBlock
+import org.bukkit.Material
 import org.bukkit.block.Block
 
 /**
@@ -16,25 +17,45 @@ import org.bukkit.block.Block
 class MinionBlockIndex(
     private val definitions: () -> Collection<MinionBlock>
 ) {
-    private var byLookup: Map<String, MinionBlock>? = null
+    private var index: Index? = null
 
     /** @return The definition for a configured id, or null if nothing defines it. */
-    fun forLookup(lookup: String): MinionBlock? = index()[lookup]
+    fun forLookup(lookup: String): MinionBlock? = index().byLookup[lookup]
 
     /**
      * @return The definition matching a block in the world.
      *
-     * Walks the definitions rather than reading the block's id: a custom block
-     * only answers to its owning plugin's own test.
+     * Read on every break, so the vanilla case is a hash lookup. Only custom
+     * definitions are walked, because a custom block answers to nothing but its
+     * owning plugin's own test.
      */
-    fun forBlock(block: Block): MinionBlock? =
-        definitions().firstOrNull { it.block.matches(block) }
+    fun forBlock(block: Block): MinionBlock? {
+        val current = index()
+        return current.byMaterial[block.type]
+            ?: current.custom.firstOrNull { it.block.matches(block) }
+    }
 
     /** Drops the cached index, so the next read sees a reloaded catalog. */
     fun invalidate() {
-        byLookup = null
+        index = null
     }
 
-    private fun index(): Map<String, MinionBlock> =
-        byLookup ?: definitions().associateBy { it.lookup }.also { byLookup = it }
+    private fun index(): Index = index ?: build().also { index = it }
+
+    private fun build(): Index {
+        val all = definitions()
+        return Index(
+            byLookup = all.associateBy { it.lookup },
+            byMaterial = all.mapNotNull { definition ->
+                definition.vanillaMaterial?.let { it to definition }
+            }.toMap(),
+            custom = all.filter { it.vanillaMaterial == null }
+        )
+    }
+
+    private class Index(
+        val byLookup: Map<String, MinionBlock>,
+        val byMaterial: Map<Material, MinionBlock>,
+        val custom: List<MinionBlock>
+    )
 }

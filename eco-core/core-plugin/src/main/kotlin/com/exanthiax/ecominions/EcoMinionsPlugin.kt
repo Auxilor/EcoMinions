@@ -86,6 +86,7 @@ import com.exanthiax.ecominions.upgrades.ui.CostSelectMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeMenu
 import com.willfp.eco.core.command.impl.PluginCommand
+import com.willfp.eco.core.items.Items
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import org.bukkit.Bukkit
@@ -135,6 +136,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         "minion_type", "minions", "minion types",
         MinionDefinitionLoader(
             gameData,
+            blockLookup,
+            blockDefinitions::find,
             ParticleSettingsLoader(),
             LevellingLoader(),
             { minionSettings.value.sellPricing.autoFromEcoShop },
@@ -179,13 +182,20 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val sellPricingSettings = SettingsHolder(minionSettings.value.sellPricing)
     private val sellPricing = SellPricingService(sellPricingSettings) { shopIntegration.unitsFor(it) }
     private val sellService = SellService(sellPricing, shopIntegration)
-    private val dropTables = MinionDropTables { material, location ->
-        val key = NamespacedKey.minecraft("blocks/${material.key.key}")
-        val table = Bukkit.getLootTable(key) ?: return@MinionDropTables emptyList()
+    private val dropTables = MinionDropTables(
+        resolve = { material, location ->
+            val key = NamespacedKey.minecraft("blocks/${material.key.key}")
+            val table = Bukkit.getLootTable(key)
 
-        val context = LootContext.Builder(location).build()
-        table.populateLoot(java.util.Random(), context).toList()
-    }
+            if (table == null) {
+                emptyList()
+            } else {
+                val context = LootContext.Builder(location).build()
+                table.populateLoot(java.util.Random(), context).toList()
+            }
+        },
+        resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
+    )
     private val offlineProgress = OfflineProgressService(
         minionSettings, fuelService, dropTables, triggerDispatch
     )
@@ -200,7 +210,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val regenService = RegenService(minionSettings, triggerDispatch)
     private val behaviours = MinionBehaviours(
         miner = MinerBehaviour(regenService, seedingService),
-        woodcutter = WoodcutterBehaviour(TreeService(), blockIndex),
+        woodcutter = WoodcutterBehaviour(TreeService()),
         farmer = FarmerBehaviour(regenService, seedingService)
     )
     private val miningTargets = MiningTargetFinder(gameData)

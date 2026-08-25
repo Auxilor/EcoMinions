@@ -8,6 +8,7 @@ import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
+import com.exanthiax.ecominions.minions.model.TargetSet
 import com.willfp.libreforge.Holder
 import org.bukkit.Material
 
@@ -22,7 +23,7 @@ object MinionDefinitionFixture {
     fun build(
         id: String = "stone",
         type: MinionType = MinionType.MINER,
-        targetBlocks: Set<Material> = emptySet(),
+        targetBlocks: TargetSet = TargetSet.EMPTY,
         allowedUpgradeIds: List<String> = listOf("speed", "capacity"),
         sellPrices: Map<Material, Double> = emptyMap(),
         baseStats: MinionDefinition.BaseStats = MinionDefinition.BaseStats(

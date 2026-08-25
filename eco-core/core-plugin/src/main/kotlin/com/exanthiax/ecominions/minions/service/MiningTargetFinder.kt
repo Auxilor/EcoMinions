@@ -26,7 +26,7 @@ class MiningTargetFinder(
             for (y in FLOOR_OFFSET..topOffset(minion)) {
                 for (z in -radius..radius) {
                     val candidate = world.getBlockAt(center.x + x, center.y + y, center.z + z)
-                    if (candidate.type in targets && isMineableNow(candidate)) {
+                    if (targets.matches(candidate) && isMineableNow(candidate)) {
                         candidates += candidate
                     }
                 }

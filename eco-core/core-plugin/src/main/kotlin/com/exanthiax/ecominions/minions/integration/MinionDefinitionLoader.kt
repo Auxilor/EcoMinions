@@ -4,14 +4,18 @@ import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.core.registry.ConfigLoader
+import com.exanthiax.ecominions.core.world.BlockLookup
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
 import com.exanthiax.ecominions.minions.model.GameData
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
+import com.exanthiax.ecominions.minions.model.TargetSet
+import com.willfp.eco.core.blocks.TestableBlock
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.placeholder.context.placeholderContext
 import com.willfp.eco.util.NamespacedKeyUtils
@@ -26,6 +30,10 @@ import kotlin.math.roundToInt
 /** Parses one file in `minions/` into a validated [MinionDefinition]. */
 class MinionDefinitionLoader(
     private val gameData: GameData,
+    /** Resolves a configured id to a block on this server, vanilla or custom. */
+    private val blocks: BlockLookup,
+    /** Looks one entry out of the `blocks/` catalog. */
+    private val blockDefinition: (String) -> MinionBlock?,
     private val particles: ParticleSettingsLoader,
     private val levelling: LevellingLoader,
     /** Whether config.yml lets prices come from EcoShop, making sell-prices optional. */
@@ -48,14 +56,14 @@ class MinionDefinitionLoader(
             return null
         }
 
-        val configured = readTargetBlocks(config, context)
+        val configured = readTargetBlocks(config)
         if (configured.isEmpty()) {
             context.violation("target-blocks", "no valid blocks - the minion would never mine")
             return null
         }
 
-        val targets = resolveTargets(configured)
-        if (targets.isEmpty()) {
+        val targets = resolveTargets(configured, context)
+        if (targets.isEmpty) {
             context.violation("target-blocks", "every configured block is an invalid mining target")
             return null
         }
@@ -84,7 +92,7 @@ class MinionDefinitionLoader(
             crafting = readCrafting(config, context),
             equipment = readEquipment(config),
             particles = particles.load(config.getSubsection("particles"), context),
-            placement = readPlacement(id, config, configured, targets, type, context),
+            placement = readPlacement(id, config, targets, type, context),
             sellPrices = sellPrices,
             levelling = levelling.load(config, context),
             holder = compileHolder(id, config, context),
@@ -113,18 +121,44 @@ class MinionDefinitionLoader(
         )
     }
 
-    private fun readTargetBlocks(config: Config, context: LoadContext): List<Material> =
-        config.getStrings("target-blocks").mapNotNull { name ->
-            Material.matchMaterial(name)
-                ?: context.invalid("target-blocks", name, "a material on this server version")
-        }
+    /** Ids as authored - eco resolves them, so a custom block id is as valid as a material. */
+    private fun readTargetBlocks(config: Config): List<String> =
+        config.getStrings("target-blocks").filter { it.isNotBlank() }
 
-    /** Seeds are promoted to the crop they become; anything unmineable is dropped. */
-    private fun resolveTargets(configured: List<Material>): Set<Material> =
-        configured
-            .map { gameData.growthRules.promote(it) }
-            .filter { gameData.growthRules.isValidTarget(it) }
-            .toSet()
+    /**
+     * Every configured id, resolved to its `blocks/` definition.
+     *
+     * An id with no definition file gets a plain regen default rather than
+     * being dropped, which is the behaviour `blocks/_example.yml` has always
+     * promised. Seeds are promoted to the crop they become, and anything on the
+     * bundled invalid-targets list is dropped - both vanilla-only, because
+     * neither list can name a custom block.
+     */
+    private fun resolveTargets(configured: List<String>, context: LoadContext): TargetSet {
+        val resolved = configured.mapNotNull { id ->
+            val promoted = promote(id)
+            val definition = blockDefinition(promoted)
+                ?: blocks.lookup(promoted)?.let {
+                    MinionBlock.regenDefault(
+                        id = promoted.lowercase(),
+                        lookup = promoted,
+                        block = it
+                    ).copy(vanillaMaterial = Material.matchMaterial(promoted)?.takeIf { m -> m.isBlock })
+                }
+                ?: return@mapNotNull context.invalid<MinionBlock>(
+                    "target-blocks", id, "a block or custom block id"
+                )
+
+            definition.takeIf { it.vanillaMaterial == null || gameData.growthRules.isValidTarget(it.vanillaMaterial) }
+        }
+        return TargetSet(resolved)
+    }
+
+    /** Seeds target the crop they become. Vanilla only - the list is Material-keyed. */
+    private fun promote(id: String): String {
+        val material = Material.matchMaterial(id) ?: return id
+        return gameData.growthRules.promote(material).name
+    }
 
     /**
      * `max-storage-slots`, like every other stat here, may be a `%level%`
@@ -198,67 +232,71 @@ class MinionDefinitionLoader(
     }
 
     /**
-     * Lift-regen defaults from the block being farmed: trees want their sapling's
-     * surface, crops want farmland, and anything else regenerates in place.
+     * Lift-regen and self-seeding defaults, taken from the blocks being farmed.
      *
-     * Self-seeding is off unless asked for, except on tree types, which have
+     * A target that declares a `surface` in `blocks/` wants to be lifted onto
+     * it - that is how a crop lands on farmland without anyone configuring it.
+     * Self-seeding is off unless asked for, except on woodcutters, which have
      * always planted their own saplings.
      */
     private fun readPlacement(
         id: String,
         config: Config,
-        configured: List<Material>,
-        targets: Set<Material>,
+        targets: TargetSet,
         type: MinionType,
         context: LoadContext
     ): PlacementSettings {
         val section = config.getSubsection("placement")
-        val regen = readRegenPlacement(id, section, context)
+        val regen = readRegenPlacement(id, section, targets, context)
 
         if (section.getBoolOrNull("self-seed") ?: (type == MinionType.WOODCUTTER)) {
-            readSeedBlock(section, targets, context)
+            readSeedBlock(section, targets, type, context)
                 ?.let { return regen.copy(selfSeed = true, seedBlock = it) }
         }
         return regen
     }
 
-    /**
-     * TODO(task-7): a crop's default lift-regen surface comes from its block
-     * definition's `surface`, which is a TestableBlock and does not yet fit
-     * PlacementSettings. Until then only an explicit `placement.lift-regen`
-     * lifts anything.
-     */
     private fun readRegenPlacement(
         id: String,
         section: Config?,
+        targets: TargetSet,
         context: LoadContext
     ): PlacementSettings {
         if (section != null && section.getBoolOrNull("lift-regen") != null) {
             return readExplicitPlacement(id, section, context)
         }
+        targets.definitions.firstNotNullOfOrNull { it.surface }
+            ?.let { return PlacementSettings(true, it) }
         return PlacementSettings.NONE
     }
 
-    /** What self-seeding places: whatever was asked for, else the block the minion mines. */
+    /**
+     * What self-seeding places: whatever was asked for, else what the target
+     * declares as its `plant`, else the target block itself.
+     *
+     * A woodcutter must plant a sapling rather than a log, so a target with no
+     * `plant` gives it nothing to seed and is reported.
+     */
     private fun readSeedBlock(
         section: Config,
-        targets: Set<Material>,
+        targets: TargetSet,
+        type: MinionType,
         context: LoadContext
-    ): Material? {
+    ): TestableBlock? {
         val raw = section.getStringOrNull("seed-block")
         if (!raw.isNullOrBlank()) {
-            val material = Material.matchMaterial(raw.uppercase())
-            if (material == null || !material.isBlock) {
-                return context.invalid("placement.seed-block", raw, "a placeable block")
-            }
-            return material
+            return blocks.lookup(raw)
+                ?: context.invalid("placement.seed-block", raw, "a block or custom block id")
         }
 
-        val fallback = targets.firstOrNull()
+        val fallback = targets.definitions.firstNotNullOfOrNull { it.plant }
+            ?: targets.definitions.firstOrNull()?.block.takeIf { type != MinionType.WOODCUTTER }
+
         if (fallback == null) {
             context.violation(
                 "placement.self-seed",
-                "self-seed is on but there is nothing to seed - set placement.seed-block"
+                "self-seed is on but there is nothing to seed - give the target block a " +
+                    "'plant' in blocks/, or set placement.seed-block"
             )
         }
         return fallback
@@ -275,12 +313,12 @@ class MinionDefinitionLoader(
             return PlacementSettings.NONE
         }
 
-        val material = Material.matchMaterial(raw.uppercase())
-        if (material == null || !material.isBlock) {
-            context.violation("placement.surface-block", "'$raw' is not a placeable block")
+        val surface = blocks.lookup(raw)
+        if (surface == null) {
+            context.violation("placement.surface-block", "'$raw' is not a block or custom block id")
             return PlacementSettings.NONE
         }
-        return PlacementSettings(true, material)
+        return PlacementSettings(true, surface)
     }
 
     private fun readSellPrices(config: Config, context: LoadContext): Map<Material, Double> {

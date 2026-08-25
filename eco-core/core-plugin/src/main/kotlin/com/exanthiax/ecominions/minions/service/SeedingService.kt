@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Material
 import org.bukkit.block.Block
 
@@ -19,16 +20,15 @@ class SeedingService {
             return false
         }
         val seed = placement.seedBlock ?: return false
-        // TODO(task-7): fall back to the seeded block's definition surface
         val surface = placement.surfaceBlock
 
         val spot = findSpot(minion, surface) ?: return false
-        spot.type = seed
+        seed.place(spot.location)
         return true
     }
 
     /** The nearest air block on a valid surface, never the minion's own column. */
-    private fun findSpot(minion: Minion, expectedSurface: Material?): Block? {
+    private fun findSpot(minion: Minion, expectedSurface: TestableBlock?): Block? {
         val radius = minion.stats.radius
         val center = minion.entity.location.block
         val world = minion.entity.world
@@ -57,11 +57,11 @@ class SeedingService {
         return best
     }
 
-    private fun isSeedable(block: Block, expectedSurface: Material?): Boolean {
+    private fun isSeedable(block: Block, expectedSurface: TestableBlock?): Boolean {
         if (block.type != Material.AIR) {
             return false
         }
         val below = block.world.getBlockAt(block.x, block.y - 1, block.z)
-        return if (expectedSurface != null) below.type == expectedSurface else below.isSolid
+        return if (expectedSurface != null) expectedSurface.matches(below) else below.isSolid
     }
 }

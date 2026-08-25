@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.model
 
 import com.willfp.eco.core.blocks.TestableBlock
+import org.bukkit.Material
 
 /** How a mined block comes back. */
 enum class RestoreMode {
@@ -37,7 +38,15 @@ data class MinionBlock(
     /** Overrides which shape in `trees.json` this block grows as. */
     val treePattern: String?,
     /** Item ids credited during offline catch-up, for blocks whose drops cannot be read. */
-    val drops: List<String>
+    val drops: List<String>,
+    /**
+     * The plain material this definition names, or null if it is a custom block.
+     *
+     * Resolved by the loader rather than computed here, because the model layer
+     * stays server-free - and resolved once, so the per-tick target scan can
+     * index by it instead of walking every definition.
+     */
+    val vanillaMaterial: Material? = null
 ) {
     val isPlantable: Boolean
         get() = plant != null

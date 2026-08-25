@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
+import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -65,9 +66,9 @@ class SeedingServiceTest {
         world.fillFloor(Material.STONE)
         val placement = PlacementSettings(
             liftRegen = true,
-            surfaceBlock = Material.FARMLAND,
+            surfaceBlock = FakeBlockLookup.testable(Material.FARMLAND),
             selfSeed = true,
-            seedBlock = Material.WHEAT
+            seedBlock = FakeBlockLookup.testable(Material.WHEAT)
         )
         val minion = minionAt(world, placement = placement)
 
@@ -84,7 +85,7 @@ class SeedingServiceTest {
         liftRegen = false,
         surfaceBlock = null,
         selfSeed = true,
-        seedBlock = seed
+        seedBlock = FakeBlockLookup.testable(seed)
     )
 
     private fun minionAt(

@@ -5,6 +5,9 @@ import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
+import com.exanthiax.ecominions.minions.model.MinionBlock
+import com.exanthiax.ecominions.minions.model.TargetSet
+import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import org.bukkit.Material
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -67,7 +70,14 @@ class MiningTargetFinderTest {
         radius: Int = 1,
         height: Int
     ): Minion {
-        val type = MinionDefinitionFixture.build(targetBlocks = setOf(Material.OAK_LOG))
+        val type = MinionDefinitionFixture.build(
+            targetBlocks = TargetSet(
+                listOf(
+                    MinionBlock.regenDefault("oak", "OAK_LOG", FakeBlockLookup.testable(Material.OAK_LOG))
+                        .copy(vanillaMaterial = Material.OAK_LOG)
+                )
+            )
+        )
         return mockk<Minion>().also { minion ->
             every { minion.state } returns mockk { every { this@mockk.type } returns type }
             every { minion.stats } returns mockk {

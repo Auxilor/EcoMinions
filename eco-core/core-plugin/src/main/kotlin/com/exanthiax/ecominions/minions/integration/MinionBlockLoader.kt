@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.core.world.BlockLookup
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.RestoreMode
 import com.willfp.eco.core.blocks.TestableBlock
+import org.bukkit.Material
 import com.willfp.eco.core.config.interfaces.Config
 
 /**
@@ -39,7 +40,8 @@ class MinionBlockLoader(
             leaves = leaves,
             surface = surface,
             treePattern = config.getStringOrNull("tree-pattern")?.takeIf { it.isNotBlank() },
-            drops = config.getStrings("drops")
+            drops = config.getStrings("drops"),
+            vanillaMaterial = Material.matchMaterial(lookup)?.takeIf { it.isBlock }
         )
     }
 
