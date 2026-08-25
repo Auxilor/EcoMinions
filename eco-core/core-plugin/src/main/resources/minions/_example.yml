@@ -152,11 +152,14 @@ particles:
     offset: 0.0
     nearby-player-radius: 16
 
-# Prices for auto_sell, keyed by material. Leave empty (or omit entirely) to
+# Prices for auto_sell, keyed by item id - what the block drops, not the block.
+# Custom item ids work here too, which is the only way to price a drop from
+# ItemsAdder, Oraxen, Nexo or CraftEngine. Leave empty (or omit entirely) to
 # fall back to config.yml's sell-pricing.auto-from-ecoshop, if it's on.
 sell-prices:
   STONE: 1.0
   COBBLESTONE: 1.0
+  # "itemsadder:ruby": 100.0
 
 # IDs of upgrades this type may purchase, each matching a filename in
 # upgrades/ (see upgrades/_example.yml). auto_sell only pays out if

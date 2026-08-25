@@ -7,6 +7,7 @@ import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
+import com.exanthiax.ecominions.minions.model.PriceList
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.TargetSet
 import com.willfp.libreforge.Holder
@@ -25,7 +26,7 @@ object MinionDefinitionFixture {
         type: MinionType = MinionType.MINER,
         targetBlocks: TargetSet = TargetSet.EMPTY,
         allowedUpgradeIds: List<String> = listOf("speed", "capacity"),
-        sellPrices: Map<Material, Double> = emptyMap(),
+        prices: PriceList = PriceList.EMPTY,
         baseStats: MinionDefinition.BaseStats = MinionDefinition.BaseStats(
             speedTicks = "40",
             efficiencyTicks = "10",
@@ -62,7 +63,7 @@ object MinionDefinitionFixture {
             blockedPlayerRadius = 16
         ),
         placement = placement,
-        sellPrices = sellPrices,
+        prices = prices,
         levelling = levelling,
         holder = holder,
         compactorRecipes = compactorRecipes

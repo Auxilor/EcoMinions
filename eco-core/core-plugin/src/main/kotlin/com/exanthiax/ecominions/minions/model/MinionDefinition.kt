@@ -24,7 +24,7 @@ class MinionDefinition(
     val equipment: MinionEquipment,
     val particles: ParticleSettings,
     val placement: PlacementSettings,
-    val sellPrices: Map<Material, Double>,
+    val prices: PriceList,
     /** Parsed from the type's `levelling:` block. Disabled unless configured. */
     val levelling: LevellingSpec = LevellingSpec.DISABLED,
     /** Compiled from the type's `effects:` block. Always active, no purchase needed. */
@@ -52,9 +52,6 @@ class MinionDefinition(
 
     override val maxLevel: Int
         get() = levelling.maxLevel
-
-    /** @return The configured price of [material], or null if it is not sellable. */
-    fun priceOf(material: Material): Double? = sellPrices[material]
 
     /**
      * Base stats as authored, which may be expressions in `%level%`.

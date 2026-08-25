@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.core.world.BlockLookup
+import com.exanthiax.ecominions.core.world.ItemLookup
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
 import com.exanthiax.ecominions.minions.model.GameData
@@ -12,6 +13,7 @@ import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.PlacementSettings
+import com.exanthiax.ecominions.minions.model.PriceList
 import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.TargetSet
@@ -34,6 +36,8 @@ class MinionDefinitionLoader(
     private val blocks: BlockLookup,
     /** Looks one entry out of the `blocks/` catalog. */
     private val blockDefinition: (String) -> MinionBlock?,
+    /** Resolves a `sell-prices:` key to an item on this server, vanilla or custom. */
+    private val items: ItemLookup,
     private val particles: ParticleSettingsLoader,
     private val levelling: LevellingLoader,
     /** Whether config.yml lets prices come from EcoShop, making sell-prices optional. */
@@ -73,7 +77,7 @@ class MinionDefinitionLoader(
         val allowedUpgrades = config.getStrings("allowed-upgrades") + compactorRecipes.map { it.upgrade.id }
         val sellPrices = readSellPrices(config, context)
 
-        if (AUTO_SELL in allowedUpgrades && sellPrices.isEmpty() && !autoPricingEnabled()) {
+        if (AUTO_SELL in allowedUpgrades && sellPrices.isEmpty && !autoPricingEnabled()) {
             context.violation(
                 "sell-prices",
                 "'$AUTO_SELL' is allowed but no prices are configured, and sell-pricing." +
@@ -93,7 +97,7 @@ class MinionDefinitionLoader(
             equipment = readEquipment(config),
             particles = particles.load(config.getSubsection("particles"), context),
             placement = readPlacement(id, config, targets, type, context),
-            sellPrices = sellPrices,
+            prices = sellPrices,
             levelling = levelling.load(config, context),
             holder = compileHolder(id, config, context),
             compactorRecipes = compactorRecipes
@@ -321,13 +325,22 @@ class MinionDefinitionLoader(
         return PlacementSettings(true, surface)
     }
 
-    private fun readSellPrices(config: Config, context: LoadContext): Map<Material, Double> {
+    /** Keys are item ids, so a custom drop is as priceable as a vanilla one. */
+    private fun readSellPrices(config: Config, context: LoadContext): PriceList {
         val section = config.getSubsection("sell-prices")
-        return section.getKeys(false).mapNotNull { key ->
-            val material = Material.matchMaterial(key)
-                ?: return@mapNotNull context.invalid<Pair<Material, Double>>("sell-prices", key, "a material")
-            material to section.getDouble(key)
-        }.toMap()
+        return PriceList(
+            section.getKeys(false).mapNotNull { key ->
+                val item = items.lookup(key)
+                    ?: return@mapNotNull context.invalid<PriceList.Entry>(
+                        "sell-prices", key, "an item or custom item id"
+                    )
+                PriceList.Entry(
+                    item = item,
+                    price = section.getDouble(key),
+                    vanillaMaterial = Material.matchMaterial(key)
+                )
+            }
+        )
     }
 
     private companion object {

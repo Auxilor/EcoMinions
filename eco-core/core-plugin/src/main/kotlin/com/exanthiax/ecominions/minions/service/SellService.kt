@@ -29,7 +29,7 @@ class SellService(
         for (slot in 0 until minion.storage.size) {
             val item = minion.storage.getItem(slot) ?: continue
 
-            when (val quote = pricing.quote(type, item.type, item.amount)) {
+            when (val quote = pricing.quote(type, item, item.amount)) {
                 is SellPricingService.Quote.Configured -> {
                     economyTotal += quote.totalValue
                     minion.storage.setItem(slot, null)

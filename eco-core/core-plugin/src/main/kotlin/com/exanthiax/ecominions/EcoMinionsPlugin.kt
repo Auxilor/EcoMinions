@@ -19,6 +19,7 @@ import com.exanthiax.ecominions.core.placeholders.TemplateRenderer
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.core.world.EcoBlockLookup
+import com.exanthiax.ecominions.core.world.EcoItemLookup
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
@@ -127,6 +128,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         CompactorRecipeLoader(), report
     )
     private val blockLookup = EcoBlockLookup()
+    private val itemLookup = EcoItemLookup()
     private val blockDefinitions = ConfigDrivenRegistry(
         "minion_block", "blocks", "block definitions",
         MinionBlockLoader(blockLookup), report
@@ -138,6 +140,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             gameData,
             blockLookup,
             blockDefinitions::find,
+            itemLookup,
             ParticleSettingsLoader(),
             LevellingLoader(),
             { minionSettings.value.sellPricing.autoFromEcoShop },
