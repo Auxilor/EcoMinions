@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.libreforge.conditions
 
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.minions.service.Minion
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.libreforge.ArgType
@@ -18,7 +19,7 @@ object ConditionMinionIsType : Condition<NoCompileData>("minion_is_type") {
         require(
             "types",
             "You must specify the minion types!",
-            description = "A list of minion type ids.",
+            description = "A list of minion types: ${MinionType.entries.joinToString(", ") { it.id }}.",
             type = ArgType.STRING_LIST
         )
     }
@@ -30,6 +31,7 @@ object ConditionMinionIsType : Condition<NoCompileData>("minion_is_type") {
         compileData: NoCompileData
     ): Boolean {
         val minion = dispatcher.get<Minion>() ?: return false
-        return minion.state.definition.id in config.getStrings("types").map { it.lowercase() }
+        val wanted = config.getStrings("types").mapNotNull { MinionType.parse(it) }
+        return minion.state.definition.type in wanted
     }
 }

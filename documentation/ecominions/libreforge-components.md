@@ -58,7 +58,7 @@ work.
 | --- | --- | --- |
 | `minion_level_above` | `level` (expression) | The minion's level is at or above the given level. |
 | `minion_level_below` | `level` (expression) | The minion's level is at or below the given level. |
-| `minion_is_type` | `types` (string list) | The minion is one of the given minion type ids. |
+| `minion_is_type` | `types` (string list) | The minion is one of the given types: `miner`, `woodcutter`, `farmer`. **Changed meaning:** this used to match minion ids, so `minion_is_type: [oak]` matched a minion named `oak` and now matches nothing. |
 | `minion_has_upgrade` | `upgrade` (string, required), `tier` (expression, optional - defaults to `1`) | The minion owns the given upgrade at or above the specified tier. Also works for a compactor recipe's `compactor_<recipe id>` upgrade id. |
 | `minion_storage_above_percent` | `percent` (expression, 0-100) | The minion's storage is at least the given percentage full. |
 | `minion_has_fuel` | none | The minion is currently burning fuel. |
