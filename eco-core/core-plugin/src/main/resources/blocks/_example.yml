@@ -40,8 +40,10 @@ leaves: OAK_LEAVES
 # Leave it out to accept any solid block.
 surface: GRASS_BLOCK
 
-# (Optional) Which tree shape to grow. Defaults to this definition's ID,
-# and falls back to a generic shape if there is no shape by that name.
+# (Optional) Which built-in tree shape to grow:
+#   oak, birch, spruce, jungle, acacia, dark_oak, cherry, pale_oak, mangrove
+# Defaults to this definition's ID, falling back to a generic small tree.
+# Point a custom log at 'spruce' and it grows a conifer.
 # tree-pattern: oak
 
 # (Optional) Whether a minion may target this block at all. Defaults to true.

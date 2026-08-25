@@ -31,12 +31,15 @@ base-stats:
 
 - `name` - the minion's display name, shown on its hologram and in its item lore.
 - `type` - **required.** What the minion does with the blocks it breaks:
-  - `miner` - breaks the block and puts it back after the regen delay.
-  - `woodcutter` - fells the tree, plants a sapling, and waits for it to grow. Every target must be a tree,
+  - `miner` - breaks the block and puts it back exactly as it was, fully grown, after `regen-delay-ticks`.
+  - `woodcutter` - fells the tree, plants a sapling, and waits `regen-delay-ticks` for it to grow. Every
+    target must be a tree,
     meaning it has a `plant` and `leaves` - built in for vanilla logs, and set in `blocks/` for a custom one.
     A woodcutter aimed at anything else is **rejected at startup**, because it clears what it breaks and
     would destroy that block permanently.
-  - `farmer` - harvests the ripe crop and replants it.
+  - `farmer` - harvests the ripe crop and replants it at age zero, then lets the world grow it. A farmer is
+    paced by how fast the crop ripens, not by `regen-delay-ticks`. A target with no `plant` regenerates
+    instead, rather than being left as a hole.
 
   A woodcutter lists its log in `target-blocks` like any other minion lists its block; there is no
   auto-detection. A single block can override its minion's type - see [Block Definitions](#block-definitions).
@@ -323,12 +326,12 @@ surface: GRASS_BLOCK
 | `plant` | What is planted to bring the block back - a sapling for a woodcutter, a crop for a farmer. |
 | `leaves` | The canopy of the grown tree. Needed by woodcutters. |
 | `surface` | What must be underneath to plant here. Leave it out to accept any solid block. Also supplies the default lift-regen surface, which is how a crop lands on farmland without anyone configuring it. |
-| `tree-pattern` | Which tree shape to grow. Defaults to the definition's ID, falling back to a generic shape. |
+| `tree-pattern` | Which of the built-in tree shapes to grow, by name: `oak`, `birch`, `spruce`, `jungle`, `acacia`, `dark_oak`, `cherry`, `pale_oak`, `mangrove`. Defaults to the definition's own ID, falling back to a generic small tree. Point a custom log at `spruce` and it grows a conifer. |
 | `drops` | Item IDs credited during offline catch-up. Only needed for custom blocks, whose loot tables cannot be read while nobody is online. A custom block with no `drops` credits nothing offline. |
 | `mineable` | Defaults to `true`. Set it `false` for blocks that break badly - amethyst buds, dripstone, vines - so no minion can be configured onto them. Targeting one is reported as a config violation. |
 | `stacked-column` | Defaults to `false`. Marks a block that grows upward in a column, like sugar cane or bamboo. A column is only ever cut at its base, taking the whole stack in one action. |
 | `promotes-to` | What targeting this block really means. A minion configured onto seeds mines the grown crop, so the seed promotes to it. |
-| `restore` | **Override.** Forces `regen`, `replant` or `tree` for this one block, beating the minion's `type`. Almost never needed. An override the definition cannot satisfy - `tree` with no `leaves` - is reported and dropped, leaving the type to decide. |
+| `restore` | **Override.** Forces `regen` (as a miner), `replant` (as a farmer) or `tree` (as a woodcutter) for this one block, beating the minion's `type`. Almost never needed. An override the definition cannot satisfy - `tree` with no `leaves` - is reported and dropped, leaving the type to decide. |
 
 <hr/>
 
