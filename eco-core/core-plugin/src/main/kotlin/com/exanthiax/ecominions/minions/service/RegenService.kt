@@ -31,8 +31,8 @@ class RegenService(
         minion.mining.regenQueue += MiningState.RegenEntry(
             location = block.location,
             regenData = fullyGrownData(original),
-            surfaceBlock = minion.state.type.placement.surfaceBlock
-                .takeIf { minion.state.type.placement.liftRegen },
+            surfaceBlock = minion.state.definition.placement.surfaceBlock
+                .takeIf { minion.state.definition.placement.liftRegen },
             regenAt = now + minion.stats.regenDelayTicks
         )
     }

@@ -74,21 +74,21 @@ class MinionActivityServiceTest {
 
     @Test
     fun `a minion with an online owner is active`() {
-        val subject = minion(MinionState(type = MinionDefinitionFixture.build(), owner = owner))
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = owner))
 
         assertTrue(service().isActive(subject))
     }
 
     @Test
     fun `a minion with an offline owner is inactive`() {
-        val subject = minion(MinionState(type = MinionDefinitionFixture.build(), owner = owner))
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = owner))
 
         assertFalse(service(online = emptySet()).isActive(subject))
     }
 
     @Test
     fun `a minion with no owner is inactive`() {
-        val subject = minion(MinionState(type = MinionDefinitionFixture.build(), owner = null))
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = null))
 
         assertFalse(service().isActive(subject))
     }
@@ -96,7 +96,7 @@ class MinionActivityServiceTest {
     @Test
     fun `marking idle stamps the shutdown timestamp and freezes fuel`() {
         val repository = mockk<MinionStateRepository>(relaxed = true)
-        val subject = minion(MinionState(type = MinionDefinitionFixture.build(), owner = owner))
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = owner))
         subject.burningFuelId = "coal"
         subject.burningFuelEndsAt = 5_000L
 
@@ -111,7 +111,7 @@ class MinionActivityServiceTest {
     @Test
     fun `marking idle twice does not restamp`() {
         val repository = mockk<MinionStateRepository>(relaxed = true)
-        val subject = minion(MinionState(type = MinionDefinitionFixture.build(), owner = owner))
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = owner))
         val service = service(repository = repository)
 
         service.markIdle(subject, now = 1_000L)
@@ -126,7 +126,7 @@ class MinionActivityServiceTest {
         val repository = mockk<MinionStateRepository>(relaxed = true)
         val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
         val subject = minion(
-            MinionState(type = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
+            MinionState(definition = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
         )
         subject.burningFuelId = "coal"
         subject.burningFuelRemainingMillis = 4_000L
@@ -143,7 +143,7 @@ class MinionActivityServiceTest {
     @Test
     fun `resuming a minion that was never idle does nothing`() {
         val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
-        val subject = minion(MinionState(type = MinionDefinitionFixture.build(), owner = owner))
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = owner))
 
         service(offlineProgress = offlineProgress).resume(subject, now = 3_000L)
 
@@ -155,7 +155,7 @@ class MinionActivityServiceTest {
         val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
         settings.update(settings.value.copy(offlineEnabled = false))
         val subject = minion(
-            MinionState(type = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
+            MinionState(definition = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
         )
 
         service(offlineProgress = offlineProgress).resume(subject, now = 3_000L)

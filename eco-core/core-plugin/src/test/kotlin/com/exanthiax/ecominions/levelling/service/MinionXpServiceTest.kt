@@ -27,7 +27,7 @@ class MinionXpServiceTest {
 
     @Test
     fun `xp below the requirement banks without levelling`() {
-        val state = MinionState(type = laddered)
+        val state = MinionState(definition = laddered)
 
         val result = MinionXpService.progress(state, 40.0)
 
@@ -38,7 +38,7 @@ class MinionXpServiceTest {
 
     @Test
     fun `crossing a requirement levels up and keeps the remainder`() {
-        val state = MinionState(type = laddered)
+        val state = MinionState(definition = laddered)
 
         val result = MinionXpService.progress(state, 130.0)
 
@@ -49,7 +49,7 @@ class MinionXpServiceTest {
 
     @Test
     fun `one grant may cross several levels`() {
-        val state = MinionState(type = laddered)
+        val state = MinionState(definition = laddered)
 
         val result = MinionXpService.progress(state, 100.0 + 200.0 + 10.0)
 
@@ -60,7 +60,7 @@ class MinionXpServiceTest {
 
     @Test
     fun `xp stops accruing at max level`() {
-        val state = MinionState(type = laddered, storedLevel = 4)
+        val state = MinionState(definition = laddered, storedLevel = 4)
 
         val result = MinionXpService.progress(state, 5000.0)
 
@@ -71,7 +71,7 @@ class MinionXpServiceTest {
 
     @Test
     fun `a non-levelling minion banks nothing`() {
-        val state = MinionState(type = MinionDefinitionFixture.build())
+        val state = MinionState(definition = MinionDefinitionFixture.build())
 
         val result = MinionXpService.progress(state, 500.0)
 
@@ -85,7 +85,7 @@ class MinionXpServiceTest {
             LevelCurve.Formula("0", configuredMaxLevel = 100) { _, _ -> 0.0 }
         )
 
-        val result = MinionXpService.progress(MinionState(type = zeroed), 10.0)
+        val result = MinionXpService.progress(MinionState(definition = zeroed), 10.0)
 
         assertEquals(1, result.newState.level)
         assertNull(result.levelsGained)

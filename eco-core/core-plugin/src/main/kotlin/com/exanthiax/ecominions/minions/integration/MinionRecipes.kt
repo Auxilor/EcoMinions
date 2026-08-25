@@ -20,7 +20,7 @@ class MinionRecipes(
     fun registerAll() {
         for (type in minions.types()) {
             val crafting = type.crafting ?: continue
-            val output = itemFactory.build(MinionState(type = type))
+            val output = itemFactory.build(MinionState(definition = type))
                 .apply { amount = crafting.giveAmount }
 
             Recipes.createAndRegisterRecipe(

@@ -24,7 +24,7 @@ class WoodcutterBehaviour(
     }
 
     override fun onIdle(minion: Minion, now: Long): Boolean {
-        if (!minion.state.type.placement.selfSeed) {
+        if (!minion.state.definition.placement.selfSeed) {
             return false
         }
         val definition = definitionFor(minion) ?: return false
@@ -56,7 +56,7 @@ class WoodcutterBehaviour(
      * log and nothing else has no sapling to plant, and stays blocked.
      */
     private fun definitionFor(minion: Minion): MinionBlock? =
-        minion.state.type.targetBlocks.definitions.firstOrNull { it.plant != null }
+        minion.state.definition.targetBlocks.definitions.firstOrNull { it.plant != null }
 
     private fun fellTree(minion: Minion, definition: MinionBlock, sapling: Location) {
         sapling.block.type = Material.AIR
@@ -72,7 +72,7 @@ class WoodcutterBehaviour(
         val radius = minion.stats.radius
         val center = minion.entity.location.block
         val world = minion.entity.world
-        val expectedSurface = minion.state.type.placement.surfaceBlock
+        val expectedSurface = minion.state.definition.placement.surfaceBlock
 
         var best: Location? = null
         var bestDistance = Double.MAX_VALUE

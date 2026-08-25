@@ -40,7 +40,7 @@ class TypeSelectMenu(
     }
 
     private fun typeSlot(player: Player, type: MinionDefinition): Slot {
-        val state = MinionState(type = type)
+        val state = MinionState(definition = type)
         val item = itemFactory.build(state)
         val context = TemplateContext.of(
             "type_name" to type.name,

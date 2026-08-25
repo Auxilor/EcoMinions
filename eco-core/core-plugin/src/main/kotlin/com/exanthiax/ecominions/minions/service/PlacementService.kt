@@ -104,9 +104,9 @@ class PlacementService(
         stand.setMarker(false)
         stand.removeWhenFarAway = false
 
-        val configured = state.type.equipment
+        val configured = state.definition.equipment
         val equipment = stand.equipment
-        equipment.helmet = configured.helmet?.toItemStack() ?: itemFactory.headFor(state.type)
+        equipment.helmet = configured.helmet?.toItemStack() ?: itemFactory.headFor(state.definition)
         configured.chestplate?.toItemStack()?.let { equipment.chestplate = it }
         configured.leggings?.toItemStack()?.let { equipment.leggings = it }
         configured.boots?.toItemStack()?.let { equipment.boots = it }

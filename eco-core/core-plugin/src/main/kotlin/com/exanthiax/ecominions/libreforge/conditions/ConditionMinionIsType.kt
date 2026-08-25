@@ -30,6 +30,6 @@ object ConditionMinionIsType : Condition<NoCompileData>("minion_is_type") {
         compileData: NoCompileData
     ): Boolean {
         val minion = dispatcher.get<Minion>() ?: return false
-        return minion.state.type.id in config.getStrings("types").map { it.lowercase() }
+        return minion.state.definition.id in config.getStrings("types").map { it.lowercase() }
     }
 }

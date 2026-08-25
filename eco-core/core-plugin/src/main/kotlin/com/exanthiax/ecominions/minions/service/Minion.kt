@@ -44,7 +44,7 @@ class Minion(
     override val uuid: UUID = state.uuid ?: entity.uniqueId
 
     override val type: ApiMinionDefinition
-        get() = state.type
+        get() = state.definition
 
     override val level: Int
         get() = state.level

@@ -28,8 +28,8 @@ class MinionCustomItems(
                 key,
                 CustomItem(
                     key,
-                    { itemFactory.read(it)?.type?.id == type.id },
-                    itemFactory.build(MinionState(type = type))
+                    { itemFactory.read(it)?.definition?.id == type.id },
+                    itemFactory.build(MinionState(definition = type))
                 )
             )
         }

@@ -97,7 +97,7 @@ class MiningService(
         }
         minion.mining.pendingTarget = null
 
-        if (!minion.state.type.targetBlocks.matches(target)) {
+        if (!minion.state.definition.targetBlocks.matches(target)) {
             return
         }
         breakBlock(minion, target, now)
@@ -111,7 +111,7 @@ class MiningService(
     }
 
     /** The minion's own behaviour, for when it has no block in hand to override with. */
-    private fun behaviourOf(minion: Minion): MinionBehaviour = behaviours[minion.state.type.type]
+    private fun behaviourOf(minion: Minion): MinionBehaviour = behaviours[minion.state.definition.type]
 
     private fun effectiveSpeedTicks(minion: Minion): Int =
         fuels.effectiveSpeedTicks(minion, minion.stats.speedTicks)
@@ -119,7 +119,7 @@ class MiningService(
     private fun breakBlock(minion: Minion, block: Block, now: Long) {
         val original = block.type
         val definition = blocks.forBlock(block)
-        val behaviour = behaviours.forBlock(minion.state.type.type, definition)
+        val behaviour = behaviours.forBlock(minion.state.definition.type, definition)
         val column = if (definition?.stackedColumn == true) collectColumn(block) else listOf(block)
 
         val results = dispatch.drops(

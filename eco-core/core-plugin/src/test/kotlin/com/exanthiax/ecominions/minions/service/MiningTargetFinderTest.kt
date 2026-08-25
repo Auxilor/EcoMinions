@@ -78,7 +78,7 @@ class MiningTargetFinderTest {
             )
         )
         return mockk<Minion>().also { minion ->
-            every { minion.state } returns mockk { every { this@mockk.type } returns type }
+            every { minion.state } returns mockk { every { this@mockk.definition } returns type }
             every { minion.stats } returns mockk {
                 every { this@mockk.radius } returns radius
                 every { this@mockk.height } returns height

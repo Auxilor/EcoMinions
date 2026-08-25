@@ -15,7 +15,7 @@ import org.bukkit.block.Block
 class SeedingService {
     /** @return true if a block was seeded, so the minion idles rather than reporting blocked. */
     fun tick(minion: Minion): Boolean {
-        val placement = minion.state.type.placement
+        val placement = minion.state.definition.placement
         if (!placement.selfSeed) {
             return false
         }

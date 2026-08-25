@@ -49,7 +49,7 @@ class MinionUpgradeServiceTest {
     @Test
     fun `an upgrade not on the minion's allow-list is rejected`() {
         val (service, minionService) = service()
-        val state = MinionState(type = MinionDefinitionFixture.build(allowedUpgradeIds = emptyList()))
+        val state = MinionState(definition = MinionDefinitionFixture.build(allowedUpgradeIds = emptyList()))
         val minion = minion(state)
         val player = mockk<Player>(relaxed = true)
 
@@ -67,7 +67,7 @@ class MinionUpgradeServiceTest {
     @Test
     fun `an unaffordable tier is rejected once buy-conditions pass`() {
         val (service, _) = service()
-        val minion = minion(MinionState(type = type))
+        val minion = minion(MinionState(definition = type))
         val player = mockk<Player>(relaxed = true)
         val unaffordable = mockk<TierCost> { every { canAfford(any()) } returns false }
 

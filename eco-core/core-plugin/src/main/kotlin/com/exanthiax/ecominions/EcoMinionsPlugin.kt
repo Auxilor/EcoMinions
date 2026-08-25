@@ -163,7 +163,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
                 messages.line(
                     "messages.level-up",
                     TemplateContext.of(
-                        "minion_name" to minion.state.type.name,
+                        "minion_name" to minion.state.definition.name,
                         "level" to level
                     )
                 )

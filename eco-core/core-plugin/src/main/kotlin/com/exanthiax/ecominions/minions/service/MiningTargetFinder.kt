@@ -17,7 +17,7 @@ class MiningTargetFinder {
         val radius = minion.stats.radius
         val center = minion.entity.location.block
         val world = minion.entity.world
-        val targets = minion.state.type.targetBlocks
+        val targets = minion.state.definition.targetBlocks
         val candidates = mutableListOf<Block>()
 
         for (x in -radius..radius) {

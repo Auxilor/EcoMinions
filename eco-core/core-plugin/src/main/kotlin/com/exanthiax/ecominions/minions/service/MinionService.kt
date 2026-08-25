@@ -56,7 +56,7 @@ class MinionService(
     override fun createItem(type: ApiMinionDefinition, level: Int): ItemStack {
         val resolved = types.find(type.id)
             ?: throw IllegalArgumentException("Unknown minion: ${type.id}")
-        return itemFactory.build(MinionState(type = resolved, storedLevel = level))
+        return itemFactory.build(MinionState(definition = resolved, storedLevel = level))
     }
 
     fun register(minion: Minion): Minion {

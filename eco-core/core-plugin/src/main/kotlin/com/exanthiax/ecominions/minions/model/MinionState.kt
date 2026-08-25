@@ -4,7 +4,7 @@ import java.util.UUID
 
 /** The persisted identity of a minion: what survives pickup, restart and reload. */
 data class MinionState(
-    val type: MinionDefinition,
+    val definition: MinionDefinition,
     private val storedLevel: Int = 1,
     val xp: Double = 0.0,
     val owner: UUID? = null,
@@ -18,14 +18,14 @@ data class MinionState(
      * cleanly, rather than stranding them above the top of the curve.
      */
     val level: Int
-        get() = if (type.levelling.enabled) {
-            storedLevel.coerceIn(1, type.levelling.maxLevel)
+        get() = if (definition.levelling.enabled) {
+            storedLevel.coerceIn(1, definition.levelling.maxLevel)
         } else {
             storedLevel
         }
 
     val isAtMaxLevel: Boolean
-        get() = type.levelling.enabled && level >= type.levelling.maxLevel
+        get() = definition.levelling.enabled && level >= definition.levelling.maxLevel
 
     fun upgradeLevel(upgradeId: String): Int = upgrades[upgradeId] ?: 0
 
@@ -37,7 +37,7 @@ data class MinionState(
      */
     fun withUpgrade(upgradeId: String, tier: Int): MinionState {
         val updated = upgrades + (upgradeId to tier)
-        if (type.levelling.enabled) {
+        if (definition.levelling.enabled) {
             return copy(upgrades = updated)
         }
         return copy(upgrades = updated, storedLevel = levelFor(updated))
@@ -51,7 +51,7 @@ data class MinionState(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as MinionState
-        return type.id == other.type.id &&
+        return definition.id == other.definition.id &&
             storedLevel == other.storedLevel &&
             xp == other.xp &&
             owner == other.owner &&
@@ -62,7 +62,7 @@ data class MinionState(
     }
 
     override fun hashCode(): Int {
-        var result = type.id.hashCode()
+        var result = definition.id.hashCode()
         result = 31 * result + storedLevel
         result = 31 * result + xp.hashCode()
         result = 31 * result + (owner?.hashCode() ?: 0)

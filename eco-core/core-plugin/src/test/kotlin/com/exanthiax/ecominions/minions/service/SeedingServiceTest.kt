@@ -95,7 +95,7 @@ class SeedingServiceTest {
     ): Minion {
         val type = MinionDefinitionFixture.build(placement = placement)
         return mockk<Minion>().also { minion ->
-            every { minion.state } returns mockk { every { this@mockk.type } returns type }
+            every { minion.state } returns mockk { every { this@mockk.definition } returns type }
             every { minion.stats } returns mockk { every { this@mockk.radius } returns radius }
             every { minion.entity } returns stand(world)
         }
