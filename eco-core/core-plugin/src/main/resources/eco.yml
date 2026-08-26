@@ -4,3 +4,4 @@ environment:
 
 options:
   color: "&#7d8a8a"
+  eco-api-version: ${ecoApiVersion}
