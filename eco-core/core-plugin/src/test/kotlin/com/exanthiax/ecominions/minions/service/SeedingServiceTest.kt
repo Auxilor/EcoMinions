@@ -15,15 +15,44 @@ import org.junit.jupiter.api.Test
 
 class SeedingServiceTest {
 
-    /** A minion on a solid floor seeds the nearest air block above it. */
+    /** One block per pass, the nearest one. */
     @Test
-    fun `seeds nearest air block on a solid surface`() {
+    fun `seeds the nearest air block on a solid surface`() {
         val world = FakeWorld()
         world.fillFloor()
         val minion = minionAt(world, placement = selfSeeding(Material.COAL_ORE))
 
-        assertTrue(service().tick(minion))
+        assertTrue(service().tick(minion, now = 0L))
         assertEquals(1, world.countOf(Material.COAL_ORE))
+    }
+
+    /** The area fills a block at a time, one regen delay apart. */
+    @Test
+    fun `seeds again only once the regen delay has passed`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val minion = minionAt(world, placement = selfSeeding(Material.COAL_ORE))
+        val service = service()
+
+        assertTrue(service.tick(minion, now = 0L))
+        assertFalse(service.tick(minion, now = REGEN_DELAY_TICKS - 1L))
+        assertEquals(1, world.countOf(Material.COAL_ORE))
+
+        assertTrue(service.tick(minion, now = REGEN_DELAY_TICKS.toLong()))
+        assertEquals(2, world.countOf(Material.COAL_ORE))
+    }
+
+    /** A full area has nothing pending, so the minion reports blocked rather than waiting. */
+    @Test
+    fun `is pending only while somewhere is left to seed`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val minion = minionAt(world, placement = selfSeeding(Material.COAL_ORE), height = 2)
+
+        assertTrue(service().isPending(minion))
+
+        world.fillLayer(0, Material.COAL_ORE)
+        assertFalse(service().isPending(minion))
     }
 
     @Test
@@ -32,7 +61,7 @@ class SeedingServiceTest {
         world.fillFloor()
         val minion = minionAt(world, placement = PlacementSettings.NONE)
 
-        assertFalse(service().tick(minion))
+        assertFalse(service().tick(minion, now = 0L))
         assertEquals(0, world.countOf(Material.COAL_ORE))
     }
 
@@ -43,7 +72,7 @@ class SeedingServiceTest {
         world.fillFloor()
         val minion = minionAt(world, placement = selfSeeding(Material.COAL_ORE))
 
-        service().tick(minion)
+        service().tick(minion, now = 0L)
 
         assertEquals(Material.AIR, world.typeAt(0, 0, 0))
         assertEquals(Material.AIR, world.typeAt(0, 1, 0))
@@ -55,7 +84,7 @@ class SeedingServiceTest {
         val world = FakeWorld()
         val minion = minionAt(world, placement = selfSeeding(Material.COAL_ORE))
 
-        assertFalse(service().tick(minion))
+        assertFalse(service().tick(minion, now = 0L))
         assertEquals(0, world.countOf(Material.COAL_ORE))
     }
 
@@ -72,11 +101,39 @@ class SeedingServiceTest {
         )
         val minion = minionAt(world, placement = placement)
 
-        assertFalse(service().tick(minion))
+        assertFalse(service().tick(minion, now = 0L))
 
         world.set(1, -1, 0, Material.FARMLAND)
-        assertTrue(service().tick(minion))
+        assertTrue(service().tick(minion, now = 0L))
         assertEquals(Material.WHEAT, world.typeAt(1, 0, 0))
+        assertEquals(1, world.countOf(Material.WHEAT))
+    }
+
+    /**
+     * A seed above the mining box would never be mined again, so the minion
+     * would bury itself in ore it cannot reach.
+     */
+    @Test
+    fun `does not seed above the mining box`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        world.fillLayer(0)
+        val minion = minionAt(world, placement = selfSeeding(Material.COAL_ORE), height = 2)
+
+        assertFalse(service().tick(minion, now = 0L))
+        assertEquals(0, world.countOf(Material.COAL_ORE))
+    }
+
+    /** The same spots are fair game once the box is tall enough to mine them back. */
+    @Test
+    fun `seeds higher up when the height reaches there`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        world.fillLayer(0)
+        val minion = minionAt(world, placement = selfSeeding(Material.COAL_ORE), height = 3)
+
+        assertTrue(service().tick(minion, now = 0L))
+        assertEquals(Material.COAL_ORE, world.typeAt(-1, 1, 0))
     }
 
     private fun service() = SeedingService()
@@ -91,15 +148,25 @@ class SeedingServiceTest {
     private fun minionAt(
         world: FakeWorld,
         placement: PlacementSettings,
-        radius: Int = 1
+        radius: Int = 1,
+        height: Int = 3
     ): Minion {
         val type = MinionDefinitionFixture.build(placement = placement)
         return mockk<Minion>().also { minion ->
             every { minion.state } returns mockk { every { this@mockk.definition } returns type }
-            every { minion.stats } returns mockk { every { this@mockk.radius } returns radius }
+            every { minion.stats } returns mockk {
+                every { this@mockk.radius } returns radius
+                every { this@mockk.height } returns height
+                every { this@mockk.regenDelayTicks } returns REGEN_DELAY_TICKS
+            }
             every { minion.entity } returns stand(world)
+            every { minion.mining } returns MiningState()
         }
     }
 
     private fun stand(world: FakeWorld): ArmorStand = world.stand()
+
+    private companion object {
+        const val REGEN_DELAY_TICKS = 60
+    }
 }

@@ -56,16 +56,31 @@ class FarmerBehaviourTest {
         verify { regen.queue(minion, block, Material.STONE, 100L) }
     }
 
+    /** Seeding takes the cycle, so the crop it just planted is not harvested on the same one. */
     @Test
-    fun `is busy when it seeded a block`() {
-        every { seeding.tick(minion) } returns true
+    fun `takes the cycle when it seeded`() {
+        every { seeding.tick(minion, 0L) } returns true
+
+        assertTrue(behaviour.onBeforeMine(minion, now = 0L))
+    }
+
+    @Test
+    fun `leaves the cycle to mining when no seed was due`() {
+        every { seeding.tick(minion, 0L) } returns false
+
+        assertFalse(behaviour.onBeforeMine(minion, now = 0L))
+    }
+
+    @Test
+    fun `is busy while a seed is still on the way`() {
+        every { seeding.isPending(minion) } returns true
 
         assertTrue(behaviour.onIdle(minion, now = 0L))
     }
 
     @Test
-    fun `is not busy when it could not seed`() {
-        every { seeding.tick(minion) } returns false
+    fun `is blocked when there is nothing left to seed`() {
+        every { seeding.isPending(minion) } returns false
 
         assertFalse(behaviour.onIdle(minion, now = 0L))
     }

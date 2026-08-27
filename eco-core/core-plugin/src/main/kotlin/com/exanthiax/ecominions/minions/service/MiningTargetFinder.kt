@@ -7,10 +7,9 @@ import org.bukkit.block.data.Ageable
 /**
  * Picks the next block a minion should break.
  *
- * The search box is the minion's radius horizontally and its height stat
- * vertically, measured from one block below the minion upward - trees are the
- * reason height is configurable, since their upper logs sit well above the
- * three-block box that used to be hardcoded here.
+ * The search box is [MinionWorkArea] - trees are the reason its height is
+ * configurable, since their upper logs sit well above the three-block box that
+ * used to be hardcoded here.
  */
 class MiningTargetFinder {
     fun find(minion: Minion): Block? {
@@ -21,7 +20,7 @@ class MiningTargetFinder {
         val candidates = mutableListOf<Block>()
 
         for (x in -radius..radius) {
-            for (y in FLOOR_OFFSET..topOffset(minion)) {
+            for (y in MinionWorkArea.verticalOffsets(minion)) {
                 for (z in -radius..radius) {
                     val candidate = world.getBlockAt(center.x + x, center.y + y, center.z + z)
                     if (targets.matches(candidate) && isMineableNow(candidate, targets)) {
@@ -32,9 +31,6 @@ class MiningTargetFinder {
         }
         return candidates.randomOrNull()
     }
-
-    /** Height counts the floor block, so a height of 3 reaches one block above the minion. */
-    private fun topOffset(minion: Minion): Int = FLOOR_OFFSET + minion.stats.height - 1
 
     /** Crops must be ripe, and stacked plants are only cut at their base. */
     private fun isMineableNow(block: Block, targets: TargetSet): Boolean {
@@ -49,10 +45,5 @@ class MiningTargetFinder {
             }
         }
         return true
-    }
-
-    private companion object {
-        /** The box always starts one block below the minion, whatever the height. */
-        const val FLOOR_OFFSET = -1
     }
 }
