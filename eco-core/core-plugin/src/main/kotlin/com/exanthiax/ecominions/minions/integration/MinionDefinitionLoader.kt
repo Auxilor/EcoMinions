@@ -310,10 +310,13 @@ class MinionDefinitionLoader(
 
     /**
      * What self-seeding places: whatever was asked for, else what the target
-     * declares as its `plant`, else the target block itself.
+     * declares as its `plant`, else - for a farmer only - the target block itself.
      *
-     * A woodcutter must plant a sapling rather than a log, so a target with no
-     * `plant` gives it nothing to seed and is reported.
+     * A woodcutter must plant a sapling rather than a log, and a miner has
+     * nothing that grows back on its own, so a target with no `plant` gives
+     * either of them nothing to seed and is reported. Falling back to the raw
+     * target block for a miner would let it place and re-mine its own ore -
+     * a duplication loop, not a reseed.
      */
     private fun readSeedBlock(
         section: Config,
@@ -328,7 +331,7 @@ class MinionDefinitionLoader(
         }
 
         val fallback = targets.definitions.firstNotNullOfOrNull { it.plant }
-            ?: targets.definitions.firstOrNull()?.block.takeIf { type != MinionType.WOODCUTTER }
+            ?: targets.definitions.firstOrNull()?.block.takeIf { type == MinionType.FARMER }
 
         if (fallback == null) {
             context.violation(
