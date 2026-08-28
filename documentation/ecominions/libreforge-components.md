@@ -1,6 +1,6 @@
 ---
 title: "Libreforge Components"
-sidebar_position: 7
+sidebar_position: 8
 ---
 
 ## Libreforge Components
@@ -21,7 +21,8 @@ Triggers decide *when* a triggered effect runs. Pass one or more in an effect's 
 | `minion_mine_block` | A minion breaks a target block, before its drops are stored. | `player` (the owning player, if online), `block` (the block the minion broke), `event` (an editable drop event over the block's drops), `location`, `item`, `value` (how many blocks this action broke - more than one for stacked plants) |
 | `minion_storage_full` | A minion tries to mine but its storage is full. | `player`, `location` |
 | `minion_regen_block` | A block a minion mined regenerates. | `player`, `block` (the block that regenerated), `location` |
-| `minion_tick` | Every tick an active minion runs. Pair with `every:` for interval behaviour - it fires very frequently, so always constrain it with `every:` or a condition. | `player`, `location` |
+| `minion_tick` | Every tick an active minion runs. Fires very frequently - for interval behaviour, prefer `minion_static_<n>` below over `every:` here. | `player`, `location` |
+| `minion_static_<n>` | Every `n` ticks, only for minions that are due - unlike `minion_tick` + `every:`, non-due ticks skip dispatch entirely rather than dispatching and discarding. `n` can be a plain integer (`minion_static_200`) or an expression, re-evaluated each check. | `location` |
 | `minion_place` | A minion is placed in the world. | `player`, `location` |
 | `minion_pickup` | A minion is picked up out of the world. | `player`, `location` |
 | `minion_upgrade` | A player buys an upgrade tier for a minion. | `player`, `location`, `text` (the id of the upgrade that was bought), `value` (the tier that was bought) |
@@ -29,6 +30,7 @@ Triggers decide *when* a triggered effect runs. Pass one or more in an effect's 
 | `minion_fuel_expire` | The tick a minion's fuel runs out. Only fires for an active minion - an idle minion's fuel is frozen, so it cannot expire while idle. | `player`, `location` |
 | `minion_sell` | A minion's storage is sold. | `player`, `location`, `event` (an editable drop event over the stacks being sold), `value` (the money the sale earned) |
 | `minion_level_up` | A minion gains a level. Dispatched by EcoMinions itself, not a Bukkit listener - can fire while the owner is offline. | `player` (the owning player, if online), `location`, `value` (the level reached) |
+| `minion_collect` | An item is actually stored in a minion's storage (not dispatched for anything that bounced because storage was full). | `player` (the owning player, if online), `item` (the item stored), `location`, `value` (how many of the item were stored) |
 
 ## Effects
 
@@ -40,8 +42,8 @@ Bespoke minion effects, with the argument(s) each takes inside `args:`.
 | `minion_efficiency` | `ticks_faster` (expression) | Reduces the ticks a minion spends breaking a block. Permanent - no `triggers:` needed. |
 | `minion_radius` | `blocks` (expression) | Widens the area a minion scans for target blocks. Permanent - no `triggers:` needed. |
 | `minion_capacity` | `slots` (expression) | Adds stack slots to a minion's storage, up to the type's `max-storage-slots`. Permanent - no `triggers:` needed. Resizes live storage; any overflow is dropped in the world rather than lost. |
-| `minion_sell_storage` | none | Sells the entire contents of a minion's storage. Triggered - needs a `triggers:` list (e.g. `[minion_tick]` with `every:` for an auto-sell upgrade). |
-| `minion_compact` | none | Compacts a minion's storage using the configured compactor recipes. Triggered - needs a `triggers:` list. |
+| `minion_sell_storage` | none | Sells the entire contents of a minion's storage. Triggered - needs a `triggers:` list (e.g. `minion_static_200` for an auto-sell upgrade). |
+| `minion_compact` | none | Compacts a minion's storage using every compactor recipe the minion owns and currently meets the `conditions:` for. Does nothing if the minion owns no recipes. Triggered - needs a `triggers:` list. |
 | `give_minion_xp` | `amount` (expression) | Grants XP to a minion, letting a fuel or an upgrade tier feed levelling progression directly. Triggered - needs a `triggers:` list. |
 
 `minion_speed`, `minion_efficiency`, `minion_radius`, and `minion_capacity` are permanent stat effects: they
@@ -56,7 +58,7 @@ work.
 | `minion_level_above` | `level` (expression) | The minion's level is at or above the given level. |
 | `minion_level_below` | `level` (expression) | The minion's level is at or below the given level. |
 | `minion_is_type` | `types` (string list) | The minion is one of the given minion type ids. |
-| `minion_has_upgrade` | `upgrade` (string, required), `tier` (expression, optional - defaults to `1`) | The minion owns the given upgrade at or above the specified tier. |
+| `minion_has_upgrade` | `upgrade` (string, required), `tier` (expression, optional - defaults to `1`) | The minion owns the given upgrade at or above the specified tier. Also works for a compactor recipe's `compactor_<recipe id>` upgrade id. |
 | `minion_storage_above_percent` | `percent` (expression, 0-100) | The minion's storage is at least the given percentage full. |
 | `minion_has_fuel` | none | The minion is currently burning fuel. |
 | `minion_owner_online` | none | The minion's owner is online. |

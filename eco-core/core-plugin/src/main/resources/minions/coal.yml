@@ -46,7 +46,14 @@ allowed-upgrades:
   - auto_smelt
   - auto_sell
   - experience
-  - compactor
+
+compactor-recipes:
+  - coal_block
+
+effects:
+  - id: minion_compact
+    triggers:
+      - minion_mine_block
 
 armor:
   chestplate:

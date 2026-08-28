@@ -21,6 +21,7 @@ messages:
   collected: "&aCollected &e%count% &aitems."
   upgrade-purchased: "&aUpgraded &e%upgrade% &ato tier &e%tier%&a."
   upgrade-cant-afford: "&cYou can't afford that upgrade."
+  upgrade-conditions-not-met: "&cYou don't meet the requirements to buy that upgrade."
   upgrade-already-max: "&cThis upgrade is already at max tier."
   no-payment-method: "&cNo valid payment options are available."
   no-fuel: "&cYou have no fuel items in your inventory."

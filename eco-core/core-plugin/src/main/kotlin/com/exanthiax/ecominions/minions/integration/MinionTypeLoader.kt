@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.integration
 
+import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.core.registry.ConfigLoader
@@ -31,7 +32,11 @@ class MinionTypeLoader(
     /** Whether config.yml lets prices come from EcoShop, making sell-prices optional. */
     private val autoPricingEnabled: () -> Boolean,
     /** config.yml's ceiling on any type's declared slots. Read per load, so reloads apply. */
-    private val hardSlotCap: () -> Int
+    private val hardSlotCap: () -> Int,
+    /** Looks one entry out of the `compactor-recipes/` catalog. */
+    private val compactorRecipe: (String) -> CompactorRecipeDefinition?,
+    /** Every catalog id, for the "known: [...]" half of an unresolvable-id violation. */
+    private val compactorRecipeIds: () -> Collection<String>
 ) : ConfigLoader<MinionType> {
 
     override fun load(id: String, config: Config, context: LoadContext): MinionType? {
@@ -49,7 +54,8 @@ class MinionTypeLoader(
         }
 
         val spawnItem = readSpawnItem(config, context) ?: return null
-        val allowedUpgrades = config.getStrings("allowed-upgrades")
+        val compactorRecipes = readCompactorRecipes(config, context)
+        val allowedUpgrades = config.getStrings("allowed-upgrades") + compactorRecipes.map { it.upgrade.id }
         val sellPrices = readSellPrices(config, context)
 
         if (AUTO_SELL in allowedUpgrades && sellPrices.isEmpty() && !autoPricingEnabled()) {
@@ -74,9 +80,16 @@ class MinionTypeLoader(
             placement = readPlacement(id, config, configured, woodFamily, context),
             sellPrices = sellPrices,
             levelling = levelling.load(config, context),
-            holder = compileHolder(id, config, context)
+            holder = compileHolder(id, config, context),
+            compactorRecipes = compactorRecipes
         )
     }
+
+    /** Resolves this type's `compactor-recipes:` ids; an unresolvable one is dropped, not fatal. */
+    private fun readCompactorRecipes(config: Config, context: LoadContext): List<CompactorRecipeDefinition> =
+        config.getStrings("compactor-recipes").mapNotNull { recipeId ->
+            compactorRecipe(recipeId) ?: context.unknown("compactor-recipes", recipeId, compactorRecipeIds())
+        }
 
     private fun compileHolder(id: String, config: Config, context: LoadContext): Holder? {
         val effectConfigs = config.getSubsections("effects")

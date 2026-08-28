@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions
 
+import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.model.MinionArmor
 import com.exanthiax.ecominions.minions.model.MinionType
@@ -30,7 +31,8 @@ object MinionTypeFixture {
             regenDelayTicks = "60"
         ),
         levelling: LevellingSpec = LevellingSpec.DISABLED,
-        holder: Holder? = null
+        holder: Holder? = null,
+        compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
     ) = MinionType(
         id = id,
         name = "Stone Minion",
@@ -51,6 +53,7 @@ object MinionTypeFixture {
         placement = PlacementSettings.NONE,
         sellPrices = sellPrices,
         levelling = levelling,
-        holder = holder
+        holder = holder,
+        compactorRecipes = compactorRecipes
     )
 }

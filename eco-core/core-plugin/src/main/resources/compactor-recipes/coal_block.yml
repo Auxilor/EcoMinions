@@ -1,4 +1,13 @@
+name: "&8Coal Compactor"
+display:
+  icon: coal_block
+
 input: COAL
 input-amount: 9
 output: COAL_BLOCK
 output-amount: 1
+
+cost-options:
+  - value: 15000
+    type: vault
+    display: "&a$%value_commas%"

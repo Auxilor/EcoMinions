@@ -25,14 +25,22 @@ tiers:
     value: 5
     stat-delta: "-5 ticks"
     cost-options:
-      - { value: 5000, type: vault }
-      - { value: 64, type: stone }
+      - value: 5000
+        type: vault
+        display: "&a$%value_commas%"
+      - value: 64
+        type: stone
+        display: "&7%value_commas%x Stone"
   2:
     value: 10
     stat-delta: "-10 ticks"
     cost-options:
-      - { value: 12000, type: vault }
-      - { value: 64, type: coal }
+      - value: 12000
+        type: vault
+        display: "&a$%value_commas%"
+      - value: 64
+        type: coal
+        display: "&8%value_commas%x Coal"
 ```
 
 - `name` - the upgrade's display name, shown in the upgrade menu.
@@ -47,8 +55,19 @@ tiers:
   - `stat-delta` - display-only text describing the tier's effect, shown in the upgrade menu (e.g. `"-5 ticks"`,
     `"+10% drops"`, `"Enabled"`).
   - `cost-options` - one or more ways a player can pay for this tier; the player picks one at purchase time.
-    Each entry has a `value` (amount) and a `type`. `type` can be `vault` for Vault economy money, a material
-    name to charge an item, or another registered currency id (e.g. a custom currency plugin's `gems`).
+    Each entry has:
+    - `value` (amount) and `type` - `type` can be `vault` for Vault economy money, a material name to charge
+      an item, or another registered currency id (e.g. a custom currency plugin's `gems`).
+    - `display` (**required**) - the text shown for this price option in the upgrade menu, e.g. `"&a$%value_commas%"`.
+      `%value%` and `%value_commas%` (comma-grouped) are available inside it. Omitting `display` isn't just
+      cosmetic - eco has no fallback for it, so the menu throws trying to render that cost option.
+  - `buy-conditions` (optional) - a list of libreforge conditions that must pass for a player to buy this tier,
+    checked before affordability. Absent or empty means anyone who can afford it can buy it (today's behavior
+    for every upgrade). See [Libreforge Components](libreforge-components) for the available conditions.
+
+Write each cost option as its own list item across multiple lines (`- value: ...` / `type: ...` /
+`display: ...`), not the inline `{ value: ..., type: ... }` flow-map form - it's harder to scan and easy to
+mistype once a `display` line is added.
 
 ### effects and placeholders
 
@@ -78,27 +97,35 @@ a mine event:
 ```yaml
 effects:
   - id: multiply_drops
-    triggers: [minion_mine_block]
+    triggers:
+      - minion_mine_block
     args:
       multiplier: "1 + %tier_value%"
 ```
 
-### every: for interval behaviour
+### Interval behaviour
 
-Add `every:` (in ticks) to a `minion_tick`-triggered effect to make it fire on an interval instead of every
-single tick. The auto-sell upgrade uses this to sell the minion's storage roughly every 200 ticks instead of
-constantly:
+Use `minion_static_<n>` instead of `minion_tick` for anything that should fire every `n` ticks rather than
+every single tick - it skips dispatch entirely on the ticks it doesn't fire, unlike `minion_tick` + `every:`,
+which dispatches every tick and discards most of it at the effect layer. The auto-sell upgrade uses this to
+sell the minion's storage roughly every 200 ticks:
 
 ```yaml
 effects:
   - id: minion_sell_storage
-    triggers: [minion_tick]
-    every: 200
+    triggers:
+      - minion_static_200
 ```
 
-On/off upgrades such as `auto_smelt`, `auto_sell`, and `compactor` typically only need a single tier, since the
-effect is either present or not. Numeric upgrades such as `speed`, `efficiency`, `radius`, `fortune`, `capacity`,
-and `experience` are usually laddered across several tiers, each with its own cost and its own `%tier_value%`.
+`n` can also be an expression (e.g. a placeholder), re-evaluated on every check.
+
+On/off upgrades such as `auto_smelt` and `auto_sell` typically only need a single tier, since the effect is
+either present or not. Numeric upgrades such as `speed`, `efficiency`, `radius`, `fortune`, `capacity`, and
+`experience` are usually laddered across several tiers, each with its own cost and its own `%tier_value%`.
+
+Compacting is not authored as a hand-written upgrade file at all - each compactor recipe generates its own
+single-tier purchasable from the `compactor-recipes/` catalog. See
+[How to Make a Compactor Recipe](how-to-make-a-compactor-recipe).
 
 See [Libreforge Components](libreforge-components) for the full list of minion-specific triggers, effects,
 conditions, and mutators available inside `effects`, plus the stock libreforge components that also work here.

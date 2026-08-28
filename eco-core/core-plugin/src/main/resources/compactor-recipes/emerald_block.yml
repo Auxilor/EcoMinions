@@ -1,4 +1,13 @@
+name: "&2Emerald Compactor"
+display:
+  icon: emerald_block
+
 input: EMERALD
 input-amount: 9
 output: EMERALD_BLOCK
 output-amount: 1
+
+cost-options:
+  - value: 35000
+    type: vault
+    display: "&a$%value_commas%"

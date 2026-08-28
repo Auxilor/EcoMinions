@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.upgrades.model
 
 import com.exanthiax.ecominions.api.upgrade.Upgrade as ApiUpgrade
 import com.willfp.libreforge.Holder
+import com.willfp.libreforge.conditions.ConditionList
 
 /** A purchasable upgrade and its tier ladder. */
 class Upgrade(
@@ -38,5 +39,7 @@ class UpgradeTier(
     val statDelta: String,
     val costs: List<TierCost>,
     /** Compiled from the upgrade's `effects:` block with this tier's value bound. */
-    val holder: Holder?
+    val holder: Holder?,
+    /** Gates whether this tier can be bought at all, checked before affordability. */
+    val buyConditions: ConditionList = ConditionList(emptyList())
 )

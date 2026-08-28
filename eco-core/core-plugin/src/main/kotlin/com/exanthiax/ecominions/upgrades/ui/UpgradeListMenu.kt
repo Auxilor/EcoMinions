@@ -31,12 +31,13 @@ class UpgradeListMenu(
         val current = settings.value
         val rows = current.listRows
         val context = TemplateContext.of(MinionPlaceholders.MINION to minion)
+        val allUpgrades = upgrades.allowedFor(minion) + minion.state.type.compactorRecipes.map { it.upgrade }
 
         menu(rows) {
             setTitle(messages.render(current.listTitle, context))
             setMask(chrome.fillerMask(rows))
 
-            for ((index, upgrade) in upgrades.allowedFor(minion).withIndex()) {
+            for ((index, upgrade) in allUpgrades.withIndex()) {
                 val row = FIRST_ROW + (index / COLUMNS)
                 if (row >= rows) {
                     break

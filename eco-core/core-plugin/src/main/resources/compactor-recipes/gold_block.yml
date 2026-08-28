@@ -1,4 +1,13 @@
+name: "&6Gold Compactor"
+display:
+  icon: gold_block
+
 input: GOLD_INGOT
 input-amount: 9
 output: GOLD_BLOCK
 output-amount: 1
+
+cost-options:
+  - value: 25000
+    type: vault
+    display: "&a$%value_commas%"

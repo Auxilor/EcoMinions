@@ -4,6 +4,7 @@ import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
+import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
@@ -44,6 +45,9 @@ class MiningService(
         processRegen(minion, now)
         completePendingBreak(minion, now)
         dispatch.trigger(minion, TriggerMinionTick)
+        for (trigger in TriggerGroupMinionStatic.dueOn(now)) {
+            dispatch.trigger(minion, trigger)
+        }
 
         if (now < minion.mining.nextActionAt) {
             return
@@ -179,7 +183,7 @@ class MiningService(
             }
         }
 
-        minion.storage.store(results.map { (item, _) -> item })
+        dispatch.storeAndDispatchCollect(minion, results.map { (item, _) -> item })
     }
 
     private fun spawnXp(minion: Minion, amount: Int) {

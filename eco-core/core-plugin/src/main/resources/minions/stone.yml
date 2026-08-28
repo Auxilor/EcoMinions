@@ -48,7 +48,6 @@ allowed-upgrades:
   - auto_smelt
   - auto_sell
   - experience
-  - compactor
 
 armor:
   chestplate:

@@ -1,4 +1,24 @@
+# Referenced by a minion type's compactor-recipes: list. Bought independently,
+# with its own price. output must differ from input and shrink the stack, or
+# the compact loop churns/destroys items.
+name: "&eExample Compactor Recipe"
+display:
+  icon: furnace
+
 input: COBBLESTONE
 input-amount: 9
-output: COBBLESTONE
+output: STONE
 output-amount: 1
+
+cost-options:
+  - value: 100000
+    type: vault
+    display: "&a$%value_commas%"
+
+# buy-conditions: []   # (optional) gates the purchase itself
+# conditions: []       # (optional) gates whether it currently compacts
+
+# (optional) ordering hint for a chained recipe - e.g. an enchanted_coal recipe
+# consuming COAL_BLOCK sets higher-level-of: coal_block, so coal -> coal_block
+# runs before coal_block -> enchanted_coal. Doesn't gate purchase on its own.
+# higher-level-of: coal_block

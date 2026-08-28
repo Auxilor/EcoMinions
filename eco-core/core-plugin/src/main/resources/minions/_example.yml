@@ -38,7 +38,8 @@ base-stats:
 #     args:
 #       blocks: 1
 #   - id: multiply_drops
-#     triggers: [minion_mine_block]
+#     triggers:
+#       - minion_mine_block
 #     args:
 #       multiplier: 1.5
 

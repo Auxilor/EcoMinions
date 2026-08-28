@@ -1,9 +1,11 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.api.event.MinionUpgradeEvent
+import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
+import com.willfp.libreforge.EmptyProvidedHolder
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
@@ -16,7 +18,7 @@ import org.bukkit.entity.Player
 class MinionUpgradeService(
     private val minions: MinionService
 ) {
-    enum class Result { PURCHASED, CANNOT_AFFORD, NOT_ALLOWED }
+    enum class Result { PURCHASED, CANNOT_AFFORD, NOT_ALLOWED, CONDITIONS_NOT_MET }
 
     fun purchase(
         player: Player,
@@ -27,6 +29,9 @@ class MinionUpgradeService(
     ): Result {
         if (upgrade.id !in minion.state.type.allowedUpgradeIds) {
             return Result.NOT_ALLOWED
+        }
+        if (tier.buyConditions.isNotEmpty() && !tier.buyConditions.areMet(minion.toDispatcher(), EmptyProvidedHolder)) {
+            return Result.CONDITIONS_NOT_MET
         }
         if (!cost.canAfford(player)) {
             return Result.CANNOT_AFFORD

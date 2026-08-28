@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.model
 
+import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.willfp.libreforge.Holder
 import org.bukkit.Material
@@ -25,7 +26,13 @@ class MinionType(
     /** Parsed from the type's `levelling:` block. Disabled unless configured. */
     val levelling: LevellingSpec = LevellingSpec.DISABLED,
     /** Compiled from the type's `effects:` block. Always active, no purchase needed. */
-    val holder: Holder? = null
+    val holder: Holder? = null,
+    /**
+     * Resolved from this type's `compactor-recipes:` list of catalog ids, in the
+     * order authored (used for menu display order only - each is bought and
+     * gated independently).
+     */
+    val compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
 ) : ApiMinionType {
 
     /** Preview value shown before a minion's actual level is known, e.g. in the type-select menu. */

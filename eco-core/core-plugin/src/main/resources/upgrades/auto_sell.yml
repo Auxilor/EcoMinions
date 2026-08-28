@@ -4,13 +4,17 @@ display:
 
 effects:
   - id: minion_sell_storage
-    triggers: [minion_tick]
-    every: 200
+    triggers:
+      - minion_static_200
 
 tiers:
   1:
     value: 1
     stat-delta: "Enabled"
     cost-options:
-      - { value: 75000, type: vault }
-      - { value: 400, type: gems }
+      - value: 75000
+        type: vault
+        display: "&a$%value_commas%"
+      - value: 400
+        type: gems
+        display: "&b%value_commas% Gems"

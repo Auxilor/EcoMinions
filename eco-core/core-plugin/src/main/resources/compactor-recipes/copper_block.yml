@@ -1,0 +1,13 @@
+name: "&cCopper Compactor"
+display:
+  icon: copper_block
+
+input: COPPER_INGOT
+input-amount: 9
+output: COPPER_BLOCK
+output-amount: 1
+
+cost-options:
+  - value: 15000
+    type: vault
+    display: "&a$%value_commas%"

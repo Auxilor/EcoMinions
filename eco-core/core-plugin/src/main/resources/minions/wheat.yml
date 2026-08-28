@@ -46,6 +46,14 @@ allowed-upgrades:
   - auto_sell
   - experience
 
+compactor-recipes:
+  - hay_block
+
+effects:
+  - id: minion_compact
+    triggers:
+      - minion_mine_block
+
 armor:
   chestplate:
     material: LEATHER_CHESTPLATE

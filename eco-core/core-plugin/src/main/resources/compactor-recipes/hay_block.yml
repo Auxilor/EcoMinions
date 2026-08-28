@@ -1,4 +1,13 @@
+name: "&eHay Compactor"
+display:
+  icon: hay_block
+
 input: WHEAT
 input-amount: 9
 output: HAY_BLOCK
 output-amount: 1
+
+cost-options:
+  - value: 10000
+    type: vault
+    display: "&a$%value_commas%"

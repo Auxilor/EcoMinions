@@ -145,6 +145,9 @@ class UpgradeMenu(
 
             MinionUpgradeService.Result.NOT_ALLOWED ->
                 player.sendMessage(messages.line("messages.no-payment-method", context))
+
+            MinionUpgradeService.Result.CONDITIONS_NOT_MET ->
+                player.sendMessage(messages.line("messages.upgrade-conditions-not-met", context))
         }
     }
 
