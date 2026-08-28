@@ -12,13 +12,16 @@ import com.exanthiax.ecominions.minions.service.MinionStateRepository
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.willfp.eco.core.gui.menu
+import com.willfp.eco.core.gui.menu.Menu
 import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.onOpen
 import com.willfp.eco.core.gui.onRender
+import com.willfp.eco.core.gui.onShiftLeftClick
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -133,23 +136,69 @@ class MainMenu(
         return collected
     }
 
+    /**
+     * Fuel goes in one item at a time, a stack at a time, or all at once.
+     *
+     * Dropping fuel onto this slot reaches the server as a click with the stack
+     * held on the cursor, so that is what the click handlers read first; an
+     * empty cursor, or something that is not fuel, falls back to taking fuel
+     * out of the player's inventory.
+     */
     private fun fuelSlot(player: Player, minion: Minion): Slot =
         slot({ _, _ -> fuelItem(minion) }) {
-            onLeftClick { _, _, menu ->
-                val applied = fuelService.fuelFrom(player, minion)
-                if (applied == null) {
-                    player.sendMessage(messages.line("messages.no-fuel"))
-                } else {
-                    player.sendMessage(
-                        messages.line(
-                            "messages.fuel-applied",
-                            TemplateContext.of("fuel_name" to applied.displayName)
-                        )
-                    )
-                }
+            onLeftClick { event, _, menu -> deposit(player, minion, event, menu, whole = true) }
+            onRightClick { event, _, menu -> deposit(player, minion, event, menu, whole = false) }
+            onShiftLeftClick { _, _, menu ->
+                announce(player, fuelService.fuelFrom(player, minion, limit = Int.MAX_VALUE))
                 menu.refresh(player)
             }
         }
+
+    private fun deposit(player: Player, minion: Minion, event: InventoryClickEvent, menu: Menu, whole: Boolean) {
+        val applied = fromCursor(player, minion, event, whole)
+            ?: fuelService.fuelFrom(player, minion)
+
+        announce(player, applied)
+        menu.refresh(player)
+    }
+
+    /** @return What the cursor stack fuelled, or null if it holds no fuel. */
+    private fun fromCursor(
+        player: Player,
+        minion: Minion,
+        event: InventoryClickEvent,
+        whole: Boolean
+    ): MinionFuelService.Application? {
+        val cursor = event.cursor
+        if (cursor == null || cursor.type == Material.AIR) {
+            return null
+        }
+
+        val count = if (whole) cursor.amount else 1
+        val applied = fuelService.fuelFromItem(player, minion, cursor, count) ?: return null
+
+        // The click is cancelled before this runs, so the cursor is ours to
+        // shrink: nothing else is going to take the items we just burnt.
+        val left = cursor.amount - applied.count
+        player.setItemOnCursor(if (left <= 0) null else cursor.clone().apply { amount = left })
+        return applied
+    }
+
+    private fun announce(player: Player, applied: MinionFuelService.Application?) {
+        if (applied == null) {
+            player.sendMessage(messages.line("messages.no-fuel"))
+            return
+        }
+        player.sendMessage(
+            messages.line(
+                "messages.fuel-applied",
+                TemplateContext.of(
+                    "fuel_name" to applied.fuel.displayName,
+                    "count" to applied.count
+                )
+            )
+        )
+    }
 
     private fun fuelItem(minion: Minion): ItemStack {
         val active = fuels.activeFuelOf(minion)

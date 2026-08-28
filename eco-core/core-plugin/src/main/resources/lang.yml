@@ -25,7 +25,7 @@ messages:
   upgrade-already-max: "&cThis upgrade is already at max tier."
   no-payment-method: "&cNo valid payment options are available."
   no-fuel: "&cYou have no fuel items in your inventory."
-  fuel-applied: "&aFueled with &e%fuel_name%&a."
+  fuel-applied: "&aFueled with &e%count%x %fuel_name%&a."
   level-up: "&aYour &e%minion_name% &areached level &e%level%&a!"
 
 infinity: "&7∞"
@@ -66,12 +66,16 @@ gui:
         - "&7No active fuel."
         - "&7Click to feed a fuel item"
         - "&7from your inventory."
+        - "&7Shift-click to feed all of it."
+        - "&7Or drop a stack here to feed it."
       active-lore:
         - "&7Active: &f%fuel_name%"
         - "&7Speed: &f%multiplier%"
         - "&7Remaining: &f%seconds%s"
         - ""
         - "&7Click to feed another."
+        - "&7Shift-click to feed all of it."
+        - "&7Or drop a stack here to feed it."
     info:
       name: "&bMinion Info"
       lore:
