@@ -14,7 +14,7 @@ mines a configured set of blocks into its own storage for the owner to collect, 
 - **Idle while offline** - a minion only mines while its owner is online; when the owner logs back in, the
   offline span is credited in one go
 - **Upgrades** - each upgrade is a config-authored libreforge effect holder, purchased tier by tier; the
-  shipped set includes speed, efficiency, radius, fortune, capacity, auto-smelt, auto-sell, and experience,
+  shipped set includes speed, efficiency, radius, height, fortune, capacity, auto-smelt, auto-sell, and experience,
   but any libreforge effect can be wired up as an upgrade
 - **Compacting** - a shared catalog of recipes that compress bulk drops into their block form; each minion
   type opts into whichever recipes it wants, and each recipe is bought (and can be gated) independently

@@ -48,6 +48,7 @@ class MinionRenderLoop(
 
             if (active) {
                 emitFullParticles(minion, now)
+                emitBoundaryBox(minion, now)
             } else {
                 emitIdleParticles(minion, now)
             }
@@ -67,6 +68,35 @@ class MinionRenderLoop(
     private fun emitIdleParticles(minion: Minion, now: Long) {
         val layer = minion.state.type.particles.idle ?: return
         emitNearby(minion, now, layer, minion.state.type.particles.idlePlayerRadius)
+    }
+
+    /**
+     * Outlines the mining box while the minion has nothing to mine, so its owner
+     * can see the area that needs clearing. Only the owner sees it: a stalled farm
+     * would otherwise blanket every passer-by in outlines.
+     */
+    private fun emitBoundaryBox(minion: Minion, now: Long) {
+        if (minion.animation != Minion.AnimationState.BLOCKED) {
+            return
+        }
+        val layer = minion.state.type.particles.blocked ?: return
+        if (now % layer.intervalTicks.coerceAtLeast(1) >= RENDER_INTERVAL_TICKS) {
+            return
+        }
+
+        val owner = minion.state.owner?.let { Bukkit.getPlayer(it) } ?: return
+        val corner = minion.entity.location.block.location
+        if (owner.world != corner.world) {
+            return
+        }
+        val watchRadius = minion.state.type.particles.blockedPlayerRadius.toDouble()
+        if (owner.location.distanceSquared(corner) > watchRadius * watchRadius) {
+            return
+        }
+
+        for (offset in BoundaryBox.edges(minion.stats.radius, minion.stats.height)) {
+            particles.emitTo(owner, corner.clone().add(offset), layer)
+        }
     }
 
     private fun emitNearby(minion: Minion, now: Long, layer: ParticleSettings.Layer, radius: Int) {

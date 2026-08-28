@@ -20,6 +20,7 @@ object MinionTypeFixture {
 
     fun build(
         id: String = "stone",
+        targetBlocks: Set<Material> = emptySet(),
         allowedUpgradeIds: List<String> = listOf("speed", "capacity"),
         sellPrices: Map<Material, Double> = emptyMap(),
         baseStats: MinionType.BaseStats = MinionType.BaseStats(
@@ -38,7 +39,7 @@ object MinionTypeFixture {
     ) = MinionType(
         id = id,
         name = "Stone Minion",
-        targetBlocks = emptySet(),
+        targetBlocks = targetBlocks,
         allowedUpgradeIds = allowedUpgradeIds,
         woodFamily = null,
         baseStats = baseStats,
@@ -49,7 +50,14 @@ object MinionTypeFixture {
         ),
         crafting = null,
         equipment = MinionEquipment.EMPTY,
-        particles = ParticleSettings(full = null, fullPlayerRadius = 16, idle = null, idlePlayerRadius = 16),
+        particles = ParticleSettings(
+            full = null,
+            fullPlayerRadius = 16,
+            idle = null,
+            idlePlayerRadius = 16,
+            blocked = null,
+            blockedPlayerRadius = 16
+        ),
         placement = placement,
         sellPrices = sellPrices,
         levelling = levelling,

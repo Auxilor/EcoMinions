@@ -6,6 +6,9 @@ base-stats:
   speed-ticks: 60
   efficiency-ticks: 10
   radius: 3
+  # Vertical span of the mining box, from one block below the minion upward.
+  # 6 reaches the top log of a full tree; 3 is the default for every other type.
+  height: 6
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 200
@@ -43,6 +46,7 @@ allowed-upgrades:
   - efficiency
   - fortune
   - radius
+  - height
   - capacity
   - auto_sell
   - experience

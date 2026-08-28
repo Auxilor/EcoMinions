@@ -132,6 +132,8 @@ class MinionTypeLoader(
             speedTicks = config.getString("base-stats.speed-ticks"),
             efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
             radius = config.getString("base-stats.radius"),
+            height = config.getStringOrNull("base-stats.height")?.takeIf { it.isNotBlank() }
+                ?: MinionType.DEFAULT_HEIGHT,
             storageSlots = config.getString("base-stats.storage-slots"),
             maxStorageSlots = config.getString("base-stats.max-storage-slots"),
             regenDelayTicks = config.getString("base-stats.regen-delay-ticks"),

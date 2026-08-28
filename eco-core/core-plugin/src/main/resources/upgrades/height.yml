@@ -1,0 +1,52 @@
+name: "&bHeight"
+display:
+  icon: ladder
+
+effects:
+  - id: minion_height
+    args:
+      blocks: "%tier_value%"
+
+tiers:
+  1:
+    value: 1
+    stat-delta: "+1 block"
+    cost-options:
+      - value: 6000
+        type: vault
+        display: "&a$%value_commas%"
+  2:
+    value: 2
+    stat-delta: "+2 blocks"
+    cost-options:
+      - value: 14000
+        type: vault
+        display: "&a$%value_commas%"
+  3:
+    value: 3
+    stat-delta: "+3 blocks"
+    cost-options:
+      - value: 30000
+        type: vault
+        display: "&a$%value_commas%"
+  4:
+    value: 4
+    stat-delta: "+4 blocks"
+    cost-options:
+      - value: 60000
+        type: vault
+        display: "&a$%value_commas%"
+  5:
+    value: 5
+    stat-delta: "+5 blocks"
+    cost-options:
+      - value: 120000
+        type: vault
+        display: "&a$%value_commas%"
+  6:
+    value: 6
+    stat-delta: "+6 blocks"
+    cost-options:
+      - value: 220000
+        type: vault
+        display: "&a$%value_commas%"

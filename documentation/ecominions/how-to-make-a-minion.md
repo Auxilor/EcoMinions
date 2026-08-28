@@ -22,6 +22,7 @@ base-stats:
   speed-ticks: 70
   efficiency-ticks: 12
   radius: 3
+  height: 3
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 120
@@ -33,6 +34,10 @@ base-stats:
   - `speed-ticks` - ticks between mining attempts.
   - `efficiency-ticks` - additional ticks the mining animation/action takes.
   - `radius` - how far from the minion, in blocks, it searches for target blocks.
+  - `height` - the vertical span of that search, in blocks, measured from one block below the minion
+    upward. Defaults to `3` - one below, the minion's own level, and one above - which is the box every
+    type had before this was configurable. Raise it for tall targets: the wood minion uses `6`, exactly
+    the reach needed for the top log of a full tree.
   - `storage-slots` - stack slots in the minion's own storage, before upgrades.
   - `max-storage-slots` - the most slots capacity upgrades may reach on this type.
     Both are capped by `minion.hard-slot-cap` in `config.yml`.
@@ -183,33 +188,26 @@ This key alone does not make compacting run - the type also needs `minion_compac
 `effects:` block, as shown above. See [How to Make a Compactor Recipe](how-to-make-a-compactor-recipe) for the
 recipe file format.
 
-## armor
+## equipment
 
 ```yaml
-armor:
-  chestplate:
-    material: LEATHER_CHESTPLATE
-    color:
-      r: 54
-      g: 54
-      b: 54
-  leggings:
-    material: LEATHER_LEGGINGS
-    color:
-      r: 54
-      g: 54
-      b: 54
-  boots:
-    material: LEATHER_BOOTS
-    color:
-      r: 54
-      g: 54
-      b: 54
+equipment:
+  chestplate: "LEATHER_CHESTPLATE"
+  leggings: "LEATHER_LEGGINGS"
+  boots: "LEATHER_BOOTS"
 ```
 
-Optional. Any of `helmet`, `chestplate`, `leggings`, `boots` can be set to dress the minion's armor stand.
-`material` is required per piece; `color` (an `r`/`g`/`b` triple) is optional and only takes effect on dyeable
-leather armor.
+Optional. Dresses the minion's armor stand. Each of `helmet`, `chestplate`, `leggings`, `boots` and `hand` is
+an eco item lookup string - the same syntax as `spawn-item.item` - so custom items, `#tags` and player heads
+all work, and a dyed leather piece is written the way eco writes any other dyed item rather than through a
+separate `color` block.
+
+Every slot is optional, and two have defaults: an omitted `helmet` uses this type's own `spawn-item.item` as
+its head, and an omitted `hand` becomes an iron pickaxe. Set a slot to `""` to leave it deliberately bare.
+
+> Renamed from `armor` in an earlier version, where each piece was a `material` plus an optional `r`/`g`/`b`
+> `color`. There is no fallback to the old key, so a config still using `armor:` is ignored entirely and the
+> minion falls back to the defaults above.
 
 ## particles
 
@@ -217,20 +215,26 @@ leather armor.
 particles:
   full:
     enabled: true
-    type: ANGRY_VILLAGER
+    particle: "angry_villager"
     interval-ticks: 20
     count: 4
     offset: 0.4
-    speed: 0.0
     nearby-player-radius: 16
 ```
 
 `full` is emitted while the minion's storage is full and a player is within `nearby-player-radius` blocks.
-`type` is a Bukkit particle name, `interval-ticks` how often it emits, `count`/`offset`/`speed` the usual
-particle spawn parameters.
+`particle` is an eco particle string, so anything eco knows works - a particle name like `flame`, or a
+factory form like `dust:ff5050` or `dust_transition:ff0000:0000ff`. `interval-ticks` is how often it emits,
+`count` how many particles per burst, and `offset` how far, in blocks, they're scattered from the emit point.
 
-An equivalent `particles.idle` block is also available, mirroring `full`'s fields. It's shown only while the
-minion is idle (owner offline or chunk unloaded) and only when a player is nearby, and is disabled by default.
+Two more layers use the same fields:
+
+- `idle` - shown only while the minion is idle (owner offline or chunk unloaded) and a player is nearby.
+  Disabled by default.
+- `blocked` - a wireframe box traced around the minion's mining area while it has nothing left to mine, so
+  the area that needs clearing is visible. Sized from `radius` and `height`. Unlike the other two, it's shown
+  to the minion's owner alone - a stalled farm would otherwise blanket every passer-by in outlines. Give it
+  `offset: 0.0` so the outline lands exactly on its points rather than near them.
 
 ## levelling
 
@@ -272,6 +276,29 @@ A seeded spot needs a surface: `surface-block` if one is set, otherwise any soli
 A crop minion therefore seeds only onto farmland, and a minion standing over a hole stays blocked.
 
 <hr/>
+
+## Placeholders
+
+These resolve anywhere minion placeholders work - holograms, `lang.yml`, menu titles and item names,
+`spawn-item.lore`, and the `args` of any effect on the minion.
+
+| Placeholder | Resolves to |
+| --- | --- |
+| `%minion_name%` | The type's display `name`, colour codes included. |
+| `%type%` | The type's ID, i.e. its filename without `.yml`. |
+| `%level%` | The minion's current level. |
+| `%owner%` | The owner's name, or `Unowned` if it has none. |
+| `%used%` | Stack slots currently filled in the minion's storage. |
+| `%total%` | Stack slots the minion's storage currently holds. |
+| `%capacity%` | Slots its capacity stat allows, after upgrades and the type's `max-storage-slots`. Matches `%total%` in normal operation. |
+| `%radius%` | How far the minion reaches horizontally, in blocks. |
+| `%diameter%` | The full width of the mining box, i.e. `radius * 2 + 1`. |
+| `%height%` | The vertical span of the mining box, in blocks. |
+| `%speed%` | Ticks between mining attempts, after upgrades. Active fuel speeds the minion up without changing this number. |
+| `%efficiency%` | Ticks each mining action itself takes. |
+
+Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%` and `%level_numeral%` - see
+[How to Level a Minion](how-to-level-a-minion#placeholders).
 
 ## Where to go next
 

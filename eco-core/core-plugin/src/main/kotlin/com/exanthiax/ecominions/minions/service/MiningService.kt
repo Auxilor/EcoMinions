@@ -31,6 +31,7 @@ class MiningService(
     private val settings: SettingsHolder<MinionSettings>,
     private val worlds: WorldSettings,
     private val gameData: GameData,
+    private val targets: MiningTargetFinder,
     private val treeFarming: TreeFarmingService,
     private val seeding: SeedingService,
     private val fuels: FuelService,
@@ -61,7 +62,7 @@ class MiningService(
             return
         }
 
-        val target = findTarget(minion)
+        val target = targets.find(minion)
         if (target == null) {
             handleNoTarget(minion, now)
             return
@@ -118,40 +119,6 @@ class MiningService(
 
     private fun effectiveSpeedTicks(minion: Minion): Int =
         fuels.effectiveSpeedTicks(minion, minion.stats.speedTicks)
-
-    private fun findTarget(minion: Minion): Block? {
-        val radius = minion.stats.radius
-        val center = minion.entity.location.block
-        val world = minion.entity.world
-        val candidates = mutableListOf<Block>()
-
-        for (x in -radius..radius) {
-            for (y in -1..1) {
-                for (z in -radius..radius) {
-                    val candidate = world.getBlockAt(center.x + x, center.y + y, center.z + z)
-                    if (candidate.type in minion.state.type.targetBlocks && isMineableNow(candidate)) {
-                        candidates += candidate
-                    }
-                }
-            }
-        }
-        return candidates.randomOrNull()
-    }
-
-    /** Crops must be ripe, and stacked plants are only cut at their base. */
-    private fun isMineableNow(block: Block): Boolean {
-        val data = block.blockData
-        if (data is Ageable && data.age < data.maximumAge) {
-            return false
-        }
-        if (gameData.growthRules.isStackedColumn(block.type)) {
-            val below = block.world.getBlockAt(block.x, block.y - 1, block.z)
-            if (below.type == block.type) {
-                return false
-            }
-        }
-        return true
-    }
 
     private fun breakBlock(minion: Minion, block: Block, now: Long) {
         val stats = minion.stats

@@ -65,6 +65,12 @@ class MinionType(
         val speedTicks: String,
         val efficiencyTicks: String,
         val radius: String,
+        /**
+         * The mining box's vertical span in blocks, from one below the minion
+         * upward. Defaults to the three-block box every type had before it was
+         * configurable, so an existing config keeps its behaviour.
+         */
+        val height: String = DEFAULT_HEIGHT,
         val storageSlots: String,
         val maxStorageSlots: String,
         val regenDelayTicks: String,
@@ -78,6 +84,7 @@ class MinionType(
             MinionStat.SPEED_TICKS -> evaluate(speedTicks, level).coerceAtLeast(1)
             MinionStat.EFFICIENCY_TICKS -> evaluate(efficiencyTicks, level).coerceAtLeast(0)
             MinionStat.RADIUS -> evaluate(radius, level).coerceAtLeast(1)
+            MinionStat.HEIGHT -> evaluate(height, level).coerceAtLeast(1)
             MinionStat.INVENTORY_SLOTS -> evaluate(storageSlots, level).coerceIn(1, maxStorageSlotsAt(level))
         }
 
@@ -86,7 +93,10 @@ class MinionType(
         fun maxStorageSlotsAt(level: Int): Int = evaluateRounded(maxStorageSlots, level).coerceIn(1, hardSlotCap)
     }
 
-    private companion object {
-        const val PREVIEW_LEVEL = 1
+    companion object {
+        private const val PREVIEW_LEVEL = 1
+
+        /** Matches the mining box every type had before `base-stats.height` existed. */
+        const val DEFAULT_HEIGHT = "3"
     }
 }
