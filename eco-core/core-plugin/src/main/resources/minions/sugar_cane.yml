@@ -11,7 +11,6 @@ base-stats:
   regen-delay-ticks: 200
 
 spawn-item:
-  mode: item
   item: "SUGAR_CANE"
   display-name: "&aSugar Cane Minion &7(Lvl %level%)"
   lore:
@@ -45,22 +44,7 @@ allowed-upgrades:
   - auto_sell
   - experience
 
-armor:
-  chestplate:
-    material: LEATHER_CHESTPLATE
-    color:
-      r: 97
-      g: 166
-      b: 80
-  leggings:
-    material: LEATHER_LEGGINGS
-    color:
-      r: 97
-      g: 166
-      b: 80
-  boots:
-    material: LEATHER_BOOTS
-    color:
-      r: 97
-      g: 166
-      b: 80
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS

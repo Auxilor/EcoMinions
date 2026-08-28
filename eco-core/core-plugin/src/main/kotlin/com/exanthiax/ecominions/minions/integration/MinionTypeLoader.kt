@@ -7,8 +7,7 @@ import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
 import com.exanthiax.ecominions.minions.model.GameData
-import com.exanthiax.ecominions.minions.model.MinionArmor
-import com.exanthiax.ecominions.minions.model.MinionArmorSlot
+import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
@@ -21,8 +20,8 @@ import com.willfp.libreforge.Holder
 import com.willfp.libreforge.SimpleHolder
 import com.willfp.libreforge.conditions.Conditions
 import com.willfp.libreforge.effects.Effects
-import org.bukkit.Color
 import org.bukkit.Material
+import kotlin.math.roundToInt
 
 /** Parses one file in `minions/` into a validated [MinionType]. */
 class MinionTypeLoader(
@@ -53,7 +52,7 @@ class MinionTypeLoader(
             return null
         }
 
-        val spawnItem = readSpawnItem(config, context) ?: return null
+        val spawnItem = readSpawnItem(config)
         val compactorRecipes = readCompactorRecipes(config, context)
         val allowedUpgrades = config.getStrings("allowed-upgrades") + compactorRecipes.map { it.upgrade.id }
         val sellPrices = readSellPrices(config, context)
@@ -72,10 +71,10 @@ class MinionTypeLoader(
             targetBlocks = targets,
             allowedUpgradeIds = allowedUpgrades,
             woodFamily = woodFamily,
-            baseStats = readBaseStats(config, context),
+            baseStats = readBaseStats(config),
             spawnItem = spawnItem,
             crafting = readCrafting(config, context),
-            armor = readArmor(config, context),
+            equipment = readEquipment(config),
             particles = particles.load(config.getSubsection("particles"), context),
             placement = readPlacement(id, config, configured, woodFamily, context),
             sellPrices = sellPrices,
@@ -124,54 +123,39 @@ class MinionTypeLoader(
     }
 
     /**
-     * Base stats are authored as expressions in `%level%`, so slots cannot be
-     * clamped here: only the type's ceiling is, and [MinionType.BaseStats] holds
-     * the evaluated value to it.
+     * `max-storage-slots`, like every other stat here, may be a `%level%`
+     * expression - it is just rounded rather than truncated, and always clamped
+     * to `minion.hard-slot-cap` on every read, in [MinionType.BaseStats.maxStorageSlotsAt].
      */
-    private fun readBaseStats(config: Config, context: LoadContext) = MinionType.BaseStats(
-        speedTicks = config.getString("base-stats.speed-ticks"),
-        efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
-        radius = config.getString("base-stats.radius"),
-        storageSlots = config.getString("base-stats.storage-slots"),
-        maxStorageSlots = clampSlots(
-            config.getInt("base-stats.max-storage-slots"),
-            "base-stats.max-storage-slots",
-            hardSlotCap(),
-            context
-        ),
-        regenDelayTicks = config.getString("base-stats.regen-delay-ticks")
-    ) { expression, level ->
-        evaluateExpression(
-            expression,
-            placeholderContext(injectable = LevelInjectable(level))
-        ).toInt()
-    }
+    private fun readBaseStats(config: Config): MinionType.BaseStats =
+        MinionType.BaseStats(
+            speedTicks = config.getString("base-stats.speed-ticks"),
+            efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
+            radius = config.getString("base-stats.radius"),
+            storageSlots = config.getString("base-stats.storage-slots"),
+            maxStorageSlots = config.getString("base-stats.max-storage-slots"),
+            regenDelayTicks = config.getString("base-stats.regen-delay-ticks"),
+            hardSlotCap = hardSlotCap(),
+            evaluate = { expression, level ->
+                evaluateExpression(
+                    expression,
+                    placeholderContext(injectable = LevelInjectable(level))
+                ).toInt()
+            },
+            evaluateRounded = { expression, level ->
+                evaluateExpression(
+                    expression,
+                    placeholderContext(injectable = LevelInjectable(level))
+                ).roundToInt()
+            }
+        )
 
-    /** Clamps to `1..cap`, reporting when a configured value had to be cut down. */
-    private fun clampSlots(value: Int, param: String, cap: Int, context: LoadContext): Int {
-        if (value > cap) {
-            context.violation(param, "$value exceeds minion.hard-slot-cap ($cap) - using $cap")
-        }
-        return value.coerceIn(1, cap)
-    }
-
-    private fun readSpawnItem(config: Config, context: LoadContext): SpawnItemSpec? {
-        val rawMode = config.getString("spawn-item.mode").uppercase()
-        val mode = SpawnItemSpec.Mode.entries.firstOrNull { it.name == rawMode }
-            ?: return context.unknown(
-                "spawn-item.mode",
-                rawMode,
-                SpawnItemSpec.Mode.entries.map { it.name }
-            )
-
-        return SpawnItemSpec(
-            mode = mode,
-            texture = config.getStringOrNull("spawn-item.texture") ?: "",
+    private fun readSpawnItem(config: Config): SpawnItemSpec =
+        SpawnItemSpec(
             itemLookup = config.getStringOrNull("spawn-item.item") ?: DEFAULT_SPAWN_ITEM,
             displayName = config.getString("spawn-item.display-name"),
             lore = config.getStrings("spawn-item.lore")
         )
-    }
 
     private fun readCrafting(config: Config, context: LoadContext): CraftingSpec? {
         if (!config.getBool("spawn-item.crafting.enabled")) {
@@ -196,30 +180,15 @@ class MinionTypeLoader(
         )
     }
 
-    private fun readArmor(config: Config, context: LoadContext): MinionArmor {
-        val section = config.getSubsection("armor") ?: return MinionArmor.EMPTY
-        return MinionArmor(
-            helmet = readArmorSlot(section, "helmet", context),
-            chestplate = readArmorSlot(section, "chestplate", context),
-            leggings = readArmorSlot(section, "leggings", context),
-            boots = readArmorSlot(section, "boots", context)
+    private fun readEquipment(config: Config): MinionEquipment {
+        val section = config.getSubsection("equipment") ?: return MinionEquipment.EMPTY
+        return MinionEquipment(
+            helmet = section.getStringOrNull("helmet"),
+            chestplate = section.getStringOrNull("chestplate"),
+            leggings = section.getStringOrNull("leggings"),
+            boots = section.getStringOrNull("boots"),
+            hand = section.getStringOrNull("hand")
         )
-    }
-
-    private fun readArmorSlot(section: Config, key: String, context: LoadContext): MinionArmorSlot? {
-        val slot = section.getSubsection(key) ?: return null
-        val material = Material.matchMaterial(slot.getString("material"))
-            ?: return context.invalid("armor.$key.material", slot.getString("material"), "a material")
-
-        val red = slot.getIntOrNull("color.r")
-        val green = slot.getIntOrNull("color.g")
-        val blue = slot.getIntOrNull("color.b")
-        val color = if (red != null && green != null && blue != null) {
-            Color.fromRGB(red, green, blue)
-        } else {
-            null
-        }
-        return MinionArmorSlot(material, color)
     }
 
     /**

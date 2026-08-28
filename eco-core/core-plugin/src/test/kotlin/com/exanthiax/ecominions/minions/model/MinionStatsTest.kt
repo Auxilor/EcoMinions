@@ -11,7 +11,8 @@ class MinionStatsTest {
         efficiencyTicks = "10",
         radius = "2",
         storageSlots = "1",
-        maxStorageSlots = 54,
+        maxStorageSlots = "54",
+        hardSlotCap = 54,
         regenDelayTicks = "60"
     )
 
@@ -22,7 +23,8 @@ class MinionStatsTest {
             efficiencyTicks = "10",
             radius = "3",
             storageSlots = "1",
-            maxStorageSlots = 54,
+            maxStorageSlots = "54",
+            hardSlotCap = 54,
             regenDelayTicks = "100"
         ) { expression, atLevel ->
             expression.replace("%level%", atLevel.toString())

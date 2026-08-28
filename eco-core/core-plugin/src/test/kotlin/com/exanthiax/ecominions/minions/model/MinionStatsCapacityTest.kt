@@ -11,7 +11,8 @@ class MinionStatsCapacityTest {
         efficiencyTicks = "10",
         radius = "2",
         storageSlots = "27",
-        maxStorageSlots = 54,
+        maxStorageSlots = "54",
+        hardSlotCap = 54,
         regenDelayTicks = "60"
     )
 
@@ -38,7 +39,7 @@ class MinionStatsCapacityTest {
 
     @Test
     fun `a type may cap higher than a full double chest`() {
-        val stats = MinionStats(base.copy(storageSlots = "100", maxStorageSlots = 512), level = 1)
+        val stats = MinionStats(base.copy(storageSlots = "100", maxStorageSlots = "512", hardSlotCap = 512), level = 1)
         stats.contribute(MinionStat.INVENTORY_SLOTS, UUID.randomUUID(), 300)
 
         assertEquals(400, stats.storageSize)

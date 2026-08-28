@@ -12,7 +12,6 @@ base-stats:
   regen-delay-ticks: 220
 
 spawn-item:
-  mode: item
   item: "COPPER_BLOCK"
   display-name: "&6Copper Minion &7(Lvl %level%)"
   lore:
@@ -56,22 +55,7 @@ effects:
     triggers:
       - minion_mine_block
 
-armor:
-  chestplate:
-    material: LEATHER_CHESTPLATE
-    color:
-      r: 184
-      g: 115
-      b: 51
-  leggings:
-    material: LEATHER_LEGGINGS
-    color:
-      r: 184
-      g: 115
-      b: 51
-  boots:
-    material: LEATHER_BOOTS
-    color:
-      r: 184
-      g: 115
-      b: 51
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS

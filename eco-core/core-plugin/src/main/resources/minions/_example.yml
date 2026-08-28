@@ -1,9 +1,23 @@
+# The ID of the minion type is the name of the .yml file,
+# for example wood.yml has the ID of wood
+# You can place minion types anywhere in this folder,
+# including in subfolders if you want to organize your configs
+# _example.yml is not loaded.
+
 name: "&fExample Minion"
 
+# Blocks this minion mines. If every entry is a log of the same tree
+# (e.g. all OAK_LOG), the minion is detected as that tree's wood family and
+# only ever mines that log - crops aren't auto-promoted for it. Otherwise any
+# configured seed/crop is promoted to its grown form automatically.
 target-blocks:
   - STONE
   - COBBLESTONE
 
+# Every stat here may be a plain number or a %level%-scaled expression, e.g.
+# "max(1, 60 - %level% * 2)". max-storage-slots is rounded rather than
+# truncated, and is always clamped to config.yml's minion.hard-slot-cap,
+# however high a formula pushes it.
 base-stats:
   speed-ticks: 60
   efficiency-ticks: 10
@@ -44,7 +58,8 @@ base-stats:
 #       multiplier: 1.5
 
 spawn-item:
-  mode: item
+  # An eco item lookup - a vanilla material, a custom item, a #tag, or a
+  # player head via "player_head texture:<base64>".
   item: "STONE"
   display-name: "&fExample Minion &7(Lvl %level%)"
   lore:
@@ -53,8 +68,10 @@ spawn-item:
   crafting:
     enabled: false
     give-amount: 1
+    # (optional) permission required to see/use the recipe - blank allows everyone
     permission: ""
     shapeless: false
+    # Flat nine-entry grid, eco item lookups - an empty string is an empty slot
     recipe:
       - "STONE"
       - "STONE"
@@ -66,6 +83,22 @@ spawn-item:
       - "STONE"
       - "STONE"
 
+# What the minion's stand wears/holds - each slot is an eco item lookup
+# string, so custom items and #tags work same as everywhere else. Every
+# slot is optional: a missing hand falls back to an iron pickaxe, and the
+# rest are simply left bare.
+equipment:
+  # helmet: ""   # omit to default to this minion's own spawn-item icon,
+  #              # worn on its head - the same item as spawn-item.item above
+  chestplate: "LEATHER_CHESTPLATE"
+  leggings: "LEATHER_LEGGINGS"
+  boots: "LEATHER_BOOTS"
+  # hand: ""     # omit to default to an iron pickaxe
+
+# lift-regen picks the block back up as a surface (e.g. farmland, the
+# sapling's dirt) when the minion is placed, and puts it back on pickup.
+# Left off, trees and crops default this on automatically from their target
+# blocks; anything else defaults it off.
 placement:
   lift-regen: false
   surface-block: ""
@@ -90,10 +123,15 @@ particles:
     speed: 0.0
     nearby-player-radius: 16
 
+# Prices for auto_sell, keyed by material. Leave empty (or omit entirely) to
+# fall back to config.yml's sell-pricing.auto-from-ecoshop, if it's on.
 sell-prices:
   STONE: 1.0
   COBBLESTONE: 1.0
 
+# IDs of upgrades this type may purchase, each matching a filename in
+# upgrades/ (see upgrades/_example.yml). auto_sell only pays out if
+# sell-prices above has entries, or EcoShop auto-pricing is enabled.
 allowed-upgrades:
   - speed
   - efficiency
@@ -103,3 +141,11 @@ allowed-upgrades:
   - auto_smelt
   - auto_sell
   - experience
+
+# (optional) IDs of compactor recipes this type may buy, each matching a
+# filename in compactor-recipes/ (see compactor-recipes/_example.yml). Listed
+# order is the order the compactor menu upgrades through, e.g. coal before
+# coal_block. Buying one also implicitly allows its upgrade, so it need not
+# be repeated in allowed-upgrades above.
+# compactor-recipes:
+#   - stone_block

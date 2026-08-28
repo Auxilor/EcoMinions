@@ -12,7 +12,8 @@ class OfflineProgressTest {
             efficiencyTicks = "10",
             radius = "2",
             storageSlots = "1",
-            maxStorageSlots = 54,
+            maxStorageSlots = "54",
+            hardSlotCap = 54,
             regenDelayTicks = "60"
         ),
         level = 1

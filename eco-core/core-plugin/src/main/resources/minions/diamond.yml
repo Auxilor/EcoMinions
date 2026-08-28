@@ -12,7 +12,6 @@ base-stats:
   regen-delay-ticks: 400
 
 spawn-item:
-  mode: item
   item: "DIAMOND_BLOCK"
   display-name: "&bDiamond Minion &7(Lvl %level%)"
   lore:
@@ -54,10 +53,7 @@ effects:
     triggers:
       - minion_mine_block
 
-armor:
-  chestplate:
-    material: DIAMOND_CHESTPLATE
-  leggings:
-    material: DIAMOND_LEGGINGS
-  boots:
-    material: DIAMOND_BOOTS
+equipment:
+  chestplate: DIAMOND_CHESTPLATE
+  leggings: DIAMOND_LEGGINGS
+  boots: DIAMOND_BOOTS

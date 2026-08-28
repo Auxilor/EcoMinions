@@ -18,6 +18,7 @@ class MinionStats(
 ) {
     private val contributions = HashMap<MinionStat, MutableMap<UUID, Int>>()
     private var baseCache = EnumMap<MinionStat, Int>(MinionStat::class.java)
+    private var maxStorageSlotsCache = 0
 
     /**
      * The level base stats are evaluated at.
@@ -42,6 +43,7 @@ class MinionStats(
             recomputed[stat] = base.valueOf(stat, level)
         }
         baseCache = recomputed
+        maxStorageSlotsCache = base.maxStorageSlotsAt(level)
     }
 
     /** Records [amount] against [id], replacing any earlier amount for that id. */
@@ -60,7 +62,7 @@ class MinionStats(
     operator fun get(stat: MinionStat): Int {
         val raw = stat.clamp(baseOf(stat) + (contributions[stat]?.values?.sum() ?: 0))
         return if (stat == MinionStat.INVENTORY_SLOTS) {
-            raw.coerceAtMost(base.maxStorageSlots)
+            raw.coerceAtMost(maxStorageSlotsCache)
         } else {
             raw
         }

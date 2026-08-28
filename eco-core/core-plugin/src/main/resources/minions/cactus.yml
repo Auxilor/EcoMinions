@@ -11,7 +11,6 @@ base-stats:
   regen-delay-ticks: 240
 
 spawn-item:
-  mode: item
   item: "CACTUS"
   display-name: "&2Cactus Minion &7(Lvl %level%)"
   lore:
@@ -45,22 +44,7 @@ allowed-upgrades:
   - auto_sell
   - experience
 
-armor:
-  chestplate:
-    material: LEATHER_CHESTPLATE
-    color:
-      r: 60
-      g: 130
-      b: 65
-  leggings:
-    material: LEATHER_LEGGINGS
-    color:
-      r: 60
-      g: 130
-      b: 65
-  boots:
-    material: LEATHER_BOOTS
-    color:
-      r: 60
-      g: 130
-      b: 65
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS
