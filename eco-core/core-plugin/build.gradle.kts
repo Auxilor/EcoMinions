@@ -22,6 +22,11 @@ dependencies {
 // reference libreforge types (e.g. Dispatcher) directly.
 configurations.testImplementation.get().extendsFrom(configurations.compileOnly.get())
 
+// libreforge's published metadata declares a runtime dependency on
+// libreforge.core:common, which was never published anywhere. It only bites at
+// test runtime, and the shadow jar carries those classes itself, so drop it.
+configurations.testRuntimeClasspath.get().exclude(group = "libreforge.core")
+
 tasks.test {
     useJUnitPlatform()
     testLogging {
