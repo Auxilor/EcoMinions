@@ -12,6 +12,25 @@ base-stats:
   max-storage-slots: 54
   regen-delay-ticks: 100
 
+# Levelling is opt-in. With it off (or this block removed) a minion's level is
+# the sum of its purchased upgrade tiers, plus one.
+# levelling:
+#   enabled: true
+#   xp-formula: "100 * %level% ^ 1.5"
+#   # or an explicit ladder - the first entry is the cost of reaching level 2:
+#   # xp-requirements: [100, 250, 500]
+#   max-level: 50
+#   xp-gain-methods:
+#     - trigger: minion_mine_block
+#       multiplier: 1
+#     - trigger: minion_sell
+#       multiplier: 0.05
+#   level-up-effects:
+#     - id: send_message
+#       conditions: [{ id: minion_owner_online }]
+#       args:
+#         message: "&aYour minion reached level %level%!"
+
 # Effects that are always active on this minion type, with no upgrade needed.
 # Any libreforge effect works; minion-specific ones are listed in the docs.
 # effects:

@@ -10,8 +10,16 @@ interface Minion {
 
     val type: MinionType
 
-    /** Sum of purchased upgrade tiers, plus one. */
+    /**
+     * The minion's level.
+     *
+     * XP-driven when the type is levellable; otherwise the sum of purchased
+     * upgrade tiers, plus one.
+     */
     val level: Int
+
+    /** XP banked toward the next level. Always zero for a type that cannot level. */
+    val xp: Double
 
     /** Owning player, or null if the minion was placed unowned. */
     val owner: UUID?

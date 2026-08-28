@@ -15,6 +15,7 @@ import com.exanthiax.ecominions.core.error.LoadReport
 import com.exanthiax.ecominions.core.lifecycle.LifecycleManager
 import com.exanthiax.ecominions.core.persistence.MinionDataKeys
 import com.exanthiax.ecominions.core.placeholders.PlaceholderRegistrar
+import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.placeholders.TemplateRenderer
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.core.text.Messages
@@ -22,7 +23,10 @@ import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.libreforge.LibreforgeRegistrations
+import com.exanthiax.ecominions.libreforge.ownerPlayer
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.minions.integration.GameDataLoader
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
@@ -32,6 +36,8 @@ import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
 import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
+import com.exanthiax.ecominions.levelling.integration.LevellingLoader
+import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionTypeLoader
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
@@ -92,6 +98,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val placeholderRegistrar = PlaceholderRegistrar(this)
     private val renderer = TemplateRenderer(placeholderRegistrar)
     private val messages = Messages(langYml, renderer)
+    private val levellingPlaceholders = LevellingPlaceholders { langYml.getFormattedString("infinity") }
     private val worlds = WorldSettings(configYml)
 
     // Settings
@@ -109,6 +116,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionTypeLoader(
             gameData,
             ParticleSettingsLoader(),
+            LevellingLoader(),
             { minionSettings.value.sellPricing.autoFromEcoShop },
             { minionSettings.value.hardSlotCap }
         ),
@@ -126,6 +134,24 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
 
     // Services
+    private val xpService: MinionXpService = MinionXpService(
+        applyState = { minion, state -> minionService.updateState(minion, state) },
+        onLevelChanged = { minion -> minionService.onLevelChanged(minion) },
+        notifyLevelUp = { minion, level ->
+            minion.ownerPlayer()?.sendMessage(
+                messages.line(
+                    "messages.level-up",
+                    TemplateContext.of(
+                        "minion_name" to minion.state.type.name,
+                        "level" to level
+                    )
+                )
+            )
+        }
+    )
+    private val triggerDispatch = MinionTriggerDispatch { minion, dispatched ->
+        xpService.onTrigger(minion, dispatched)
+    }
     private val upgradeService = UpgradeService(upgrades)
     private val fuelService = FuelService(fuels)
     private val compactorService = CompactorService(compactorRecipes)
@@ -144,7 +170,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         val context = LootContext.Builder(location).build()
         table.populateLoot(java.util.Random(), context).toList()
     }
-    private val offlineProgress = OfflineProgressService(minionSettings, fuelService, dropTables)
+    private val offlineProgress = OfflineProgressService(
+        minionSettings, fuelService, dropTables, triggerDispatch
+    )
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings
     ) { Bukkit.getPlayer(it) != null }
@@ -154,7 +182,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val treeFarming = TreeFarmingService(gameData, TreeService())
     private val miningService = MiningService(
-        minionSettings, worlds, gameData, treeFarming, fuelService
+        minionSettings, worlds, gameData, treeFarming, fuelService, triggerDispatch
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings
@@ -196,7 +224,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
-        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService)
+        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService, triggerDispatch, xpService)
         shopIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()
@@ -259,7 +287,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         placeholderRegistrar.registerAll(
             listOf(
                 MinionPlaceholders(minionService),
-                UpgradePlaceholders()
+                UpgradePlaceholders(),
+                levellingPlaceholders
             )
         )
     }

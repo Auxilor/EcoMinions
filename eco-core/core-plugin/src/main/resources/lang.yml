@@ -18,10 +18,15 @@ messages:
   no-payment-method: "&cNo valid payment options are available."
   no-fuel: "&cYou have no fuel items in your inventory."
   fuel-applied: "&aFueled with &e%fuel_name%&a."
+  level-up: "&aYour &e%minion_name% &areached level &e%level%&a!"
+
+infinity: "&7∞"
 
 hologram:
   line-1: "&f%minion_name%"
   line-2: "&7Level &e%level%"
+  # Uncomment for a progress line on levelling minions.
+  # line-3: "&7XP &e%xp%&7/&e%xp_required% &8(&7%progress%%&8)"
   full: "&c&lINVENTORY FULL"
   no-target: "&e&lRequires Air in a %radius%x%radius% Square"
   idle: "&7&lIDLE &8- &7Owner offline"

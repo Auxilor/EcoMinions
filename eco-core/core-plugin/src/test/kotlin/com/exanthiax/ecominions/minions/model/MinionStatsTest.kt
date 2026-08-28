@@ -7,17 +7,35 @@ import java.util.UUID
 class MinionStatsTest {
 
     private val base = MinionType.BaseStats(
-        speedTicks = 40,
-        efficiencyTicks = 10,
-        radius = 2,
-        storageSlots = 1,
+        speedTicks = "40",
+        efficiencyTicks = "10",
+        radius = "2",
+        storageSlots = "1",
         maxStorageSlots = 54,
-        regenDelayTicks = 60
+        regenDelayTicks = "60"
+    )
+
+    /** Base stats scaled by level, with plain arithmetic standing in for eco's evaluator. */
+    private fun stats(level: Int) = MinionStats(
+        base = MinionType.BaseStats(
+            speedTicks = "60 - %level%",
+            efficiencyTicks = "10",
+            radius = "3",
+            storageSlots = "1",
+            maxStorageSlots = 54,
+            regenDelayTicks = "100"
+        ) { expression, atLevel ->
+            expression.replace("%level%", atLevel.toString())
+                .split(" - ")
+                .map { it.trim().toInt() }
+                .reduce(Int::minus)
+        },
+        level = level
     )
 
     @Test
     fun `no contributions leaves base stats untouched`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
 
         assertEquals(40, stats.speedTicks)
         assertEquals(10, stats.efficiencyTicks)
@@ -27,8 +45,38 @@ class MinionStatsTest {
     }
 
     @Test
+    fun `base stats are evaluated at the minion's level`() {
+        assertEquals(59, stats(level = 1).speedTicks)
+        assertEquals(50, stats(level = 10).speedTicks)
+    }
+
+    @Test
+    fun `changing level recomputes the base`() {
+        val stats = stats(level = 1)
+        stats.level = 20
+
+        assertEquals(40, stats.speedTicks)
+    }
+
+    @Test
+    fun `contributions layer on top of the level-scaled base`() {
+        val stats = stats(level = 10)
+        stats.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), -5)
+
+        assertEquals(45, stats.speedTicks)
+    }
+
+    @Test
+    fun `clamping still applies after level scaling`() {
+        val stats = stats(level = 10)
+        stats.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), -1000)
+
+        assertEquals(MinionStat.SPEED_TICKS.min, stats.speedTicks)
+    }
+
+    @Test
     fun `contributions sum onto the base`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         stats.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), -15)
         stats.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), -5)
 
@@ -37,7 +85,7 @@ class MinionStatsTest {
 
     @Test
     fun `removing a contribution reverses it exactly`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         val id = UUID.randomUUID()
 
         stats.contribute(MinionStat.RADIUS, id, 3)
@@ -49,7 +97,7 @@ class MinionStatsTest {
 
     @Test
     fun `re-contributing under the same id replaces rather than stacks`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         val id = UUID.randomUUID()
 
         stats.contribute(MinionStat.RADIUS, id, 3)
@@ -60,7 +108,7 @@ class MinionStatsTest {
 
     @Test
     fun `speed clamps to one and efficiency clamps to zero`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         stats.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), -999)
         stats.contribute(MinionStat.EFFICIENCY_TICKS, UUID.randomUUID(), -999)
 
@@ -70,7 +118,7 @@ class MinionStatsTest {
 
     @Test
     fun `inventory slots clamp to the type maximum`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         stats.contribute(MinionStat.INVENTORY_SLOTS, UUID.randomUUID(), 999)
 
         assertEquals(54, stats.storageSize)
@@ -78,11 +126,11 @@ class MinionStatsTest {
 
     @Test
     fun `clamping happens on read so contribution order does not matter`() {
-        val forwards = MinionStats(base)
+        val forwards = MinionStats(base, level = 1)
         forwards.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), -100)
         forwards.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), 70)
 
-        val backwards = MinionStats(base)
+        val backwards = MinionStats(base, level = 1)
         backwards.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), 70)
         backwards.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), -100)
 
@@ -92,14 +140,14 @@ class MinionStatsTest {
 
     @Test
     fun `cycle ticks are speed plus efficiency, never below one`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
 
         assertEquals(50, stats.cycleTicks)
     }
 
     @Test
     fun `clearing removes every contribution`() {
-        val stats = MinionStats(base)
+        val stats = MinionStats(base, level = 1)
         stats.contribute(MinionStat.RADIUS, UUID.randomUUID(), 5)
         stats.contribute(MinionStat.SPEED_TICKS, UUID.randomUUID(), -20)
 

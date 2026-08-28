@@ -34,6 +34,7 @@ class MinionUpgradeService(
 
         cost.pay(player)
         minions.updateState(minion, minion.state.withUpgrade(upgrade.id, tier.level))
+        minions.onLevelChanged(minion)
 
         Bukkit.getPluginManager().callEvent(MinionUpgradeEvent(minion, player, upgrade, tier.level))
         return Result.PURCHASED

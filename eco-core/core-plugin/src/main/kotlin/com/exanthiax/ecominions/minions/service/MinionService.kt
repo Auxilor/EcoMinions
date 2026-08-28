@@ -56,7 +56,7 @@ class MinionService(
     override fun createItem(type: ApiMinionType, level: Int): ItemStack {
         val resolved = types.find(type.id)
             ?: throw IllegalArgumentException("Unknown minion type: ${type.id}")
-        return itemFactory.build(MinionState(type = resolved, level = level))
+        return itemFactory.build(MinionState(type = resolved, storedLevel = level))
     }
 
     fun register(minion: Minion): Minion {
@@ -108,6 +108,24 @@ class MinionService(
      */
     fun refreshEffects(minion: Minion) {
         minion.toDispatcher().forceRefreshHolders()
+    }
+
+    /**
+     * Brings everything derived from level back in step after a level change.
+     *
+     * Base stats are level-scaled, so storage capacity can move, which is
+     * structural rather than merely numeric - the same resize path
+     * `EffectMinionCapacity` uses applies here.
+     */
+    fun onLevelChanged(minion: Minion) {
+        minion.stats.level = minion.state.level
+
+        val overflow = minion.resizeStorage(minion.stats.storageSize)
+        for (item in overflow) {
+            minion.entity.world.dropItemNaturally(minion.entity.location, item)
+        }
+
+        refreshEffects(minion)
     }
 
     fun hydrateLoadedWorlds() {

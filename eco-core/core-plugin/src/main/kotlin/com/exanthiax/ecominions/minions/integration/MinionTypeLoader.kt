@@ -1,7 +1,9 @@
 package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.core.error.LoadContext
+import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.core.registry.ConfigLoader
+import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionArmor
@@ -11,7 +13,9 @@ import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.WoodFamily
 import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.core.placeholder.context.placeholderContext
 import com.willfp.eco.util.NamespacedKeyUtils
+import com.willfp.eco.util.evaluateExpression
 import com.willfp.libreforge.Holder
 import com.willfp.libreforge.SimpleHolder
 import com.willfp.libreforge.conditions.Conditions
@@ -23,6 +27,7 @@ import org.bukkit.Material
 class MinionTypeLoader(
     private val gameData: GameData,
     private val particles: ParticleSettingsLoader,
+    private val levelling: LevellingLoader,
     /** Whether config.yml lets prices come from EcoShop, making sell-prices optional. */
     private val autoPricingEnabled: () -> Boolean,
     /** config.yml's ceiling on any type's declared slots. Read per load, so reloads apply. */
@@ -68,6 +73,7 @@ class MinionTypeLoader(
             particles = particles.load(config.getSubsection("particles"), context),
             placement = readPlacement(id, config, configured, woodFamily, context),
             sellPrices = sellPrices,
+            levelling = levelling.load(config, context),
             holder = compileHolder(id, config, context)
         )
     }
@@ -104,24 +110,28 @@ class MinionTypeLoader(
             .toSet()
     }
 
-    private fun readBaseStats(config: Config, context: LoadContext): MinionType.BaseStats {
-        val cap = hardSlotCap()
-        val slots = clampSlots(config.getInt("base-stats.storage-slots"), "base-stats.storage-slots", cap, context)
-        val declaredMax = clampSlots(
+    /**
+     * Base stats are authored as expressions in `%level%`, so slots cannot be
+     * clamped here: only the type's ceiling is, and [MinionType.BaseStats] holds
+     * the evaluated value to it.
+     */
+    private fun readBaseStats(config: Config, context: LoadContext) = MinionType.BaseStats(
+        speedTicks = config.getString("base-stats.speed-ticks"),
+        efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
+        radius = config.getString("base-stats.radius"),
+        storageSlots = config.getString("base-stats.storage-slots"),
+        maxStorageSlots = clampSlots(
             config.getInt("base-stats.max-storage-slots"),
             "base-stats.max-storage-slots",
-            cap,
+            hardSlotCap(),
             context
-        )
-
-        return MinionType.BaseStats(
-            speedTicks = config.getInt("base-stats.speed-ticks").coerceAtLeast(1),
-            efficiencyTicks = config.getInt("base-stats.efficiency-ticks").coerceAtLeast(0),
-            radius = config.getInt("base-stats.radius").coerceAtLeast(1),
-            storageSlots = slots,
-            maxStorageSlots = maxOf(declaredMax, slots),
-            regenDelayTicks = config.getInt("base-stats.regen-delay-ticks").coerceAtLeast(1)
-        )
+        ),
+        regenDelayTicks = config.getString("base-stats.regen-delay-ticks")
+    ) { expression, level ->
+        evaluateExpression(
+            expression,
+            placeholderContext(injectable = LevelInjectable(level))
+        ).toInt()
     }
 
     /** Clamps to `1..cap`, reporting when a configured value had to be cut down. */
