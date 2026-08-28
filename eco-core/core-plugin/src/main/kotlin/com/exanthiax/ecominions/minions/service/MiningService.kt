@@ -32,6 +32,7 @@ class MiningService(
     private val worlds: WorldSettings,
     private val gameData: GameData,
     private val treeFarming: TreeFarmingService,
+    private val seeding: SeedingService,
     private val fuels: FuelService,
     private val dispatch: MinionTriggerDispatch
 ) {
@@ -104,8 +105,13 @@ class MiningService(
         breakBlock(minion, target, now)
     }
 
+    /** Tree types run their own plant-wait-fell cycle; everything else may seed a single block. */
     private fun handleNoTarget(minion: Minion, now: Long) {
-        val busy = minion.state.type.isTreeType && treeFarming.tick(minion, now)
+        val busy = if (minion.state.type.isTreeType) {
+            treeFarming.tick(minion, now)
+        } else {
+            seeding.tick(minion)
+        }
         minion.animation = if (busy) Minion.AnimationState.IDLE else Minion.AnimationState.BLOCKED
         minion.mining.nextActionAt = now + effectiveSpeedTicks(minion)
     }

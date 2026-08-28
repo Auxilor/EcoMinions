@@ -76,7 +76,7 @@ class MinionTypeLoader(
             crafting = readCrafting(config, context),
             equipment = readEquipment(config),
             particles = particles.load(config.getSubsection("particles"), context),
-            placement = readPlacement(id, config, configured, woodFamily, context),
+            placement = readPlacement(id, config, configured, targets, woodFamily, context),
             sellPrices = sellPrices,
             levelling = levelling.load(config, context),
             holder = compileHolder(id, config, context),
@@ -194,21 +194,67 @@ class MinionTypeLoader(
     /**
      * Lift-regen defaults from the block being farmed: trees want their sapling's
      * surface, crops want farmland, and anything else regenerates in place.
+     *
+     * Self-seeding is off unless asked for, except on tree types, which have
+     * always planted their own saplings.
      */
     private fun readPlacement(
         id: String,
         config: Config,
         configured: List<Material>,
+        targets: Set<Material>,
         woodFamily: WoodFamily?,
         context: LoadContext
     ): PlacementSettings {
         val section = config.getSubsection("placement")
+        val regen = readRegenPlacement(id, section, configured, woodFamily, context)
+
+        if (section.getBoolOrNull("self-seed") ?: (woodFamily != null)) {
+            readSeedBlock(section, targets, woodFamily, context)
+                ?.let { return regen.copy(selfSeed = true, seedBlock = it) }
+        }
+        return regen
+    }
+
+    private fun readRegenPlacement(
+        id: String,
+        section: Config?,
+        configured: List<Material>,
+        woodFamily: WoodFamily?,
+        context: LoadContext
+    ): PlacementSettings {
         if (section != null && section.getBoolOrNull("lift-regen") != null) {
             return readExplicitPlacement(id, section, context)
         }
         woodFamily?.defaultSurface?.let { return PlacementSettings(true, it) }
         gameData.anyCropSurfaceIn(configured)?.let { return PlacementSettings(true, it) }
         return PlacementSettings.NONE
+    }
+
+    /** What self-seeding places: whatever was asked for, else the block the minion mines. */
+    private fun readSeedBlock(
+        section: Config,
+        targets: Set<Material>,
+        woodFamily: WoodFamily?,
+        context: LoadContext
+    ): Material? {
+        val raw = section.getStringOrNull("seed-block")
+        if (!raw.isNullOrBlank()) {
+            val material = Material.matchMaterial(raw.uppercase())
+            if (material == null || !material.isBlock) {
+                return context.invalid("placement.seed-block", raw, "a placeable block")
+            }
+            return material
+        }
+
+        val fallback = woodFamily?.sapling ?: targets.firstOrNull()
+        if (fallback == null) {
+            context.violation(
+                "placement.self-seed",
+                "self-seed is on but there is nothing to seed - set placement.seed-block"
+            )
+        }
+        return fallback
     }
 
     private fun readExplicitPlacement(id: String, section: Config, context: LoadContext): PlacementSettings {

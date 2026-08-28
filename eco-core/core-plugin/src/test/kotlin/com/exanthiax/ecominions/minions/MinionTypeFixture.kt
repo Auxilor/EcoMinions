@@ -31,6 +31,7 @@ object MinionTypeFixture {
             regenDelayTicks = "60",
             hardSlotCap = 54
         ),
+        placement: PlacementSettings = PlacementSettings.NONE,
         levelling: LevellingSpec = LevellingSpec.DISABLED,
         holder: Holder? = null,
         compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
@@ -49,7 +50,7 @@ object MinionTypeFixture {
         crafting = null,
         equipment = MinionEquipment.EMPTY,
         particles = ParticleSettings(full = null, fullPlayerRadius = 16, idle = null, idlePlayerRadius = 16),
-        placement = PlacementSettings.NONE,
+        placement = placement,
         sellPrices = sellPrices,
         levelling = levelling,
         holder = holder,

@@ -54,6 +54,7 @@ import com.exanthiax.ecominions.minions.service.MiningService
 import com.exanthiax.ecominions.minions.service.OfflineProgressService
 import com.exanthiax.ecominions.minions.service.PlacementLimits
 import com.exanthiax.ecominions.minions.service.PlacementService
+import com.exanthiax.ecominions.minions.service.SeedingService
 import com.exanthiax.ecominions.minions.service.SellPricingService
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.minions.service.TreeFarmingService
@@ -180,8 +181,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         itemFactory, limits, activityService, minionSettings
     )
     private val treeFarming = TreeFarmingService(gameData, TreeService())
+    private val seedingService = SeedingService(gameData)
     private val miningService = MiningService(
-        minionSettings, worlds, gameData, treeFarming, fuelService, triggerDispatch
+        minionSettings, worlds, gameData, treeFarming, seedingService, fuelService, triggerDispatch
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings
