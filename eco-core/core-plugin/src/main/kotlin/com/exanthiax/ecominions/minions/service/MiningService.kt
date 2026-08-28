@@ -32,9 +32,7 @@ class MiningService(
     private val worlds: WorldSettings,
     private val gameData: GameData,
     private val treeFarming: TreeFarmingService,
-    private val dropWarnings: DropWarningService,
-    private val fuels: FuelService,
-    private val pricing: SellPricingService
+    private val fuels: FuelService
 ) {
     fun tick(minion: Minion, now: Long) {
         if (minion.entity.isDead || worlds.isDisabled(minion.entity.world)) {
@@ -174,18 +172,13 @@ class MiningService(
     }
 
     private fun storeDrops(minion: Minion, results: List<DropResult>) {
-        for ((item, xp) in results) {
+        for ((_, xp) in results) {
             if (xp > 0) {
                 spawnXp(minion, xp)
             }
-            if (!pricing.isSellable(minion.state.type, item.type)) {
-                dropWarnings.warnUnsellable(minion, item.type)
-                continue
-            }
-            if (minion.storage.addItem(item).isNotEmpty()) {
-                break
-            }
         }
+
+        minion.storage.store(results.map { (item, _) -> item })
     }
 
     private fun spawnXp(minion: Minion, amount: Int) {

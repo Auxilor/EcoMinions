@@ -2,11 +2,11 @@ package com.exanthiax.ecominions.compactor.service
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipe
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
+import com.exanthiax.ecominions.minions.model.MinionStorage
 import com.willfp.eco.core.items.Items
-import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
-/** Compresses bulk drops in a storage inventory into their block form. */
+/** Compresses bulk drops in a minion's storage into their block form. */
 class CompactorService(
     private val recipes: ConfigDrivenRegistry<CompactorRecipe>
 ) {
@@ -14,20 +14,20 @@ class CompactorService(
      * Applies every recipe until nothing more can be compacted, so nine iron ore
      * becoming a block can in turn feed a block-of-blocks recipe.
      *
-     * @return Items that did not fit back into [inventory].
+     * @return Items that did not fit back into [storage].
      */
-    fun compact(inventory: Inventory): List<ItemStack> {
+    fun compact(storage: MinionStorage): List<ItemStack> {
         val overflow = mutableListOf<ItemStack>()
         var changed = true
 
         while (changed) {
             changed = false
             for (recipe in recipes.all()) {
-                while (countMatching(inventory, recipe) >= recipe.inputAmount) {
-                    if (!consume(inventory, recipe)) {
+                while (countMatching(storage, recipe) >= recipe.inputAmount) {
+                    if (!consume(storage, recipe)) {
                         break
                     }
-                    overflow += inventory.addItem(outputOf(recipe)).values
+                    storage.add(outputOf(recipe))?.let { overflow += it }
                     changed = true
                 }
             }
@@ -42,11 +42,11 @@ class CompactorService(
         return item
     }
 
-    private fun countMatching(inventory: Inventory, recipe: CompactorRecipe): Int {
+    private fun countMatching(storage: MinionStorage, recipe: CompactorRecipe): Int {
         val input = Items.lookup(recipe.inputLookup)
         var total = 0
-        for (slot in 0 until inventory.size) {
-            val item = inventory.getItem(slot) ?: continue
+        for (slot in 0 until storage.size) {
+            val item = storage.getItem(slot) ?: continue
             if (input.matches(item)) {
                 total += item.amount
             }
@@ -54,19 +54,19 @@ class CompactorService(
         return total
     }
 
-    private fun consume(inventory: Inventory, recipe: CompactorRecipe): Boolean {
+    private fun consume(storage: MinionStorage, recipe: CompactorRecipe): Boolean {
         val input = Items.lookup(recipe.inputLookup)
         var remaining = recipe.inputAmount
 
-        for (slot in 0 until inventory.size) {
-            val item = inventory.getItem(slot) ?: continue
+        for (slot in 0 until storage.size) {
+            val item = storage.getItem(slot) ?: continue
             if (!input.matches(item)) {
                 continue
             }
             val taken = minOf(item.amount, remaining)
             item.amount -= taken
             if (item.amount <= 0) {
-                inventory.setItem(slot, null)
+                storage.setItem(slot, null)
             }
             remaining -= taken
             if (remaining <= 0) {

@@ -8,7 +8,8 @@ base-stats:
   speed-ticks: 60
   efficiency-ticks: 10
   radius: 3
-  inventory-rows: 3
+  storage-slots: 27
+  max-storage-slots: 54
   regen-delay-ticks: 100
 
 # Effects that are always active on this minion type, with no upgrade needed.

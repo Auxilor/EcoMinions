@@ -77,7 +77,14 @@ minion:
   # Block to place when a minion is picked up and regen markers haven't fired yet.
   # Replaces any bedrock regen markers left behind. Use AIR to simply remove them.
   regen-marker-fallback-block: AIR
+
+  # Upper bound on any minion type's storage-slots and max-storage-slots.
+  hard-slot-cap: 54
 ```
+
+`hard-slot-cap` bounds what any minion type may declare for `storage-slots` and `max-storage-slots`. Minion
+storage is virtual and is never opened as a chest, so this is a guard against typos rather than a Minecraft
+limit - raise it if your types need more than a double chest's worth.
 
 Controls the minion's hologram, its invulnerability, and how mined block regeneration is shown. The auto-sell
 interval is no longer plugin-wide config - it's set with `every:` on the auto-sell upgrade's own effect block,

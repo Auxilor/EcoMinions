@@ -37,6 +37,12 @@ minion:
   # Replaces any bedrock regen markers left behind. Use AIR to simply remove them.
   regen-marker-fallback-block: AIR
 
+  # Upper bound on any minion type's storage-slots and max-storage-slots.
+  # Minion storage is virtual and is never opened as a chest, so this is a
+  # sanity guard against typos, not a Minecraft limit. Raise it if your types
+  # need more.
+  hard-slot-cap: 54
+
 
 gui:
   main:

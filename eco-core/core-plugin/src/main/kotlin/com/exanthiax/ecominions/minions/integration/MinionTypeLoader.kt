@@ -24,7 +24,9 @@ class MinionTypeLoader(
     private val gameData: GameData,
     private val particles: ParticleSettingsLoader,
     /** Whether config.yml lets prices come from EcoShop, making sell-prices optional. */
-    private val autoPricingEnabled: () -> Boolean
+    private val autoPricingEnabled: () -> Boolean,
+    /** config.yml's ceiling on any type's declared slots. Read per load, so reloads apply. */
+    private val hardSlotCap: () -> Int
 ) : ConfigLoader<MinionType> {
 
     override fun load(id: String, config: Config, context: LoadContext): MinionType? {
@@ -59,7 +61,7 @@ class MinionTypeLoader(
             targetBlocks = targets,
             allowedUpgradeIds = allowedUpgrades,
             woodFamily = woodFamily,
-            baseStats = readBaseStats(config),
+            baseStats = readBaseStats(config, context),
             spawnItem = spawnItem,
             crafting = readCrafting(config, context),
             armor = readArmor(config, context),
@@ -102,13 +104,33 @@ class MinionTypeLoader(
             .toSet()
     }
 
-    private fun readBaseStats(config: Config) = MinionType.BaseStats(
-        speedTicks = config.getInt("base-stats.speed-ticks").coerceAtLeast(1),
-        efficiencyTicks = config.getInt("base-stats.efficiency-ticks").coerceAtLeast(0),
-        radius = config.getInt("base-stats.radius").coerceAtLeast(1),
-        inventoryRows = config.getInt("base-stats.inventory-rows").coerceIn(1, MAX_ROWS),
-        regenDelayTicks = config.getInt("base-stats.regen-delay-ticks").coerceAtLeast(1)
-    )
+    private fun readBaseStats(config: Config, context: LoadContext): MinionType.BaseStats {
+        val cap = hardSlotCap()
+        val slots = clampSlots(config.getInt("base-stats.storage-slots"), "base-stats.storage-slots", cap, context)
+        val declaredMax = clampSlots(
+            config.getInt("base-stats.max-storage-slots"),
+            "base-stats.max-storage-slots",
+            cap,
+            context
+        )
+
+        return MinionType.BaseStats(
+            speedTicks = config.getInt("base-stats.speed-ticks").coerceAtLeast(1),
+            efficiencyTicks = config.getInt("base-stats.efficiency-ticks").coerceAtLeast(0),
+            radius = config.getInt("base-stats.radius").coerceAtLeast(1),
+            storageSlots = slots,
+            maxStorageSlots = maxOf(declaredMax, slots),
+            regenDelayTicks = config.getInt("base-stats.regen-delay-ticks").coerceAtLeast(1)
+        )
+    }
+
+    /** Clamps to `1..cap`, reporting when a configured value had to be cut down. */
+    private fun clampSlots(value: Int, param: String, cap: Int, context: LoadContext): Int {
+        if (value > cap) {
+            context.violation(param, "$value exceeds minion.hard-slot-cap ($cap) - using $cap")
+        }
+        return value.coerceIn(1, cap)
+    }
 
     private fun readSpawnItem(config: Config, context: LoadContext): SpawnItemSpec? {
         val rawMode = config.getString("spawn-item.mode").uppercase()
@@ -228,7 +250,6 @@ class MinionTypeLoader(
     private companion object {
         const val AUTO_SELL = "auto_sell"
         const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
-        const val MAX_ROWS = 6
         const val NAMESPACE = "ecominions"
     }
 }
