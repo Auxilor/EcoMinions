@@ -7,6 +7,10 @@ import org.bukkit.block.data.Ageable
 /**
  * Picks the next block a minion should break.
  *
+ * A block already on the regen queue is never picked: its marker is a real
+ * block of a material the minion may well target, and mining it would give the
+ * minion free drops every cycle.
+ *
  * The search box is [MinionWorkArea] - trees are the reason its height is
  * configurable, since their upper logs sit well above the three-block box that
  * used to be hardcoded here.
@@ -23,6 +27,9 @@ class MiningTargetFinder {
             for (y in MinionWorkArea.verticalOffsets(minion)) {
                 for (z in -radius..radius) {
                     val candidate = world.getBlockAt(center.x + x, center.y + y, center.z + z)
+                    if (minion.mining.isAwaitingRegen(candidate)) {
+                        continue
+                    }
                     if (targets.matches(candidate) && isMineableNow(candidate, targets)) {
                         candidates += candidate
                     }

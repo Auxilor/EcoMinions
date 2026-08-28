@@ -22,7 +22,7 @@ class RegenService(
 ) {
     fun queue(minion: Minion, block: Block, original: Material, now: Long) {
         if (settings.value.showRegenMarker) {
-            block.type = Material.BEDROCK
+            block.type = MARKER_BLOCK
             minion.mining.pendingRegen += block.location
         } else {
             block.type = Material.AIR
@@ -55,6 +55,17 @@ class RegenService(
             minion.mining.pendingRegen.remove(entry.location)
             entries.remove()
         }
+    }
+
+    companion object {
+        /**
+         * The block standing in for one being regenerated.
+         *
+         * Cobblestone rather than bedrock: bedrock in an ordinary build reads as
+         * a broken world. Nothing mines it while it stands, because a block on
+         * the regen queue is skipped by both the target finder and the seeder.
+         */
+        val MARKER_BLOCK: Material = Material.COBBLESTONE
     }
 
     private fun fullyGrownData(material: Material): BlockData {
