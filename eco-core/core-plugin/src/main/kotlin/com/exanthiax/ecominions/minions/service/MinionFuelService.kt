@@ -39,11 +39,35 @@ class MinionFuelService(
         return null
     }
 
-    private fun apply(minion: Minion, fuel: Fuel) {
+    /**
+     * Burns [fuel] on [minion], adding to whatever is already burning.
+     *
+     * More of the same fuel extends the burn rather than restarting it, so
+     * topping a minion up never throws away time the player already paid for. A
+     * different fuel replaces the burn instead: only one speed multiplier can be
+     * live at a time, and the remaining time belongs to the fuel that set it.
+     */
+    fun apply(minion: Minion, fuel: Fuel, now: Long = System.currentTimeMillis()) {
         val duration = fuel.durationTicks * MILLIS_PER_TICK
+        val carried = if (minion.burningFuelId == fuel.id) remainingOf(minion, now) else 0L
+
         minion.burningFuelId = fuel.id
-        minion.burningFuelRemainingMillis = duration
-        minion.burningFuelEndsAt = System.currentTimeMillis() + duration
+        minion.burningFuelRemainingMillis = carried + duration
+        // An idle minion holds its fuel frozen as a remainder; giving it an
+        // absolute expiry here would burn the fuel off while it is not working.
+        minion.burningFuelEndsAt = if (minion.state.shutdownTimestamp != null) {
+            0L
+        } else {
+            now + carried + duration
+        }
         repository.save(minion)
     }
+
+    /** @return What is left of the current burn, live or frozen. */
+    private fun remainingOf(minion: Minion, now: Long): Long =
+        if (minion.burningFuelEndsAt > 0L) {
+            (minion.burningFuelEndsAt - now).coerceAtLeast(0L)
+        } else {
+            minion.burningFuelRemainingMillis.coerceAtLeast(0L)
+        }
 }
