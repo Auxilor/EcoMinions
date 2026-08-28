@@ -13,6 +13,9 @@ class MiningState {
     /** Whether fuel was burning last tick, so expiry can be noticed the tick it happens. */
     var wasBurningFuel: Boolean = false
 
+    /** When a self-seeding minion may place its next block. */
+    var nextSeedAt: Long = 0L
+
     /** The block being swung at, and the tick the swing lands on. */
     var pendingTarget: Block? = null
     var breakAt: Long = 0L
@@ -20,6 +23,14 @@ class MiningState {
     /** Set while a tree minion is waiting for its sapling to mature. */
     var saplingPosition: Location? = null
     var saplingPlantedAt: Long = 0L
+
+    /**
+     * The tree a woodcutter is currently cutting down.
+     *
+     * Its leaves stay standing until its last log is felled, so the tracking has
+     * to outlive the tick that grew it.
+     */
+    var standingTree: TreeService.GrownTree? = null
 
     val regenQueue: MutableList<RegenEntry> = mutableListOf()
 

@@ -312,6 +312,11 @@ class MinionDefinitionLoader(
      * What self-seeding places: whatever was asked for, else what the target
      * declares as its `plant`, else the target block itself.
      *
+     * Seeding the target block back is the point of a self-seeding miner - it
+     * supplies its own ore instead of waiting on a player. What keeps that from
+     * running away is [com.exanthiax.ecominions.minions.service.SeedingService]
+     * seeding only inside the box the minion mines.
+     *
      * A woodcutter must plant a sapling rather than a log, so a target with no
      * `plant` gives it nothing to seed and is reported.
      */

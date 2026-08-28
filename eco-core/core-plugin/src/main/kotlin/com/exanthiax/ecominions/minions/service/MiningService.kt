@@ -59,6 +59,12 @@ class MiningService(
             return
         }
 
+        if (behaviourOf(minion).onBeforeMine(minion, now)) {
+            minion.animation = Minion.AnimationState.IDLE
+            minion.mining.nextActionAt = now + effectiveSpeedTicks(minion)
+            return
+        }
+
         val target = targets.find(minion)
         if (target == null) {
             handleNoTarget(minion, now)
@@ -103,7 +109,7 @@ class MiningService(
         breakBlock(minion, target, now)
     }
 
-    /** Tree types run their own plant-wait-fell cycle; everything else may seed a single block. */
+    /** Tree types run their own plant-wait-fell cycle; everything else waits on its next seed. */
     private fun handleNoTarget(minion: Minion, now: Long) {
         val busy = behaviourOf(minion).onIdle(minion, now)
         minion.animation = if (busy) Minion.AnimationState.IDLE else Minion.AnimationState.BLOCKED

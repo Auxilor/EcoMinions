@@ -32,10 +32,16 @@ class FakeWorld {
     fun countOf(material: Material): Int = blocks.values.count { it == material }
 
     /** Fills y = -1 across a 5x5 area, leaving everything above it as air. */
-    fun fillFloor(material: Material = Material.STONE) {
+    fun fillFloor(material: Material = Material.STONE) = fillLayer(-1, material)
+
+    /** Fills one 5x5 layer, skipping the minion's own column at the origin. */
+    fun fillLayer(y: Int, material: Material = Material.STONE) {
         for (x in -2..2) {
             for (z in -2..2) {
-                set(x, -1, z, material)
+                if (y >= 0 && x == 0 && z == 0) {
+                    continue
+                }
+                set(x, y, z, material)
             }
         }
     }
@@ -50,8 +56,15 @@ class FakeWorld {
         every { block.type = any() } answers { set(x, y, z, firstArg()) }
         // Real block data needs a running server; nothing under test is Ageable.
         every { block.blockData } returns mockk<BlockData>()
+        // Drops need the item factory, which needs a server. Tests assert on
+        // what the world looks like afterwards, not on the items.
+        every { block.getDrops() } returns emptyList()
         every { block.location } returns mockk {
             every { this@mockk.block } returns block
+            every { this@mockk.world } returns bukkit
+            every { this@mockk.blockX } returns x
+            every { this@mockk.blockY } returns y
+            every { this@mockk.blockZ } returns z
         }
     }
 

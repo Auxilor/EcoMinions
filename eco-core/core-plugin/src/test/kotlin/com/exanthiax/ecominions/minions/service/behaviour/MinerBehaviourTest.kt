@@ -42,18 +42,35 @@ class MinerBehaviourTest {
         verify { regen.queue(minion, block, Material.WHEAT, 100L) }
     }
 
+    /** Seeding takes the cycle, so the ore it just placed is not mined on the same one. */
     @Test
-    fun `is busy when it seeded a block`() {
+    fun `takes the cycle when it seeded`() {
         val minion = mockk<Minion>()
-        every { seeding.tick(minion) } returns true
+        every { seeding.tick(minion, 0L) } returns true
+
+        assertTrue(behaviour.onBeforeMine(minion, now = 0L))
+    }
+
+    @Test
+    fun `leaves the cycle to mining when no seed was due`() {
+        val minion = mockk<Minion>()
+        every { seeding.tick(minion, 0L) } returns false
+
+        assertFalse(behaviour.onBeforeMine(minion, now = 0L))
+    }
+
+    @Test
+    fun `is busy while a seed is still on the way`() {
+        val minion = mockk<Minion>()
+        every { seeding.isPending(minion) } returns true
 
         assertTrue(behaviour.onIdle(minion, now = 0L))
     }
 
     @Test
-    fun `is not busy when it could not seed`() {
+    fun `is blocked when there is nothing left to seed`() {
         val minion = mockk<Minion>()
-        every { seeding.tick(minion) } returns false
+        every { seeding.isPending(minion) } returns false
 
         assertFalse(behaviour.onIdle(minion, now = 0L))
     }

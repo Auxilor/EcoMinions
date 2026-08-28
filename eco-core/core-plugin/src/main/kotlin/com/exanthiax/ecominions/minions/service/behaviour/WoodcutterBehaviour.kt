@@ -27,12 +27,32 @@ class WoodcutterBehaviour(
         now: Long
     ) {
         block.type = Material.AIR
+        harvestIfFelled(minion)
+    }
+
+    /**
+     * Takes the leaves once the last log of the standing tree is gone.
+     *
+     * Leaves are not a target block, so nothing else would ever clear them, and
+     * a tree left leafless while its trunk is still standing looks wrong. This
+     * is also where the drops the leaves owe the minion are collected.
+     */
+    private fun harvestIfFelled(minion: Minion) {
+        val tree = minion.mining.standingTree ?: return
+        if (tree.logs.any { it.type != Material.AIR }) {
+            return
+        }
+        minion.storage.store(trees.harvestLeaves(tree.leaves))
+        minion.mining.standingTree = null
     }
 
     override fun onIdle(minion: Minion, now: Long): Boolean {
         if (!minion.state.definition.placement.selfSeed) {
             return false
         }
+        // A player can clear the trunk themselves, which never reaches
+        // onBlockBroken - the leaves would then block the next sapling.
+        harvestIfFelled(minion)
         val definition = definitionFor(minion) ?: return false
         val plant = definition.plant ?: return false
         val planted = minion.mining.saplingPosition
@@ -42,7 +62,7 @@ class WoodcutterBehaviour(
                 minion.mining.saplingPosition = null
             } else {
                 if (now - minion.mining.saplingPlantedAt >= minion.stats.regenDelayTicks) {
-                    fellTree(minion, definition, planted)
+                    growTree(minion, definition, planted)
                 }
                 return true
             }
@@ -64,12 +84,16 @@ class WoodcutterBehaviour(
     private fun definitionFor(minion: Minion): MinionBlock? =
         minion.state.definition.targetBlocks.definitions.firstOrNull { it.plant != null }
 
-    private fun fellTree(minion: Minion, definition: MinionBlock, sapling: Location) {
+    /**
+     * Turns a matured sapling into a standing tree.
+     *
+     * The tree is left whole: its logs become the minion's targets and its
+     * leaves stay up until [harvestIfFelled] takes them with the last log.
+     */
+    private fun growTree(minion: Minion, definition: MinionBlock, sapling: Location) {
         sapling.block.type = Material.AIR
 
-        val leaves = trees.growTree(sapling, definition)
-        minion.storage.store(trees.harvestLeaves(leaves))
-
+        minion.mining.standingTree = trees.growTree(sapling, definition)
         minion.mining.saplingPosition = null
     }
 
@@ -112,7 +136,7 @@ class WoodcutterBehaviour(
         val surfaceOk = when {
             definition.surface != null -> definition.surface.matches(below)
             expectedSurface != null -> expectedSurface.matches(below)
-            else -> below.type.isSolid
+            else -> below.isSolid
         }
         return surfaceOk && hasClearance(block)
     }
