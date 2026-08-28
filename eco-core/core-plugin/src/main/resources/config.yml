@@ -30,11 +30,11 @@ minion:
   # Glow / outline armor stand body? Future use.
   invulnerable: true
 
-  # Block regen visual: replace block with bedrock briefly during regen?
+  # Block regen visual: replace block with cobblestone briefly during regen?
   # If false, block disappears entirely until regen tick.
   show-regen-marker: true
   # Block to place when a minion is picked up and regen markers haven't fired yet.
-  # Replaces any bedrock regen markers left behind. Use AIR to simply remove them.
+  # Replaces any cobblestone regen markers left behind. Use AIR to simply remove them.
   regen-marker-fallback-block: AIR
 
   # Upper bound on any minion type's storage-slots and max-storage-slots.

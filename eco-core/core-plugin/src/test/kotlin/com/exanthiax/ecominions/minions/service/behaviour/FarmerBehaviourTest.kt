@@ -59,14 +59,14 @@ class FarmerBehaviourTest {
     /** Seeding takes the cycle, so the crop it just planted is not harvested on the same one. */
     @Test
     fun `takes the cycle when it seeded`() {
-        every { seeding.tick(minion, 0L) } returns true
+        every { seeding.tick(minion) } returns true
 
         assertTrue(behaviour.onBeforeMine(minion, now = 0L))
     }
 
     @Test
-    fun `leaves the cycle to mining when no seed was due`() {
-        every { seeding.tick(minion, 0L) } returns false
+    fun `leaves the cycle to mining when nothing is left to seed`() {
+        every { seeding.tick(minion) } returns false
 
         assertFalse(behaviour.onBeforeMine(minion, now = 0L))
     }

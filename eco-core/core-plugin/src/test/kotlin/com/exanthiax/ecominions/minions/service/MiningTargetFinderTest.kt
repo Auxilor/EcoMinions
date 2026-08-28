@@ -8,6 +8,7 @@ import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.TargetSet
 import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import org.bukkit.Material
+import org.bukkit.block.data.BlockData
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -64,6 +65,26 @@ class MiningTargetFinderTest {
         assertNull(finder.find(minionAt(world, radius = 1, height = 6)))
     }
 
+    /**
+     * The regen marker is a real block, and a stone minion's targets include the
+     * material it is made of. Mining it would hand the minion free drops on
+     * every cycle and the regen delay would pace nothing.
+     */
+    @Test
+    fun `a block waiting on regen is not a target`() {
+        val world = FakeWorld()
+        world.set(1, 0, 0, Material.OAK_LOG)
+        val minion = minionAt(world, height = 3)
+        minion.mining.regenQueue += MiningState.RegenEntry(
+            location = world.blockAt(1, 0, 0).location,
+            regenData = mockk<BlockData>(),
+            surfaceBlock = null,
+            regenAt = 100L
+        )
+
+        assertNull(finder.find(minion))
+    }
+
     private fun minionAt(
         world: FakeWorld,
         radius: Int = 1,
@@ -84,6 +105,7 @@ class MiningTargetFinderTest {
                 every { this@mockk.height } returns height
             }
             every { minion.entity } returns world.stand()
+            every { minion.mining } returns MiningState()
         }
     }
 }

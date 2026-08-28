@@ -26,7 +26,7 @@ class MinerBehaviour(
         now: Long
     ) = regen.queue(minion, block, original, now)
 
-    override fun onBeforeMine(minion: Minion, now: Long): Boolean = seeding.tick(minion, now)
+    override fun onBeforeMine(minion: Minion, now: Long): Boolean = seeding.tick(minion)
 
     /** Nothing to mine, but a seed still on the way is waiting rather than blocked. */
     override fun onIdle(minion: Minion, now: Long): Boolean = seeding.isPending(minion)

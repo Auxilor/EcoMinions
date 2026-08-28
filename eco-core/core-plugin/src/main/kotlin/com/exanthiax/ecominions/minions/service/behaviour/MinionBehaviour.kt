@@ -18,9 +18,10 @@ interface MinionBehaviour {
      * Called before the minion looks for something to break.
      *
      * @return true if the behaviour used this cycle, so nothing is mined on it.
-     * Self-seeding types place their block here, on their own timer: seeding
-     * after the search for a target would only ever run on an area with nothing
-     * left in it, which is how a self-seeder ends up stuck at a few blocks.
+     * Self-seeding types place their block here and keep the cycle until the
+     * area is full: seeding after the search for a target would only ever run
+     * on an area with nothing left in it, which is how a self-seeder ends up
+     * stuck at a few blocks.
      */
     fun onBeforeMine(minion: Minion, now: Long): Boolean = false
 

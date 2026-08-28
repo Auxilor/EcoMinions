@@ -39,7 +39,7 @@ class FarmerBehaviour(
         plant.place(block.location)
     }
 
-    override fun onBeforeMine(minion: Minion, now: Long): Boolean = seeding.tick(minion, now)
+    override fun onBeforeMine(minion: Minion, now: Long): Boolean = seeding.tick(minion)
 
     /** Nothing to harvest, but a seed still on the way is waiting rather than blocked. */
     override fun onIdle(minion: Minion, now: Long): Boolean = seeding.isPending(minion)

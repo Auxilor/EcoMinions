@@ -113,12 +113,12 @@ class PlacementService(
         equipment.setItemInMainHand(configured.hand?.toItemStack() ?: ItemStack(Material.IRON_PICKAXE))
     }
 
-    /** Regen markers are real bedrock; leaving them behind would grief the world. */
+    /** Regen markers are real blocks; leaving them behind would grief the world. */
     private fun clearRegenMarkers(minion: Minion) {
         val fallback = settings.value.regenMarkerFallback
         for (location in minion.mining.pendingRegen) {
             val block = location.block
-            if (block.type == Material.BEDROCK) {
+            if (block.type == RegenService.MARKER_BLOCK) {
                 block.type = fallback
             }
         }

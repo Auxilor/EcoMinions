@@ -46,15 +46,15 @@ class MinerBehaviourTest {
     @Test
     fun `takes the cycle when it seeded`() {
         val minion = mockk<Minion>()
-        every { seeding.tick(minion, 0L) } returns true
+        every { seeding.tick(minion) } returns true
 
         assertTrue(behaviour.onBeforeMine(minion, now = 0L))
     }
 
     @Test
-    fun `leaves the cycle to mining when no seed was due`() {
+    fun `leaves the cycle to mining when nothing is left to seed`() {
         val minion = mockk<Minion>()
-        every { seeding.tick(minion, 0L) } returns false
+        every { seeding.tick(minion) } returns false
 
         assertFalse(behaviour.onBeforeMine(minion, now = 0L))
     }
