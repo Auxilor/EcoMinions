@@ -14,24 +14,19 @@ import org.bukkit.block.Block
  */
 class SeedingService {
     /**
-     * Seeds a single block, if one is due.
+     * Seeds a single block, if there is anywhere left to seed.
      *
-     * Paced by the minion's regen delay rather than by its mining cycle: seeding
-     * used to run only when there was nothing left to mine, so the first block a
-     * self-seeder placed gave it a target again and the area never filled past
-     * two or three. On its own timer it keeps filling while the minion works.
+     * Runs before mining and takes the whole cycle, so the area is filled
+     * before the first block is broken: pacing seeding on its own timer let the
+     * minion mine whatever it had already placed whenever a seed was not yet
+     * due, and the area never filled.
      *
      * @return true if a block was seeded, so the caller spends the cycle on
      * seeding rather than mining what was just placed.
      */
-    fun tick(minion: Minion, now: Long): Boolean {
-        if (now < minion.mining.nextSeedAt) {
-            return false
-        }
+    fun tick(minion: Minion): Boolean {
         val spot = pendingSpot(minion) ?: return false
-
         minion.state.definition.placement.seedBlock?.place(spot.location) ?: return false
-        minion.mining.nextSeedAt = now + minion.stats.regenDelayTicks
         return true
     }
 
@@ -72,7 +67,7 @@ class SeedingService {
                 }
                 for (y in MinionWorkArea.verticalOffsets(minion)) {
                     val candidate = world.getBlockAt(center.x + x, center.y + y, center.z + z)
-                    if (!isSeedable(candidate, expectedSurface)) {
+                    if (!isSeedable(minion, candidate, expectedSurface)) {
                         continue
                     }
                     val distance = x * x + y * y + z * z
@@ -86,8 +81,11 @@ class SeedingService {
         return best
     }
 
-    private fun isSeedable(block: Block, expectedSurface: TestableBlock?): Boolean {
+    private fun isSeedable(minion: Minion, block: Block, expectedSurface: TestableBlock?): Boolean {
         if (block.type != Material.AIR) {
+            return false
+        }
+        if (minion.mining.isAwaitingRegen(block)) {
             return false
         }
         val below = block.world.getBlockAt(block.x, block.y - 1, block.z)
