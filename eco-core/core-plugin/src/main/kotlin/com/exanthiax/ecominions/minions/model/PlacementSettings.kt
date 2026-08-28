@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.model
 
-import org.bukkit.Material
+import com.willfp.eco.core.blocks.TestableBlock
 
 /**
  * Whether mined blocks regenerate one block higher than they were broken, what
@@ -11,10 +11,10 @@ import org.bukkit.Material
  */
 data class PlacementSettings(
     val liftRegen: Boolean,
-    val surfaceBlock: Material?,
+    val surfaceBlock: TestableBlock?,
     val selfSeed: Boolean = false,
     /** What self-seeding places. Null whenever [selfSeed] is false. */
-    val seedBlock: Material? = null
+    val seedBlock: TestableBlock? = null
 ) {
     companion object {
         val NONE = PlacementSettings(false, null)

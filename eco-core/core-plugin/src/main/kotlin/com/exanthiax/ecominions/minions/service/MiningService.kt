@@ -7,18 +7,15 @@ import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
-import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
-import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionSettings
-import com.exanthiax.ecominions.minions.model.MinionStats
+import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviour
+import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
 import com.willfp.libreforge.triggers.event.DropCause
 import com.willfp.libreforge.triggers.event.DropResult
 import org.bukkit.Material
 import org.bukkit.block.Block
-import org.bukkit.block.data.Ageable
-import org.bukkit.block.data.BlockData
 import org.bukkit.entity.ExperienceOrb
 
 /**
@@ -30,10 +27,10 @@ import org.bukkit.entity.ExperienceOrb
 class MiningService(
     private val settings: SettingsHolder<MinionSettings>,
     private val worlds: WorldSettings,
-    private val gameData: GameData,
     private val targets: MiningTargetFinder,
-    private val treeFarming: TreeFarmingService,
-    private val seeding: SeedingService,
+    private val blocks: MinionBlockIndex,
+    private val regen: RegenService,
+    private val behaviours: MinionBehaviours,
     private val fuels: FuelService,
     private val dispatch: MinionTriggerDispatch
 ) {
@@ -44,7 +41,7 @@ class MiningService(
 
         checkFuelExpiry(minion)
 
-        processRegen(minion, now)
+        regen.process(minion, now)
         completePendingBreak(minion, now)
         dispatch.trigger(minion, TriggerMinionTick)
         for (trigger in TriggerGroupMinionStatic.dueOn(now)) {
@@ -100,7 +97,7 @@ class MiningService(
         }
         minion.mining.pendingTarget = null
 
-        if (target.type !in minion.state.type.targetBlocks) {
+        if (!minion.state.definition.targetBlocks.matches(target)) {
             return
         }
         breakBlock(minion, target, now)
@@ -108,22 +105,22 @@ class MiningService(
 
     /** Tree types run their own plant-wait-fell cycle; everything else may seed a single block. */
     private fun handleNoTarget(minion: Minion, now: Long) {
-        val busy = if (minion.state.type.isTreeType) {
-            treeFarming.tick(minion, now)
-        } else {
-            seeding.tick(minion)
-        }
+        val busy = behaviourOf(minion).onIdle(minion, now)
         minion.animation = if (busy) Minion.AnimationState.IDLE else Minion.AnimationState.BLOCKED
         minion.mining.nextActionAt = now + effectiveSpeedTicks(minion)
     }
+
+    /** The minion's own behaviour, for when it has no block in hand to override with. */
+    private fun behaviourOf(minion: Minion): MinionBehaviour = behaviours[minion.state.definition.type]
 
     private fun effectiveSpeedTicks(minion: Minion): Int =
         fuels.effectiveSpeedTicks(minion, minion.stats.speedTicks)
 
     private fun breakBlock(minion: Minion, block: Block, now: Long) {
-        val stats = minion.stats
         val original = block.type
-        val column = if (gameData.growthRules.isStackedColumn(original)) collectColumn(block) else listOf(block)
+        val definition = blocks.forBlock(block)
+        val behaviour = behaviours.forBlock(minion.state.definition.type, definition)
+        val column = if (definition?.stackedColumn == true) collectColumn(block) else listOf(block)
 
         val results = dispatch.drops(
             minion = minion,
@@ -141,12 +138,7 @@ class MiningService(
             segment.type = Material.AIR
         }
 
-        if (minion.state.type.isTreeType) {
-            block.type = Material.AIR
-            return
-        }
-
-        queueRegen(minion, block, original, stats, now)
+        behaviour.onBlockBroken(minion, block, definition, original, now)
     }
 
     private fun storeDrops(minion: Minion, results: List<DropResult>) {
@@ -164,43 +156,6 @@ class MiningService(
         minion.entity.world.spawn(location, ExperienceOrb::class.java).experience = amount
     }
 
-    private fun queueRegen(minion: Minion, block: Block, original: Material, stats: MinionStats, now: Long) {
-        if (settings.value.showRegenMarker) {
-            block.type = Material.BEDROCK
-            minion.mining.pendingRegen += block.location
-        } else {
-            block.type = Material.AIR
-        }
-
-        minion.mining.regenQueue += MiningState.RegenEntry(
-            location = block.location,
-            regenData = fullyGrownData(original),
-            surfaceBlock = minion.state.type.placement.surfaceBlock
-                .takeIf { minion.state.type.placement.liftRegen },
-            regenAt = now + stats.regenDelayTicks
-        )
-    }
-
-    private fun processRegen(minion: Minion, now: Long) {
-        val entries = minion.mining.regenQueue.iterator()
-        while (entries.hasNext()) {
-            val entry = entries.next()
-            if (now < entry.regenAt) {
-                continue
-            }
-            entry.surfaceBlock?.let { surface ->
-                val below = entry.location.clone().subtract(0.0, 1.0, 0.0).block
-                if (below.type != surface) {
-                    below.type = surface
-                }
-            }
-            entry.location.block.blockData = entry.regenData
-            dispatch.trigger(minion, TriggerMinionRegenBlock, block = entry.location.block)
-            minion.mining.pendingRegen.remove(entry.location)
-            entries.remove()
-        }
-    }
-
     private fun collectColumn(bottom: Block): List<Block> {
         val column = mutableListOf(bottom)
         val world = bottom.world
@@ -214,14 +169,6 @@ class MiningService(
             y++
         }
         return column
-    }
-
-    private fun fullyGrownData(material: Material): BlockData {
-        val data = material.createBlockData()
-        if (data is Ageable) {
-            data.age = data.maximumAge
-        }
-        return data
     }
 
     private companion object {

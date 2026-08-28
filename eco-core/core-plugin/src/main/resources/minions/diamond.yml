@@ -1,4 +1,5 @@
 name: "&bDiamond Minion"
+type: miner
 target-blocks:
   - DIAMOND_ORE
   - DEEPSLATE_DIAMOND_ORE

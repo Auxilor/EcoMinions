@@ -37,7 +37,7 @@ class GiveSubcommand(
             return
         }
 
-        target.inventory.addItem(itemFactory.build(MinionState(type = type)))
+        target.inventory.addItem(itemFactory.build(MinionState(definition = type)))
 
         sender.sendMessage(
             messages.line(

@@ -13,7 +13,7 @@ import java.util.UUID
  * contribution lands - see [MinionStat].
  */
 class MinionStats(
-    private val base: MinionType.BaseStats,
+    private val base: MinionDefinition.BaseStats,
     level: Int
 ) {
     private val contributions = HashMap<MinionStat, MutableMap<UUID, Int>>()

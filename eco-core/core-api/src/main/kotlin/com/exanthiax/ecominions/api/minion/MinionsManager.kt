@@ -5,7 +5,7 @@ import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
 import java.util.UUID
 
-/** Queries over placed minions and configured minion types. */
+/** Queries over placed minions and configured minion definitions. */
 interface MinionsManager {
     /** Every minion currently loaded. Minions in unloaded chunks are not included. */
     fun all(): Collection<Minion>
@@ -23,14 +23,14 @@ interface MinionsManager {
     /** @return How many minions [player] may place, or [Int.MAX_VALUE] if unlimited. */
     fun placementLimit(player: OfflinePlayer): Int
 
-    fun types(): Collection<MinionType>
+    fun types(): Collection<MinionDefinition>
 
-    fun getType(id: String): MinionType?
+    fun getType(id: String): MinionDefinition?
 
     /**
      * Builds the placeable item for [type] at [level].
      *
      * @return A new item stack; it carries no owner until placed.
      */
-    fun createItem(type: MinionType, level: Int = 1): ItemStack
+    fun createItem(type: MinionDefinition, level: Int = 1): ItemStack
 }

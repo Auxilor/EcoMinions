@@ -27,7 +27,7 @@ class MinionUpgradeService(
         tier: UpgradeTier,
         cost: TierCost
     ): Result {
-        if (upgrade.id !in minion.state.type.allowedUpgradeIds) {
+        if (upgrade.id !in minion.state.definition.allowedUpgradeIds) {
             return Result.NOT_ALLOWED
         }
         if (tier.buyConditions.isNotEmpty() && !tier.buyConditions.areMet(minion.toDispatcher(), EmptyProvidedHolder)) {

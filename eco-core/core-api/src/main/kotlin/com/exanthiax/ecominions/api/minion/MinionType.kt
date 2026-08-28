@@ -1,33 +1,31 @@
 package com.exanthiax.ecominions.api.minion
 
-import org.bukkit.Material
+/**
+ * What a minion does with the blocks it breaks.
+ *
+ * A fixed set rather than a config category, because the behaviour is code: a
+ * woodcutter's plant-wait-fell cycle cannot be written in yml. Adding a type
+ * later is additive - a new constant and a new behaviour class.
+ */
+enum class MinionType {
+    /** Breaks and regenerates in place. The default for anything that is not grown. */
+    MINER,
 
-/** A configured kind of minion, e.g. `stone` or `wheat`. */
-interface MinionType {
-    /** Config file name, without extension. */
+    /** Fells the tree, plants a sapling, and waits for it to grow. */
+    WOODCUTTER,
+
+    /** Harvests a ripe crop and replants it. */
+    FARMER;
+
+    /** How this type is spelled in a minion's config file. */
     val id: String
+        get() = name.lowercase()
 
-    /** Formatted display name. */
-    val name: String
-
-    /** Blocks this type mines. */
-    val targetBlocks: Set<Material>
-
-    /** Ticks between mining actions before upgrades are applied. */
-    val baseSpeedTicks: Int
-
-    /** Storage slots before upgrades are applied. */
-    val baseStorageSlots: Int
-
-    /** Ids of the upgrades this type is allowed to buy. */
-    val allowedUpgradeIds: List<String>
-
-    /** Whether this type grows and fells trees rather than mining a fixed block set. */
-    val isTreeType: Boolean
-
-    /** Whether this type levels from XP, rather than from purchased upgrade tiers. */
-    val isLevellable: Boolean
-
-    /** The highest level this type can reach, or 1 if it cannot level. */
-    val maxLevel: Int
+    companion object {
+        /** @return The type [raw] names, or null if it is missing, blank or unknown. */
+        fun parse(raw: String?): MinionType? {
+            val trimmed = raw?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+            return entries.firstOrNull { it.name.equals(trimmed, ignoreCase = true) }
+        }
+    }
 }

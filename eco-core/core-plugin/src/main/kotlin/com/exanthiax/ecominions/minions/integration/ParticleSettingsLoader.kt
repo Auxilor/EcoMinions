@@ -6,7 +6,7 @@ import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.particle.Particles
 import com.willfp.eco.core.particle.impl.EmptyParticle
 
-/** Parses the `particles` section of a minion type. */
+/** Parses the `particles` section of a minion definition. */
 class ParticleSettingsLoader {
 
     fun load(section: Config?, context: LoadContext): ParticleSettings {

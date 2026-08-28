@@ -1,11 +1,11 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.minions.MinionTypeFixture
-import com.exanthiax.ecominions.minions.model.GameData
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
+import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -66,9 +66,9 @@ class SeedingServiceTest {
         world.fillFloor(Material.STONE)
         val placement = PlacementSettings(
             liftRegen = true,
-            surfaceBlock = Material.FARMLAND,
+            surfaceBlock = FakeBlockLookup.testable(Material.FARMLAND),
             selfSeed = true,
-            seedBlock = Material.WHEAT
+            seedBlock = FakeBlockLookup.testable(Material.WHEAT)
         )
         val minion = minionAt(world, placement = placement)
 
@@ -79,13 +79,13 @@ class SeedingServiceTest {
         assertEquals(Material.WHEAT, world.typeAt(1, 0, 0))
     }
 
-    private fun service() = SeedingService(GameData.EMPTY)
+    private fun service() = SeedingService()
 
     private fun selfSeeding(seed: Material) = PlacementSettings(
         liftRegen = false,
         surfaceBlock = null,
         selfSeed = true,
-        seedBlock = seed
+        seedBlock = FakeBlockLookup.testable(seed)
     )
 
     private fun minionAt(
@@ -93,9 +93,9 @@ class SeedingServiceTest {
         placement: PlacementSettings,
         radius: Int = 1
     ): Minion {
-        val type = MinionTypeFixture.build(placement = placement)
+        val type = MinionDefinitionFixture.build(placement = placement)
         return mockk<Minion>().also { minion ->
-            every { minion.state } returns mockk { every { this@mockk.type } returns type }
+            every { minion.state } returns mockk { every { this@mockk.definition } returns type }
             every { minion.stats } returns mockk { every { this@mockk.radius } returns radius }
             every { minion.entity } returns stand(world)
         }

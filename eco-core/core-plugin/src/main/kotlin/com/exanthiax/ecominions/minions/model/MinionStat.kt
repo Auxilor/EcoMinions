@@ -7,7 +7,7 @@ package com.exanthiax.ecominions.minions.model
  * the stat and must hold no matter which effect moved it. Applying them per
  * contribution would make the result depend on holder walk order.
  *
- * [INVENTORY_SLOTS] carries no maximum: its ceiling is declared per minion type,
+ * [INVENTORY_SLOTS] carries no maximum: its ceiling is declared per minion,
  * and an enum constant is shared by every minion on the server.
  */
 enum class MinionStat(

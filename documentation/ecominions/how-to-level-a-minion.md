@@ -5,7 +5,7 @@ sidebar_position: 5
 
 ## Levelling
 
-Levelling is an opt-in `levelling:` block nested inside a minion type's YAML file (see
+Levelling is an opt-in `levelling:` block nested inside a minion's YAML file (see
 [How to Make a Minion](how-to-make-a-minion)). With the block absent, or `enabled: false`, a minion's level is
 just the sum of its purchased upgrade tiers plus one - the original, non-levelling behaviour. With levelling
 turned on, a minion instead earns XP toward explicit levels, independently of any upgrades it owns.
@@ -33,7 +33,7 @@ levelling:
         message: "&aYour minion reached level %level%!"
 ```
 
-- `enabled` - whether this minion type levels via XP at all.
+- `enabled` - whether this minion levels via XP at all.
 - `xp-formula` / `xp-requirements` - the level curve.
 - `max-level` - the highest level the curve can reach.
 - `xp-gain-methods` - what grants XP, and how much.
@@ -120,7 +120,7 @@ The spec-level `conditions` block gates XP gain for the entire minion, independe
 ## level-up-effects
 
 `level-up-effects` is a libreforge effect chain that runs once, immediately, whenever the minion crosses into a
-new level. It uses the same effect blocks as a minion type's `effects:` or an upgrade's `effects:` (see
+new level. It uses the same effect blocks as a minion's `effects:` or an upgrade's `effects:` (see
 [How to Make an Upgrade](how-to-make-an-upgrade)), and can additionally react to the `minion_level_up` trigger
 (see [Libreforge Components](libreforge-components)) if you want an effect elsewhere in `effects:` to also fire
 on level-up.
@@ -135,7 +135,7 @@ retarget the chain explicitly.
 **Built-in notification:** independent of `level-up-effects`, EcoMinions sends the owner (if online, same
 offline no-op as above) the `messages.level-up` lang string on every level gained, with `%minion_name%` and
 `%level%` resolved. Edit that key in `lang.yml` to change or silence it; it isn't something you configure per
-minion type.
+minion.
 
 ## Placeholders
 
@@ -147,7 +147,7 @@ lore - for any minion, levelling or not (non-levelling minions read as if they h
 | `%xp%` | The minion's current XP, as a whole number. |
 | `%xp_required%` | XP needed to reach the next level, or an "infinity" placeholder text if there is no next level (max level reached, or levelling not enabled/configured). |
 | `%progress%` | Progress toward the next level as a percentage (0-100), or `100` if there is no next level. |
-| `%max_level%` | The minion type's configured max level. |
+| `%max_level%` | The minion's configured max level. |
 | `%level_numeral%` | The minion's current level, rendered as a Roman numeral. |
 
 <hr/>
@@ -155,6 +155,6 @@ lore - for any minion, levelling or not (non-levelling minions read as if they h
 ## Where to go next
 
 - **Build a minion:** [How to Make a Minion](how-to-make-a-minion) for the `levelling:` block's place in a
-  minion type file, and for `base-stats` expressions that read `%level%`.
+  minion file, and for `base-stats` expressions that read `%level%`.
 - **Effects, triggers, and conditions:** [Libreforge Components](libreforge-components) for `minion_level_up`,
   `give_minion_xp`, and everything else available inside `xp-gain-methods` and `level-up-effects`.

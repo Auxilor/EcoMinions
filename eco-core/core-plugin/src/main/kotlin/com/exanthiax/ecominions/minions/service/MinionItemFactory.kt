@@ -3,7 +3,7 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.placeholders.TemplateRenderer
 import com.exanthiax.ecominions.minions.model.MinionState
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.willfp.eco.core.items.Items
 import org.bukkit.inventory.ItemStack
 
@@ -13,7 +13,7 @@ class MinionItemFactory(
     private val renderer: TemplateRenderer
 ) {
     fun build(state: MinionState): ItemStack {
-        val type = state.type
+        val type = state.definition
         val item = Items.lookup(type.spawnItem.itemLookup).item.clone()
 
         val meta = item.itemMeta ?: return item
@@ -38,5 +38,5 @@ class MinionItemFactory(
         item?.itemMeta?.let { repository.isMinion(it.persistentDataContainer) } ?: false
 
     /** The head shown on a stand that has no configured helmet. */
-    fun headFor(type: MinionType): ItemStack = build(MinionState(type = type))
+    fun headFor(type: MinionDefinition): ItemStack = build(MinionState(definition = type))
 }

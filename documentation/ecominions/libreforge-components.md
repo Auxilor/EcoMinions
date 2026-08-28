@@ -5,7 +5,7 @@ sidebar_position: 8
 
 ## Libreforge Components
 
-EcoMinions upgrades and minion type `effects:` blocks are built on [libreforge](https://libreforge.wiki/) - the
+EcoMinions upgrades and minion `effects:` blocks are built on [libreforge](https://libreforge.wiki/) - the
 same effect/trigger/condition/mutator system used across eco plugins. This page lists every minion-specific
 component EcoMinions registers, plus the stock libreforge components that are known to work well on minions.
 
@@ -58,7 +58,7 @@ work.
 | --- | --- | --- |
 | `minion_level_above` | `level` (expression) | The minion's level is at or above the given level. |
 | `minion_level_below` | `level` (expression) | The minion's level is at or below the given level. |
-| `minion_is_type` | `types` (string list) | The minion is one of the given minion type ids. |
+| `minion_is_type` | `types` (string list) | The minion is one of the given types: `miner`, `woodcutter`, `farmer`. **Changed meaning:** this used to match minion ids, so `minion_is_type: [oak]` matched a minion named `oak` and now matches nothing. |
 | `minion_has_upgrade` | `upgrade` (string, required), `tier` (expression, optional - defaults to `1`) | The minion owns the given upgrade at or above the specified tier. Also works for a compactor recipe's `compactor_<recipe id>` upgrade id. |
 | `minion_storage_above_percent` | `percent` (expression, 0-100) | The minion's storage is at least the given percentage full. |
 | `minion_has_fuel` | none | The minion is currently burning fuel. |
@@ -87,7 +87,7 @@ events work on minions exactly as they would on a player's own mining, including
 - The `blocks` / `items` / `entities` filter arguments many stock effects accept, to restrict which blocks,
   items, or entities an effect applies to.
 
-Any of these can be dropped straight into an upgrade's or a minion type's `effects:` list alongside the
+Any of these can be dropped straight into an upgrade's or a minion's `effects:` list alongside the
 minion-specific effects above, with a `triggers:` list of `[minion_mine_block]` (or `[minion_sell]` for
 sell-time effects).
 
@@ -102,6 +102,6 @@ If an effect needs to reach the owner regardless, gate it with the `minion_owner
 clear the effect is owner-dependent, or use the `minion_owner_as_dispatcher` mutator to retarget the chain at
 the owner explicitly.
 
-This caveat applies just as much to a minion type's `level-up-effects` (see
+This caveat applies just as much to a minion's `level-up-effects` (see
 [How to Level a Minion](how-to-level-a-minion)) - a minion can level up while its owner is offline, so an
 owner-targeting effect there needs the same `minion_owner_online` guard.

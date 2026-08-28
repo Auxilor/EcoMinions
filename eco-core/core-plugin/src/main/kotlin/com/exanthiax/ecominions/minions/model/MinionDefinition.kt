@@ -2,28 +2,29 @@ package com.exanthiax.ecominions.minions.model
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.willfp.libreforge.Holder
 import org.bukkit.Material
-import com.exanthiax.ecominions.api.minion.MinionType as ApiMinionType
+import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefinition
 import kotlin.math.roundToInt
 
 /**
- * A configured kind of minion. Immutable, fully validated by the time it exists:
+ * A configured minion. Immutable, fully validated by the time it exists:
  * everything questionable was rejected by the loader.
  */
-class MinionType(
+class MinionDefinition(
     override val id: String,
     override val name: String,
-    override val targetBlocks: Set<Material>,
+    val targetBlocks: TargetSet,
     override val allowedUpgradeIds: List<String>,
-    val woodFamily: WoodFamily?,
+    override val type: MinionType,
     val baseStats: BaseStats,
     val spawnItem: SpawnItemSpec,
     val crafting: CraftingSpec?,
     val equipment: MinionEquipment,
     val particles: ParticleSettings,
     val placement: PlacementSettings,
-    val sellPrices: Map<Material, Double>,
+    val prices: PriceList,
     /** Parsed from the type's `levelling:` block. Disabled unless configured. */
     val levelling: LevellingSpec = LevellingSpec.DISABLED,
     /** Compiled from the type's `effects:` block. Always active, no purchase needed. */
@@ -34,7 +35,7 @@ class MinionType(
      * still bought and gated independently, so this only controls display order.
      */
     val compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
-) : ApiMinionType {
+) : ApiMinionDefinition {
 
     /** Preview value shown before a minion's actual level is known, e.g. in the type-select menu. */
     override val baseSpeedTicks: Int
@@ -43,17 +44,14 @@ class MinionType(
     override val baseStorageSlots: Int
         get() = baseStats.valueOf(MinionStat.INVENTORY_SLOTS, PREVIEW_LEVEL)
 
-    override val isTreeType: Boolean
-        get() = woodFamily != null
+    override val targetBlockIds: Set<String>
+        get() = targetBlocks.ids
 
     override val isLevellable: Boolean
         get() = levelling.enabled
 
     override val maxLevel: Int
         get() = levelling.maxLevel
-
-    /** @return The configured price of [material], or null if it is not sellable. */
-    fun priceOf(material: Material): Double? = sellPrices[material]
 
     /**
      * Base stats as authored, which may be expressions in `%level%`.

@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
 import org.bukkit.Location
+import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.data.BlockData
@@ -28,7 +29,7 @@ class MiningState {
     class RegenEntry(
         val location: Location,
         val regenData: BlockData,
-        val surfaceBlock: Material?,
+        val surfaceBlock: TestableBlock?,
         val regenAt: Long
     )
 }

@@ -10,7 +10,7 @@ import org.bukkit.entity.TextDisplay
 import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import com.exanthiax.ecominions.api.minion.Minion as ApiMinion
-import com.exanthiax.ecominions.api.minion.MinionType as ApiMinionType
+import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefinition
 
 /**
  * A minion that exists in the world: its persisted state, its stand, its storage
@@ -43,8 +43,8 @@ class Minion(
 
     override val uuid: UUID = state.uuid ?: entity.uniqueId
 
-    override val type: ApiMinionType
-        get() = state.type
+    override val type: ApiMinionDefinition
+        get() = state.definition
 
     override val level: Int
         get() = state.level

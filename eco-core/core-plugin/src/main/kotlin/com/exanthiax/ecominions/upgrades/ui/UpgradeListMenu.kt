@@ -31,7 +31,7 @@ class UpgradeListMenu(
         val current = settings.value
         val rows = current.listRows
         val context = TemplateContext.of(MinionPlaceholders.MINION to minion)
-        val allUpgrades = upgrades.allowedFor(minion) + minion.state.type.compactorRecipes.map { it.upgrade }
+        val allUpgrades = upgrades.allowedFor(minion) + minion.state.definition.compactorRecipes.map { it.upgrade }
 
         menu(rows) {
             setTitle(messages.render(current.listTitle, context))

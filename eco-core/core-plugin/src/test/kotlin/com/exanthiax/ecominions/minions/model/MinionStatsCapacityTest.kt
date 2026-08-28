@@ -6,7 +6,7 @@ import java.util.UUID
 
 class MinionStatsCapacityTest {
 
-    private val base = MinionType.BaseStats(
+    private val base = MinionDefinition.BaseStats(
         speedTicks = "40",
         efficiencyTicks = "10",
         radius = "2",

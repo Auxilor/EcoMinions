@@ -32,7 +32,7 @@ class MinionXpService(
 
     /** Sums every gain method that applies to [dispatched] and banks the total. */
     override fun onTrigger(minion: Minion, dispatched: DispatchedTrigger) {
-        val levelling = minion.state.type.levelling
+        val levelling = minion.state.definition.levelling
         if (!levelling.enabled || minion.state.isAtMaxLevel) {
             return
         }
@@ -87,7 +87,7 @@ class MinionXpService(
             dispatched.addPlaceholder(NamedValue("previous_level", level - 1))
 
             TriggerMinionLevelUp.dispatch(dispatcher, dispatched.data)
-            minion.state.type.levelling.levelUpEffects?.trigger(dispatched)
+            minion.state.definition.levelling.levelUpEffects?.trigger(dispatched)
             notifyLevelUp(minion, level)
         }
     }
@@ -101,7 +101,7 @@ class MinionXpService(
          * server tick.
          */
         fun progress(state: MinionState, amount: Double): LevelUpResult {
-            val levelling = state.type.levelling
+            val levelling = state.definition.levelling
             val curve = levelling.curve
 
             if (!levelling.enabled || curve == null || state.isAtMaxLevel) {

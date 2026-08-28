@@ -1,4 +1,5 @@
 name: "&eSand Minion"
+type: miner
 target-blocks:
   - SAND
   - RED_SAND

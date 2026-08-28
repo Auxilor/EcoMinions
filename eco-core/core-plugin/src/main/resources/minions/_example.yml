@@ -6,10 +6,17 @@
 
 name: "&fExample Minion"
 
-# Blocks this minion mines. If every entry is a log of the same tree
-# (e.g. all OAK_LOG), the minion is detected as that tree's wood family and
-# only ever mines that log - crops aren't auto-promoted for it. Otherwise any
-# configured seed/crop is promoted to its grown form automatically.
+# What this minion does with the blocks it breaks:
+#   miner      - breaks the block and puts it back after the regen delay
+#   woodcutter - fells the tree, plants a sapling, waits for it to grow
+#   farmer     - harvests the ripe crop and replants it
+# Required. A block definition in blocks/ can override this for one
+# specific block with its own 'restore:' key.
+type: miner
+
+# Blocks this minion mines. A woodcutter lists its log here like any other
+# minion lists its block. Any configured seed or crop is promoted to its
+# grown form automatically.
 target-blocks:
   - STONE
   - COBBLESTONE
@@ -145,11 +152,14 @@ particles:
     offset: 0.0
     nearby-player-radius: 16
 
-# Prices for auto_sell, keyed by material. Leave empty (or omit entirely) to
+# Prices for auto_sell, keyed by item id - what the block drops, not the block.
+# Custom item ids work here too, which is the only way to price a drop from
+# ItemsAdder, Oraxen, Nexo or CraftEngine. Leave empty (or omit entirely) to
 # fall back to config.yml's sell-pricing.auto-from-ecoshop, if it's on.
 sell-prices:
   STONE: 1.0
   COBBLESTONE: 1.0
+  # "itemsadder:ruby": 100.0
 
 # IDs of upgrades this type may purchase, each matching a filename in
 # upgrades/ (see upgrades/_example.yml). auto_sell only pays out if

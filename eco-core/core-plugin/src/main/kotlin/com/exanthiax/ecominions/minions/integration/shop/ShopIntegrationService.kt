@@ -5,7 +5,6 @@ import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.willfp.ecoshop.shop.SellStatus
 import com.willfp.ecoshop.shop.shopItem
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
@@ -28,16 +27,19 @@ class ShopIntegrationService(
     fun isEnabled(): Boolean = pluginAvailable && settings.value.sellPricing.autoFromEcoShop
 
     /**
-     * @return 1 if [material] is sellable through EcoShop, else null.
+     * @return 1 if [item] is sellable through EcoShop, else null.
+     *
+     * Takes the stack rather than its material, so a custom item is offered to
+     * EcoShop as itself instead of as the vanilla block it happens to look like.
      *
      * Sell prices are per item, so one unit is one item; the count only matters
      * at payment time.
      */
-    fun unitsFor(material: Material): Int? {
+    fun unitsFor(item: ItemStack): Int? {
         if (!isEnabled()) {
             return null
         }
-        val shopItem = ItemStack(material).shopItem ?: return null
+        val shopItem = item.shopItem ?: return null
         return if (shopItem.sellPrice != null) 1 else null
     }
 
@@ -53,7 +55,7 @@ class ShopIntegrationService(
         if (!isEnabled() || units <= 0) {
             return false
         }
-        val shopItem = ItemStack(item.type).shopItem ?: return false
+        val shopItem = item.shopItem ?: return false
         val price = shopItem.sellPrice ?: return false
 
         if (shopItem.getSellStatus(player, units) != SellStatus.ALLOW) {

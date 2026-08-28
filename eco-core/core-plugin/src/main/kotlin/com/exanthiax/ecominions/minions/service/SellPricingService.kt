@@ -1,9 +1,9 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.config.SettingsHolder
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
-import org.bukkit.Material
+import org.bukkit.inventory.ItemStack
 
 /**
  * Decides what a minion's drop is worth, and which economy pays for it.
@@ -14,8 +14,8 @@ import org.bukkit.Material
  */
 class SellPricingService(
     private val settings: SettingsHolder<SellPricingSettings>,
-    /** @return How many shop units [Material] sells for, or null if EcoShop won't sell it. */
-    private val shopUnitsFor: (Material) -> Int?
+    /** @return How many shop units [item] sells for, or null if EcoShop won't sell it. */
+    private val shopUnitsFor: (ItemStack) -> Int?
 ) {
     /** What a stack is worth, and who settles it. */
     sealed interface Quote {
@@ -26,12 +26,16 @@ class SellPricingService(
         data class Shop(val units: Int, val multiplier: Double) : Quote
     }
 
-    fun quote(type: MinionType, material: Material, amount: Int): Quote? {
+    /**
+     * @param item The stack as it is, not its material: a custom drop only
+     * answers to a test against the whole stack.
+     */
+    fun quote(definition: MinionDefinition, item: ItemStack, amount: Int): Quote? {
         if (amount <= 0) {
             return null
         }
 
-        type.priceOf(material)?.let {
+        definition.prices.priceOf(item)?.let {
             return Quote.Configured(it * amount)
         }
 
@@ -39,16 +43,16 @@ class SellPricingService(
         if (!current.autoFromEcoShop) {
             return null
         }
-        shopUnitsFor(material) ?: return null
+        shopUnitsFor(item) ?: return null
 
         return Quote.Shop(units = amount, multiplier = current.multiplier)
     }
 
-    /** @return Whether [material] has a price from either source. */
-    fun isSellable(type: MinionType, material: Material): Boolean {
-        if (type.priceOf(material) != null) {
+    /** @return Whether [item] has a price from either source. */
+    fun isSellable(definition: MinionDefinition, item: ItemStack): Boolean {
+        if (definition.prices.priceOf(item) != null) {
             return true
         }
-        return settings.value.autoFromEcoShop && shopUnitsFor(material) != null
+        return settings.value.autoFromEcoShop && shopUnitsFor(item) != null
     }
 }

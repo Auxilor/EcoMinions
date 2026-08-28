@@ -1,10 +1,12 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.minions.MinionTypeFixture
-import com.exanthiax.ecominions.minions.model.GameData
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
+import com.exanthiax.ecominions.minions.model.MinionBlock
+import com.exanthiax.ecominions.minions.model.TargetSet
+import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import org.bukkit.Material
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -12,7 +14,7 @@ import org.junit.jupiter.api.Test
 
 class MiningTargetFinderTest {
 
-    private val finder = MiningTargetFinder(GameData.EMPTY)
+    private val finder = MiningTargetFinder()
 
     /** The default three-block box is exactly the one every type had before height existed. */
     @Test
@@ -67,9 +69,16 @@ class MiningTargetFinderTest {
         radius: Int = 1,
         height: Int
     ): Minion {
-        val type = MinionTypeFixture.build(targetBlocks = setOf(Material.OAK_LOG))
+        val type = MinionDefinitionFixture.build(
+            targetBlocks = TargetSet(
+                listOf(
+                    MinionBlock.regenDefault("oak", "OAK_LOG", FakeBlockLookup.testable(Material.OAK_LOG))
+                        .copy(vanillaMaterial = Material.OAK_LOG)
+                )
+            )
+        )
         return mockk<Minion>().also { minion ->
-            every { minion.state } returns mockk { every { this@mockk.type } returns type }
+            every { minion.state } returns mockk { every { this@mockk.definition } returns type }
             every { minion.stats } returns mockk {
                 every { this@mockk.radius } returns radius
                 every { this@mockk.height } returns height

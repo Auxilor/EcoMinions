@@ -6,7 +6,7 @@ sidebar_position: 3
 ## Upgrades
 
 Each upgrade is a YAML file in `upgrades/`. The file name (without `.yml`) is the upgrade ID, and is what
-a minion type's `allowed-upgrades` list refers to. An `_example.yml` is provided in the folder to copy from.
+a minion's `allowed-upgrades` list refers to. An `_example.yml` is provided in the folder to copy from.
 
 ## Common Config
 
@@ -135,5 +135,5 @@ conditions, and mutators available inside `effects`, plus the stock libreforge c
 ## Where to go next
 
 - **Build a minion:** [How to Make a Minion](how-to-make-a-minion) for the `allowed-upgrades` list that exposes
-  an upgrade to a minion type.
+  an upgrade to a minion.
 - **Build a fuel:** [How to Make a Fuel](how-to-make-a-fuel) to keep minions active.

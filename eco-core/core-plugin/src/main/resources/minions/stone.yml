@@ -1,4 +1,5 @@
 name: "&7Stone Minion"
+type: miner
 target-blocks:
   - STONE
   - COBBLESTONE

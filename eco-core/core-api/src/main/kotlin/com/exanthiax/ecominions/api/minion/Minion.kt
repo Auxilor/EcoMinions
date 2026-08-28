@@ -8,7 +8,7 @@ interface Minion {
     /** Stable id, preserved across pickup and re-placement. */
     val uuid: UUID
 
-    val type: MinionType
+    val type: MinionDefinition
 
     /**
      * The minion's level.

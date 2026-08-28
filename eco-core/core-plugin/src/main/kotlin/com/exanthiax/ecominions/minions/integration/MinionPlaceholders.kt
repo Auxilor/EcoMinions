@@ -30,7 +30,7 @@ class MinionPlaceholders(
 
         for (type in minions.types()) {
             placeholders += PlayerPlaceholder(plugin, "count_${type.id}") { player ->
-                minions.ownedBy(player).count { it.state.type.id == type.id }.toString()
+                minions.ownedBy(player).count { it.state.definition.id == type.id }.toString()
             }
         }
 
@@ -38,8 +38,8 @@ class MinionPlaceholders(
     }
 
     override fun internalPlaceholders(): List<InternalPlaceholder> = listOf(
-        InternalPlaceholder("minion_name") { it.minion()?.state?.type?.name },
-        InternalPlaceholder("type") { it.minion()?.state?.type?.id },
+        InternalPlaceholder("minion_name") { it.minion()?.state?.definition?.name },
+        InternalPlaceholder("type") { it.minion()?.state?.definition?.id },
         InternalPlaceholder("level") { it.minion()?.level?.toString() },
         InternalPlaceholder("owner") { it.minion()?.let(::ownerName) },
         InternalPlaceholder("used") { it.minion()?.usedStorage?.toString() },

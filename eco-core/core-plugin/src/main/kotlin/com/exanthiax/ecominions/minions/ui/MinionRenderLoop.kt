@@ -60,14 +60,14 @@ class MinionRenderLoop(
         if (minion.animation != Minion.AnimationState.FULL) {
             return
         }
-        val layer = minion.state.type.particles.full ?: return
-        emitNearby(minion, now, layer, minion.state.type.particles.fullPlayerRadius)
+        val layer = minion.state.definition.particles.full ?: return
+        emitNearby(minion, now, layer, minion.state.definition.particles.fullPlayerRadius)
     }
 
     /** Only drawn while the minion is idle, and only when someone is there to see it. */
     private fun emitIdleParticles(minion: Minion, now: Long) {
-        val layer = minion.state.type.particles.idle ?: return
-        emitNearby(minion, now, layer, minion.state.type.particles.idlePlayerRadius)
+        val layer = minion.state.definition.particles.idle ?: return
+        emitNearby(minion, now, layer, minion.state.definition.particles.idlePlayerRadius)
     }
 
     /**
@@ -79,7 +79,7 @@ class MinionRenderLoop(
         if (minion.animation != Minion.AnimationState.BLOCKED) {
             return
         }
-        val layer = minion.state.type.particles.blocked ?: return
+        val layer = minion.state.definition.particles.blocked ?: return
         if (now % layer.intervalTicks.coerceAtLeast(1) >= RENDER_INTERVAL_TICKS) {
             return
         }
@@ -89,7 +89,7 @@ class MinionRenderLoop(
         if (owner.world != corner.world) {
             return
         }
-        val watchRadius = minion.state.type.particles.blockedPlayerRadius.toDouble()
+        val watchRadius = minion.state.definition.particles.blockedPlayerRadius.toDouble()
         if (owner.location.distanceSquared(corner) > watchRadius * watchRadius) {
             return
         }

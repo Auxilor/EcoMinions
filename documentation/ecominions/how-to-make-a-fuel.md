@@ -32,5 +32,5 @@ offline span rather than the full wall-clock time the owner was away.
 
 ## Where to go next
 
-- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) for the full minion type config.
+- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) for the full minion config.
 - **Build an upgrade:** [How to Make an Upgrade](how-to-make-an-upgrade) for speed and efficiency upgrades.

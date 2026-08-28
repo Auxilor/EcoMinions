@@ -1,4 +1,5 @@
 name: "&aSugar Cane Minion"
+type: farmer
 target-blocks:
   - SUGAR_CANE
 

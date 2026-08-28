@@ -35,7 +35,8 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
 import com.exanthiax.ecominions.levelling.service.MinionXpService
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionBlock
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.conditions.Conditions
@@ -53,18 +54,22 @@ import com.willfp.libreforge.triggers.Triggers
 object LibreforgeRegistrations {
 
     /**
-     * `compactorRecipes` must load before `types`: [MinionTypeLoader] resolves
+     * `compactorRecipes` must load before `types`: [MinionDefinitionLoader] resolves
      * each type's `compactor-recipes:` list during `load()`, so a type parsed
      * before the catalog is populated silently gets none of them. This ordering
      * has to survive `/minions reload` too, not just first boot - reload calls
      * `clear()` on every category and reloads them in this order.
+     *
+     * `blocks` goes first for the same reason: a type's `target-blocks:` are
+     * resolved against the block definitions while the type is being parsed.
      */
     fun configCategories(
-        types: ConfigDrivenRegistry<MinionType>,
+        blocks: ConfigDrivenRegistry<MinionBlock>,
+        types: ConfigDrivenRegistry<MinionDefinition>,
         upgrades: ConfigDrivenRegistry<Upgrade>,
         fuels: ConfigDrivenRegistry<Fuel>,
         compactorRecipes: ConfigDrivenRegistry<CompactorRecipeDefinition>
-    ): List<ConfigCategory> = listOf(upgrades, fuels, compactorRecipes, types)
+    ): List<ConfigCategory> = listOf(blocks, upgrades, fuels, compactorRecipes, types)
 
     /**
      * Every libreforge component this plugin owns.

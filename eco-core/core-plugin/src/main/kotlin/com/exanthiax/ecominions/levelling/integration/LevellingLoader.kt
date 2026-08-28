@@ -18,11 +18,11 @@ import com.willfp.libreforge.triggers.DispatchedTrigger
 import com.willfp.libreforge.triggers.Triggers
 
 /**
- * Parses a minion type's `levelling:` block.
+ * Parses a minion definition's `levelling:` block.
  *
  * A broken levelling block degrades the type to non-levelling rather than
  * rejecting the file: the rest of the config is still valid and the minion
- * still mines. A levelling typo must not delete a working minion type.
+ * still mines. A levelling typo must not delete a working minion.
  */
 class LevellingLoader {
 

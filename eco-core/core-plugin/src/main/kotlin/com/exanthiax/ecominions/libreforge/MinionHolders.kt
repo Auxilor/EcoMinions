@@ -21,10 +21,10 @@ class MinionHolders(
         val state = minion.state
         val holders = mutableListOf<ProvidedHolder>()
 
-        state.type.holder?.let { holders += SimpleProvidedHolder(it) }
+        state.definition.holder?.let { holders += SimpleProvidedHolder(it) }
 
         for ((upgradeId, tier) in state.upgrades) {
-            if (upgradeId !in state.type.allowedUpgradeIds) {
+            if (upgradeId !in state.definition.allowedUpgradeIds) {
                 continue
             }
             val upgrade = upgradeById(upgradeId) ?: continue

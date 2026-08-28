@@ -56,7 +56,7 @@ sell-pricing:
 ```
 
 `auto-from-ecoshop` requires EcoShop to be installed, and only applies to materials that have no explicit entry
-in a minion type's own `sell-prices` section - an explicit price always wins and is never overridden. When a
+in a minion's own `sell-prices` section - an explicit price always wins and is never overridden. When a
 material has no explicit price and `auto-from-ecoshop` is true, its sell price is pulled from EcoShop instead.
 `sell-price-multiplier` scales EcoShop-sourced prices only; explicit `sell-prices` entries are never scaled by it.
 
@@ -78,11 +78,11 @@ minion:
   # Replaces any bedrock regen markers left behind. Use AIR to simply remove them.
   regen-marker-fallback-block: AIR
 
-  # Upper bound on any minion type's storage-slots and max-storage-slots.
+  # Upper bound on any minion's storage-slots and max-storage-slots.
   hard-slot-cap: 54
 ```
 
-`hard-slot-cap` bounds what any minion type may declare for `storage-slots` and `max-storage-slots`. Minion
+`hard-slot-cap` bounds what any minion may declare for `storage-slots` and `max-storage-slots`. Minion
 storage is virtual and is never opened as a chest, so this is a guard against typos rather than a Minecraft
 limit - raise it if your types need more than a double chest's worth.
 

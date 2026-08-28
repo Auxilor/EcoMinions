@@ -24,7 +24,7 @@ class EffectMinionCompact(
         val minion = data.dispatcher.get<Minion>() ?: return false
         val dispatcher = minion.toDispatcher()
 
-        val recipes = minion.state.type.compactorRecipes
+        val recipes = minion.state.definition.compactorRecipes
             .filter { minion.state.upgradeLevel(it.upgrade.id) > 0 }
             .filter { it.recipe.conditions.isEmpty() || it.recipe.conditions.areMet(dispatcher, EmptyProvidedHolder) }
             .map { it.recipe }

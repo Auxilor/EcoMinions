@@ -29,13 +29,13 @@ class LevellingPlaceholders(
             val required = requiredFor(minion) ?: return@InternalPlaceholder "100"
             ((minion.state.xp / required) * 100).toInt().coerceIn(0, 100).toString()
         },
-        InternalPlaceholder("max_level") { it.minion()?.state?.type?.levelling?.maxLevel?.toString() },
+        InternalPlaceholder("max_level") { it.minion()?.state?.definition?.levelling?.maxLevel?.toString() },
         InternalPlaceholder("level_numeral") { it.minion()?.level?.toNumeral() }
     )
 
     /** @return XP needed for the next level, or null when there is no next level. */
     private fun requiredFor(minion: Minion): Double? {
-        val levelling = minion.state.type.levelling
+        val levelling = minion.state.definition.levelling
         if (!levelling.enabled || minion.state.isAtMaxLevel) {
             return null
         }

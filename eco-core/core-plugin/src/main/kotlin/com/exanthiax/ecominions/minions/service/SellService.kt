@@ -23,13 +23,13 @@ class SellService(
     fun sellStorage(minion: Minion): Double {
         val owner = minion.state.owner ?: return 0.0
         val player = Bukkit.getPlayer(owner) ?: return 0.0
-        val type = minion.state.type
+        val type = minion.state.definition
 
         var economyTotal = 0.0
         for (slot in 0 until minion.storage.size) {
             val item = minion.storage.getItem(slot) ?: continue
 
-            when (val quote = pricing.quote(type, item.type, item.amount)) {
+            when (val quote = pricing.quote(type, item, item.amount)) {
                 is SellPricingService.Quote.Configured -> {
                     economyTotal += quote.totalValue
                     minion.storage.setItem(slot, null)

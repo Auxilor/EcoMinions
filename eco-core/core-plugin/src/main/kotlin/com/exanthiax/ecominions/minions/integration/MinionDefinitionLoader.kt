@@ -4,14 +4,19 @@ import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.core.registry.ConfigLoader
+import com.exanthiax.ecominions.core.world.BlockLookup
+import com.exanthiax.ecominions.core.world.ItemLookup
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
-import com.exanthiax.ecominions.minions.model.GameData
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionEquipment
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.PlacementSettings
+import com.exanthiax.ecominions.minions.model.PriceList
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
-import com.exanthiax.ecominions.minions.model.WoodFamily
+import com.exanthiax.ecominions.minions.model.TargetSet
+import com.willfp.eco.core.blocks.TestableBlock
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.placeholder.context.placeholderContext
 import com.willfp.eco.util.NamespacedKeyUtils
@@ -23,9 +28,18 @@ import com.willfp.libreforge.effects.Effects
 import org.bukkit.Material
 import kotlin.math.roundToInt
 
-/** Parses one file in `minions/` into a validated [MinionType]. */
-class MinionTypeLoader(
-    private val gameData: GameData,
+/** Parses one file in `minions/` into a validated [MinionDefinition]. */
+class MinionDefinitionLoader(
+    /** Resolves a configured id to a block on this server, vanilla or custom. */
+    private val blocks: BlockLookup,
+    /**
+     * Looks one entry out of the `blocks/` catalog **by its block id**, not by
+     * its file name: `target-blocks` names `OAK_LOG`, while the file that
+     * defines it is `oak.yml`.
+     */
+    private val blockDefinition: (String) -> MinionBlock?,
+    /** Resolves a `sell-prices:` key to an item on this server, vanilla or custom. */
+    private val items: ItemLookup,
     private val particles: ParticleSettingsLoader,
     private val levelling: LevellingLoader,
     /** Whether config.yml lets prices come from EcoShop, making sell-prices optional. */
@@ -36,19 +50,30 @@ class MinionTypeLoader(
     private val compactorRecipe: (String) -> CompactorRecipeDefinition?,
     /** Every catalog id, for the "known: [...]" half of an unresolvable-id violation. */
     private val compactorRecipeIds: () -> Collection<String>
-) : ConfigLoader<MinionType> {
+) : ConfigLoader<MinionDefinition> {
 
-    override fun load(id: String, config: Config, context: LoadContext): MinionType? {
-        val configured = readTargetBlocks(config, context)
+    override fun load(id: String, config: Config, context: LoadContext): MinionDefinition? {
+        val type = MinionType.parse(config.getStringOrNull("type"))
+        if (type == null) {
+            context.violation(
+                "type",
+                "must be one of ${MinionType.entries.joinToString(", ") { it.id }}"
+            )
+            return null
+        }
+
+        val configured = readTargetBlocks(config)
         if (configured.isEmpty()) {
             context.violation("target-blocks", "no valid blocks - the minion would never mine")
             return null
         }
 
-        val woodFamily = gameData.woodFamilies.detect(configured)
-        val targets = resolveTargets(configured, woodFamily)
-        if (targets.isEmpty()) {
+        val targets = resolveTargets(configured, context)
+        if (targets.isEmpty) {
             context.violation("target-blocks", "every configured block is an invalid mining target")
+            return null
+        }
+        if (!rejectUnfellableTargets(type, targets, context)) {
             return null
         }
 
@@ -57,7 +82,7 @@ class MinionTypeLoader(
         val allowedUpgrades = config.getStrings("allowed-upgrades") + compactorRecipes.map { it.upgrade.id }
         val sellPrices = readSellPrices(config, context)
 
-        if (AUTO_SELL in allowedUpgrades && sellPrices.isEmpty() && !autoPricingEnabled()) {
+        if (AUTO_SELL in allowedUpgrades && sellPrices.isEmpty && !autoPricingEnabled()) {
             context.violation(
                 "sell-prices",
                 "'$AUTO_SELL' is allowed but no prices are configured, and sell-pricing." +
@@ -65,19 +90,19 @@ class MinionTypeLoader(
             )
         }
 
-        return MinionType(
+        return MinionDefinition(
             id = id,
             name = config.getFormattedString("name"),
             targetBlocks = targets,
             allowedUpgradeIds = allowedUpgrades,
-            woodFamily = woodFamily,
+            type = type,
             baseStats = readBaseStats(config),
             spawnItem = spawnItem,
             crafting = readCrafting(config, context),
             equipment = readEquipment(config),
             particles = particles.load(config.getSubsection("particles"), context),
-            placement = readPlacement(id, config, configured, targets, woodFamily, context),
-            sellPrices = sellPrices,
+            placement = readPlacement(id, config, targets, type, context),
+            prices = sellPrices,
             levelling = levelling.load(config, context),
             holder = compileHolder(id, config, context),
             compactorRecipes = compactorRecipes
@@ -105,35 +130,86 @@ class MinionTypeLoader(
         )
     }
 
-    private fun readTargetBlocks(config: Config, context: LoadContext): List<Material> =
-        config.getStrings("target-blocks").mapNotNull { name ->
-            Material.matchMaterial(name)
-                ?: context.invalid("target-blocks", name, "a material on this server version")
+    /**
+     * @return false if this is a woodcutter aimed at something that is not a tree.
+     *
+     * Fatal rather than a warning, because a woodcutter clears what it breaks
+     * instead of regenerating it. Loading one anyway would let it strip a block
+     * it can never replant - it would eat a player's build and then sit blocked.
+     */
+    private fun rejectUnfellableTargets(
+        type: MinionType,
+        targets: TargetSet,
+        context: LoadContext
+    ): Boolean {
+        if (type != MinionType.WOODCUTTER) {
+            return true
         }
 
-    /** Tree types mine only logs; everything else promotes seeds to their crop. */
-    private fun resolveTargets(configured: List<Material>, woodFamily: WoodFamily?): Set<Material> {
-        if (woodFamily != null) {
-            return setOf(woodFamily.log)
+        val unfellable = targets.definitions.filter { it.plant == null || it.leaves == null }
+        if (unfellable.isEmpty()) {
+            return true
         }
-        return configured
-            .map { gameData.growthRules.promote(it) }
-            .filter { gameData.growthRules.isValidTarget(it) }
-            .toSet()
+
+        context.violation(
+            "target-blocks",
+            unfellable.joinToString(", ") { it.lookup } +
+                " is not a tree - a woodcutter fells what it breaks and never puts it back, so it " +
+                "would destroy this permanently. Give it a 'plant' and 'leaves' in blocks/, or use " +
+                "type: miner."
+        )
+        return false
     }
+
+    /** Ids as authored - eco resolves them, so a custom block id is as valid as a material. */
+    private fun readTargetBlocks(config: Config): List<String> =
+        config.getStrings("target-blocks").filter { it.isNotBlank() }
+
+    /**
+     * Every configured id, resolved to its `blocks/` definition.
+     *
+     * An id with no definition file gets a plain regen default rather than
+     * being dropped, which is the behaviour `blocks/_example.yml` has always
+     * promised. A definition that promotes - a seed to its crop - is followed
+     * once, and one that is not mineable is dropped with a violation, so a
+     * config asking a minion to farm dripstone says why it will not.
+     */
+    private fun resolveTargets(configured: List<String>, context: LoadContext): TargetSet {
+        val resolved = configured.mapNotNull { id ->
+            val definition = resolve(id, context) ?: return@mapNotNull null
+            val promoted = definition.promotesTo?.let { resolve(it, context) } ?: definition
+
+            if (!promoted.mineable) {
+                return@mapNotNull context.invalid<MinionBlock>(
+                    "target-blocks", id, "a block a minion can mine"
+                )
+            }
+            promoted
+        }
+        return TargetSet(resolved.distinctBy { it.lookup })
+    }
+
+    /** @return [id]'s definition, or a plain regen default if no file defines it. */
+    private fun resolve(id: String, context: LoadContext): MinionBlock? =
+        blockDefinition(id)
+            ?: blocks.lookup(id)?.let {
+                MinionBlock.regenDefault(id = id.lowercase(), lookup = id, block = it)
+                    .copy(vanillaMaterial = Material.matchMaterial(id)?.takeIf { m -> m.isBlock })
+            }
+            ?: context.invalid("target-blocks", id, "a block or custom block id")
 
     /**
      * `max-storage-slots`, like every other stat here, may be a `%level%`
      * expression - it is just rounded rather than truncated, and always clamped
-     * to `minion.hard-slot-cap` on every read, in [MinionType.BaseStats.maxStorageSlotsAt].
+     * to `minion.hard-slot-cap` on every read, in [MinionDefinition.BaseStats.maxStorageSlotsAt].
      */
-    private fun readBaseStats(config: Config): MinionType.BaseStats =
-        MinionType.BaseStats(
+    private fun readBaseStats(config: Config): MinionDefinition.BaseStats =
+        MinionDefinition.BaseStats(
             speedTicks = config.getString("base-stats.speed-ticks"),
             efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
             radius = config.getString("base-stats.radius"),
             height = config.getStringOrNull("base-stats.height")?.takeIf { it.isNotBlank() }
-                ?: MinionType.DEFAULT_HEIGHT,
+                ?: MinionDefinition.DEFAULT_HEIGHT,
             storageSlots = config.getString("base-stats.storage-slots"),
             maxStorageSlots = config.getString("base-stats.max-storage-slots"),
             regenDelayTicks = config.getString("base-stats.regen-delay-ticks"),
@@ -194,25 +270,25 @@ class MinionTypeLoader(
     }
 
     /**
-     * Lift-regen defaults from the block being farmed: trees want their sapling's
-     * surface, crops want farmland, and anything else regenerates in place.
+     * Lift-regen and self-seeding defaults, taken from the blocks being farmed.
      *
-     * Self-seeding is off unless asked for, except on tree types, which have
+     * A target that declares a `surface` in `blocks/` wants to be lifted onto
+     * it - that is how a crop lands on farmland without anyone configuring it.
+     * Self-seeding is off unless asked for, except on woodcutters, which have
      * always planted their own saplings.
      */
     private fun readPlacement(
         id: String,
         config: Config,
-        configured: List<Material>,
-        targets: Set<Material>,
-        woodFamily: WoodFamily?,
+        targets: TargetSet,
+        type: MinionType,
         context: LoadContext
     ): PlacementSettings {
         val section = config.getSubsection("placement")
-        val regen = readRegenPlacement(id, section, configured, woodFamily, context)
+        val regen = readRegenPlacement(id, section, targets, context)
 
-        if (section.getBoolOrNull("self-seed") ?: (woodFamily != null)) {
-            readSeedBlock(section, targets, woodFamily, context)
+        if (section.getBoolOrNull("self-seed") ?: (type == MinionType.WOODCUTTER)) {
+            readSeedBlock(section, targets, type, context)
                 ?.let { return regen.copy(selfSeed = true, seedBlock = it) }
         }
         return regen
@@ -221,39 +297,44 @@ class MinionTypeLoader(
     private fun readRegenPlacement(
         id: String,
         section: Config?,
-        configured: List<Material>,
-        woodFamily: WoodFamily?,
+        targets: TargetSet,
         context: LoadContext
     ): PlacementSettings {
         if (section != null && section.getBoolOrNull("lift-regen") != null) {
             return readExplicitPlacement(id, section, context)
         }
-        woodFamily?.defaultSurface?.let { return PlacementSettings(true, it) }
-        gameData.anyCropSurfaceIn(configured)?.let { return PlacementSettings(true, it) }
+        targets.definitions.firstNotNullOfOrNull { it.surface }
+            ?.let { return PlacementSettings(true, it) }
         return PlacementSettings.NONE
     }
 
-    /** What self-seeding places: whatever was asked for, else the block the minion mines. */
+    /**
+     * What self-seeding places: whatever was asked for, else what the target
+     * declares as its `plant`, else the target block itself.
+     *
+     * A woodcutter must plant a sapling rather than a log, so a target with no
+     * `plant` gives it nothing to seed and is reported.
+     */
     private fun readSeedBlock(
         section: Config,
-        targets: Set<Material>,
-        woodFamily: WoodFamily?,
+        targets: TargetSet,
+        type: MinionType,
         context: LoadContext
-    ): Material? {
+    ): TestableBlock? {
         val raw = section.getStringOrNull("seed-block")
         if (!raw.isNullOrBlank()) {
-            val material = Material.matchMaterial(raw.uppercase())
-            if (material == null || !material.isBlock) {
-                return context.invalid("placement.seed-block", raw, "a placeable block")
-            }
-            return material
+            return blocks.lookup(raw)
+                ?: context.invalid("placement.seed-block", raw, "a block or custom block id")
         }
 
-        val fallback = woodFamily?.sapling ?: targets.firstOrNull()
+        val fallback = targets.definitions.firstNotNullOfOrNull { it.plant }
+            ?: targets.definitions.firstOrNull()?.block.takeIf { type != MinionType.WOODCUTTER }
+
         if (fallback == null) {
             context.violation(
                 "placement.self-seed",
-                "self-seed is on but there is nothing to seed - set placement.seed-block"
+                "self-seed is on but there is nothing to seed - give the target block a " +
+                    "'plant' in blocks/, or set placement.seed-block"
             )
         }
         return fallback
@@ -270,21 +351,30 @@ class MinionTypeLoader(
             return PlacementSettings.NONE
         }
 
-        val material = Material.matchMaterial(raw.uppercase())
-        if (material == null || !material.isBlock) {
-            context.violation("placement.surface-block", "'$raw' is not a placeable block")
+        val surface = blocks.lookup(raw)
+        if (surface == null) {
+            context.violation("placement.surface-block", "'$raw' is not a block or custom block id")
             return PlacementSettings.NONE
         }
-        return PlacementSettings(true, material)
+        return PlacementSettings(true, surface)
     }
 
-    private fun readSellPrices(config: Config, context: LoadContext): Map<Material, Double> {
+    /** Keys are item ids, so a custom drop is as priceable as a vanilla one. */
+    private fun readSellPrices(config: Config, context: LoadContext): PriceList {
         val section = config.getSubsection("sell-prices")
-        return section.getKeys(false).mapNotNull { key ->
-            val material = Material.matchMaterial(key)
-                ?: return@mapNotNull context.invalid<Pair<Material, Double>>("sell-prices", key, "a material")
-            material to section.getDouble(key)
-        }.toMap()
+        return PriceList(
+            section.getKeys(false).mapNotNull { key ->
+                val item = items.lookup(key)
+                    ?: return@mapNotNull context.invalid<PriceList.Entry>(
+                        "sell-prices", key, "an item or custom item id"
+                    )
+                PriceList.Entry(
+                    item = item,
+                    price = section.getDouble(key),
+                    vanillaMaterial = Material.matchMaterial(key)
+                )
+            }
+        )
     }
 
     private companion object {

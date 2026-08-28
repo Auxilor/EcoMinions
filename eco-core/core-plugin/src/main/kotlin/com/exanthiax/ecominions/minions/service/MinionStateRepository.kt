@@ -3,7 +3,7 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.core.persistence.MinionDataKeys
 import com.exanthiax.ecominions.minions.model.MinionState
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.UpgradeCodec
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataContainer
@@ -15,7 +15,7 @@ import java.util.UUID
  */
 class MinionStateRepository(
     private val keys: MinionDataKeys,
-    private val typeById: (String) -> MinionType?
+    private val typeById: (String) -> MinionDefinition?
 ) {
     fun isMinion(container: PersistentDataContainer): Boolean =
         container.get(keys.isMinion, MinionDataKeys.BYTE) == MARKER
@@ -28,7 +28,7 @@ class MinionStateRepository(
         val type = typeById(typeId) ?: return null
 
         return MinionState(
-            type = type,
+            definition = type,
             storedLevel = container.get(keys.level, MinionDataKeys.INT) ?: 1,
             xp = container.get(keys.xp, MinionDataKeys.DOUBLE) ?: 0.0,
             owner = container.get(keys.owner, MinionDataKeys.STRING)?.toUuidOrNull(),
@@ -42,7 +42,7 @@ class MinionStateRepository(
     /** Writes everything an item needs to rebuild a minion when placed. */
     fun write(container: PersistentDataContainer, state: MinionState) {
         container.set(keys.isMinion, MinionDataKeys.BYTE, MARKER)
-        container.set(keys.type, MinionDataKeys.STRING, state.type.id)
+        container.set(keys.type, MinionDataKeys.STRING, state.definition.id)
         container.set(keys.level, MinionDataKeys.INT, state.level)
         container.set(keys.xp, MinionDataKeys.DOUBLE, state.xp)
         container.set(keys.upgrades, MinionDataKeys.STRING, UpgradeCodec.encode(state.upgrades))

@@ -6,7 +6,7 @@ import java.util.UUID
 
 class MinionStatsTest {
 
-    private val base = MinionType.BaseStats(
+    private val base = MinionDefinition.BaseStats(
         speedTicks = "40",
         efficiencyTicks = "10",
         radius = "2",
@@ -18,7 +18,7 @@ class MinionStatsTest {
 
     /** Base stats scaled by level, with plain arithmetic standing in for eco's evaluator. */
     private fun stats(level: Int) = MinionStats(
-        base = MinionType.BaseStats(
+        base = MinionDefinition.BaseStats(
             speedTicks = "60 - %level%",
             efficiencyTicks = "10",
             radius = "3",

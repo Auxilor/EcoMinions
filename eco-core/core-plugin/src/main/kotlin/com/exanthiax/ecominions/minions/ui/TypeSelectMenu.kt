@@ -5,7 +5,7 @@ import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.model.MenuSettings
 import com.exanthiax.ecominions.minions.model.MinionState
-import com.exanthiax.ecominions.minions.model.MinionType
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.willfp.eco.core.gui.menu
@@ -13,7 +13,7 @@ import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
 import org.bukkit.entity.Player
 
-/** Browse and take one of every configured minion type. */
+/** Browse and take one of every configured minion. */
 class TypeSelectMenu(
     private val settings: SettingsHolder<MenuSettings>,
     private val messages: Messages,
@@ -39,12 +39,12 @@ class TypeSelectMenu(
         }.open(player)
     }
 
-    private fun typeSlot(player: Player, type: MinionType): Slot {
-        val state = MinionState(type = type)
+    private fun typeSlot(player: Player, type: MinionDefinition): Slot {
+        val state = MinionState(definition = type)
         val item = itemFactory.build(state)
         val context = TemplateContext.of(
             "type_name" to type.name,
-            "targets" to type.targetBlocks.joinToString { it.name },
+            "targets" to type.targetBlockIds.joinToString(),
             "speed" to type.baseSpeedTicks,
             "capacity" to type.baseStorageSlots
         )

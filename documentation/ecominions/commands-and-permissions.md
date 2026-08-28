@@ -9,8 +9,8 @@ Every EcoMinions command and the permission node it requires.
 
 | Command                              | Description                                                     | Permission              |
 |---------------------------------------|-------------------------------------------------------------------|--------------------------|
-| `/minions`                           | Opens the minion type browser GUI                               | `ecominions.command`     |
-| `/minions open`                      | Opens the minion type browser GUI                                | `ecominions.command`     |
+| `/minions`                           | Opens the minion browser GUI                               | `ecominions.command`     |
+| `/minions open`                      | Opens the minion browser GUI                                | `ecominions.command`     |
 | `/minions give <player> <type>`      | Gives a player a minion item. Minions are always given at level one - there is no level argument | `ecominions.admin.give`  |
 | `/minions reload`                    | Reloads the plugin's configuration                                | `ecominions.admin.reload`|
 | `/minions remove <player>`           | Removes every minion owned by a player                            | `ecominions.admin.remove`|
@@ -33,5 +33,5 @@ Every EcoMinions command and the permission node it requires.
 
 ## Where to go next
 
-- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) to create minion types to give with `/minions give`.
+- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) to create minions to give with `/minions give`.
 - **Plugin config:** [Plugin Config](plugin-config) for the plugin-wide settings.

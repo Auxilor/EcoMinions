@@ -4,7 +4,7 @@ import com.willfp.libreforge.conditions.ConditionList
 import com.willfp.libreforge.effects.Chain
 
 /**
- * A minion type's whole `levelling:` block.
+ * A minion definition's whole `levelling:` block.
  *
  * When [enabled] is false the type keeps the original behaviour, where level is
  * the sum of purchased upgrade tiers plus one, and [curve] is null.

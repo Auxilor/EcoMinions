@@ -6,7 +6,7 @@ sidebar_position: 4
 ## Compactor recipes
 
 Compacting turns bulk drops into their block form (nine coal into a coal block, and so on). Each recipe is a
-YAML file in `compactor-recipes/`, shared across minion types the same way a fuel or an upgrade is - the file
+YAML file in `compactor-recipes/`, shared across minions the same way a fuel or an upgrade is - the file
 name (without `.yml`) is the recipe's catalog id. An `_example.yml` is provided in the folder to copy from.
 
 Unlike other upgrades, a compactor recipe is not written by hand as a full `upgrades/*.yml` file - loading it
@@ -84,9 +84,9 @@ changes, so a chain converges regardless of order over multiple passes) but keep
 It does **not** gate purchase or ownership on its own - pair it with a `buy-conditions: minion_has_upgrade`
 entry (as shown above) if a recipe should require the lower one to be bought first.
 
-## Letting a minion type use a recipe
+## Letting a minion use a recipe
 
-A recipe in the catalog does nothing on its own - a minion type has to opt in with two top-level keys in its
+A recipe in the catalog does nothing on its own - a minion has to opt in with two top-level keys in its
 `minions/<type>.yml`:
 
 ```yaml
@@ -117,6 +117,6 @@ elsewhere in this config or another recipe's `buy-conditions`.
 ## Where to go next
 
 - **Build a minion:** [How to Make a Minion](how-to-make-a-minion) for the `compactor-recipes` and `effects`
-  keys that expose a recipe to a minion type.
+  keys that expose a recipe to a minion.
 - **Build an upgrade:** [How to Make an Upgrade](how-to-make-an-upgrade) for hand-authored, non-compactor
   upgrades.
