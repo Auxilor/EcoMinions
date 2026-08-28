@@ -3,10 +3,12 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionStats
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.TextDisplay
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import com.exanthiax.ecominions.api.minion.Minion as ApiMinion
 import com.exanthiax.ecominions.api.minion.MinionType as ApiMinionType
@@ -21,15 +23,45 @@ import com.exanthiax.ecominions.api.minion.MinionType as ApiMinionType
 class Minion(
     state: MinionState,
     val entity: ArmorStand,
-    val storage: Inventory,
-    stats: MinionStats
+    storage: Inventory,
+    val stats: MinionStats
 ) : ApiMinion, FuelService.FuelBurner {
 
     var state: MinionState = state
         internal set
 
-    var stats: MinionStats = stats
-        internal set
+    /**
+     * The minion's storage.
+     *
+     * Reassignable because the capacity effect can change the row count at any
+     * refresh, not only at purchase time. [resizeStorage] is the only writer.
+     */
+    var storage: Inventory = storage
+        private set
+
+    /**
+     * Grows or shrinks storage to [rows], preserving contents.
+     *
+     * Items that no longer fit after a shrink are returned rather than deleted -
+     * the caller decides whether to drop them in the world.
+     */
+    fun resizeStorage(rows: Int, title: String): List<ItemStack> {
+        val size = rows * 9
+        if (size == storage.size) {
+            return emptyList()
+        }
+
+        val contents = (0 until storage.size).mapNotNull { storage.getItem(it) }
+        val resized = Bukkit.createInventory(null, size, title)
+        val overflow = contents.flatMap { resized.addItem(it).values }
+
+        for (viewer in storage.viewers.toList()) {
+            viewer.closeInventory()
+        }
+
+        storage = resized
+        return overflow
+    }
 
     override val uuid: UUID = state.uuid ?: entity.uniqueId
 

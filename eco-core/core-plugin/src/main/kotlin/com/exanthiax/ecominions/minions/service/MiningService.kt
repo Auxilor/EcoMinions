@@ -1,20 +1,25 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.service.FuelService
-import com.exanthiax.ecominions.minions.model.DropRoll
+import com.exanthiax.ecominions.libreforge.dispatchDrops
+import com.exanthiax.ecominions.libreforge.dispatchTrigger
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.minions.model.GameData
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionStats
+import com.willfp.libreforge.triggers.event.DropCause
+import com.willfp.libreforge.triggers.event.DropResult
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.BlockData
 import org.bukkit.entity.ExperienceOrb
-import org.bukkit.inventory.ItemStack
-import java.util.concurrent.ThreadLocalRandom
 
 /**
  * Drives one minion's mine/regen cycle for a single tick.
@@ -27,8 +32,6 @@ class MiningService(
     private val worlds: WorldSettings,
     private val gameData: GameData,
     private val treeFarming: TreeFarmingService,
-    private val compactor: CompactorService,
-    private val selling: SellService,
     private val dropWarnings: DropWarningService,
     private val fuels: FuelService,
     private val pricing: SellPricingService
@@ -38,9 +41,11 @@ class MiningService(
             return
         }
 
+        checkFuelExpiry(minion)
+
         processRegen(minion, now)
-        maybeAutoSell(minion, now)
         completePendingBreak(minion, now)
+        minion.dispatchTrigger(TriggerMinionTick)
 
         if (now < minion.mining.nextActionAt) {
             return
@@ -48,6 +53,7 @@ class MiningService(
 
         if (minion.isStorageFull) {
             minion.animation = Minion.AnimationState.FULL
+            minion.dispatchTrigger(TriggerMinionStorageFull)
             minion.mining.nextActionAt = now + FULL_RETRY_TICKS
             return
         }
@@ -59,6 +65,20 @@ class MiningService(
         }
 
         beginBreak(minion, target, now)
+    }
+
+    /**
+     * Fuel expiry is never announced - it is inferred from the clock - so the
+     * transition has to be spotted by comparing against the previous tick.
+     */
+    private fun checkFuelExpiry(minion: Minion) {
+        val burning = fuels.activeFuelOf(minion) != null
+
+        if (minion.mining.wasBurningFuel && !burning) {
+            minion.dispatchTrigger(TriggerMinionFuelExpire)
+        }
+
+        minion.mining.wasBurningFuel = burning
     }
 
     private fun beginBreak(minion: Minion, target: Block, now: Long) {
@@ -130,9 +150,16 @@ class MiningService(
         val original = block.type
         val column = if (gameData.growthRules.isStackedColumn(original)) collectColumn(block) else listOf(block)
 
-        storeDrops(minion, column.flatMap { it.getDrops() }, stats)
-        dropOverflow(minion, compactor.compact(minion.storage))
-        awardExperience(minion, block, stats)
+        val results = minion.dispatchDrops(
+            trigger = TriggerMinionMineBlock,
+            drops = column.flatMap { it.getDrops() },
+            block = block,
+            location = block.location,
+            cause = DropCause.BLOCK,
+            value = column.size.toDouble()
+        )
+
+        storeDrops(minion, results)
 
         for (segment in column.drop(1)) {
             segment.type = Material.AIR
@@ -146,22 +173,11 @@ class MiningService(
         queueRegen(minion, block, original, stats, now)
     }
 
-    private fun storeDrops(minion: Minion, drops: List<ItemStack>, stats: MinionStats) {
-        for (drop in drops) {
-            val amount = DropRoll.amount(
-                drop.amount,
-                stats.fortuneMultiplier,
-                ThreadLocalRandom.current().nextDouble()
-            )
-            if (amount <= 0) {
-                continue
+    private fun storeDrops(minion: Minion, results: List<DropResult>) {
+        for ((item, xp) in results) {
+            if (xp > 0) {
+                spawnXp(minion, xp)
             }
-
-            val item = drop.clone().apply { this.amount = amount }
-            if (stats.autoSmelt) {
-                gameData.smelt(item.type)?.let { item.type = it }
-            }
-
             if (!pricing.isSellable(minion.state.type, item.type)) {
                 dropWarnings.warnUnsellable(minion, item.type)
                 continue
@@ -172,18 +188,9 @@ class MiningService(
         }
     }
 
-    private fun dropOverflow(minion: Minion, overflow: List<ItemStack>) {
-        for (item in overflow) {
-            minion.entity.world.dropItemNaturally(minion.entity.location, item)
-        }
-    }
-
-    private fun awardExperience(minion: Minion, block: Block, stats: MinionStats) {
-        if (stats.xpDropAmount <= 0) {
-            return
-        }
-        val location = block.location.clone().add(0.5, 0.5, 0.5)
-        minion.entity.world.spawn(location, ExperienceOrb::class.java).experience = stats.xpDropAmount
+    private fun spawnXp(minion: Minion, amount: Int) {
+        val location = minion.entity.location.clone().add(0.0, 0.5, 0.0)
+        minion.entity.world.spawn(location, ExperienceOrb::class.java).experience = amount
     }
 
     private fun queueRegen(minion: Minion, block: Block, original: Material, stats: MinionStats, now: Long) {
@@ -217,17 +224,10 @@ class MiningService(
                 }
             }
             entry.location.block.blockData = entry.regenData
+            minion.dispatchTrigger(TriggerMinionRegenBlock, block = entry.location.block)
             minion.mining.pendingRegen.remove(entry.location)
             entries.remove()
         }
-    }
-
-    private fun maybeAutoSell(minion: Minion, now: Long) {
-        if (!minion.stats.autoSell || now < minion.mining.nextAutoSellAt) {
-            return
-        }
-        minion.mining.nextAutoSellAt = now + settings.value.autoSellIntervalTicks
-        selling.sellStorage(minion)
     }
 
     private fun collectColumn(bottom: Block): List<Block> {

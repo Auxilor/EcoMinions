@@ -1,7 +1,13 @@
 name: "&6Fortune"
-effect: fortune
 display:
   icon: diamond
+
+effects:
+  - id: multiply_drops
+    triggers: [minion_mine_block]
+    args:
+      multiplier: "1 + %tier_value%"
+
 tiers:
   1:
     value: 0.10

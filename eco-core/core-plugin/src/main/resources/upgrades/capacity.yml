@@ -1,7 +1,12 @@
 name: "&dCapacity"
-effect: capacity
 display:
   icon: chest
+
+effects:
+  - id: minion_capacity
+    args:
+      rows: "%tier_value%"
+
 tiers:
   1: { value: 1, stat-delta: "+1 row", cost-options: [{ value: 5000, type: vault }] }
   2: { value: 2, stat-delta: "+2 rows", cost-options: [{ value: 12000, type: vault }] }

@@ -10,7 +10,6 @@ data class MinionSettings(
     val showRegenMarker: Boolean,
     /** Block left behind when a minion is picked up mid-regen. */
     val regenMarkerFallback: Material,
-    val autoSellIntervalTicks: Int,
     val offlineEnabled: Boolean,
     val offlineEfficiency: Double,
     val limitsEnabled: Boolean,

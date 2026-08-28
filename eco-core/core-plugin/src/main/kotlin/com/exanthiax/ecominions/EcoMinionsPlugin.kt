@@ -38,13 +38,13 @@ import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.service.DropWarningService
 import com.exanthiax.ecominions.minions.service.MinionActivityService
+import com.exanthiax.ecominions.minions.service.MinionDropTables
 import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.MinionStateRepository
-import com.exanthiax.ecominions.minions.service.MinionStatsService
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
 import com.exanthiax.ecominions.minions.service.MiningService
 import com.exanthiax.ecominions.minions.service.OfflineProgressService
@@ -74,7 +74,9 @@ import com.willfp.eco.core.command.impl.PluginCommand
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import org.bukkit.Bukkit
+import org.bukkit.NamespacedKey
 import org.bukkit.event.Listener
+import org.bukkit.loot.LootContext
 import org.bukkit.plugin.ServicePriority
 
 /**
@@ -127,27 +129,34 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val upgradeService = UpgradeService(upgrades)
     private val fuelService = FuelService(fuels)
     private val compactorService = CompactorService(compactorRecipes)
-    private val statsService = MinionStatsService(upgradeService)
     private val repository = MinionStateRepository(dataKeys) { minionTypes.find(it) }
-    private val minionFactory = MinionFactory(statsService)
+    private val minionFactory = MinionFactory()
     private val itemFactory = MinionItemFactory(repository, renderer)
     private val limits = PlacementLimits(minionSettings)
-    private val offlineProgress = OfflineProgressService(minionSettings, fuelService)
+    private val shopIntegration = ShopIntegrationService(minionSettings)
+    private val sellPricingSettings = SettingsHolder(minionSettings.value.sellPricing)
+    private val sellPricing = SellPricingService(sellPricingSettings) { shopIntegration.unitsFor(it) }
+    private val sellService = SellService(sellPricing, shopIntegration)
+    private val dropTables = MinionDropTables { material, location ->
+        val key = NamespacedKey.minecraft("blocks/${material.key.key}")
+        val table = Bukkit.getLootTable(key) ?: return@MinionDropTables emptyList()
+
+        val context = LootContext.Builder(location).build()
+        table.populateLoot(java.util.Random(), context).toList()
+    }
+    private val offlineProgress = OfflineProgressService(minionSettings, fuelService, dropTables, sellPricing)
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings
     ) { Bukkit.getPlayer(it) != null }
     private val minionService = MinionService(
-        minionTypes, minionFactory, repository, statsService,
+        minionTypes, minionFactory, repository,
         itemFactory, limits, activityService, minionSettings
     )
     private val dropWarnings = DropWarningService(logger)
     private val treeFarming = TreeFarmingService(gameData, TreeService(), dropWarnings)
-    private val shopIntegration = ShopIntegrationService(minionSettings)
-    private val sellPricingSettings = SettingsHolder(minionSettings.value.sellPricing)
-    private val sellPricing = SellPricingService(sellPricingSettings) { shopIntegration.unitsFor(it) }
     private val miningService = MiningService(
         minionSettings, worlds, gameData, treeFarming,
-        compactorService, SellService(sellPricing, shopIntegration), dropWarnings,
+        dropWarnings,
         fuelService, sellPricing
     )
     private val placementService = PlacementService(
@@ -190,6 +199,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
+        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService)
         shopIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()
@@ -206,6 +216,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     override fun handleReload() {
         refreshSettings()
         registerPlaceholders()
+        dropTables.clear()
 
         customItems.registerAll()
         recipes.registerAll()

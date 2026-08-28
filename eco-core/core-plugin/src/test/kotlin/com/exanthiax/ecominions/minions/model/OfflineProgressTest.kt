@@ -7,16 +7,13 @@ class OfflineProgressTest {
 
     /** 50 ticks per cycle, so 2500ms of wall clock per unfuelled cycle. */
     private val stats = MinionStats(
-        speedTicks = 40,
-        efficiencyTicks = 10,
-        radius = 2,
-        inventoryRows = 1,
-        regenDelayTicks = 60,
-        fortuneMultiplier = 1.0,
-        autoSmelt = false,
-        autoSell = false,
-        xpDropAmount = 0,
-        compactorEnabled = false
+        MinionType.BaseStats(
+            speedTicks = 40,
+            efficiencyTicks = 10,
+            radius = 2,
+            inventoryRows = 1,
+            regenDelayTicks = 60
+        )
     )
 
     /** A doubled-speed fuel: 20 speed ticks + 10 efficiency = 30, so 1500ms per cycle. */

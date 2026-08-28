@@ -8,7 +8,9 @@ import org.bukkit.block.data.BlockData
 /** Where a single minion is up to in its mine/regen cycle. Never persisted. */
 class MiningState {
     var nextActionAt: Long = 0L
-    var nextAutoSellAt: Long = 0L
+
+    /** Whether fuel was burning last tick, so expiry can be noticed the tick it happens. */
+    var wasBurningFuel: Boolean = false
 
     /** The block being swung at, and the tick the swing lands on. */
     var pendingTarget: Block? = null

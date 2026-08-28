@@ -43,7 +43,7 @@ class TreeFarmingService(
         sapling.block.type = Material.AIR
 
         val leaves = trees.growTree(sapling, family)
-        for (drop in trees.harvestLeaves(leaves, minion.stats.fortuneMultiplier)) {
+        for (drop in trees.harvestLeaves(leaves)) {
             if (minion.state.type.priceOf(drop.type) == null) {
                 dropWarnings.warnUnsellable(minion, drop.type)
                 continue

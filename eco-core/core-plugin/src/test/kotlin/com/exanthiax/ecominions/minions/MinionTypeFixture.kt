@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.minions.model.MinionType
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
+import com.willfp.libreforge.Holder
 import org.bukkit.Material
 
 /**
@@ -25,7 +26,8 @@ object MinionTypeFixture {
             radius = 2,
             inventoryRows = 1,
             regenDelayTicks = 60
-        )
+        ),
+        holder: Holder? = null
     ) = MinionType(
         id = id,
         name = "Stone Minion",
@@ -44,6 +46,7 @@ object MinionTypeFixture {
         armor = MinionArmor.EMPTY,
         particles = ParticleSettings(full = null, fullPlayerRadius = 16, idle = null, idlePlayerRadius = 16),
         placement = PlacementSettings.NONE,
-        sellPrices = sellPrices
+        sellPrices = sellPrices,
+        holder = holder
     )
 }

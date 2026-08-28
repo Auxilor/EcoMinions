@@ -1,9 +1,22 @@
 name: "&eExample Upgrade"
 
-effect: speed
-
 display:
   icon: redstone
+
+# Effects are authored once and shared by every tier.
+# %tier_value% resolves to the `value` of whichever tier the minion owns,
+# and %tier% resolves to the tier number itself.
+effects:
+  # A minion-specific effect: makes the minion mine faster.
+  - id: minion_speed
+    args:
+      ticks_faster: "%tier_value%"
+
+  # Any stock libreforge effect works too, as long as you give it a trigger.
+  # - id: multiply_drops
+  #   triggers: [minion_mine_block]
+  #   args:
+  #     multiplier: "1 + %tier_value%"
 
 tiers:
   1:

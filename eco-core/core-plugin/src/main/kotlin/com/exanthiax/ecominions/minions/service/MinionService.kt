@@ -3,9 +3,11 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.api.minion.MinionsManager
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
+import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionType
+import com.willfp.libreforge.forceRefreshHolders
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.OfflinePlayer
@@ -24,7 +26,6 @@ class MinionService(
     private val types: ConfigDrivenRegistry<MinionType>,
     private val factory: MinionFactory,
     private val repository: MinionStateRepository,
-    private val statsService: MinionStatsService,
     private val itemFactory: MinionItemFactory,
     private val limits: PlacementLimits,
     private val activity: MinionActivityService,
@@ -77,18 +78,36 @@ class MinionService(
     fun ownedMinions(owner: UUID): List<Minion> =
         byOwner[owner].orEmpty().mapNotNull { byUuid[it] }
 
-    /** Applies a state change and keeps derived stats in step with it. */
+    /**
+     * Applies a state change and routes it through [refreshEffects], so any holder
+     * whose active/inactive status changed as a result has its stat contributions
+     * updated via libreforge's enable/disable lifecycle.
+     */
     fun updateState(minion: Minion, state: MinionState) {
         minion.state = state
-        minion.stats = statsService.statsFor(state)
         repository.save(minion)
+        refreshEffects(minion)
     }
 
-    /** Recomputes stats for every minion, e.g. after upgrade configs are reloaded. */
+    /**
+     * Refreshes every minion's active holders, e.g. after upgrade configs are
+     * reloaded, letting libreforge's enable/disable lifecycle bring stat
+     * contributions back in step with the new configuration.
+     */
     fun refreshAll() {
         for (minion in byUuid.values) {
-            minion.stats = statsService.statsFor(minion.state)
+            refreshEffects(minion)
         }
+    }
+
+    /**
+     * Recomputes which holders and effects apply.
+     *
+     * Called explicitly because libreforge only polls players, entities and the
+     * global dispatcher - a minion dispatcher is never swept automatically.
+     */
+    fun refreshEffects(minion: Minion) {
+        minion.toDispatcher().forceRefreshHolders()
     }
 
     fun hydrateLoadedWorlds() {
@@ -124,6 +143,7 @@ class MinionService(
         if (activity.isActive(registered)) {
             activity.resume(registered)
         }
+        refreshEffects(registered)
         return registered
     }
 
