@@ -47,7 +47,7 @@ class PlacementService(
             owner = state.owner ?: player.uniqueId,
             uuid = state.uuid ?: UUID.randomUUID()
         )
-        val minion = spawn(owned, location)
+        val minion = spawn(owned, location.facing(player))
 
         Bukkit.getPluginManager().callEvent(MinionPlaceEvent(minion, player))
         return PlaceResult.Placed(minion)
@@ -78,6 +78,12 @@ class PlacementService(
         minion.state.owner == null ||
             minion.state.owner == player.uniqueId ||
             player.hasPermission(ADMIN_PERMISSION)
+
+    /** Minions look back at whoever placed them, squared to the nearest cardinal direction. */
+    private fun Location.facing(player: Player): Location = clone().apply {
+        yaw = MinionFacing.towards(player.location.yaw)
+        pitch = 0.0f
+    }
 
     private fun spawn(state: MinionState, location: Location): Minion {
         val world = location.world ?: error("Cannot spawn a minion in a null world")
