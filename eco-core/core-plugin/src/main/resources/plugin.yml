@@ -11,21 +11,44 @@ softdepend:
 commands:
   minions:
     aliases: [minion, ecominions]
-permissions:
-  ecominions.command:
+    description: Opens the minion menu
+    permission: ecominions.command.minions
     default: true
-  ecominions.admin:
+permissions:
+  ecominions.*:
+    description: All ecominions permissions
     default: op
     children:
-      ecominions.admin.give: true
-      ecominions.admin.reload: true
-      ecominions.admin.remove: true
-      ecominions.admin.info: true
-  ecominions.admin.give:
+      ecominions.command.*: true
+      ecominions.admin: true
+  ecominions.command.*:
+    description: All commands
     default: op
-  ecominions.admin.reload:
+    children:
+      ecominions.command.minions: true
+      ecominions.command.open: true
+      ecominions.command.give: true
+      ecominions.command.reload: true
+      ecominions.command.remove: true
+      ecominions.command.info: true
+  ecominions.command.minions:
+    description: Allows the use of /minions.
+    default: true
+  ecominions.command.open:
+    description: Allows the use of /minions open.
+    default: true
+  ecominions.command.give:
+    description: Allows the use of /minions give.
     default: op
-  ecominions.admin.remove:
+  ecominions.command.reload:
+    description: Allows reloading the config
     default: op
-  ecominions.admin.info:
+  ecominions.command.remove:
+    description: Allows the use of /minions remove.
+    default: op
+  ecominions.command.info:
+    description: Allows the use of /minions info.
+    default: op
+  ecominions.admin:
+    description: Bypasses minion limits and ownership checks.
     default: op

@@ -12,12 +12,12 @@ import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 
 /** `/minions give <player> <type>`. Minions are always given at level one. */
-class GiveSubcommand(
+class CommandGive(
     plugin: EcoPlugin,
     private val minions: MinionService,
     private val itemFactory: MinionItemFactory,
     private val messages: Messages
-) : Subcommand(plugin, "give", "ecominions.admin.give", false) {
+) : Subcommand(plugin, "give", "ecominions.command.give", false) {
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
         if (args.size < 2) {
