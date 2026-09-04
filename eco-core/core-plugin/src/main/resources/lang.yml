@@ -13,7 +13,7 @@ messages:
   not-owner: "&cYou are not the owner of this minion."
   no-such-type: "&cNo minion type with id &e%id%&c."
   no-such-player: "&cNo player with name &e%name%&c."
-  reloaded: "Reloaded in %time%ms!"
+  reloaded: "Reloaded in %time%ms! Loaded %count% minions."
   give-success: "&aGave &e%player% &aa &e%type% &aminion."
   remove-success: "&aRemoved &e%count% &aminions for &e%player%&a."
   info-no-target: "&cYou are not looking at a minion."

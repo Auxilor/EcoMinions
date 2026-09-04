@@ -308,7 +308,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             listOf(
                 OpenSubcommand(this, typeSelectMenu),
                 GiveSubcommand(this, minionService, itemFactory, messages),
-                ReloadSubcommand(this, messages),
+                ReloadSubcommand(this, messages) { minionTypes.values().size },
                 RemoveSubcommand(this, minionService, messages),
                 InfoSubcommand(this, minionService, messages)
             )

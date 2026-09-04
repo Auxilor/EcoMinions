@@ -10,13 +10,20 @@ import org.bukkit.command.CommandSender
 /** `/minions reload`. */
 class ReloadSubcommand(
     private val plugin: EcoPlugin,
-    private val messages: Messages
+    private val messages: Messages,
+    private val minionTypeCount: () -> Int
 ) : Subcommand(plugin, "reload", "ecominions.admin.reload", false) {
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
         val time = plugin.reloadWithTime().toNiceString()
         sender.sendMessage(
-            messages.line("messages.reloaded", TemplateContext.of("time" to time))
+            messages.line(
+                "messages.reloaded",
+                TemplateContext.of(
+                    "time" to time,
+                    "count" to minionTypeCount()
+                )
+            )
         )
     }
 
