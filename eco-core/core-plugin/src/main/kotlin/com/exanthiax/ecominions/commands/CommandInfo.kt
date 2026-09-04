@@ -12,11 +12,11 @@ import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 
 /** `/minions info` - reports on the minion the sender is looking at. */
-class InfoSubcommand(
+class CommandInfo(
     plugin: EcoPlugin,
     private val minions: MinionService,
     private val messages: Messages
-) : Subcommand(plugin, "info", "ecominions.admin.info", true) {
+) : Subcommand(plugin, "info", "ecominions.command.info", true) {
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
         val player = sender as? Player ?: return

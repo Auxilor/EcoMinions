@@ -10,11 +10,11 @@ import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 
 /** `/minions remove <player>` - deletes every minion a player owns. */
-class RemoveSubcommand(
+class CommandRemove(
     plugin: EcoPlugin,
     private val minions: MinionService,
     private val messages: Messages
-) : Subcommand(plugin, "remove", "ecominions.admin.remove", false) {
+) : Subcommand(plugin, "remove", "ecominions.command.remove", false) {
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
         if (args.isEmpty()) {

@@ -12,7 +12,7 @@ class CommandMinions(
     plugin: EcoPlugin,
     private val typeSelect: TypeSelectMenu,
     subcommands: List<com.willfp.eco.core.command.impl.Subcommand>
-) : PluginCommand(plugin, "minions", "ecominions.command", false) {
+) : PluginCommand(plugin, "minions", "ecominions.command.minions", false) {
 
     init {
         subcommands.forEach { addSubcommand(it) }

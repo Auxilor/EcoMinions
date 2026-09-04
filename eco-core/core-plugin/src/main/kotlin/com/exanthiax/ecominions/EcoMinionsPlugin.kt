@@ -1,12 +1,12 @@
 package com.exanthiax.ecominions
 
 import com.exanthiax.ecominions.api.EcoMinionsApi
+import com.exanthiax.ecominions.commands.CommandGive
+import com.exanthiax.ecominions.commands.CommandInfo
 import com.exanthiax.ecominions.commands.CommandMinions
-import com.exanthiax.ecominions.commands.GiveSubcommand
-import com.exanthiax.ecominions.commands.InfoSubcommand
-import com.exanthiax.ecominions.commands.OpenSubcommand
-import com.exanthiax.ecominions.commands.RemoveSubcommand
-import com.exanthiax.ecominions.commands.ReloadSubcommand
+import com.exanthiax.ecominions.commands.CommandOpen
+import com.exanthiax.ecominions.commands.CommandReload
+import com.exanthiax.ecominions.commands.CommandRemove
 import com.exanthiax.ecominions.compactor.integration.CompactorRecipeLoader
 import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.config.SettingsHolder
@@ -306,11 +306,11 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             this,
             typeSelectMenu,
             listOf(
-                OpenSubcommand(this, typeSelectMenu),
-                GiveSubcommand(this, minionService, itemFactory, messages),
-                ReloadSubcommand(this, messages),
-                RemoveSubcommand(this, minionService, messages),
-                InfoSubcommand(this, minionService, messages)
+                CommandOpen(this, typeSelectMenu),
+                CommandGive(this, minionService, itemFactory, messages),
+                CommandReload(this) { minionTypes.values().size },
+                CommandRemove(this, minionService, messages),
+                CommandInfo(this, minionService, messages)
             )
         )
     )
