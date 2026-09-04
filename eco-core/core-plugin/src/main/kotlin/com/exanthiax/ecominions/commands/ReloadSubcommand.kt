@@ -1,8 +1,10 @@
 package com.exanthiax.ecominions.commands
 
+import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.command.impl.Subcommand
+import com.willfp.eco.util.toNiceString
 import org.bukkit.command.CommandSender
 
 /** `/minions reload`. */
@@ -12,8 +14,10 @@ class ReloadSubcommand(
 ) : Subcommand(plugin, "reload", "ecominions.admin.reload", false) {
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
-        plugin.reload()
-        sender.sendMessage(messages.line("messages.reload-success"))
+        val time = plugin.reloadWithTime().toNiceString()
+        sender.sendMessage(
+            messages.line("messages.reloaded", TemplateContext.of("time" to time))
+        )
     }
 
     override fun tabComplete(sender: CommandSender, args: List<String>): List<String> = emptyList()
