@@ -88,7 +88,8 @@ class MinionXpService(
                     location = minion.location,
                     value = level.toDouble()
                 ),
-                dispatchTrigger = true
+                dispatchTrigger = true,
+                type = "level"
             )
 
             notifyLevelUp(minion, level)
