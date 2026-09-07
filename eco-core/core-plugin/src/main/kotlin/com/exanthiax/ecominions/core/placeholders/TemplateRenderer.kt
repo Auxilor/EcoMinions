@@ -26,6 +26,8 @@ class TemplateRenderer(
         }
 
     private companion object {
-        val TOKEN = Regex("%([a-zA-Z0-9_]+)%")
+        // `+` and `-` are allowed so relative placeholders such as %level_-1% tokenise at
+        // all; without them the token pattern stops at the sign and the text is left as-is.
+        val TOKEN = Regex("%([a-zA-Z0-9_+-]+)%")
     }
 }
