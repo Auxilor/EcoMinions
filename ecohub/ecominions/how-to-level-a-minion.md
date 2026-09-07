@@ -123,7 +123,19 @@ The spec-level `conditions` block gates XP gain for the entire minion, independe
 new level. It uses the same effect blocks as a minion's `effects:` or an upgrade's `effects:` (see
 [How to Make an Upgrade](how-to-make-an-upgrade)), and can additionally react to the `minion_level_up` trigger
 (see [Libreforge Components](libreforge-components)) if you want an effect elsewhere in `effects:` to also fire
-on level-up.
+on level-up. A single XP grant large enough to cross several levels runs the chain once per level crossed, not
+once for the whole grant.
+
+These placeholders are available inside the chain. Note that they are scoped to the chain and describe the
+level-up that just happened - they are not the same as the general minion placeholders listed further down,
+which describe a minion's current state anywhere placeholders work.
+
+| Placeholder | Resolves to |
+| --- | --- |
+| `%level%` | The level just reached. |
+| `%level_numeral%` | The level just reached, as a Roman numeral. |
+| `%previous_level%` | The level before this one, i.e. `%level%` minus 1. |
+| `%previous_level_numeral%` | The previous level, as a Roman numeral. |
 
 **Owner caveat:** a minion can level up while its owner is completely offline - XP gain from `minion_tick` or
 from an idle minion's simulated mining doesn't wait for a player to be online. Because of that, any
