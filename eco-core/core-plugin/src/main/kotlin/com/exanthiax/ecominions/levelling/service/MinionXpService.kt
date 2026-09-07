@@ -9,7 +9,7 @@ import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
 import com.willfp.eco.core.progression.LevelProgression
 import com.willfp.libreforge.EmptyProvidedHolder
-import com.willfp.libreforge.NamedValue
+import com.willfp.libreforge.levels.LevelUpDispatcher
 import com.willfp.libreforge.triggers.DispatchedTrigger
 import com.willfp.libreforge.triggers.TriggerData
 import org.bukkit.Bukkit
@@ -74,21 +74,23 @@ class MinionXpService(
 
             val dispatcher = minion.toDispatcher()
 
-            val dispatched = DispatchedTrigger(
+            // dispatchTrigger = true keeps this path's global dispatch, which the shared
+            // helper leaves off by default. %level_numeral% and %previous_level_numeral% come
+            // along with the shared placeholder set; nothing that worked before stops working.
+            LevelUpDispatcher.dispatch(
                 dispatcher,
                 TriggerMinionLevelUp,
+                minion.state.definition.levelling.levelUpEffects,
+                level,
                 TriggerData(
                     dispatcher = dispatcher,
                     player = minion.ownerPlayer(),
                     location = minion.location,
                     value = level.toDouble()
-                )
+                ),
+                dispatchTrigger = true
             )
-            dispatched.addPlaceholder(NamedValue("level", level))
-            dispatched.addPlaceholder(NamedValue("previous_level", level - 1))
 
-            TriggerMinionLevelUp.dispatch(dispatcher, dispatched.data)
-            minion.state.definition.levelling.levelUpEffects?.trigger(dispatched)
             notifyLevelUp(minion, level)
         }
     }
@@ -99,11 +101,10 @@ class MinionXpService(
          *
          * `clearXpAtMaxLevel = true` preserves this service's own long-standing
          * policy of zeroing leftover xp on reaching max level, which differs
-         * from the shared core's default of banking it (EcoSkills/EcoJobs/
-         * EcoPets keep banking). The already-at-max guard above short-circuits
-         * before this is ever called for a minion that entered already maxed,
-         * so that case still drops the grant entirely rather than banking it,
-         * exactly as before.
+         * from the shared core's default of banking it. The already-at-max guard
+         * above short-circuits before this is ever called for a minion that
+         * entered already maxed, so that case still drops the grant entirely
+         * rather than banking it, exactly as before.
          */
         fun progress(state: MinionState, amount: Double): LevelUpResult {
             val levelling = state.definition.levelling
