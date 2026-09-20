@@ -91,8 +91,11 @@ import com.willfp.eco.core.items.Items
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import org.bukkit.Bukkit
+import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.event.Listener
+import org.bukkit.inventory.ItemStack
 import org.bukkit.loot.LootContext
 import org.bukkit.plugin.ServicePriority
 
@@ -185,17 +188,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val sellPricing = SellPricingService(sellPricingSettings) { shopIntegration.unitsFor(it) }
     private val sellService = SellService(sellPricing, shopIntegration)
     private val dropTables = MinionDropTables(
-        resolve = { material, location ->
-            val key = NamespacedKey.minecraft("blocks/${material.key.key}")
-            val table = Bukkit.getLootTable(key)
-
-            if (table == null) {
-                emptyList()
-            } else {
-                val context = LootContext.Builder(location).build()
-                table.populateLoot(java.util.Random(), context).toList()
-            }
-        },
+        resolve = { material, location -> vanillaDrops(material, location) },
         resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
     )
     private val offlineProgress = OfflineProgressService(
@@ -339,6 +332,24 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             this,
             ServicePriority.Normal
         )
+    }
+
+    /**
+     * What a vanilla block drops when broken, or nothing if this server will not say.
+     *
+     * A `blocks/` loot table requires the tool and the block state that broke the
+     * block, and neither can be carried by Bukkit's [LootContext], so populating
+     * one throws on a modern server rather than returning empty. Catch-up then
+     * falls back to the block itself, which is what a block's `drops:` list is
+     * there to correct.
+     */
+    private fun vanillaDrops(material: Material, location: Location): List<ItemStack> {
+        val key = NamespacedKey.minecraft("blocks/${material.key.key}")
+        val table = Bukkit.getLootTable(key) ?: return emptyList()
+        val context = LootContext.Builder(location).build()
+
+        return runCatching { table.populateLoot(java.util.Random(), context).toList() }
+            .getOrDefault(emptyList())
     }
 
     private fun refreshSettings() {
