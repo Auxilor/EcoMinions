@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.levelling.model
 
+import com.willfp.eco.core.progression.LevelCurve
 import com.willfp.libreforge.conditions.ConditionList
 import com.willfp.libreforge.effects.Chain
 

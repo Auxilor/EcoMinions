@@ -11,9 +11,11 @@ class PlaceholderRegistrar(
     private val plugin: EcoPlugin
 ) {
     private val internal = mutableMapOf<String, InternalPlaceholder>()
+    private val dynamic = mutableListOf<DynamicInternalPlaceholder>()
 
     fun registerAll(sources: List<PlaceholderSource>) {
         internal.clear()
+        dynamic.clear()
 
         for (source in sources) {
             for (placeholder in source.externalPlaceholders(plugin)) {
@@ -22,10 +24,12 @@ class PlaceholderRegistrar(
             for (placeholder in source.internalPlaceholders()) {
                 internal[placeholder.key] = placeholder
             }
+            dynamic += source.dynamicPlaceholders()
         }
     }
 
     /** @return The resolved value of `%[key]%`, or null if nothing declares it. */
     fun resolveInternal(key: String, context: TemplateContext): String? =
         internal[key]?.resolve?.invoke(context)
+            ?: dynamic.firstNotNullOfOrNull { it.resolve(key, context) }
 }

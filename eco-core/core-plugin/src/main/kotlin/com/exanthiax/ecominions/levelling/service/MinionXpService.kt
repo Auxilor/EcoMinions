@@ -7,8 +7,9 @@ import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionLevelUp
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
+import com.willfp.eco.core.progression.LevelProgression
 import com.willfp.libreforge.EmptyProvidedHolder
-import com.willfp.libreforge.NamedValue
+import com.willfp.libreforge.levels.LevelUpDispatcher
 import com.willfp.libreforge.triggers.DispatchedTrigger
 import com.willfp.libreforge.triggers.TriggerData
 import org.bukkit.Bukkit
@@ -73,32 +74,38 @@ class MinionXpService(
 
             val dispatcher = minion.toDispatcher()
 
-            val dispatched = DispatchedTrigger(
+            // dispatchTrigger = true keeps this path's global dispatch, which the shared
+            // helper leaves off by default. %level_numeral% and %previous_level_numeral% come
+            // along with the shared placeholder set; nothing that worked before stops working.
+            LevelUpDispatcher.dispatch(
                 dispatcher,
                 TriggerMinionLevelUp,
+                minion.state.definition.levelling.levelUpEffects,
+                level,
                 TriggerData(
                     dispatcher = dispatcher,
                     player = minion.ownerPlayer(),
                     location = minion.location,
                     value = level.toDouble()
-                )
+                ),
+                dispatchTrigger = true,
+                type = "level"
             )
-            dispatched.addPlaceholder(NamedValue("level", level))
-            dispatched.addPlaceholder(NamedValue("previous_level", level - 1))
 
-            TriggerMinionLevelUp.dispatch(dispatcher, dispatched.data)
-            minion.state.definition.levelling.levelUpEffects?.trigger(dispatched)
             notifyLevelUp(minion, level)
         }
     }
 
     companion object {
         /**
-         * Pure XP arithmetic.
+         * Pure XP arithmetic, delegated to eco's shared progression core.
          *
-         * The loop is bounded by a non-positive or non-finite requirement as
-         * well as by max level: a curve that costs nothing must not hang the
-         * server tick.
+         * `clearXpAtMaxLevel = true` preserves this service's own long-standing
+         * policy of zeroing leftover xp on reaching max level, which differs
+         * from the shared core's default of banking it. The already-at-max guard
+         * above short-circuits before this is ever called for a minion that
+         * entered already maxed, so that case still drops the grant entirely
+         * rather than banking it, exactly as before.
          */
         fun progress(state: MinionState, amount: Double): LevelUpResult {
             val levelling = state.definition.levelling
@@ -108,28 +115,18 @@ class MinionXpService(
                 return LevelUpResult(state, null)
             }
 
-            var level = state.level
-            var xp = state.xp + amount
-            val firstGained = level + 1
+            val change = LevelProgression.progress(
+                curve,
+                state.level,
+                state.xp,
+                amount,
+                clearXpAtMaxLevel = true
+            )
 
-            while (level < levelling.maxLevel) {
-                val required = curve.xpToReach(level + 1)
-                if (required <= 0.0 || !required.isFinite() || xp < required) {
-                    break
-                }
-                xp -= required
-                level++
-            }
-
-            if (level == state.level) {
-                return LevelUpResult(state.withXp(xp, level), null)
-            }
-
-            if (level >= levelling.maxLevel) {
-                xp = 0.0
-            }
-
-            return LevelUpResult(state.withXp(xp, level), firstGained..level)
+            return LevelUpResult(
+                state.withXp(change.newXp, change.newLevel),
+                change.levelsGained
+            )
         }
     }
 }

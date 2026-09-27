@@ -2,8 +2,8 @@ package com.exanthiax.ecominions.levelling.integration
 
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.error.LoadReport
-import com.exanthiax.ecominions.levelling.model.LevelCurve
 import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.core.progression.LevelCurve
 import com.willfp.libreforge.ViolationContext
 import io.mockk.every
 import io.mockk.mockk

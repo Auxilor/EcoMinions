@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.exanthiax.ecominions.levelling.model.LevelCurve
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
+import com.willfp.eco.core.progression.LevelCurve
 import com.willfp.libreforge.conditions.ConditionList
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -23,7 +23,7 @@ class MinionDefinitionLevellingTest {
         val type = MinionDefinitionFixture.build(
             levelling = LevellingSpec(
                 enabled = true,
-                curve = LevelCurve.Requirements(listOf(50.0, 125.0), configuredMaxLevel = null),
+                curve = LevelCurve.Requirements(listOf(50.0, 125.0), startLevel = 1, configuredMaxLevel = null),
                 gainMethods = emptyList(),
                 conditions = ConditionList(emptyList()),
                 levelUpEffects = null

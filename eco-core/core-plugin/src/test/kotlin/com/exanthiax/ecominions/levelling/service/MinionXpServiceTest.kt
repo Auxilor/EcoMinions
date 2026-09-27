@@ -1,9 +1,9 @@
 package com.exanthiax.ecominions.levelling.service
 
-import com.exanthiax.ecominions.levelling.model.LevelCurve
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionState
+import com.willfp.eco.core.progression.LevelCurve
 import com.willfp.libreforge.conditions.ConditionList
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -22,7 +22,7 @@ class MinionXpServiceTest {
     )
 
     private val laddered = typeWith(
-        LevelCurve.Requirements(listOf(100.0, 200.0, 300.0), configuredMaxLevel = null)
+        LevelCurve.Requirements(listOf(100.0, 200.0, 300.0), startLevel = 1, configuredMaxLevel = null)
     )
 
     @Test
@@ -82,7 +82,7 @@ class MinionXpServiceTest {
     @Test
     fun `a degenerate curve terminates instead of looping`() {
         val zeroed = typeWith(
-            LevelCurve.Formula("0", configuredMaxLevel = 100) { _, _ -> 0.0 }
+            LevelCurve.Formula("0", startLevel = 1, configuredMaxLevel = 100) { _, _ -> 0.0 }
         )
 
         val result = MinionXpService.progress(MinionState(definition = zeroed), 10.0)

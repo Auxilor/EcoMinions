@@ -2,11 +2,12 @@ package com.exanthiax.ecominions.levelling.integration
 
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.placeholders.LevelInjectable
-import com.exanthiax.ecominions.levelling.model.LevelCurve
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.levelling.model.MinionCounter
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.placeholder.context.placeholderContext
+import com.willfp.eco.core.progression.LevelCurve
+import com.willfp.eco.core.progression.LevelCurves
 import com.willfp.eco.util.evaluateExpression
 import com.willfp.libreforge.conditions.Conditions
 import com.willfp.libreforge.effects.Effects
@@ -69,39 +70,32 @@ class LevellingLoader {
         val formula = section.getStringOrNull("xp-formula")
         val requirements = section.getDoublesOrNull("xp-requirements")
 
-        if (formula != null && !requirements.isNullOrEmpty()) {
-            context.violation(
-                "xp-requirements",
-                "both xp-formula and xp-requirements are set - xp-formula wins"
+        val parsed = LevelCurves.parse(
+            formula = formula,
+            requirements = requirements,
+            maxLevel = maxLevel,
+            startLevel = 1,
+            freeFirstLevel = false
+        ) { expression, level ->
+            evaluateExpression(
+                expression,
+                placeholderContext(injectable = LevelInjectable(level))
             )
         }
 
-        if (formula != null) {
-            return LevelCurve.Formula(formula, maxLevel) { expression, level ->
-                evaluateExpression(
-                    expression,
-                    placeholderContext(injectable = LevelInjectable(level))
-                )
-            }
+        if (parsed.curve is LevelCurve.None) {
+            // load() reports this case itself, with a message specific to a
+            // levelling block that is enabled but has nothing to level from -
+            // skip LevelCurves' generic problem so the existing violation
+            // output is not duplicated.
+            return null
         }
 
-        if (!requirements.isNullOrEmpty()) {
-            val naturalMax = requirements.size + 1
-            val clampedMax = if (maxLevel != null && maxLevel > naturalMax) {
-                context.violation(
-                    "max-level",
-                    "max-level ($maxLevel) is higher than xp-requirements allows ($naturalMax) - " +
-                        "clamped to $naturalMax"
-                )
-                naturalMax
-            } else {
-                maxLevel
-            }
-
-            return LevelCurve.Requirements(requirements, clampedMax)
+        for (problem in parsed.problems) {
+            context.violation(problem.path, problem.message)
         }
 
-        return null
+        return parsed.curve
     }
 
     private fun readGainMethods(section: Config, context: LoadContext): List<MinionCounter> =
