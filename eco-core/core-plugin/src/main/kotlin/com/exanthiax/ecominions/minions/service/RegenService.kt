@@ -1,6 +1,9 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.event.MinionRegenEvent
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.event.BukkitEventDispatcher
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
 import com.exanthiax.ecominions.minions.model.MinionSettings
@@ -18,7 +21,8 @@ import org.bukkit.block.data.BlockData
  */
 class RegenService(
     private val settings: SettingsHolder<MinionSettings>,
-    private val dispatch: MinionTriggerDispatch
+    private val dispatch: MinionTriggerDispatch,
+    private val events: EventDispatcher = BukkitEventDispatcher
 ) {
     fun queue(minion: Minion, block: Block, original: Material, now: Long) {
         if (settings.value.showRegenMarker) {
@@ -52,6 +56,9 @@ class RegenService(
             }
             entry.location.block.blockData = entry.regenData
             dispatch.trigger(minion, TriggerMinionRegenBlock, block = entry.location.block)
+            if (MinionRegenEvent.getHandlerList().registeredListeners.isNotEmpty()) {
+                events.dispatch(MinionRegenEvent(minion, entry.location.block))
+            }
             minion.mining.pendingRegen.remove(entry.location)
             entries.remove()
         }

@@ -1,7 +1,6 @@
 package com.exanthiax.ecominions.libreforge
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
-import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionHasFuel
@@ -37,6 +36,7 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
 import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.service.MinionCompactService
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.conditions.Conditions
@@ -80,7 +80,7 @@ object LibreforgeRegistrations {
     fun registerAll(
         upgrades: ConfigDrivenRegistry<Upgrade>,
         selling: SellService,
-        compactor: CompactorService,
+        compacting: MinionCompactService,
         xpService: MinionXpService
     ) {
         UpgradePlaceholderProvider(upgrades::all).register()
@@ -92,7 +92,7 @@ object LibreforgeRegistrations {
         Effects.register(EffectMinionHeight)
         Effects.register(EffectMinionCapacity)
         Effects.register(EffectMinionSellStorage(selling))
-        Effects.register(EffectMinionCompact(compactor))
+        Effects.register(EffectMinionCompact(compacting))
         Effects.register(EffectGiveMinionXp(xpService))
 
         Mutators.register(MutatorMinionOwnerAsDispatcher)

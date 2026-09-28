@@ -1,6 +1,8 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.event.MinionOfflineProgressEvent
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
@@ -14,7 +16,8 @@ class OfflineProgressService(
     private val settings: SettingsHolder<MinionSettings>,
     private val fuels: FuelService,
     private val dropTables: MinionDropTables,
-    private val dispatch: MinionTriggerDispatch
+    private val dispatch: MinionTriggerDispatch,
+    private val events: EventDispatcher
 ) {
     /**
      * @param idleSince When the minion went idle.
@@ -43,7 +46,12 @@ class OfflineProgressService(
             true
         }
 
-        creditDrops(minion, accumulated)
+        val event = MinionOfflineProgressEvent(minion, now - idleSince, accumulated)
+        if (!events.dispatch(event)) {
+            return
+        }
+
+        creditDrops(minion, event.drops)
 
         minion.burningFuelRemainingMillis =
             (minion.burningFuelRemainingMillis - result.fuelMillisConsumed).coerceAtLeast(0L)

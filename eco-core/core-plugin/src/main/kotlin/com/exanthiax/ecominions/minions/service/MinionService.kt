@@ -1,6 +1,9 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.event.MinionLoadEvent
+import com.exanthiax.ecominions.api.event.MinionUnloadEvent
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.minions.model.MinionSettings
@@ -25,7 +28,8 @@ class MinionService(
     private val repository: MinionStateRepository,
     private val limits: PlacementLimits,
     private val activity: MinionActivityService,
-    private val settings: SettingsHolder<MinionSettings>
+    private val settings: SettingsHolder<MinionSettings>,
+    private val events: EventDispatcher
 ) {
 
     private val byUuid: MutableMap<UUID, Minion> = ConcurrentHashMap()
@@ -174,6 +178,7 @@ class MinionService(
             activity.resume(registered)
         }
         refreshEffects(registered)
+        events.dispatch(MinionLoadEvent(registered))
         return registered
     }
 
@@ -181,6 +186,7 @@ class MinionService(
     fun dehydrateChunk(chunk: Chunk) {
         for (entity in chunk.entities) {
             val minion = getByEntity(entity) ?: continue
+            events.dispatch(MinionUnloadEvent(minion))
             activity.markIdle(minion)
             repository.save(minion)
             unregister(minion)

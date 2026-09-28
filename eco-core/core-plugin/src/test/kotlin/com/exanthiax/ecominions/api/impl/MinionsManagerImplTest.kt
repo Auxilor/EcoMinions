@@ -8,6 +8,7 @@ import com.exanthiax.ecominions.core.event.RecordingEventDispatcher
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.PlacementService
@@ -39,10 +40,11 @@ class MinionsManagerImplTest {
     }
     private val placement = mockk<PlacementService>(relaxed = true)
     private val itemFactory = mockk<MinionItemFactory>(relaxed = true)
+    private val activity = mockk<MinionActivityService> { every { isActive(minion) } returns true }
 
     private fun manager(events: RecordingEventDispatcher = RecordingEventDispatcher()) = MinionsManagerImpl(
         minions, placement, itemFactory, mockk(relaxed = true), mockk(relaxed = true),
-        mockk(relaxed = true), mockk(relaxed = true), events
+        mockk(relaxed = true), mockk(relaxed = true), activity, mockk(relaxed = true), mockk(relaxed = true), events
     ) { id -> mockk<OfflinePlayer> { every { uniqueId } returns id } }
 
     @Test
@@ -117,5 +119,10 @@ class MinionsManagerImplTest {
         manager(events).setOwner(minion, null)
 
         verify { minions.changeOwner(minion, redirected) }
+    }
+
+    @Test
+    fun `activity comes from the owner rule`() {
+        assertTrue(manager().isActive(minion))
     }
 }

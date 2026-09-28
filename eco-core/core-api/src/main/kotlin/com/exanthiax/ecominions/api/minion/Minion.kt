@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.api.minion
 
 import org.bukkit.Location
+import org.bukkit.entity.Entity
 import java.util.UUID
 
 /** A minion placed in the world. */
@@ -26,6 +27,9 @@ interface Minion {
 
     val location: Location
 
+    /** The stand that shows this minion in the world. */
+    val entity: Entity
+
     /** Purchased upgrade tiers, keyed by upgrade id. */
     val upgradeLevels: Map<String, Int>
 
@@ -34,4 +38,21 @@ interface Minion {
 
     /** Slots currently holding an item. */
     val usedStorage: Int
+
+    val isStorageFull: Boolean
+
+    /** Ticks between mining actions, with upgrades and effects applied but not fuel. */
+    val speedTicks: Int
+
+    /** Ticks a single break takes, with upgrades and effects applied. */
+    val efficiencyTicks: Int
+
+    /** How far out from itself the minion works, in blocks. */
+    val radius: Int
+
+    /** How many blocks tall the minion's work area is. */
+    val height: Int
+
+    /** Ticks a broken block takes to grow back. */
+    val regenDelayTicks: Int
 }

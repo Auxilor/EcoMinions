@@ -7,9 +7,12 @@ import com.exanthiax.ecominions.api.minion.MinionsManager
 import com.exanthiax.ecominions.api.minion.PickUpResult
 import com.exanthiax.ecominions.api.minion.PlaceResult
 import com.exanthiax.ecominions.core.event.EventDispatcher
+import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.MinionActivityService
+import com.exanthiax.ecominions.minions.service.MinionCompactService
 import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
@@ -35,6 +38,9 @@ class MinionsManagerImpl(
     private val collector: MinionCollectService,
     private val selling: SellService,
     private val repository: MinionStateRepository,
+    private val activity: MinionActivityService,
+    private val xp: MinionXpService,
+    private val compacting: MinionCompactService,
     private val events: EventDispatcher,
     private val ownerOf: (UUID) -> OfflinePlayer
 ) : MinionsManager {
@@ -63,6 +69,14 @@ class MinionsManagerImpl(
     override fun types(): Collection<ApiMinionDefinition> = minions.types()
 
     override fun getType(id: String): ApiMinionDefinition? = minions.getType(id)
+
+    override fun isActive(minion: ApiMinion): Boolean = activity.isActive(resolve(minion))
+
+    override fun giveXp(minion: ApiMinion, amount: Double): Boolean = xp.grant(resolve(minion), amount)
+
+    override fun setLevel(minion: ApiMinion, level: Int): Boolean = xp.setLevel(resolve(minion), level)
+
+    override fun compact(minion: ApiMinion): Boolean = compacting.compact(resolve(minion))
 
     override fun isMinionItem(item: ItemStack): Boolean = itemFactory.isMinionItem(item)
 

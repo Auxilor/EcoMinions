@@ -39,6 +39,37 @@ interface MinionsManager {
 
     fun getType(id: String): MinionDefinition?
 
+    /**
+     * @return Whether [minion] is working. A minion only works while its owner
+     *         is online; an idle one is credited when they come back.
+     */
+    fun isActive(minion: Minion): Boolean
+
+    /**
+     * Gives [minion] XP toward its next level, running level-ups as it crosses
+     * them. Fires `MinionXpGainEvent`, then `MinionLevelUpEvent` per level gained.
+     *
+     * Does nothing for a type that cannot level, or one already at its highest level.
+     *
+     * @return Whether any XP was banked.
+     */
+    fun giveXp(minion: Minion, amount: Double): Boolean
+
+    /**
+     * Sets [minion]'s level directly, clearing its banked XP. Fires no events.
+     *
+     * @return False if its type cannot level or [level] is outside 1 to its highest level.
+     */
+    fun setLevel(minion: Minion, level: Int): Boolean
+
+    /**
+     * Runs [minion]'s owned compactor recipes over its storage, as the
+     * `minion_compact` effect does. Fires `MinionCompactEvent`.
+     *
+     * @return Whether any recipe ran.
+     */
+    fun compact(minion: Minion): Boolean
+
     /** @return Whether [item] is a placeable minion item. */
     fun isMinionItem(item: ItemStack): Boolean
 

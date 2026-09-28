@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.event.MinionFuelExpireEvent
 import com.exanthiax.ecominions.api.event.MinionMineEvent
 import com.exanthiax.ecominions.api.event.MinionStorageFullEvent
 import com.exanthiax.ecominions.core.config.SettingsHolder
@@ -93,6 +94,7 @@ class MiningService(
 
         if (minion.mining.wasBurningFuel && !burning) {
             dispatch.trigger(minion, TriggerMinionFuelExpire)
+            minion.burningFuelId?.let { fuels.getById(it) }?.let { events.dispatch(MinionFuelExpireEvent(minion, it)) }
         }
 
         minion.mining.wasBurningFuel = burning
