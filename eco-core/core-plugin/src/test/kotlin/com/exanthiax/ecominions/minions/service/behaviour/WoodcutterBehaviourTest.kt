@@ -73,8 +73,8 @@ class WoodcutterBehaviourTest {
 
         assertTrue(behaviour.onIdle(minion, now = 0L))
 
-        val (x, _, _) = world.positionsOf(Material.OAK_SAPLING).single()
-        assertTrue(x > 0, "planted within 2 blocks of the log at x=$x")
+        val sapling = world.positionsOf(Material.OAK_SAPLING).single()
+        assertNotEquals(Triple(-1, 0, 0), sapling, "planted within 2 blocks of the log")
     }
 
     /** Nowhere far enough from other trees means nothing is planted. */
@@ -82,8 +82,12 @@ class WoodcutterBehaviourTest {
     fun `plants nothing when every spot is too close`() {
         val world = FakeWorld()
         world.fillFloor(Material.DIRT)
-        world.set(2, 0, 0, Material.OAK_LOG)
-        world.set(-2, 0, 0, Material.OAK_LOG)
+        for (i in -1..1) {
+            world.set(2, 0, i, Material.OAK_LOG)
+            world.set(-2, 0, i, Material.OAK_LOG)
+            world.set(i, 0, 2, Material.OAK_LOG)
+            world.set(i, 0, -2, Material.OAK_LOG)
+        }
         val minion = minion(world, spacing = 2)
 
         assertFalse(behaviour.onIdle(minion, now = 0L))

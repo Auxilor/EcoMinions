@@ -16,8 +16,8 @@ data class PlacementSettings(
     /** What self-seeding places. Null whenever [selfSeed] is false. */
     val seedBlock: TestableBlock? = null,
     /**
-     * Empty blocks self-seeding keeps between each planted column, in every
-     * direction including diagonals. 0 packs them side by side.
+     * Empty blocks self-seeding keeps between each planted column, along X and
+     * Z only - diagonals are not counted. 0 packs them side by side.
      */
     val spacing: Int = 0
 ) {

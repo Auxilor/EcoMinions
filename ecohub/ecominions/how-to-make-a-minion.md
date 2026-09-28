@@ -291,8 +291,8 @@ placement:
 - `seed-block` - what `self-seed` places. Any block or custom block ID. Leave blank to seed what the target's
   block definition names as its `plant` - a sapling for a woodcutter, a crop for a farmer - falling back to
   the mined block itself.
-- `spacing` - how many empty blocks `self-seed` keeps between each plant, in every direction including
-  diagonals. `0` packs plants side by side. Cactus and sugar cane use `1` (cactus breaks next to another
+- `spacing` - how many empty blocks `self-seed` keeps between each plant, along each straight direction -
+  diagonals don't count. `0` packs plants side by side. Cactus and sugar cane use `1` (cactus breaks next to another
   block); trees use `2` so their leaves have room. Any plant within range counts, at any height in the work
   area, so a tall cactus column blocks its neighbours all the way up. A minion with no spot far enough from
   every plant stops seeding until one frees up.

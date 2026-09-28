@@ -118,7 +118,7 @@ equipment:
 # Tree types default it on, everything else defaults it off.
 #
 # spacing is how many empty blocks self-seeding keeps between each plant, in
-# every direction (diagonals too). 0 packs them side by side. Use 1 for cactus
+# each straight direction (diagonals don't count). 0 packs them side by side. Use 1 for cactus
 # (it breaks next to other blocks) and 2 for trees (room for the leaves).
 placement:
   lift-regen: false
