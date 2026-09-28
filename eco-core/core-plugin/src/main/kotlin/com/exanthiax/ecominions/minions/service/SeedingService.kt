@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions.service
 import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Material
 import org.bukkit.block.Block
+import org.bukkit.block.data.Ageable
 
 /**
  * Stocks a minion's work area with the blocks it mines, one block at a time.
@@ -29,8 +30,20 @@ class SeedingService {
         val placement = minion.state.definition.placement
         val seed = placement.seedBlock ?: return false
         SeedSurface.prepare(SeedSurface.below(spot), placement.surfaceBlock)
-        seed.place(spot.location)
+        ripen(seed.place(spot.location))
         return true
+    }
+
+    /**
+     * A seeded crop goes in fully grown, so it can be mined as soon as it is
+     * placed rather than sitting unripe in a freshly stocked area.
+     */
+    private fun ripen(block: Block) {
+        val data = block.blockData
+        if (data is Ageable && data.age < data.maximumAge) {
+            data.age = data.maximumAge
+            block.blockData = data
+        }
     }
 
     /**
