@@ -60,3 +60,6 @@ equipment:
   chestplate: COPPER_CHESTPLATE
   leggings: COPPER_LEGGINGS
   boots: COPPER_BOOTS
+
+placement:
+  self-seed: true

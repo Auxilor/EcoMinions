@@ -60,3 +60,6 @@ equipment:
   chestplate: IRON_CHESTPLATE
   leggings: IRON_LEGGINGS
   boots: IRON_BOOTS
+
+placement:
+  self-seed: true

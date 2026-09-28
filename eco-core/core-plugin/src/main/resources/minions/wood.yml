@@ -58,3 +58,6 @@ equipment:
   leggings: LEATHER_LEGGINGS
   boots: LEATHER_BOOTS
   hand: IRON_AXE
+
+placement:
+  self-seed: true
