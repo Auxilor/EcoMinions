@@ -13,9 +13,10 @@ import java.util.UUID
  * contribution lands - see [MinionStat].
  */
 class MinionStats(
-    private val base: MinionDefinition.BaseStats,
+    base: MinionDefinition.BaseStats,
     level: Int
 ) {
+    private var base: MinionDefinition.BaseStats = base
     private val contributions = HashMap<MinionStat, MutableMap<UUID, Int>>()
     private var baseCache = EnumMap<MinionStat, Int>(MinionStat::class.java)
     private var maxStorageSlotsCache = 0
@@ -35,6 +36,17 @@ class MinionStats(
 
     init {
         recomputeBase()
+    }
+
+    /**
+     * Swaps the type's base values for [base] and re-evaluates them at [level].
+     *
+     * Contributions are kept: they belong to effects, which a reload refreshes
+     * separately, so dropping them here would briefly strip every upgrade.
+     */
+    fun rebase(base: MinionDefinition.BaseStats, level: Int) {
+        this.base = base
+        this.level = level
     }
 
     private fun recomputeBase() {

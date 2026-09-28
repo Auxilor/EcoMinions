@@ -174,4 +174,15 @@ class MinionStatsTest {
         assertEquals(2, stats.radius)
         assertEquals(40, stats.speedTicks)
     }
+
+    @Test
+    fun `rebasing swaps the base and keeps contributions`() {
+        val stats = MinionStats(base, level = 1)
+        stats.contribute(MinionStat.RADIUS, UUID.randomUUID(), 3)
+
+        stats.rebase(base.copy(radius = "4", speedTicks = "20"), level = 1)
+
+        assertEquals(7, stats.radius)
+        assertEquals(20, stats.speedTicks)
+    }
 }
