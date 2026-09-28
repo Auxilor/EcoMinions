@@ -2,8 +2,7 @@ package com.exanthiax.ecominions.commands
 
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
-import com.exanthiax.ecominions.minions.model.MinionState
-import com.exanthiax.ecominions.minions.service.MinionItemFactory
+import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.command.impl.Subcommand
@@ -15,7 +14,7 @@ import org.bukkit.command.CommandSender
 class CommandGive(
     plugin: EcoPlugin,
     private val minions: MinionService,
-    private val itemFactory: MinionItemFactory,
+    private val items: MinionItemService,
     private val messages: Messages
 ) : Subcommand(plugin, "give", "ecominions.command.give", false) {
 
@@ -37,7 +36,9 @@ class CommandGive(
             return
         }
 
-        target.inventory.addItem(itemFactory.build(MinionState(definition = type)))
+        if (items.give(target, type, 1, 1) <= 0) {
+            return
+        }
 
         sender.sendMessage(
             messages.line(

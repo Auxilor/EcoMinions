@@ -7,6 +7,7 @@ import com.exanthiax.ecominions.minions.model.MenuSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
+import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.slot
@@ -19,7 +20,8 @@ class TypeSelectMenu(
     private val messages: Messages,
     private val chrome: MenuChrome,
     private val minions: MinionService,
-    private val itemFactory: MinionItemFactory
+    private val itemFactory: MinionItemFactory,
+    private val items: MinionItemService
 ) {
     fun open(player: Player) {
         val current = settings.value
@@ -57,7 +59,7 @@ class TypeSelectMenu(
 
         return slot(item) {
             onLeftClick { event, _ ->
-                player.inventory.addItem(itemFactory.build(state))
+                items.give(player, type, 1, 1)
                 event.whoClicked.closeInventory()
             }
         }

@@ -1,7 +1,9 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.exanthiax.ecominions.api.minion.MinionsManager
+import com.exanthiax.ecominions.api.event.MinionLoadEvent
+import com.exanthiax.ecominions.api.event.MinionUnloadEvent
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.minions.model.MinionSettings
@@ -13,10 +15,8 @@ import org.bukkit.Chunk
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
-import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefinition
 
 /**
  * Owns the set of live minions: what exists, who owns it, and how stands in the
@@ -26,38 +26,32 @@ class MinionService(
     private val types: ConfigDrivenRegistry<MinionDefinition>,
     private val factory: MinionFactory,
     private val repository: MinionStateRepository,
-    private val itemFactory: MinionItemFactory,
     private val limits: PlacementLimits,
     private val activity: MinionActivityService,
-    private val settings: SettingsHolder<MinionSettings>
-) : MinionsManager {
+    private val settings: SettingsHolder<MinionSettings>,
+    private val events: EventDispatcher
+) {
 
     private val byUuid: MutableMap<UUID, Minion> = ConcurrentHashMap()
     private val byOwner: MutableMap<UUID, MutableSet<UUID>> = ConcurrentHashMap()
 
-    override fun all(): Collection<Minion> = byUuid.values
+    fun all(): Collection<Minion> = byUuid.values
 
-    override fun getByUuid(uuid: UUID): Minion? = byUuid[uuid]
+    fun getByUuid(uuid: UUID): Minion? = byUuid[uuid]
 
-    override fun getByEntity(entity: Entity): Minion? =
+    fun getByEntity(entity: Entity): Minion? =
         byUuid[entity.uniqueId] ?: byUuid.values.firstOrNull { it.entity.uniqueId == entity.uniqueId }
 
-    override fun ownedBy(player: OfflinePlayer): Collection<Minion> =
+    fun ownedBy(player: OfflinePlayer): Collection<Minion> =
         byOwner[player.uniqueId].orEmpty().mapNotNull { byUuid[it] }
 
-    override fun countOwnedBy(player: OfflinePlayer): Int = byOwner[player.uniqueId]?.size ?: 0
+    fun countOwnedBy(player: OfflinePlayer): Int = byOwner[player.uniqueId]?.size ?: 0
 
-    override fun placementLimit(player: OfflinePlayer): Int = limits.limitFor(player)
+    fun placementLimit(player: OfflinePlayer): Int = limits.limitFor(player)
 
-    override fun types(): Collection<MinionDefinition> = types.all()
+    fun types(): Collection<MinionDefinition> = types.all()
 
-    override fun getType(id: String): MinionDefinition? = types.find(id)
-
-    override fun createItem(type: ApiMinionDefinition, level: Int): ItemStack {
-        val resolved = types.find(type.id)
-            ?: throw IllegalArgumentException("Unknown minion: ${type.id}")
-        return itemFactory.build(MinionState(definition = resolved, storedLevel = level))
-    }
+    fun getType(id: String): MinionDefinition? = types.find(id)
 
     fun register(minion: Minion): Minion {
         byUuid[minion.uuid] = minion
@@ -72,6 +66,19 @@ class MinionService(
         minion.state.owner?.let { byOwner[it]?.remove(minion.uuid) }
         minion.hologram?.remove()
         minion.hologram = null
+    }
+
+    /** Moves [minion] to [owner], or makes it unowned, keeping the owner index in step. */
+    fun changeOwner(minion: Minion, owner: UUID?) {
+        minion.state.owner?.let { byOwner[it]?.remove(minion.uuid) }
+        owner?.let { byOwner.computeIfAbsent(it) { ConcurrentHashMap.newKeySet() }.add(minion.uuid) }
+        updateState(minion, minion.state.copy(owner = owner))
+
+        if (activity.isActive(minion)) {
+            activity.resume(minion)
+        } else {
+            activity.markIdle(minion)
+        }
     }
 
     /** @return Every live minion owned by [owner]. Snapshotted, so callers may mutate. */
@@ -171,6 +178,7 @@ class MinionService(
             activity.resume(registered)
         }
         refreshEffects(registered)
+        events.dispatch(MinionLoadEvent(registered))
         return registered
     }
 
@@ -178,6 +186,7 @@ class MinionService(
     fun dehydrateChunk(chunk: Chunk) {
         for (entity in chunk.entities) {
             val minion = getByEntity(entity) ?: continue
+            events.dispatch(MinionUnloadEvent(minion))
             activity.markIdle(minion)
             repository.save(minion)
             unregister(minion)

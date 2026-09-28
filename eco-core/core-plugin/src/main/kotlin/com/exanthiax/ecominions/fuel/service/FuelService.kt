@@ -1,6 +1,5 @@
 package com.exanthiax.ecominions.fuel.service
 
-import com.exanthiax.ecominions.api.fuel.FuelsManager
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.willfp.eco.core.items.Items
@@ -15,18 +14,18 @@ import com.exanthiax.ecominions.api.minion.Minion as ApiMinion
  */
 class FuelService(
     private val fuels: ConfigDrivenRegistry<Fuel>
-) : FuelsManager {
+) {
 
-    override fun all(): Collection<Fuel> = fuels.all()
+    fun all(): Collection<Fuel> = fuels.all()
 
-    override fun getById(id: String): Fuel? = fuels.find(id)
+    fun getById(id: String): Fuel? = fuels.find(id)
 
-    override fun matching(item: ItemStack): Fuel? =
+    fun matching(item: ItemStack): Fuel? =
         fuels.all().firstOrNull { Items.lookup(it.itemLookup).matches(item) }
 
-    override fun activeFuel(minion: ApiMinion): Fuel? = activeFuelOf(minion)
+    fun activeFuel(minion: ApiMinion): Fuel? = activeFuelOf(minion)
 
-    override fun remainingMillis(minion: ApiMinion): Long {
+    fun remainingMillis(minion: ApiMinion): Long {
         val state = burnStateOf(minion) ?: return 0L
         return (state.second - System.currentTimeMillis()).coerceAtLeast(0L)
     }

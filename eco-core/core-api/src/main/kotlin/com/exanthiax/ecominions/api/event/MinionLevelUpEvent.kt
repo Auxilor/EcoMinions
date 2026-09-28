@@ -6,10 +6,10 @@ import org.bukkit.event.HandlerList
 
 /** Fired once per level a minion gains, after its state and stats are updated. */
 class MinionLevelUpEvent(
-    val minion: Minion,
+    override val minion: Minion,
     val previousLevel: Int,
     val newLevel: Int
-) : Event() {
+) : Event(), MinionEvent {
     override fun getHandlers(): HandlerList = HANDLERS
 
     companion object {

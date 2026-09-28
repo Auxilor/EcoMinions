@@ -1,8 +1,10 @@
 package com.exanthiax.ecominions.commands
 
+import com.exanthiax.ecominions.api.minion.DestroyCause
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.MinionService
+import com.exanthiax.ecominions.minions.service.PlacementService
 import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.command.impl.Subcommand
 import com.willfp.eco.util.StringUtils
@@ -13,6 +15,7 @@ import org.bukkit.command.CommandSender
 class CommandRemove(
     plugin: EcoPlugin,
     private val minions: MinionService,
+    private val placement: PlacementService,
     private val messages: Messages
 ) : Subcommand(plugin, "remove", "ecominions.command.remove", false) {
 
@@ -23,18 +26,14 @@ class CommandRemove(
         }
 
         val target = Bukkit.getOfflinePlayer(args[0])
-        val owned = minions.ownedBy(target).toList()
-        for (minion in owned) {
-            minion.entity.remove()
-            minions.unregister(minion)
-        }
+        val removed = minions.ownedMinions(target.uniqueId).count { placement.destroy(it, DestroyCause.COMMAND, false) }
 
         sender.sendMessage(
             messages.line(
                 "messages.remove-success",
                 TemplateContext.of(
                     "player" to (target.name ?: args[0]),
-                    "count" to owned.size
+                    "count" to removed
                 )
             )
         )

@@ -142,4 +142,51 @@ class MinionStorageTest {
         assertEquals(Material.COBBLESTONE, snapshot[1]?.type)
         assertNull(snapshot[2])
     }
+
+    @Test
+    fun `removing takes from the last matching slot first`() {
+        val storage = storage(3)
+        storage.add(stack(Material.COBBLESTONE, 64))
+        storage.add(stack(Material.COBBLESTONE, 10))
+
+        val removed = storage.remove(stack(Material.COBBLESTONE, 20))
+
+        assertEquals(20, removed)
+        assertEquals(1, storage.used)
+        assertEquals(54, storage.getItem(0)?.amount)
+    }
+
+    @Test
+    fun `removing more than is stored removes what there is`() {
+        val storage = storage(3)
+        storage.add(stack(Material.COBBLESTONE, 5))
+        storage.add(stack(Material.DIAMOND, 2))
+
+        val removed = storage.remove(stack(Material.COBBLESTONE, 64))
+
+        assertEquals(5, removed)
+        assertEquals(1, storage.used)
+        assertEquals(Material.DIAMOND, storage.getItem(1)?.type)
+    }
+
+    @Test
+    fun `clearing empties every slot`() {
+        val storage = storage(2)
+        storage.add(stack(Material.COBBLESTONE, 5))
+
+        storage.clear()
+
+        assertEquals(0, storage.used)
+        assertNull(storage.getItem(0))
+    }
+
+    @Test
+    fun `counting sums matching stacks across slots`() {
+        val storage = storage(3)
+        storage.add(stack(Material.COBBLESTONE, 64))
+        storage.add(stack(Material.COBBLESTONE, 6))
+        storage.add(stack(Material.DIAMOND, 2))
+
+        assertEquals(70, storage.count { it.type == Material.COBBLESTONE })
+    }
 }

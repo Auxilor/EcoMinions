@@ -111,6 +111,42 @@ class MinionStorage(
         return leftovers
     }
 
+    /**
+     * Removes up to [item]'s amount of stacks similar to it, last slot first so
+     * partial stacks left behind stay at the front.
+     *
+     * @return How many items were removed.
+     */
+    fun remove(item: ItemStack): Int {
+        var remaining = item.amount
+        for (index in slots.indices.reversed()) {
+            if (remaining <= 0) {
+                break
+            }
+            val existing = slots[index] ?: continue
+            if (!similar(existing, item)) {
+                continue
+            }
+            val moved = minOf(existing.amount, remaining)
+            remaining -= moved
+            if (moved >= existing.amount) {
+                setItem(index, null)
+            } else {
+                existing.amount -= moved
+            }
+        }
+        return item.amount - remaining
+    }
+
+    fun clear() {
+        slots.fill(null)
+        used = 0
+    }
+
+    /** @return How many items across every slot [matches] accepts. */
+    fun count(matches: (ItemStack) -> Boolean): Int =
+        slots.sumOf { stack -> if (stack != null && matches(stack)) stack.amount else 0 }
+
     /** Index-aligned copy for persistence, empty slots included. */
     fun snapshot(): Array<ItemStack?> = slots.copyOf()
 

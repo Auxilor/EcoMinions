@@ -1,16 +1,23 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.event.MinionDestroyEvent
 import com.exanthiax.ecominions.api.event.MinionPickupEvent
 import com.exanthiax.ecominions.api.event.MinionPlaceEvent
+import com.exanthiax.ecominions.api.minion.DestroyCause
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.core.world.WorldSettings
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPickup
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPlace
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.willfp.eco.core.items.Items
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -24,17 +31,25 @@ class PlacementService(
     private val repository: MinionStateRepository,
     private val limits: PlacementLimits,
     private val worlds: WorldSettings,
-    private val settings: SettingsHolder<MinionSettings>
+    private val settings: SettingsHolder<MinionSettings>,
+    private val triggers: MinionTriggerDispatch,
+    private val events: EventDispatcher
 ) {
     sealed interface PlaceResult {
         data class Placed(val minion: Minion) : PlaceResult
         data object WorldDisabled : PlaceResult
         data class LimitReached(val limit: Int) : PlaceResult
+        data object Cancelled : PlaceResult
+    }
+
+    sealed interface PickUpResult {
+        data class PickedUp(val item: ItemStack) : PickUpResult
+        data object NotOwner : PickUpResult
+        data object Cancelled : PickUpResult
     }
 
     fun place(player: Player, state: MinionState, location: Location): PlaceResult {
-        val world = location.world ?: return PlaceResult.WorldDisabled
-        if (worlds.isDisabled(world)) {
+        if (isDisabled(location)) {
             return PlaceResult.WorldDisabled
         }
         if (!player.hasPermission(ADMIN_PERMISSION) &&
@@ -43,35 +58,87 @@ class PlacementService(
             return PlaceResult.LimitReached(limits.limitFor(player))
         }
 
-        val owned = state.copy(
-            owner = state.owner ?: player.uniqueId,
-            uuid = state.uuid ?: UUID.randomUUID()
-        )
-        val minion = spawn(owned, location.facing(player))
-
-        Bukkit.getPluginManager().callEvent(MinionPlaceEvent(minion, player))
-        return PlaceResult.Placed(minion)
+        val owner = state.owner?.takeIf { it != player.uniqueId }?.let { Bukkit.getOfflinePlayer(it) } ?: player
+        return placeAs(player, state, location.facing(player), owner)
     }
 
     /**
-     * Removes [minion] and returns the item that carries its contents.
+     * Places [state] with no player involved, so no placement limit applies.
      *
-     * @return The item to give the player, or null if they may not pick it up.
+     * @param owner Who owns the minion. Null keeps whoever [state] names.
      */
-    fun pickUp(player: Player, minion: Minion): ItemStack? {
-        if (!canPickUp(player, minion)) {
-            return null
+    fun placeUnattended(state: MinionState, location: Location, owner: OfflinePlayer?): PlaceResult =
+        placeAs(null, state, location, owner ?: state.owner?.let { Bukkit.getOfflinePlayer(it) })
+
+    private fun placeAs(player: Player?, state: MinionState, location: Location, owner: OfflinePlayer?): PlaceResult {
+        if (isDisabled(location)) {
+            return PlaceResult.WorldDisabled
         }
 
-        val snapshot: Array<ItemStack?> = minion.storage.snapshot()
-        val item = itemFactory.build(minion.state.copy(inventoryBytes = InventoryCodec.encode(snapshot)))
+        val event = MinionPlaceEvent(player, state.definition, state.level, location, owner)
+        if (!events.dispatch(event)) {
+            return PlaceResult.Cancelled
+        }
+        if (isDisabled(event.location)) {
+            return PlaceResult.WorldDisabled
+        }
 
+        val placed = state.copy(
+            owner = event.owner?.uniqueId,
+            uuid = state.uuid ?: UUID.randomUUID()
+        )
+        val minion = spawn(placed, event.location)
+        triggers.trigger(minion, TriggerMinionPlace)
+        return PlaceResult.Placed(minion)
+    }
+
+    private fun isDisabled(location: Location): Boolean {
+        val world = location.world ?: return true
+        return worlds.isDisabled(world)
+    }
+
+    /** Removes [minion] and hands back the item that carries its contents. */
+    fun pickUp(player: Player, minion: Minion): PickUpResult {
+        if (!canPickUp(player, minion)) {
+            return PickUpResult.NotOwner
+        }
+
+        val event = MinionPickupEvent(player, minion, itemFor(minion))
+        if (!events.dispatch(event) || !events.dispatch(MinionDestroyEvent(minion, DestroyCause.PICKUP))) {
+            return PickUpResult.Cancelled
+        }
+
+        remove(minion)
+        triggers.trigger(minion, TriggerMinionPickup)
+        return PickUpResult.PickedUp(event.item)
+    }
+
+    /**
+     * Removes [minion] from the world.
+     *
+     * @param dropItem Whether to drop the minion's item, storage included, where it stood.
+     * @return Whether it was removed.
+     */
+    fun destroy(minion: Minion, cause: DestroyCause, dropItem: Boolean): Boolean {
+        if (!events.dispatch(MinionDestroyEvent(minion, cause))) {
+            return false
+        }
+
+        val location = minion.entity.location
+        val item = if (dropItem) itemFor(minion) else null
+        remove(minion)
+        item?.let { location.world?.dropItemNaturally(location, it) }
+        return true
+    }
+
+    /** The item that places [minion] again with everything it has, storage included. */
+    fun itemFor(minion: Minion): ItemStack =
+        itemFactory.build(minion.state.copy(inventoryBytes = InventoryCodec.encode(minion.storage.snapshot())))
+
+    private fun remove(minion: Minion) {
         clearRegenMarkers(minion)
         minions.unregister(minion)
         minion.entity.remove()
-
-        Bukkit.getPluginManager().callEvent(MinionPickupEvent(minion, player))
-        return item
     }
 
     fun canPickUp(player: Player, minion: Minion): Boolean =

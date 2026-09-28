@@ -1,6 +1,8 @@
 package com.exanthiax.ecominions.libreforge
 
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelStart
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
 import com.exanthiax.ecominions.minions.service.Minion
 import com.willfp.libreforge.triggers.DispatchedTrigger
 import com.willfp.libreforge.triggers.Trigger
@@ -129,6 +131,41 @@ class MinionTriggerDispatch(
         }
 
         return leftovers
+    }
+
+    /**
+     * Dispatches [TriggerMinionFuelStart] for [fuelId].
+     *
+     * Goes straight to the trigger, as it always has, so XP gain does not see it.
+     */
+    fun fuelStarted(minion: Minion, fuelId: String) {
+        TriggerMinionFuelStart.dispatch(
+            minion.toDispatcher(),
+            TriggerData(
+                dispatcher = minion.toDispatcher(),
+                player = minion.ownerPlayer(),
+                location = minion.location,
+                text = fuelId
+            )
+        )
+    }
+
+    /**
+     * Dispatches [TriggerMinionUpgrade] for [tier] of [upgradeId].
+     *
+     * Goes straight to the trigger, as it always has, so XP gain does not see it.
+     */
+    fun upgraded(minion: Minion, upgradeId: String, tier: Int) {
+        TriggerMinionUpgrade.dispatch(
+            minion.toDispatcher(),
+            TriggerData(
+                dispatcher = minion.toDispatcher(),
+                player = minion.ownerPlayer(),
+                location = minion.location,
+                text = upgradeId,
+                value = tier.toDouble()
+            )
+        )
     }
 
     private fun dispatch(minion: Minion, trigger: Trigger, data: TriggerData) {

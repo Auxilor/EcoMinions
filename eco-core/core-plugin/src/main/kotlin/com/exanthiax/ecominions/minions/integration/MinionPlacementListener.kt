@@ -60,6 +60,8 @@ class MinionPlacementListener(
                 celebrate(result.minion)
                 player.sendMessage(messages.line("messages.placed"))
             }
+
+            is PlacementService.PlaceResult.Cancelled -> Unit
         }
     }
 

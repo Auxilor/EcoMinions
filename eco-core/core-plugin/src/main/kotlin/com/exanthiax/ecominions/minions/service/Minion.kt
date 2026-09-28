@@ -22,7 +22,7 @@ import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefiniti
  */
 class Minion(
     state: MinionState,
-    val entity: ArmorStand,
+    override val entity: ArmorStand,
     /**
      * The minion's storage. A [MinionStorage] rather than a Bukkit inventory
      * because capacity is upgraded a slot at a time, and nothing ever opens it.
@@ -83,6 +83,21 @@ class Minion(
     override val usedStorage: Int
         get() = storage.used
 
+    override val speedTicks: Int
+        get() = stats.speedTicks
+
+    override val efficiencyTicks: Int
+        get() = stats.efficiencyTicks
+
+    override val radius: Int
+        get() = stats.radius
+
+    override val height: Int
+        get() = stats.height
+
+    override val regenDelayTicks: Int
+        get() = stats.regenDelayTicks
+
     var animation: AnimationState = AnimationState.IDLE
         internal set
 
@@ -126,7 +141,7 @@ class Minion(
     /** Transient per-tick bookkeeping, owned by [MiningService]. */
     val mining = MiningState()
 
-    val isStorageFull: Boolean
+    override val isStorageFull: Boolean
         get() = storage.isFull
 
     enum class AnimationState { IDLE, MINING, FULL, BLOCKED }

@@ -1,6 +1,9 @@
 package com.exanthiax.ecominions.levelling.service
 
 import com.exanthiax.ecominions.api.event.MinionLevelUpEvent
+import com.exanthiax.ecominions.api.event.MinionXpGainEvent
+import com.exanthiax.ecominions.core.event.BukkitEventDispatcher
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.libreforge.MinionTriggerListener
 import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.libreforge.toDispatcher
@@ -12,7 +15,6 @@ import com.willfp.libreforge.EmptyProvidedHolder
 import com.willfp.libreforge.levels.LevelUpDispatcher
 import com.willfp.libreforge.triggers.DispatchedTrigger
 import com.willfp.libreforge.triggers.TriggerData
-import org.bukkit.Bukkit
 
 /**
  * Accumulates minion XP and runs the level-up flow.
@@ -23,7 +25,8 @@ import org.bukkit.Bukkit
 class MinionXpService(
     private val applyState: (Minion, MinionState) -> Unit,
     private val onLevelChanged: (Minion) -> Unit,
-    private val notifyLevelUp: (Minion, Int) -> Unit = { _, _ -> }
+    private val notifyLevelUp: (Minion, Int) -> Unit = { _, _ -> },
+    private val events: EventDispatcher = BukkitEventDispatcher
 ) : MinionTriggerListener {
     /** @param levelsGained The levels crossed, or null if none were. */
     data class LevelUpResult(
@@ -59,18 +62,21 @@ class MinionXpService(
      * a reward is not swallowed when a large offline catch-up crosses several
      * levels at once.
      */
-    fun grant(minion: Minion, amount: Double) {
-        val result = progress(minion.state, amount)
+    fun grant(minion: Minion, amount: Double): Boolean {
+        val levelling = minion.state.definition.levelling
+        if (!levelling.enabled || minion.state.isAtMaxLevel) {
+            return false
+        }
+        val granted = allowGain(minion, amount) ?: return false
+        val result = progress(minion.state, granted)
 
         applyState(minion, result.newState)
         onLevelChanged(minion)
 
-        val gained = result.levelsGained ?: return
+        val gained = result.levelsGained ?: return true
 
         for (level in gained) {
-            Bukkit.getPluginManager().callEvent(
-                MinionLevelUpEvent(minion, level - 1, level)
-            )
+            events.dispatch(MinionLevelUpEvent(minion, level - 1, level))
 
             val dispatcher = minion.toDispatcher()
 
@@ -94,6 +100,39 @@ class MinionXpService(
 
             notifyLevelUp(minion, level)
         }
+        return true
+    }
+
+    /**
+     * Skipped when nothing listens, because gain methods can run on every block
+     * a minion breaks.
+     *
+     * @return The XP to bank, or null if the gain was cancelled or is not positive.
+     */
+    private fun allowGain(minion: Minion, amount: Double): Double? {
+        if (MinionXpGainEvent.getHandlerList().registeredListeners.isEmpty()) {
+            return amount.takeIf { it > 0.0 }
+        }
+        val event = MinionXpGainEvent(minion, amount)
+        if (!events.dispatch(event)) {
+            return null
+        }
+        return event.amount.takeIf { it > 0.0 }
+    }
+
+    /**
+     * Sets [minion]'s level directly with no XP banked and no level-up flow.
+     *
+     * @return False if its type cannot level or [level] is out of range.
+     */
+    fun setLevel(minion: Minion, level: Int): Boolean {
+        val levelling = minion.state.definition.levelling
+        if (!levelling.enabled || level !in 1..levelling.maxLevel) {
+            return false
+        }
+        applyState(minion, minion.state.withXp(0.0, level))
+        onLevelChanged(minion)
+        return true
     }
 
     companion object {

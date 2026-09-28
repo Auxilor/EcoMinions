@@ -1,5 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.event.MinionSellEvent
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.willfp.eco.core.integrations.economy.EconomyManager
 import org.bukkit.Bukkit
@@ -12,10 +14,14 @@ import org.bukkit.Bukkit
  */
 class SellService(
     private val pricing: SellPricingService,
-    private val shop: ShopIntegrationService
+    private val shop: ShopIntegrationService,
+    private val events: EventDispatcher
 ) {
     /**
      * Empties every sellable stack and pays the owner.
+     *
+     * Quotes every stack before selling any, so the sell event sees the whole
+     * sale and cancelling it leaves storage untouched.
      *
      * @return How much was paid through the server economy. EcoShop sales settle
      *         in their own currency and are not counted here.
@@ -25,29 +31,39 @@ class SellService(
         val player = Bukkit.getPlayer(owner) ?: return 0.0
         val type = minion.state.definition
 
-        var economyTotal = 0.0
-        for (slot in 0 until minion.storage.size) {
-            val item = minion.storage.getItem(slot) ?: continue
+        val sales = (0 until minion.storage.size).mapNotNull { slot ->
+            val item = minion.storage.getItem(slot) ?: return@mapNotNull null
+            pricing.quote(type, item, item.amount)?.let { quote -> slot to quote }
+        }
+        if (sales.isEmpty()) {
+            return 0.0
+        }
 
-            when (val quote = pricing.quote(type, item, item.amount)) {
-                is SellPricingService.Quote.Configured -> {
-                    economyTotal += quote.totalValue
-                    minion.storage.setItem(slot, null)
-                }
+        val event = MinionSellEvent(
+            minion,
+            sales.sumOf { (_, quote) -> (quote as? SellPricingService.Quote.Configured)?.totalValue ?: 0.0 },
+            sales.mapNotNull { (slot, _) -> minion.storage.getItem(slot)?.clone() }
+        )
+        if (!events.dispatch(event)) {
+            return 0.0
+        }
+
+        for ((slot, quote) in sales) {
+            when (quote) {
+                is SellPricingService.Quote.Configured -> minion.storage.setItem(slot, null)
 
                 is SellPricingService.Quote.Shop -> {
+                    val item = minion.storage.getItem(slot) ?: continue
                     if (shop.sell(player, item, quote.units, quote.multiplier)) {
                         minion.storage.setItem(slot, null)
                     }
                 }
-
-                null -> Unit
             }
         }
 
-        if (economyTotal > 0.0) {
-            EconomyManager.giveMoney(Bukkit.getOfflinePlayer(owner), economyTotal)
+        if (event.total > 0.0) {
+            EconomyManager.giveMoney(Bukkit.getOfflinePlayer(owner), event.total)
         }
-        return economyTotal
+        return event.total
     }
 }
