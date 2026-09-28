@@ -30,9 +30,10 @@ base-stats:
   efficiency-ticks: 10
   radius: 3
   # Vertical span of the mining box in blocks, measured from one block below
-  # the minion upward. Defaults to 3 (one below, level, one above). Raise it for
-  # tall targets such as trees. Supports %level% expressions like the stats above.
-  height: 3
+  # the minion upward. Omit it to use the type's default: miner 1 (the floor
+  # ring around the minion), farmer 2 (soil below, crop at the minion's level),
+  # woodcutter 6 (a full tree). Supports %level% expressions like the stats above.
+  height: 1
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 100

@@ -7,6 +7,7 @@ base-stats:
   speed-ticks: 80
   efficiency-ticks: 12
   radius: 2
+  height: 4
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 240

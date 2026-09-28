@@ -43,7 +43,6 @@ allowed-upgrades:
   - fortune
   - radius
   - capacity
-  - auto_smelt
   - auto_sell
   - experience
 

@@ -38,7 +38,6 @@ sell-prices:
   SAND: 0.5
   RED_SAND: 0.5
   GLASS: 1.0
-  RED_STAINED_GLASS: 1.0
 
 allowed-upgrades:
   - speed

@@ -57,6 +57,6 @@ effects:
       - minion_mine_block
 
 equipment:
-  chestplate: LEATHER_CHESTPLATE
-  leggings: LEATHER_LEGGINGS
-  boots: LEATHER_BOOTS
+  chestplate: COPPER_CHESTPLATE
+  leggings: COPPER_LEGGINGS
+  boots: COPPER_BOOTS
