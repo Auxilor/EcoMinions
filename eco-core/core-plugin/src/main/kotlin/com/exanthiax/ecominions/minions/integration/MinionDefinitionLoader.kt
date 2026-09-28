@@ -286,12 +286,22 @@ class MinionDefinitionLoader(
     ): PlacementSettings {
         val section = config.getSubsection("placement")
         val regen = readRegenPlacement(id, section, targets, context)
+        val spacing = readSpacing(section, context)
 
         if (section.getBoolOrNull("self-seed") ?: (type == MinionType.WOODCUTTER)) {
             readSeedBlock(section, targets, type, context)
-                ?.let { return regen.copy(selfSeed = true, seedBlock = it) }
+                ?.let { return regen.copy(selfSeed = true, seedBlock = it, spacing = spacing) }
         }
         return regen
+    }
+
+    /** Empty blocks between self-seeded plants; 0 packs them side by side. */
+    private fun readSpacing(section: Config, context: LoadContext): Int {
+        val spacing = section.getIntOrNull("spacing") ?: return 0
+        if (spacing < 0) {
+            return context.invalid<Int>("placement.spacing", spacing.toString(), "0 or more") ?: 0
+        }
+        return spacing
     }
 
     private fun readRegenPlacement(

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import kotlin.math.abs
 
 class SeedingServiceTest {
 
@@ -183,13 +184,83 @@ class SeedingServiceTest {
         assertEquals(Material.COAL_ORE, world.typeAt(-1, 1, 0))
     }
 
+    /** A spacing of 1 keeps every neighbour clear, diagonals included. */
+    @Test
+    fun `keeps spaced seeds apart`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val minion = minionAt(world, placement = selfSeeding(Material.CACTUS, spacing = 1), radius = 2, height = 2)
+        val service = service()
+
+        while (service.tick(minion)) {
+            // seed until nowhere is left
+        }
+
+        val seeded = world.positionsOf(Material.CACTUS)
+        assertTrue(seeded.size > 1)
+        for (a in seeded) {
+            for (b in seeded) {
+                if (a == b) continue
+                val gap = maxOf(abs(a.first - b.first), abs(a.third - b.third))
+                assertTrue(gap > 1, "$a and $b are within spacing")
+            }
+        }
+    }
+
+    /** Spacing 0 packs seeds side by side, as before spacing existed. */
+    @Test
+    fun `packs seeds tightly without spacing`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val minion = minionAt(world, placement = selfSeeding(Material.CACTUS), height = 2)
+        val service = service()
+
+        while (service.tick(minion)) {
+            // seed until nowhere is left
+        }
+
+        assertEquals(SPOTS_AROUND_MINION, world.countOf(Material.CACTUS))
+    }
+
+    /** A plant higher up still counts - spacing is about whole columns, not one layer. */
+    @Test
+    fun `spacing counts plants at other heights`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        world.set(1, 0, 0, Material.STONE)
+        world.set(1, 1, 0, Material.CACTUS)
+        val minion = minionAt(world, placement = selfSeeding(Material.CACTUS, spacing = 1), height = 3)
+        val service = service()
+
+        while (service.tick(minion)) {
+            // seed until nowhere is left
+        }
+
+        for ((x, _, _) in world.positionsOf(Material.CACTUS) - Triple(1, 1, 0)) {
+            assertTrue(x < 0, "seeded next to the raised cactus at x=$x")
+        }
+    }
+
+    /** Nowhere spaced far enough is not pending, so the minion reports blocked. */
+    @Test
+    fun `is not pending when every spot is too close`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        world.set(1, 0, 0, Material.CACTUS)
+        world.set(-1, 0, 0, Material.CACTUS)
+        val minion = minionAt(world, placement = selfSeeding(Material.CACTUS, spacing = 1), height = 2)
+
+        assertFalse(service().isPending(minion))
+    }
+
     private fun service() = SeedingService()
 
-    private fun selfSeeding(seed: Material) = PlacementSettings(
+    private fun selfSeeding(seed: Material, spacing: Int = 0) = PlacementSettings(
         liftRegen = false,
         surfaceBlock = null,
         selfSeed = true,
-        seedBlock = FakeBlockLookup.testable(seed)
+        seedBlock = FakeBlockLookup.testable(seed),
+        spacing = spacing
     )
 
     private fun minionAt(

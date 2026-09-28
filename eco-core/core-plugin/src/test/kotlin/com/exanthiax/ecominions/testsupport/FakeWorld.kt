@@ -32,6 +32,10 @@ class FakeWorld {
 
     fun countOf(material: Material): Int = blocks.values.count { it == material }
 
+    /** Every position holding [material], as (x, y, z). */
+    fun positionsOf(material: Material): List<Triple<Int, Int, Int>> =
+        blocks.filterValues { it == material }.keys.toList()
+
     /** Fills y = -1 across a 5x5 area, leaving everything above it as air. */
     fun fillFloor(material: Material = Material.STONE) = fillLayer(-1, material)
 

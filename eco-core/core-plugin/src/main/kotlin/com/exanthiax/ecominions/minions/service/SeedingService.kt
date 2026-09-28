@@ -95,11 +95,12 @@ class SeedingService {
         if (minion.mining.isAwaitingRegen(block)) {
             return false
         }
-        return SeedSurface.accepts(
-            SeedSurface.below(block),
-            expectedSurface,
-            minion.state.definition.targetBlocks
-        )
+        val definition = minion.state.definition
+        val placement = definition.placement
+        return SeedSurface.accepts(SeedSurface.below(block), expectedSurface, definition.targetBlocks) &&
+            PlantSpacing.isClear(minion, block, placement.spacing) {
+                definition.targetBlocks.matches(it) || placement.seedBlock?.matches(it) == true
+            }
     }
 
     private companion object {

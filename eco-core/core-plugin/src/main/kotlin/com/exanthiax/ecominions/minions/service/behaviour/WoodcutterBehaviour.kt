@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions.service.behaviour
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.TargetSet
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.PlantSpacing
 import com.exanthiax.ecominions.minions.service.SeedSurface
 import com.exanthiax.ecominions.minions.service.TreeService
 import com.willfp.eco.core.blocks.TestableBlock
@@ -107,6 +108,8 @@ class WoodcutterBehaviour(
         val world = minion.entity.world
         val expectedSurface = surfaceFor(minion, definition)
         val targets = minion.state.definition.targetBlocks
+        val spacing = minion.state.definition.placement.spacing
+        val plant = definition.plant
 
         var best: Location? = null
         var bestDistance = Double.MAX_VALUE
@@ -119,6 +122,12 @@ class WoodcutterBehaviour(
                 for (y in -1..1) {
                     val candidate = world.getBlockAt(center.x + x, center.y + y, center.z + z)
                     if (!isPlantable(candidate, expectedSurface, targets)) {
+                        continue
+                    }
+                    val clear = PlantSpacing.isClear(minion, candidate, spacing) {
+                        targets.matches(it) || plant?.matches(it) == true
+                    }
+                    if (!clear) {
                         continue
                     }
                     val distance = (x * x + y * y + z * z).toDouble()

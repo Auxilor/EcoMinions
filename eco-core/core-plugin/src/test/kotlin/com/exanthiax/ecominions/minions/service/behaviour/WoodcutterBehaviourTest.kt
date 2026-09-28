@@ -14,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.bukkit.Material
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -62,6 +63,33 @@ class WoodcutterBehaviourTest {
         assertNotEquals(null, minion.mining.standingTree)
     }
 
+    /** A sapling is never planted where its tree would grow into a neighbour's. */
+    @Test
+    fun `plants a sapling clear of existing logs`() {
+        val world = FakeWorld()
+        world.fillFloor(Material.DIRT)
+        world.set(-2, 0, 0, Material.OAK_LOG)
+        val minion = minion(world, spacing = 2)
+
+        assertTrue(behaviour.onIdle(minion, now = 0L))
+
+        val (x, _, _) = world.positionsOf(Material.OAK_SAPLING).single()
+        assertTrue(x > 0, "planted within 2 blocks of the log at x=$x")
+    }
+
+    /** Nowhere far enough from other trees means nothing is planted. */
+    @Test
+    fun `plants nothing when every spot is too close`() {
+        val world = FakeWorld()
+        world.fillFloor(Material.DIRT)
+        world.set(2, 0, 0, Material.OAK_LOG)
+        world.set(-2, 0, 0, Material.OAK_LOG)
+        val minion = minion(world, spacing = 2)
+
+        assertFalse(behaviour.onIdle(minion, now = 0L))
+        assertEquals(0, world.countOf(Material.OAK_SAPLING))
+    }
+
     /** Plants a sapling, waits out the regen delay, then grows the tree. */
     private fun grownTree(world: FakeWorld): Minion {
         world.fillFloor(Material.DIRT)
@@ -75,7 +103,7 @@ class WoodcutterBehaviourTest {
         return minion
     }
 
-    private fun minion(world: FakeWorld): Minion {
+    private fun minion(world: FakeWorld, spacing: Int = 0): Minion {
         val oak = MinionBlock.regenDefault("oak", "OAK_LOG", FakeBlockLookup.testable(Material.OAK_LOG))
             .copy(
                 plant = FakeBlockLookup.testable(Material.OAK_SAPLING),
@@ -89,7 +117,8 @@ class WoodcutterBehaviourTest {
                 liftRegen = false,
                 surfaceBlock = null,
                 selfSeed = true,
-                seedBlock = FakeBlockLookup.testable(Material.OAK_SAPLING)
+                seedBlock = FakeBlockLookup.testable(Material.OAK_SAPLING),
+                spacing = spacing
             )
         )
         return mockk<Minion>().also { minion ->

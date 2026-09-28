@@ -61,3 +61,5 @@ equipment:
 
 placement:
   self-seed: true
+  # Empty blocks kept between each tree, so canopies don't grow into each other.
+  spacing: 2

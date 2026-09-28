@@ -14,7 +14,12 @@ data class PlacementSettings(
     val surfaceBlock: TestableBlock?,
     val selfSeed: Boolean = false,
     /** What self-seeding places. Null whenever [selfSeed] is false. */
-    val seedBlock: TestableBlock? = null
+    val seedBlock: TestableBlock? = null,
+    /**
+     * Empty blocks self-seeding keeps between each planted column, in every
+     * direction including diagonals. 0 packs them side by side.
+     */
+    val spacing: Int = 0
 ) {
     companion object {
         val NONE = PlacementSettings(false, null)

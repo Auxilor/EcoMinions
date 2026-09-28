@@ -53,3 +53,5 @@ equipment:
 
 placement:
   self-seed: true
+  # Empty blocks kept between each cactus - cactus breaks next to another block.
+  spacing: 1

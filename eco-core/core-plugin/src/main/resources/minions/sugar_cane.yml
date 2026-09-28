@@ -53,3 +53,5 @@ equipment:
 
 placement:
   self-seed: true
+  # Empty blocks kept between each sugar cane.
+  spacing: 1
