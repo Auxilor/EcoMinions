@@ -33,6 +33,7 @@ import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCustomItems
 import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
 import com.exanthiax.ecominions.minions.integration.MinionPickListener
+import com.exanthiax.ecominions.minions.integration.MinionPistonListener
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
 import com.exanthiax.ecominions.minions.integration.PaperMinionPickListener
@@ -295,6 +296,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionPickListener(minionService),
         if (PaperMinionPickListener.isSupported) PaperMinionPickListener(minionService) else null,
         MinionChunkListener(minionService),
+        MinionPistonListener(minionService),
         MinionOwnerListener(minionService, activityService)
     )
 
