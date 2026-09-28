@@ -112,26 +112,49 @@ class SeedingServiceTest {
         assertEquals(0, world.countOf(Material.COAL_ORE))
     }
 
-    /** A crop type declares its surface, and only that surface will do. */
+    /** A crop type declares its surface, and the minion lays it on bare ground. */
     @Test
-    fun `seeds a crop only on its configured surface`() {
+    fun `lays its configured surface under a seeded crop`() {
         val world = FakeWorld()
         world.fillFloor(Material.STONE)
-        val placement = PlacementSettings(
-            liftRegen = true,
-            surfaceBlock = FakeBlockLookup.testable(Material.FARMLAND),
-            selfSeed = true,
-            seedBlock = FakeBlockLookup.testable(Material.WHEAT)
-        )
-        val minion = minionAt(world, placement = placement)
+        val minion = minionAt(world, placement = cropSeeding())
 
-        assertFalse(service().tick(minion))
+        assertTrue(service().tick(minion))
+        assertEquals(Material.WHEAT, world.typeAt(-1, 0, 0))
+        assertEquals(Material.FARMLAND, world.typeAt(-1, -1, 0))
+        assertEquals(1, world.countOf(Material.WHEAT))
+        assertEquals(1, world.countOf(Material.FARMLAND))
+    }
 
+    /** Ground already prepared is used as-is, ahead of converting anything. */
+    @Test
+    fun `seeds on existing surface without converting more ground`() {
+        val world = FakeWorld()
+        world.fillFloor(Material.STONE)
         world.set(1, -1, 0, Material.FARMLAND)
+        val minion = minionAt(world, placement = cropSeeding())
+
         assertTrue(service().tick(minion))
         assertEquals(Material.WHEAT, world.typeAt(1, 0, 0))
-        assertEquals(1, world.countOf(Material.WHEAT))
+        assertEquals(1, world.countOf(Material.FARMLAND))
     }
+
+    /** The surface is only ever laid on solid ground, never in mid-air. */
+    @Test
+    fun `does not lay a surface over a hole`() {
+        val world = FakeWorld()
+        val minion = minionAt(world, placement = cropSeeding())
+
+        assertFalse(service().tick(minion))
+        assertEquals(0, world.countOf(Material.FARMLAND))
+    }
+
+    private fun cropSeeding() = PlacementSettings(
+        liftRegen = true,
+        surfaceBlock = FakeBlockLookup.testable(Material.FARMLAND),
+        selfSeed = true,
+        seedBlock = FakeBlockLookup.testable(Material.WHEAT)
+    )
 
     /**
      * A seed above the mining box would never be mined again, so the minion

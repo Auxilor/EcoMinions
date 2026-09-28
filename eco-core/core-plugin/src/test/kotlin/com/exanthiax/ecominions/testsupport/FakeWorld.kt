@@ -6,6 +6,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
+import org.bukkit.block.BlockState
 import org.bukkit.block.data.BlockData
 import org.bukkit.entity.ArmorStand
 
@@ -59,6 +60,8 @@ class FakeWorld {
         // Drops need the item factory, which needs a server. Tests assert on
         // what the world looks like afterwards, not on the items.
         every { block.getDrops() } returns emptyList()
+        // A plain state: nothing in a fake world is a tile entity.
+        every { block.state } returns mockk<BlockState>()
         every { block.location } returns mockk {
             every { this@mockk.block } returns block
             every { this@mockk.world } returns bukkit

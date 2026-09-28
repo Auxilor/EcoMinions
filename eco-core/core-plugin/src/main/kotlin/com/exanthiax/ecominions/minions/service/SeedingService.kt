@@ -26,7 +26,10 @@ class SeedingService {
      */
     fun tick(minion: Minion): Boolean {
         val spot = pendingSpot(minion) ?: return false
-        minion.state.definition.placement.seedBlock?.place(spot.location) ?: return false
+        val placement = minion.state.definition.placement
+        val seed = placement.seedBlock ?: return false
+        SeedSurface.prepare(SeedSurface.below(spot), placement.surfaceBlock)
+        seed.place(spot.location)
         return true
     }
 
@@ -47,7 +50,10 @@ class SeedingService {
     }
 
     /**
-     * The nearest air block on a valid surface, never the minion's own column.
+     * The nearest air block on ground [SeedSurface] accepts, never the minion's
+     * own column. Ground that already has its surface wins over ground that
+     * would have to be converted, so a prepared field is used before more of
+     * the area is dug up.
      *
      * The search is [MinionWorkArea], the same box the minion mines in: seeding
      * above the box it can reach leaves ore stranded above the minion forever.
@@ -70,7 +76,8 @@ class SeedingService {
                     if (!isSeedable(minion, candidate, expectedSurface)) {
                         continue
                     }
-                    val distance = x * x + y * y + z * z
+                    val distance = x * x + y * y + z * z +
+                        if (SeedSurface.isPrepared(SeedSurface.below(candidate), expectedSurface)) 0 else UNPREPARED_PENALTY
                     if (distance < bestDistance) {
                         bestDistance = distance
                         best = candidate
@@ -88,7 +95,15 @@ class SeedingService {
         if (minion.mining.isAwaitingRegen(block)) {
             return false
         }
-        val below = block.world.getBlockAt(block.x, block.y - 1, block.z)
-        return if (expectedSurface != null) expectedSurface.matches(below) else below.isSolid
+        return SeedSurface.accepts(
+            SeedSurface.below(block),
+            expectedSurface,
+            minion.state.definition.targetBlocks
+        )
+    }
+
+    private companion object {
+        /** Larger than any squared distance in range, so prepared ground always wins. */
+        const val UNPREPARED_PENALTY = 1_000_000
     }
 }
