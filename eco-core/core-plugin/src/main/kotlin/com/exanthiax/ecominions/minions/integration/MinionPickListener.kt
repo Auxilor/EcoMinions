@@ -1,9 +1,7 @@
 package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.minions.service.MinionService
-import org.bukkit.FluidCollisionMode
 import org.bukkit.Material
-import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -12,8 +10,9 @@ import org.bukkit.event.inventory.InventoryCreativeEvent
 /**
  * Stops creative pick-block on a minion handing out a plain armor stand.
  *
- * Spigot has no pick event, so this catches the resulting creative slot update
- * instead. Paper and its forks are handled by [PaperMinionPickListener].
+ * Spigot (and Paper before 1.21.4) has no pick event, so this catches the
+ * resulting creative slot update instead. Newer Paper and its forks are handled
+ * by [PaperMinionPickListener].
  */
 class MinionPickListener(
     private val minions: MinionService
@@ -25,23 +24,10 @@ class MinionPickListener(
             return
         }
         val player = event.whoClicked as? Player ?: return
-        val stand = targetedStand(player) ?: return
+        val stand = player.targetedArmorStand(PICK_RANGE) ?: return
         minions.getByEntity(stand) ?: return
 
         event.isCancelled = true
-    }
-
-    private fun targetedStand(player: Player): ArmorStand? {
-        val eye = player.eyeLocation
-        val hit = player.world.rayTrace(
-            eye,
-            eye.direction,
-            PICK_RANGE,
-            FluidCollisionMode.NEVER,
-            true,
-            0.0
-        ) { it != player } ?: return null
-        return hit.hitEntity as? ArmorStand
     }
 
     private companion object {
