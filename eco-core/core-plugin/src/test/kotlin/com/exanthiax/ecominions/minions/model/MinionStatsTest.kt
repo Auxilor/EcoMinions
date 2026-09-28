@@ -1,6 +1,8 @@
 package com.exanthiax.ecominions.minions.model
 
+import com.exanthiax.ecominions.api.minion.MinionType
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -46,12 +48,26 @@ class MinionStatsTest {
         assertEquals(60, stats.regenDelayTicks)
     }
 
-    /** Configs written before `height` existed must keep the three-block box they had. */
     @Test
-    fun `height defaults to three when the type does not configure it`() {
+    fun `stats built without a type fall back to a three-block box`() {
         val stats = MinionStats(base, level = 1)
 
         assertEquals(3, stats.height)
+    }
+
+    @Test
+    fun `an unset height defaults by type`() {
+        assertEquals("1", MinionDefinition.defaultHeight(MinionType.MINER))
+        assertEquals("2", MinionDefinition.defaultHeight(MinionType.FARMER))
+        assertEquals("6", MinionDefinition.defaultHeight(MinionType.WOODCUTTER))
+    }
+
+    /** Otherwise the woodcutter default leaves the top log of every tree standing. */
+    @Test
+    fun `the woodcutter default reaches the top of a tree`() {
+        val height = MinionDefinition.defaultHeight(MinionType.WOODCUTTER).toInt()
+        // The box tops out at height - 2 above the minion; a sapling may sit one above it.
+        assertTrue(height - 2 >= TreeShape.MAX_REACHABLE_TRUNK)
     }
 
     @Test

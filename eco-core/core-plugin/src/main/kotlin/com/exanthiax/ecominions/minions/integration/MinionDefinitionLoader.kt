@@ -96,7 +96,7 @@ class MinionDefinitionLoader(
             targetBlocks = targets,
             allowedUpgradeIds = allowedUpgrades,
             type = type,
-            baseStats = readBaseStats(config),
+            baseStats = readBaseStats(config, type),
             spawnItem = spawnItem,
             crafting = readCrafting(config, context),
             equipment = readEquipment(config),
@@ -203,13 +203,13 @@ class MinionDefinitionLoader(
      * expression - it is just rounded rather than truncated, and always clamped
      * to `minion.hard-slot-cap` on every read, in [MinionDefinition.BaseStats.maxStorageSlotsAt].
      */
-    private fun readBaseStats(config: Config): MinionDefinition.BaseStats =
+    private fun readBaseStats(config: Config, type: MinionType): MinionDefinition.BaseStats =
         MinionDefinition.BaseStats(
             speedTicks = config.getString("base-stats.speed-ticks"),
             efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
             radius = config.getString("base-stats.radius"),
             height = config.getStringOrNull("base-stats.height")?.takeIf { it.isNotBlank() }
-                ?: MinionDefinition.DEFAULT_HEIGHT,
+                ?: MinionDefinition.defaultHeight(type),
             storageSlots = config.getString("base-stats.storage-slots"),
             maxStorageSlots = config.getString("base-stats.max-storage-slots"),
             regenDelayTicks = config.getString("base-stats.regen-delay-ticks"),
