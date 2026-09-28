@@ -1,6 +1,10 @@
 package com.exanthiax.ecominions
 
 import com.exanthiax.ecominions.api.EcoMinionsApi
+import com.exanthiax.ecominions.api.impl.FuelsManagerImpl
+import com.exanthiax.ecominions.api.impl.MenusManagerImpl
+import com.exanthiax.ecominions.api.impl.MinionsManagerImpl
+import com.exanthiax.ecominions.api.impl.UpgradesManagerImpl
 import com.exanthiax.ecominions.commands.CommandGive
 import com.exanthiax.ecominions.commands.CommandInfo
 import com.exanthiax.ecominions.commands.CommandMinions
@@ -11,6 +15,7 @@ import com.exanthiax.ecominions.compactor.integration.CompactorRecipeLoader
 import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.error.LoadReport
+import com.exanthiax.ecominions.core.event.BukkitEventDispatcher
 import com.exanthiax.ecominions.core.lifecycle.LifecycleManager
 import com.exanthiax.ecominions.core.persistence.MinionDataKeys
 import com.exanthiax.ecominions.core.placeholders.PlaceholderRegistrar
@@ -50,10 +55,12 @@ import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionBlockIndex
+import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionDropTables
 import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
+import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.MinionStateRepository
@@ -112,6 +119,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     // Core
     private val report = LoadReport()
+    private val events = BukkitEventDispatcher
     private val dataKeys = MinionDataKeys(this)
     private val placeholderRegistrar = PlaceholderRegistrar(this)
     private val renderer = TemplateRenderer(placeholderRegistrar)
@@ -189,7 +197,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val shopIntegration = ShopIntegrationService(minionSettings)
     private val sellPricingSettings = SettingsHolder(minionSettings.value.sellPricing)
     private val sellPricing = SellPricingService(sellPricingSettings) { shopIntegration.unitsFor(it) }
-    private val sellService = SellService(sellPricing, shopIntegration)
+    private val sellService = SellService(sellPricing, shopIntegration, events)
     private val dropTables = MinionDropTables(
         resolve = { material, location -> vanillaDrops(material, location) },
         resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
@@ -202,7 +210,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     ) { Bukkit.getPlayer(it) != null }
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
-        itemFactory, limits, activityService, minionSettings
+        limits, activityService, minionSettings
     )
     private val seedingService = SeedingService()
     private val regenService = RegenService(minionSettings, triggerDispatch)
@@ -214,29 +222,43 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val miningTargets = MiningTargetFinder()
     private val miningService = MiningService(
         minionSettings, worlds, miningTargets, blockIndex, regenService, behaviours,
-        fuelService, triggerDispatch
+        fuelService, triggerDispatch, events
     )
     private val placementService = PlacementService(
-        minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings
+        minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
+        triggerDispatch, events
     )
-    private val minionFuelService = MinionFuelService(fuelService, repository)
-    private val purchases = MinionUpgradeService(minionService)
+    private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
+    private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
+    private val minionItems = MinionItemService(itemFactory, events)
+    private val collector = MinionCollectService(repository, events)
 
     // Presentation
     private val chrome = MenuChrome(messages)
-    private val costSelectMenu = CostSelectMenu(upgradeMenuSettings, messages, chrome, purchases)
+    private val costSelectMenu = CostSelectMenu(upgradeMenuSettings, messages, chrome, purchases, events)
     private val upgradeMenu = UpgradeMenu(
-        upgradeMenuSettings, messages, chrome, upgradeService, purchases, costSelectMenu
+        upgradeMenuSettings, messages, chrome, upgradeService, purchases, costSelectMenu, events
     )
     private val upgradeListMenu = UpgradeListMenu(
-        upgradeMenuSettings, messages, chrome, upgradeService, upgradeMenu
+        upgradeMenuSettings, messages, chrome, upgradeService, upgradeMenu, events
     )
     private val menuViewers = MenuViewers()
     private val mainMenu = MainMenu(
         menuSettings, messages, chrome, MinionStorageView(messages), placementService,
-        fuelService, minionFuelService, repository, upgradeListMenu, menuViewers
+        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events
     )
-    private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory)
+    private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
+
+    // API
+    private val api = EcoMinionsApiImpl(
+        MinionsManagerImpl(
+            minionService, placementService, itemFactory, minionItems, collector,
+            sellService, repository, events
+        ) { Bukkit.getOfflinePlayer(it) },
+        UpgradesManagerImpl(upgradeService, purchases, minionService),
+        FuelsManagerImpl(fuelService, minionFuelService, minionService),
+        MenusManagerImpl(mainMenu, upgradeListMenu, typeSelectMenu, minionService)
+    )
 
     // Lifecycle
     private val customItems = MinionCustomItems(this, minionService, itemFactory)
@@ -258,7 +280,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(blockDefinitions, minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
-        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService, triggerDispatch, xpService)
+        LibreforgeRegistrations.registerAll(upgrades, sellService, compactorService, xpService)
         shopIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()
@@ -306,9 +328,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             typeSelectMenu,
             listOf(
                 CommandOpen(this, typeSelectMenu),
-                CommandGive(this, minionService, itemFactory, messages),
+                CommandGive(this, minionService, minionItems, messages),
                 CommandReload(this) { minionTypes.values().size },
-                CommandRemove(this, minionService, messages),
+                CommandRemove(this, minionService, placementService, messages),
                 CommandInfo(this, minionService, messages)
             )
         )
@@ -334,7 +356,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private fun registerApi() {
         Bukkit.getServicesManager().register(
             EcoMinionsApi::class.java,
-            EcoMinionsApiImpl(minionService, upgradeService, fuelService),
+            api,
             this,
             ServicePriority.Normal
         )

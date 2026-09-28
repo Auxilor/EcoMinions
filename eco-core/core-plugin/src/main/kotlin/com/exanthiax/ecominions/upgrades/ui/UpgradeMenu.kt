@@ -1,6 +1,10 @@
 package com.exanthiax.ecominions.upgrades.ui
 
+import com.exanthiax.ecominions.api.event.MinionCloseEvent
+import com.exanthiax.ecominions.api.event.MinionOpenEvent
+import com.exanthiax.ecominions.api.menu.MinionMenuType
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.Minion
@@ -12,6 +16,7 @@ import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
 import com.exanthiax.ecominions.upgrades.service.UpgradeService
 import com.willfp.eco.core.gui.menu
+import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
 import com.willfp.eco.core.items.Items
@@ -27,12 +32,17 @@ class UpgradeMenu(
     private val chrome: MenuChrome,
     private val upgrades: UpgradeService,
     private val purchases: MinionUpgradeService,
-    private val costSelect: CostSelectMenu
+    private val costSelect: CostSelectMenu,
+    private val events: EventDispatcher
 ) {
     /** Set by the composition root: where the back button leads. */
     var onBack: ((Player, Minion) -> Unit)? = null
 
     fun open(player: Player, minion: Minion, upgrade: Upgrade) {
+        if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.UPGRADE))) {
+            return
+        }
+
         val current = settings.value
         val rows = current.upgradeRows
         val owned = upgrades.tierOf(minion, upgrade)
@@ -44,6 +54,9 @@ class UpgradeMenu(
         menu(rows) {
             setTitle(messages.render(current.upgradeTitle, context))
             setMask(chrome.fillerMask(rows))
+            onClose { event, _ ->
+                events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.UPGRADE))
+            }
             setSlot(1, TITLE_COLUMN, slot(titleItem(upgrade, context)))
 
             for ((index, tier) in upgrade.orderedTiers().withIndex()) {
@@ -148,6 +161,8 @@ class UpgradeMenu(
 
             MinionUpgradeService.Result.CONDITIONS_NOT_MET ->
                 player.sendMessage(messages.line("messages.upgrade-conditions-not-met", context))
+
+            MinionUpgradeService.Result.CANCELLED -> Unit
         }
     }
 

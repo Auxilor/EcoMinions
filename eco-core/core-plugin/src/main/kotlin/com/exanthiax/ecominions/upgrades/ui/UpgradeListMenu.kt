@@ -1,6 +1,10 @@
 package com.exanthiax.ecominions.upgrades.ui
 
+import com.exanthiax.ecominions.api.event.MinionCloseEvent
+import com.exanthiax.ecominions.api.event.MinionOpenEvent
+import com.exanthiax.ecominions.api.menu.MinionMenuType
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
@@ -11,6 +15,7 @@ import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.service.UpgradeService
 import com.willfp.eco.core.gui.menu
+import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
 import com.willfp.eco.core.items.Items
@@ -22,12 +27,17 @@ class UpgradeListMenu(
     private val messages: Messages,
     private val chrome: MenuChrome,
     private val upgrades: UpgradeService,
-    private val upgradeMenu: UpgradeMenu
+    private val upgradeMenu: UpgradeMenu,
+    private val events: EventDispatcher
 ) {
     /** Set by the composition root: menus navigate back to the minion's main menu. */
     var onBack: ((Player, Minion) -> Unit)? = null
 
     fun open(player: Player, minion: Minion) {
+        if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.UPGRADE_LIST))) {
+            return
+        }
+
         val current = settings.value
         val rows = current.listRows
         val context = TemplateContext.of(MinionPlaceholders.MINION to minion)
@@ -36,6 +46,9 @@ class UpgradeListMenu(
         menu(rows) {
             setTitle(messages.render(current.listTitle, context))
             setMask(chrome.fillerMask(rows))
+            onClose { event, _ ->
+                events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.UPGRADE_LIST))
+            }
 
             for ((index, upgrade) in allUpgrades.withIndex()) {
                 val row = FIRST_ROW + (index / COLUMNS)

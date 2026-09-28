@@ -1,16 +1,19 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.api.event.MinionFuelEvent
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
-import org.bukkit.Bukkit
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 /** Fuelling a minion from a player's inventory. */
 class MinionFuelService(
     private val fuels: FuelService,
-    private val repository: MinionStateRepository
+    private val repository: MinionStateRepository,
+    private val triggers: MinionTriggerDispatch,
+    private val events: EventDispatcher
 ) {
     private companion object {
         const val MILLIS_PER_TICK = 50L
@@ -27,6 +30,12 @@ class MinionFuelService(
         val count: Int
     )
 
+    sealed interface Outcome {
+        data class Applied(val application: Application) : Outcome
+        data object NoFuel : Outcome
+        data object Cancelled : Outcome
+    }
+
     /**
      * Takes up to [limit] fuel items from [player] and burns them on [minion].
      *
@@ -35,22 +44,26 @@ class MinionFuelService(
      * away. The type is the one already burning if the player is carrying more
      * of it, otherwise the first fuel found.
      *
-     * @return What was applied, or null if the player had no fuel.
+     * The event fires before any item is taken, so cancelling it leaves the
+     * player's inventory alone.
      */
-    fun fuelFrom(player: Player, minion: Minion, limit: Int = 1): Application? {
-        val contents = player.inventory.contents
-        val taken = take(contents, minion, limit) ?: return null
+    fun fuelFrom(player: Player, minion: Minion, limit: Int = 1): Outcome {
+        val preview = player.inventory.contents.map { it?.clone() }.toTypedArray()
+        val planned = take(preview, minion, limit) ?: return Outcome.NoFuel
+        val duration = authorise(minion, player, planned) ?: return Outcome.Cancelled
 
+        val contents = player.inventory.contents
+        take(contents, minion, limit)
         player.inventory.contents = contents
-        return burn(minion, player, taken.fuel, taken.count)
+        start(minion, planned.fuel, duration)
+        return Outcome.Applied(planned)
     }
 
     /**
      * Removes up to [limit] items of one fuel from [contents], in place.
      *
      * Split out of [fuelFrom] so the choosing and counting can be tested on
-     * their own: burning the fuel fires a Bukkit event, which needs a live
-     * server.
+     * their own.
      *
      * @return What was taken, or null if [contents] holds no fuel.
      */
@@ -85,15 +98,49 @@ class MinionFuelService(
      * held on the cursor rather than in a slot of the inventory, and the caller
      * is the one that has to shrink it.
      *
-     * @return What was applied, or null if [item] is not a fuel.
+     * @return [Outcome.NoFuel] if [item] is not a fuel.
      */
-    fun fuelFromItem(player: Player, minion: Minion, item: ItemStack, count: Int): Application? {
+    fun fuelFromItem(player: Player, minion: Minion, item: ItemStack, count: Int): Outcome {
         if (count <= 0) {
-            return null
+            return Outcome.NoFuel
         }
-        val fuel = fuels.matching(item) ?: return null
-        return burn(minion, player, fuel, minOf(count, item.amount))
+        val fuel = fuels.matching(item) ?: return Outcome.NoFuel
+        val application = Application(fuel, minOf(count, item.amount))
+        val duration = authorise(minion, player, application) ?: return Outcome.Cancelled
+
+        start(minion, fuel, duration)
+        return Outcome.Applied(application)
     }
+
+    /**
+     * Burns [fuel] on [minion] for [durationMillis] with no item involved.
+     *
+     * @return Whether the event allowed it.
+     */
+    fun applyDirect(minion: Minion, fuel: Fuel, durationMillis: Long): Boolean {
+        val event = MinionFuelEvent(minion, null, fuel, durationMillis)
+        if (!events.dispatch(event)) {
+            return false
+        }
+        start(minion, fuel, event.durationMillis)
+        return true
+    }
+
+    private fun start(minion: Minion, fuel: Fuel, durationMillis: Long) {
+        applyMillis(minion, fuel, durationMillis)
+        triggers.fuelStarted(minion, fuel.id)
+    }
+
+    /** Puts out whatever [minion] is burning. */
+    fun clear(minion: Minion) {
+        minion.burningFuelId = null
+        minion.burningFuelEndsAt = 0L
+        minion.burningFuelRemainingMillis = 0L
+        repository.save(minion)
+    }
+
+    /** @return How long one unit of [fuel] burns for. */
+    fun unitMillis(fuel: Fuel): Long = fuel.durationTicks * MILLIS_PER_TICK
 
     /**
      * @return The fuel a deposit should take, preferring the burning one so a
@@ -114,12 +161,15 @@ class MinionFuelService(
         return first
     }
 
-    private fun burn(minion: Minion, player: Player, fuel: Fuel, count: Int): Application {
-        apply(minion, fuel, count)
-        // Fired once per deposit rather than once per item: a stack of coal is
-        // one thing the player did.
-        Bukkit.getPluginManager().callEvent(MinionFuelEvent(minion, player, fuel))
-        return Application(fuel, count)
+    /**
+     * Fires once per deposit rather than once per item: a stack of coal is one
+     * thing the player did.
+     *
+     * @return How long the burn should last, or null if it was cancelled.
+     */
+    private fun authorise(minion: Minion, player: Player, application: Application): Long? {
+        val event = MinionFuelEvent(minion, player, application.fuel, unitMillis(application.fuel) * application.count)
+        return if (events.dispatch(event)) event.durationMillis else null
     }
 
     /**
@@ -132,7 +182,11 @@ class MinionFuelService(
      * live at a time, and the remaining time belongs to the fuel that set it.
      */
     fun apply(minion: Minion, fuel: Fuel, count: Int = 1, now: Long = System.currentTimeMillis()) {
-        val duration = fuel.durationTicks * MILLIS_PER_TICK * count
+        applyMillis(minion, fuel, unitMillis(fuel) * count, now)
+    }
+
+    /** As [apply], for a burn measured in milliseconds rather than items. */
+    fun applyMillis(minion: Minion, fuel: Fuel, duration: Long, now: Long = System.currentTimeMillis()) {
         val carried = if (minion.burningFuelId == fuel.id) remainingOf(minion, now) else 0L
 
         minion.burningFuelId = fuel.id

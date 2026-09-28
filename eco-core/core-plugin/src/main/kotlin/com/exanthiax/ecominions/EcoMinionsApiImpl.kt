@@ -2,22 +2,22 @@ package com.exanthiax.ecominions
 
 import com.exanthiax.ecominions.api.EcoMinionsApi
 import com.exanthiax.ecominions.api.fuel.FuelsManager
+import com.exanthiax.ecominions.api.menu.MenusManager
 import com.exanthiax.ecominions.api.minion.MinionsManager
 import com.exanthiax.ecominions.api.upgrade.UpgradesManager
 
 /**
  * The API implementation registered with Bukkit's services manager.
  *
- * Services implement the manager interfaces directly, so this is pure delegation
- * with no mapping layer.
+ * Pure delegation: each manager is an adapter in `api/impl` that maps the public
+ * contract onto the internal services.
  */
 class EcoMinionsApiImpl(
     private val minions: MinionsManager,
     private val upgrades: UpgradesManager,
-    private val fuels: FuelsManager
+    private val fuels: FuelsManager,
+    private val menus: MenusManager
 ) : EcoMinionsApi {
-
-    override val apiVersion: String = API_VERSION
 
     override fun minions(): MinionsManager = minions
 
@@ -25,7 +25,5 @@ class EcoMinionsApiImpl(
 
     override fun fuels(): FuelsManager = fuels
 
-    private companion object {
-        const val API_VERSION = "1.0.0"
-    }
+    override fun menus(): MenusManager = menus
 }

@@ -1,14 +1,18 @@
 package com.exanthiax.ecominions.minions.ui
 
+import com.exanthiax.ecominions.api.event.MinionCloseEvent
+import com.exanthiax.ecominions.api.event.MinionOpenEvent
+import com.exanthiax.ecominions.api.menu.MinionMenuType
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MenuSettings
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionFuelService
-import com.exanthiax.ecominions.minions.service.MinionStateRepository
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.willfp.eco.core.gui.menu
@@ -39,11 +43,16 @@ class MainMenu(
     private val placement: PlacementService,
     private val fuels: FuelService,
     private val fuelService: MinionFuelService,
-    private val repository: MinionStateRepository,
+    private val collector: MinionCollectService,
     private val upgradeList: UpgradeListMenu,
-    private val viewers: MenuViewers
+    private val viewers: MenuViewers,
+    private val events: EventDispatcher
 ) {
     fun open(player: Player, minion: Minion) {
+        if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.MAIN))) {
+            return
+        }
+
         val current = settings.value
         val rows = current.mainRows
         val positions = storagePositions(rows)
@@ -73,7 +82,11 @@ class MainMenu(
             setSlot(rows, 8, infoSlot(minion))
 
             onOpen { viewer, menu -> viewers.watch(viewer, menu) }
-            onClose { event, menu -> viewers.forget(event.player as Player, menu) }
+            onClose { event, menu ->
+                val viewer = event.player as Player
+                viewers.forget(viewer, menu)
+                events.dispatch(MinionCloseEvent(viewer, minion, MinionMenuType.MAIN))
+            }
         }.open(player)
     }
 
@@ -99,8 +112,7 @@ class MainMenu(
             // Refreshed here as well as on the loop so the storage area empties
             // the moment it is clicked, not on the next tick of the loop.
             onLeftClick { _, _, menu ->
-                val collected = collectInto(player, minion)
-                repository.save(minion)
+                val collected = collector.collect(player, minion) ?: return@onLeftClick
                 player.sendMessage(
                     messages.line("messages.collected", TemplateContext.of("count" to collected))
                 )
@@ -115,25 +127,6 @@ class MainMenu(
             messages.line("gui.main.collect-all.name", context),
             messages.lines("gui.main.collect-all.lore", context)
         )
-    }
-
-    /** @return How many items made it into the player's inventory. */
-    private fun collectInto(player: Player, minion: Minion): Int {
-        var collected = 0
-        for (index in 0 until minion.storage.size) {
-            val item = minion.storage.getItem(index) ?: continue
-            val leftover = player.inventory.addItem(item)
-            if (leftover.isEmpty()) {
-                collected += item.amount
-                minion.storage.setItem(index, null)
-            } else {
-                val remaining = leftover.values.first()
-                collected += item.amount - remaining.amount
-                minion.storage.setItem(index, remaining)
-                break
-            }
-        }
-        return collected
     }
 
     /**
@@ -156,38 +149,44 @@ class MainMenu(
 
     private fun deposit(player: Player, minion: Minion, event: InventoryClickEvent, menu: Menu, whole: Boolean) {
         val applied = fromCursor(player, minion, event, whole)
+            ?.takeUnless { it == MinionFuelService.Outcome.NoFuel }
             ?: fuelService.fuelFrom(player, minion)
 
         announce(player, applied)
         menu.refresh(player)
     }
 
-    /** @return What the cursor stack fuelled, or null if it holds no fuel. */
+    /** @return What the cursor stack fuelled, or null if the cursor is empty. */
     private fun fromCursor(
         player: Player,
         minion: Minion,
         event: InventoryClickEvent,
         whole: Boolean
-    ): MinionFuelService.Application? {
+    ): MinionFuelService.Outcome? {
         val cursor = event.cursor
         if (cursor == null || cursor.type == Material.AIR) {
             return null
         }
 
         val count = if (whole) cursor.amount else 1
-        val applied = fuelService.fuelFromItem(player, minion, cursor, count) ?: return null
-
-        // The click is cancelled before this runs, so the cursor is ours to
-        // shrink: nothing else is going to take the items we just burnt.
-        val left = cursor.amount - applied.count
-        player.setItemOnCursor(if (left <= 0) null else cursor.clone().apply { amount = left })
-        return applied
+        val outcome = fuelService.fuelFromItem(player, minion, cursor, count)
+        if (outcome is MinionFuelService.Outcome.Applied) {
+            // The click is cancelled before this runs, so the cursor is ours to
+            // shrink: nothing else is going to take the items we just burnt.
+            val left = cursor.amount - outcome.application.count
+            player.setItemOnCursor(if (left <= 0) null else cursor.clone().apply { amount = left })
+        }
+        return outcome
     }
 
-    private fun announce(player: Player, applied: MinionFuelService.Application?) {
-        if (applied == null) {
-            player.sendMessage(messages.line("messages.no-fuel"))
-            return
+    private fun announce(player: Player, outcome: MinionFuelService.Outcome) {
+        val applied = when (outcome) {
+            is MinionFuelService.Outcome.Applied -> outcome.application
+            MinionFuelService.Outcome.NoFuel -> {
+                player.sendMessage(messages.line("messages.no-fuel"))
+                return
+            }
+            MinionFuelService.Outcome.Cancelled -> return
         }
         player.sendMessage(
             messages.line(
@@ -231,10 +230,13 @@ class MainMenu(
 
         return slot(item) {
             onLeftClick { event, _ ->
-                val picked = placement.pickUp(player, minion)
-                if (picked == null) {
-                    player.sendMessage(messages.line("messages.not-owner"))
-                    return@onLeftClick
+                val picked = when (val result = placement.pickUp(player, minion)) {
+                    is PlacementService.PickUpResult.PickedUp -> result.item
+                    PlacementService.PickUpResult.NotOwner -> {
+                        player.sendMessage(messages.line("messages.not-owner"))
+                        return@onLeftClick
+                    }
+                    PlacementService.PickUpResult.Cancelled -> return@onLeftClick
                 }
                 player.inventory.addItem(picked).values.forEach { leftover ->
                     player.world.dropItemNaturally(player.location, leftover)

@@ -1,7 +1,9 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.core.event.RecordingEventDispatcher
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionState
@@ -52,7 +54,9 @@ class MinionFuelServiceTest {
 
     private fun service() = MinionFuelService(
         fuels = mockk<FuelService>(relaxed = true),
-        repository = mockk<MinionStateRepository>(relaxed = true)
+        repository = mockk<MinionStateRepository>(relaxed = true),
+        triggers = mockk<MinionTriggerDispatch>(relaxed = true),
+        events = RecordingEventDispatcher()
     )
 
     /** A service whose fuels are keyed off material, so stacks can stand in. */
@@ -60,7 +64,12 @@ class MinionFuelServiceTest {
         val byMaterial = fuels.toMap()
         val lookup = mockk<FuelService>(relaxed = true)
         every { lookup.matching(any()) } answers { byMaterial[firstArg<ItemStack>().type] }
-        return MinionFuelService(fuels = lookup, repository = mockk(relaxed = true))
+        return MinionFuelService(
+            fuels = lookup,
+            repository = mockk(relaxed = true),
+            triggers = mockk(relaxed = true),
+            events = RecordingEventDispatcher()
+        )
     }
 
     @Test

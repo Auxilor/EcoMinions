@@ -81,7 +81,6 @@ object LibreforgeRegistrations {
         upgrades: ConfigDrivenRegistry<Upgrade>,
         selling: SellService,
         compactor: CompactorService,
-        dispatch: MinionTriggerDispatch,
         xpService: MinionXpService
     ) {
         UpgradePlaceholderProvider(upgrades::all).register()
@@ -104,8 +103,8 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionRegenBlock)
         Triggers.register(TriggerMinionTick)
         Triggers.register(TriggerGroupMinionStatic)
-        Triggers.register(TriggerMinionPlace(dispatch))
-        Triggers.register(TriggerMinionPickup(dispatch))
+        Triggers.register(TriggerMinionPlace)
+        Triggers.register(TriggerMinionPickup)
         Triggers.register(TriggerMinionUpgrade)
         Triggers.register(TriggerMinionFuelStart)
         Triggers.register(TriggerMinionFuelExpire)

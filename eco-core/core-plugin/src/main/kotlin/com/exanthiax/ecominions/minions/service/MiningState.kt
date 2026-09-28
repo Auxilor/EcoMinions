@@ -13,6 +13,9 @@ class MiningState {
     /** Whether fuel was burning last tick, so expiry can be noticed the tick it happens. */
     var wasBurningFuel: Boolean = false
 
+    /** Whether storage was full at the last action, so filling up is announced once. */
+    var wasFull: Boolean = false
+
     /** The block being swung at, and the tick the swing lands on. */
     var pendingTarget: Block? = null
     var breakAt: Long = 0L

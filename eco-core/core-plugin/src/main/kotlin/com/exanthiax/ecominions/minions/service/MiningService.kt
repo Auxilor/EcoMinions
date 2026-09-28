@@ -1,6 +1,9 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.event.MinionMineEvent
+import com.exanthiax.ecominions.api.event.MinionStorageFullEvent
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
@@ -17,6 +20,7 @@ import com.willfp.libreforge.triggers.event.DropResult
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.entity.ExperienceOrb
+import org.bukkit.inventory.ItemStack
 
 /**
  * Drives one minion's mine/regen cycle for a single tick.
@@ -32,7 +36,8 @@ class MiningService(
     private val regen: RegenService,
     private val behaviours: MinionBehaviours,
     private val fuels: FuelService,
-    private val dispatch: MinionTriggerDispatch
+    private val dispatch: MinionTriggerDispatch,
+    private val events: EventDispatcher
 ) {
     fun tick(minion: Minion, now: Long) {
         if (minion.entity.isDead || worlds.isDisabled(minion.entity.world)) {
@@ -54,10 +59,15 @@ class MiningService(
 
         if (minion.isStorageFull) {
             minion.animation = Minion.AnimationState.FULL
+            if (!minion.mining.wasFull) {
+                minion.mining.wasFull = true
+                events.dispatch(MinionStorageFullEvent(minion))
+            }
             dispatch.trigger(minion, TriggerMinionStorageFull)
             minion.mining.nextActionAt = now + FULL_RETRY_TICKS
             return
         }
+        minion.mining.wasFull = false
 
         if (behaviourOf(minion).onBeforeMine(minion, now)) {
             minion.animation = Minion.AnimationState.IDLE
@@ -127,11 +137,12 @@ class MiningService(
         val definition = blocks.forBlock(block)
         val behaviour = behaviours.forBlock(minion.state.definition.type, definition)
         val column = if (definition?.stackedColumn == true) collectColumn(block) else listOf(block)
+        val drops = mineEvent(minion, block, column.flatMap { it.getDrops() }) ?: return
 
         val results = dispatch.drops(
             minion = minion,
             trigger = TriggerMinionMineBlock,
-            drops = column.flatMap { it.getDrops() },
+            drops = drops,
             block = block,
             location = block.location,
             cause = DropCause.BLOCK,
@@ -145,6 +156,20 @@ class MiningService(
         }
 
         behaviour.onBlockBroken(minion, block, definition, original, now)
+    }
+
+    /**
+     * Skipped outright when nothing listens, because this runs for every block
+     * every minion breaks.
+     *
+     * @return The drops to use, or null if the break was cancelled.
+     */
+    private fun mineEvent(minion: Minion, block: Block, drops: List<ItemStack>): List<ItemStack>? {
+        if (MinionMineEvent.getHandlerList().registeredListeners.isEmpty()) {
+            return drops
+        }
+        val event = MinionMineEvent(minion, block, drops.toMutableList())
+        return if (events.dispatch(event)) event.drops else null
     }
 
     private fun storeDrops(minion: Minion, results: List<DropResult>) {
