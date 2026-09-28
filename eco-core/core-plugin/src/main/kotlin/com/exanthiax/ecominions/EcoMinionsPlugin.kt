@@ -32,8 +32,11 @@ import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCustomItems
 import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
+import com.exanthiax.ecominions.minions.integration.MinionPickListener
+import com.exanthiax.ecominions.minions.integration.MinionPistonListener
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
+import com.exanthiax.ecominions.minions.integration.PaperMinionPickListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
 import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
 import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
@@ -288,9 +291,12 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         minionService.shutdownAll()
     }
 
-    override fun loadListeners(): List<Listener> = listOf(
+    override fun loadListeners(): List<Listener> = listOfNotNull(
         MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages),
+        MinionPickListener(minionService),
+        if (PaperMinionPickListener.isSupported) PaperMinionPickListener(minionService) else null,
         MinionChunkListener(minionService),
+        MinionPistonListener(minionService),
         MinionOwnerListener(minionService, activityService)
     )
 

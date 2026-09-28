@@ -25,7 +25,7 @@ spawn-item:
     shapeless: false
     recipe:
       - "STONE"
-      - "COAL"
+      - "STONE"
       - "STONE"
       - "STONE"
       - "ARMOR_STAND"
@@ -37,7 +37,6 @@ spawn-item:
 sell-prices:
   STONE: 1.0
   COBBLESTONE: 1.0
-  SMOOTH_STONE: 2.0
 
 allowed-upgrades:
   - speed
@@ -53,3 +52,6 @@ equipment:
   chestplate: LEATHER_CHESTPLATE
   leggings: LEATHER_LEGGINGS
   boots: LEATHER_BOOTS
+
+placement:
+  self-seed: true

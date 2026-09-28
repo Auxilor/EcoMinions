@@ -60,3 +60,6 @@ equipment:
   chestplate: GOLDEN_CHESTPLATE
   leggings: GOLDEN_LEGGINGS
   boots: GOLDEN_BOOTS
+
+placement:
+  self-seed: true

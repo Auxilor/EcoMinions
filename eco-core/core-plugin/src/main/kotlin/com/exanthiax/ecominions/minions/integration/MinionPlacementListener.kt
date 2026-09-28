@@ -7,6 +7,7 @@ import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.ui.MainMenu
+import com.willfp.eco.util.asAudience
 import net.kyori.adventure.text.Component
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -93,7 +94,7 @@ class MinionPlacementListener(
     }
 
     private fun sendSummary(player: Player, minion: Minion) {
-        player.sendActionBar(
+        player.asAudience().sendActionBar(
             Component.text(
                 messages.line(
                     "action-bar.interact",

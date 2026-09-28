@@ -5,14 +5,20 @@ import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import com.exanthiax.ecominions.testsupport.FakeBlockLookup
+import com.willfp.eco.core.blocks.TestableBlock
+import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.block.Block
+import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.BlockData
 import org.bukkit.entity.ArmorStand
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import kotlin.math.abs
 
 class SeedingServiceTest {
 
@@ -112,26 +118,70 @@ class SeedingServiceTest {
         assertEquals(0, world.countOf(Material.COAL_ORE))
     }
 
-    /** A crop type declares its surface, and only that surface will do. */
+    /** A crop type declares its surface, and the minion lays it on bare ground. */
     @Test
-    fun `seeds a crop only on its configured surface`() {
+    fun `lays its configured surface under a seeded crop`() {
         val world = FakeWorld()
         world.fillFloor(Material.STONE)
-        val placement = PlacementSettings(
-            liftRegen = true,
-            surfaceBlock = FakeBlockLookup.testable(Material.FARMLAND),
-            selfSeed = true,
-            seedBlock = FakeBlockLookup.testable(Material.WHEAT)
-        )
-        val minion = minionAt(world, placement = placement)
+        val minion = minionAt(world, placement = cropSeeding())
 
-        assertFalse(service().tick(minion))
+        assertTrue(service().tick(minion))
+        assertEquals(Material.WHEAT, world.typeAt(-1, 0, 0))
+        assertEquals(Material.FARMLAND, world.typeAt(-1, -1, 0))
+        assertEquals(1, world.countOf(Material.WHEAT))
+        assertEquals(1, world.countOf(Material.FARMLAND))
+    }
 
+    /** Ground already prepared is used as-is, ahead of converting anything. */
+    @Test
+    fun `seeds on existing surface without converting more ground`() {
+        val world = FakeWorld()
+        world.fillFloor(Material.STONE)
         world.set(1, -1, 0, Material.FARMLAND)
+        val minion = minionAt(world, placement = cropSeeding())
+
         assertTrue(service().tick(minion))
         assertEquals(Material.WHEAT, world.typeAt(1, 0, 0))
-        assertEquals(1, world.countOf(Material.WHEAT))
+        assertEquals(1, world.countOf(Material.FARMLAND))
     }
+
+    /** The surface is only ever laid on solid ground, never in mid-air. */
+    @Test
+    fun `does not lay a surface over a hole`() {
+        val world = FakeWorld()
+        val minion = minionAt(world, placement = cropSeeding())
+
+        assertFalse(service().tick(minion))
+        assertEquals(0, world.countOf(Material.FARMLAND))
+    }
+
+    /** A seeded crop is placed fully grown, ready to mine. */
+    @Test
+    fun `seeds ageable blocks at max age`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val crop = mockk<Ageable>(relaxed = true) { every { maximumAge } returns 7 }
+        val placed = mockk<Block>(relaxed = true) { every { blockData } returns crop }
+        val seed = object : TestableBlock {
+            override fun matches(block: Block?): Boolean = false
+            override fun place(location: Location): Block = placed
+        }
+        val minion = minionAt(
+            world,
+            placement = PlacementSettings(liftRegen = false, surfaceBlock = null, selfSeed = true, seedBlock = seed)
+        )
+
+        assertTrue(service().tick(minion))
+        verify { crop.age = 7 }
+        verify { placed.blockData = crop }
+    }
+
+    private fun cropSeeding() = PlacementSettings(
+        liftRegen = true,
+        surfaceBlock = FakeBlockLookup.testable(Material.FARMLAND),
+        selfSeed = true,
+        seedBlock = FakeBlockLookup.testable(Material.WHEAT)
+    )
 
     /**
      * A seed above the mining box would never be mined again, so the minion
@@ -160,13 +210,100 @@ class SeedingServiceTest {
         assertEquals(Material.COAL_ORE, world.typeAt(-1, 1, 0))
     }
 
+    /** A spacing of 1 keeps the four side neighbours clear, but not the diagonals. */
+    @Test
+    fun `keeps spaced seeds apart`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val minion = minionAt(world, placement = selfSeeding(Material.CACTUS, spacing = 1), radius = 2, height = 2)
+        val service = service()
+
+        while (service.tick(minion)) {
+            // seed until nowhere is left
+        }
+
+        val seeded = world.positionsOf(Material.CACTUS)
+        assertTrue(seeded.size > 1)
+        for (a in seeded) {
+            for (b in seeded) {
+                if (a == b) continue
+                val gap = abs(a.first - b.first) + abs(a.third - b.third)
+                assertTrue(gap > 1, "$a and $b are within spacing")
+            }
+        }
+    }
+
+    /** Diagonals don't count towards spacing, so seeds may touch corner to corner. */
+    @Test
+    fun `seeds diagonally beside a plant`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        world.fillLayer(0, Material.STONE)
+        world.set(0, 0, 0, Material.AIR)
+        world.set(1, 0, 1, Material.AIR)
+        world.set(2, 0, 2, Material.CACTUS)
+        val minion = minionAt(world, placement = selfSeeding(Material.CACTUS, spacing = 1), height = 2)
+
+        assertTrue(service().tick(minion))
+        assertEquals(Material.CACTUS, world.typeAt(1, 0, 1))
+    }
+
+    /** Spacing 0 packs seeds side by side, as before spacing existed. */
+    @Test
+    fun `packs seeds tightly without spacing`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val minion = minionAt(world, placement = selfSeeding(Material.CACTUS), height = 2)
+        val service = service()
+
+        while (service.tick(minion)) {
+            // seed until nowhere is left
+        }
+
+        assertEquals(SPOTS_AROUND_MINION, world.countOf(Material.CACTUS))
+    }
+
+    /** A plant higher up still counts - spacing is about whole columns, not one layer. */
+    @Test
+    fun `spacing counts plants at other heights`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        world.set(1, 0, 0, Material.STONE)
+        world.set(1, 1, 0, Material.CACTUS)
+        val minion = minionAt(world, placement = selfSeeding(Material.CACTUS, spacing = 1), height = 3)
+        val service = service()
+
+        while (service.tick(minion)) {
+            // seed until nowhere is left
+        }
+
+        for ((x, _, z) in world.positionsOf(Material.CACTUS) - Triple(1, 1, 0)) {
+            assertTrue(abs(x - 1) + abs(z) > 1, "seeded next to the raised cactus at x=$x z=$z")
+        }
+    }
+
+    /** Nowhere spaced far enough is not pending, so the minion reports blocked. */
+    @Test
+    fun `is not pending when every spot is too close`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        world.set(1, 0, 0, Material.CACTUS)
+        world.set(-1, 0, 0, Material.CACTUS)
+        world.set(0, 0, 1, Material.CACTUS)
+        world.set(0, 0, -1, Material.CACTUS)
+        val minion = minionAt(world, placement = selfSeeding(Material.CACTUS, spacing = 1), height = 2)
+
+        assertFalse(service().isPending(minion))
+    }
+
     private fun service() = SeedingService()
 
-    private fun selfSeeding(seed: Material) = PlacementSettings(
+    private fun selfSeeding(seed: Material, spacing: Int = 0) = PlacementSettings(
         liftRegen = false,
         surfaceBlock = null,
         selfSeed = true,
-        seedBlock = FakeBlockLookup.testable(seed)
+        seedBlock = FakeBlockLookup.testable(seed),
+        spacing = spacing
     )
 
     private fun minionAt(

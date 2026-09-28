@@ -38,7 +38,6 @@ sell-prices:
   SAND: 0.5
   RED_SAND: 0.5
   GLASS: 1.0
-  RED_STAINED_GLASS: 1.0
 
 allowed-upgrades:
   - speed
@@ -54,3 +53,6 @@ equipment:
   chestplate: LEATHER_CHESTPLATE
   leggings: LEATHER_LEGGINGS
   boots: LEATHER_BOOTS
+
+placement:
+  self-seed: true

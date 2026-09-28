@@ -58,3 +58,6 @@ equipment:
   chestplate: DIAMOND_CHESTPLATE
   leggings: DIAMOND_LEGGINGS
   boots: DIAMOND_BOOTS
+
+placement:
+  self-seed: true

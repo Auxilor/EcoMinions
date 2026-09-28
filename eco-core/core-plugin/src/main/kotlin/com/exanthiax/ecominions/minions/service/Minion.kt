@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionStats
 import com.exanthiax.ecominions.minions.model.MinionStorage
@@ -40,6 +41,21 @@ class Minion(
      * the caller decides whether to drop them in the world.
      */
     fun resizeStorage(slots: Int): List<ItemStack> = storage.resize(slots)
+
+    /**
+     * Points this minion at a reloaded [definition].
+     *
+     * A placed minion holds the definition it was loaded with, so without this
+     * a config reload never reaches it: new stats, targets or self-seeding only
+     * took effect once its chunk reloaded.
+     *
+     * @return Items that no longer fit if the new type holds fewer slots.
+     */
+    fun rebind(definition: MinionDefinition): List<ItemStack> {
+        state = state.copy(definition = definition)
+        stats.rebase(definition.baseStats, state.level)
+        return resizeStorage(stats.storageSize)
+    }
 
     override val uuid: UUID = state.uuid ?: entity.uniqueId
 

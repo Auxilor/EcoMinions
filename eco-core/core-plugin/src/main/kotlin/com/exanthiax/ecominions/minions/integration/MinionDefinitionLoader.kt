@@ -96,7 +96,7 @@ class MinionDefinitionLoader(
             targetBlocks = targets,
             allowedUpgradeIds = allowedUpgrades,
             type = type,
-            baseStats = readBaseStats(config),
+            baseStats = readBaseStats(config, type),
             spawnItem = spawnItem,
             crafting = readCrafting(config, context),
             equipment = readEquipment(config),
@@ -203,13 +203,13 @@ class MinionDefinitionLoader(
      * expression - it is just rounded rather than truncated, and always clamped
      * to `minion.hard-slot-cap` on every read, in [MinionDefinition.BaseStats.maxStorageSlotsAt].
      */
-    private fun readBaseStats(config: Config): MinionDefinition.BaseStats =
+    private fun readBaseStats(config: Config, type: MinionType): MinionDefinition.BaseStats =
         MinionDefinition.BaseStats(
             speedTicks = config.getString("base-stats.speed-ticks"),
             efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
             radius = config.getString("base-stats.radius"),
             height = config.getStringOrNull("base-stats.height")?.takeIf { it.isNotBlank() }
-                ?: MinionDefinition.DEFAULT_HEIGHT,
+                ?: MinionDefinition.defaultHeight(type),
             storageSlots = config.getString("base-stats.storage-slots"),
             maxStorageSlots = config.getString("base-stats.max-storage-slots"),
             regenDelayTicks = config.getString("base-stats.regen-delay-ticks"),
@@ -286,12 +286,22 @@ class MinionDefinitionLoader(
     ): PlacementSettings {
         val section = config.getSubsection("placement")
         val regen = readRegenPlacement(id, section, targets, context)
+        val spacing = readSpacing(section, context)
 
         if (section.getBoolOrNull("self-seed") ?: (type == MinionType.WOODCUTTER)) {
             readSeedBlock(section, targets, type, context)
-                ?.let { return regen.copy(selfSeed = true, seedBlock = it) }
+                ?.let { return regen.copy(selfSeed = true, seedBlock = it, spacing = spacing) }
         }
         return regen
+    }
+
+    /** Empty blocks between self-seeded plants; 0 packs them side by side. */
+    private fun readSpacing(section: Config, context: LoadContext): Int {
+        val spacing = section.getIntOrNull("spacing") ?: return 0
+        if (spacing < 0) {
+            return context.invalid<Int>("placement.spacing", spacing.toString(), "0 or more") ?: 0
+        }
+        return spacing
     }
 
     private fun readRegenPlacement(

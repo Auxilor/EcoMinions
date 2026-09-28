@@ -7,7 +7,7 @@ effects:
     triggers:
       - minion_mine_block
     args:
-      amount: "%tier_value%"
+      xp: "%tier_value%"
 
 tiers:
   1:

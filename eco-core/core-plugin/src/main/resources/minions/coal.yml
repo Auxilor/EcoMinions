@@ -43,7 +43,6 @@ allowed-upgrades:
   - fortune
   - radius
   - capacity
-  - auto_smelt
   - auto_sell
   - experience
 
@@ -59,3 +58,6 @@ equipment:
   chestplate: LEATHER_CHESTPLATE
   leggings: LEATHER_LEGGINGS
   boots: LEATHER_BOOTS
+
+placement:
+  self-seed: true

@@ -3,12 +3,12 @@ package com.exanthiax.ecominions.commands
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
+import com.exanthiax.ecominions.minions.integration.targetedArmorStand
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.command.impl.Subcommand
 import com.willfp.eco.util.StringUtils
 import org.bukkit.command.CommandSender
-import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 
 /** `/minions info` - reports on the minion the sender is looking at. */
@@ -20,8 +20,7 @@ class CommandInfo(
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
         val player = sender as? Player ?: return
-        val stand = player.getTargetEntity(TARGET_RANGE) as? ArmorStand
-        val minion = stand?.let { minions.getByEntity(it) }
+        val minion = player.targetedArmorStand(TARGET_RANGE)?.let { minions.getByEntity(it) }
 
         if (minion == null) {
             player.sendMessage(messages.line("messages.info-no-target"))
@@ -38,6 +37,6 @@ class CommandInfo(
     override fun tabComplete(sender: CommandSender, args: List<String>): List<String> = emptyList()
 
     private companion object {
-        const val TARGET_RANGE = 8
+        const val TARGET_RANGE = 8.0
     }
 }

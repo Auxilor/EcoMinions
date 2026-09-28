@@ -1,7 +1,10 @@
 package com.exanthiax.ecominions.minions.service.behaviour
 
 import com.exanthiax.ecominions.minions.model.MinionBlock
+import com.exanthiax.ecominions.minions.model.TargetSet
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.PlantSpacing
+import com.exanthiax.ecominions.minions.service.SeedSurface
 import com.exanthiax.ecominions.minions.service.TreeService
 import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Location
@@ -69,6 +72,7 @@ class WoodcutterBehaviour(
         }
 
         val spot = findPlantSpot(minion, definition) ?: return false
+        SeedSurface.prepare(SeedSurface.below(spot),surfaceFor(minion, definition))
         plant.place(spot)
         minion.mining.saplingPosition = spot
         minion.mining.saplingPlantedAt = now
@@ -102,7 +106,10 @@ class WoodcutterBehaviour(
         val radius = minion.stats.radius
         val center = minion.entity.location.block
         val world = minion.entity.world
-        val expectedSurface = minion.state.definition.placement.surfaceBlock
+        val expectedSurface = surfaceFor(minion, definition)
+        val targets = minion.state.definition.targetBlocks
+        val spacing = minion.state.definition.placement.spacing
+        val plant = definition.plant
 
         var best: Location? = null
         var bestDistance = Double.MAX_VALUE
@@ -114,7 +121,13 @@ class WoodcutterBehaviour(
                 }
                 for (y in -1..1) {
                     val candidate = world.getBlockAt(center.x + x, center.y + y, center.z + z)
-                    if (!isPlantable(candidate, definition, expectedSurface)) {
+                    if (!isPlantable(candidate, expectedSurface, targets)) {
+                        continue
+                    }
+                    val clear = PlantSpacing.isClear(minion, candidate, spacing) {
+                        targets.matches(it) || plant?.matches(it) == true
+                    }
+                    if (!clear) {
                         continue
                     }
                     val distance = (x * x + y * y + z * z).toDouble()
@@ -128,17 +141,16 @@ class WoodcutterBehaviour(
         return best
     }
 
-    private fun isPlantable(block: Block, definition: MinionBlock, expectedSurface: TestableBlock?): Boolean {
+    /** The tree's own surface wins over the minion's. */
+    private fun surfaceFor(minion: Minion, definition: MinionBlock): TestableBlock? =
+        definition.surface ?: minion.state.definition.placement.surfaceBlock
+
+    private fun isPlantable(block: Block, expectedSurface: TestableBlock?, targets: TargetSet): Boolean {
         if (block.type != Material.AIR) {
             return false
         }
-        val below = block.world.getBlockAt(block.x, block.y - 1, block.z)
-        val surfaceOk = when {
-            definition.surface != null -> definition.surface.matches(below)
-            expectedSurface != null -> expectedSurface.matches(below)
-            else -> below.isSolid
-        }
-        return surfaceOk && hasClearance(block)
+        return SeedSurface.accepts(SeedSurface.below(block), expectedSurface, targets) &&
+            hasClearance(block)
     }
 
     private fun hasClearance(block: Block): Boolean =

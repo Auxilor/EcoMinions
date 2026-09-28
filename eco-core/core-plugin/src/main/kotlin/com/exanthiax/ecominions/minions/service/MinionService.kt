@@ -90,12 +90,21 @@ class MinionService(
     }
 
     /**
-     * Refreshes every minion's active holders, e.g. after upgrade configs are
-     * reloaded, letting libreforge's enable/disable lifecycle bring stat
-     * contributions back in step with the new configuration.
+     * Brings every live minion in step with reloaded configs: its type
+     * definition first, then its active holders, letting libreforge's
+     * enable/disable lifecycle bring stat contributions back in step.
+     *
+     * A minion whose type no longer exists keeps the definition it has, so it
+     * carries on until the next restart rather than breaking mid-session.
      */
     fun refreshAll() {
         for (minion in byUuid.values) {
+            val reloaded = types.find(minion.state.definition.id)
+            if (reloaded != null && reloaded !== minion.state.definition) {
+                for (item in minion.rebind(reloaded)) {
+                    minion.entity.world.dropItemNaturally(minion.entity.location, item)
+                }
+            }
             refreshEffects(minion)
         }
     }

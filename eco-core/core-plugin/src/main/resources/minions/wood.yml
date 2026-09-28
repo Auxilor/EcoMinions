@@ -8,7 +8,7 @@ base-stats:
   efficiency-ticks: 10
   radius: 3
   # Vertical span of the mining box, from one block below the minion upward.
-  # 6 reaches the top log of a full tree; 3 is the default for every other type.
+  # 6 reaches the top log of a full tree, and is the woodcutter default.
   height: 6
   storage-slots: 27
   max-storage-slots: 54
@@ -58,3 +58,8 @@ equipment:
   leggings: LEATHER_LEGGINGS
   boots: LEATHER_BOOTS
   hand: IRON_AXE
+
+placement:
+  self-seed: true
+  # Empty blocks kept between each tree, so canopies don't grow into each other.
+  spacing: 2

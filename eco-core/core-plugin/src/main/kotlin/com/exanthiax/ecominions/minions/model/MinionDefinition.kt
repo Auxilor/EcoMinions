@@ -65,10 +65,10 @@ class MinionDefinition(
         val radius: String,
         /**
          * The mining box's vertical span in blocks, from one below the minion
-         * upward. Defaults to the three-block box every type had before it was
-         * configurable, so an existing config keeps its behaviour.
+         * upward. The loader fills an unset value from [defaultHeight], so the
+         * fallback here only applies to stats built without a type.
          */
-        val height: String = DEFAULT_HEIGHT,
+        val height: String = FALLBACK_HEIGHT,
         val storageSlots: String,
         val maxStorageSlots: String,
         val regenDelayTicks: String,
@@ -94,7 +94,21 @@ class MinionDefinition(
     companion object {
         private const val PREVIEW_LEVEL = 1
 
-        /** Matches the mining box every type had before `base-stats.height` existed. */
-        const val DEFAULT_HEIGHT = "3"
+        /** For stats built without a type; the three-block box every type once had. */
+        const val FALLBACK_HEIGHT = "3"
+
+        /**
+         * The `base-stats.height` a type gets when its config sets none.
+         *
+         * Sized to where each type's blocks sit, the box always starting one
+         * block below the minion: ore fills the floor ring around it, a crop
+         * stands on soil at the minion's own level, and a tree needs room for
+         * its trunk - see [TreeShape.MAX_REACHABLE_TRUNK].
+         */
+        fun defaultHeight(type: MinionType): String = when (type) {
+            MinionType.MINER -> "1"
+            MinionType.FARMER -> "2"
+            MinionType.WOODCUTTER -> "6"
+        }
     }
 }

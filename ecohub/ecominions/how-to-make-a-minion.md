@@ -23,7 +23,7 @@ base-stats:
   speed-ticks: 70
   efficiency-ticks: 12
   radius: 3
-  height: 3
+  height: 1
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 120
@@ -50,9 +50,10 @@ base-stats:
   - `efficiency-ticks` - additional ticks the mining animation/action takes.
   - `radius` - how far from the minion, in blocks, it searches for target blocks.
   - `height` - the vertical span of that search, in blocks, measured from one block below the minion
-    upward. Defaults to `3` - one below, the minion's own level, and one above - which is the box every
-    type had before this was configurable. Raise it for tall targets: the wood minion uses `6`, exactly
-    the reach needed for the top log of a full tree.
+    upward. Left out, it defaults by type:
+    - `miner` - `1`: just the floor ring around the minion, where its blocks sit.
+    - `farmer` - `2`: the soil below and the crop standing at the minion's own level.
+    - `woodcutter` - `6`: exactly the reach needed for the top log of a full tree.
   - `storage-slots` - stack slots in the minion's own storage, before upgrades.
   - `max-storage-slots` - the most slots capacity upgrades may reach on this type.
     Both are capped by `minion.hard-slot-cap` in `config.yml`.
@@ -277,6 +278,7 @@ placement:
   surface-block: ""
   self-seed: false
   seed-block: ""
+  spacing: 0
 ```
 
 - `lift-regen` - when `true`, a mined block regenerates one block higher than where it was broken.
@@ -289,6 +291,11 @@ placement:
 - `seed-block` - what `self-seed` places. Any block or custom block ID. Leave blank to seed what the target's
   block definition names as its `plant` - a sapling for a woodcutter, a crop for a farmer - falling back to
   the mined block itself.
+- `spacing` - how many empty blocks `self-seed` keeps between each plant, along each straight direction -
+  diagonals don't count. `0` packs plants side by side. Cactus and sugar cane use `1` (cactus breaks next to another
+  block); trees use `2` so their leaves have room. Any plant within range counts, at any height in the work
+  area, so a tall cactus column blocks its neighbours all the way up. A minion with no spot far enough from
+  every plant stops seeding until one frees up.
 
 A seeded spot needs a surface: `surface-block` if one is set, otherwise any solid block directly beneath.
 A crop minion therefore seeds only onto farmland, and a minion standing over a hole stays blocked.

@@ -19,7 +19,7 @@ class MiningTargetFinderTest {
 
     /** The default three-block box is exactly the one every type had before height existed. */
     @Test
-    fun `the default height scans one below the minion up to one above`() {
+    fun `a height of three scans one below the minion up to one above`() {
         val world = FakeWorld()
         world.set(1, -1, 0, Material.OAK_LOG)
 

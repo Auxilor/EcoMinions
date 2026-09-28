@@ -7,6 +7,7 @@ base-stats:
   speed-ticks: 80
   efficiency-ticks: 12
   radius: 2
+  height: 4
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 240
@@ -49,3 +50,8 @@ equipment:
   chestplate: LEATHER_CHESTPLATE
   leggings: LEATHER_LEGGINGS
   boots: LEATHER_BOOTS
+
+placement:
+  self-seed: true
+  # Empty blocks kept between each cactus - cactus breaks next to another block.
+  spacing: 1

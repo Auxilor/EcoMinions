@@ -125,6 +125,21 @@ class MinionDefinitionLoaderTest {
         )
     }
 
+    /** Negative spacing has no meaning, and silently treating it as 0 would hide the typo. */
+    @Test
+    fun `rejects a negative spacing`() {
+        val violations = mutableListOf<String>()
+        val config = config("miner", listOf("COAL_ORE"))
+        val placement = mockk<Config>(relaxed = true)
+        every { placement.getIntOrNull("spacing") } returns -1
+        every { config.getSubsection("placement") } returns placement
+        val blocks = FakeBlockLookup(mapOf("COAL_ORE" to FakeBlockLookup.testable(Material.COAL_ORE)))
+
+        val result = runCatching { loader(blocks).load("coal", config, context(violations)) }
+
+        assertTrue("placement.spacing" in violations, "was: $violations, threw: ${result.exceptionOrNull()}")
+    }
+
     private fun load(type: String?, context: LoadContext) =
         loader().load("coal", config(type), context)
 

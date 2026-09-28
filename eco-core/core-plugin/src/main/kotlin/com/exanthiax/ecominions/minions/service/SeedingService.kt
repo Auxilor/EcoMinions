@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions.service
 import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Material
 import org.bukkit.block.Block
+import org.bukkit.block.data.Ageable
 
 /**
  * Stocks a minion's work area with the blocks it mines, one block at a time.
@@ -26,8 +27,23 @@ class SeedingService {
      */
     fun tick(minion: Minion): Boolean {
         val spot = pendingSpot(minion) ?: return false
-        minion.state.definition.placement.seedBlock?.place(spot.location) ?: return false
+        val placement = minion.state.definition.placement
+        val seed = placement.seedBlock ?: return false
+        SeedSurface.prepare(SeedSurface.below(spot), placement.surfaceBlock)
+        ripen(seed.place(spot.location))
         return true
+    }
+
+    /**
+     * A seeded crop goes in fully grown, so it can be mined as soon as it is
+     * placed rather than sitting unripe in a freshly stocked area.
+     */
+    private fun ripen(block: Block) {
+        val data = block.blockData
+        if (data is Ageable && data.age < data.maximumAge) {
+            data.age = data.maximumAge
+            block.blockData = data
+        }
     }
 
     /**
@@ -47,7 +63,10 @@ class SeedingService {
     }
 
     /**
-     * The nearest air block on a valid surface, never the minion's own column.
+     * The nearest air block on ground [SeedSurface] accepts, never the minion's
+     * own column. Ground that already has its surface wins over ground that
+     * would have to be converted, so a prepared field is used before more of
+     * the area is dug up.
      *
      * The search is [MinionWorkArea], the same box the minion mines in: seeding
      * above the box it can reach leaves ore stranded above the minion forever.
@@ -70,7 +89,8 @@ class SeedingService {
                     if (!isSeedable(minion, candidate, expectedSurface)) {
                         continue
                     }
-                    val distance = x * x + y * y + z * z
+                    val distance = x * x + y * y + z * z +
+                        if (SeedSurface.isPrepared(SeedSurface.below(candidate), expectedSurface)) 0 else UNPREPARED_PENALTY
                     if (distance < bestDistance) {
                         bestDistance = distance
                         best = candidate
@@ -88,7 +108,16 @@ class SeedingService {
         if (minion.mining.isAwaitingRegen(block)) {
             return false
         }
-        val below = block.world.getBlockAt(block.x, block.y - 1, block.z)
-        return if (expectedSurface != null) expectedSurface.matches(below) else below.isSolid
+        val definition = minion.state.definition
+        val placement = definition.placement
+        return SeedSurface.accepts(SeedSurface.below(block), expectedSurface, definition.targetBlocks) &&
+            PlantSpacing.isClear(minion, block, placement.spacing) {
+                definition.targetBlocks.matches(it) || placement.seedBlock?.matches(it) == true
+            }
+    }
+
+    private companion object {
+        /** Larger than any squared distance in range, so prepared ground always wins. */
+        const val UNPREPARED_PENALTY = 1_000_000
     }
 }

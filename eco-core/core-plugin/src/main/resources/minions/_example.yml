@@ -30,9 +30,10 @@ base-stats:
   efficiency-ticks: 10
   radius: 3
   # Vertical span of the mining box in blocks, measured from one block below
-  # the minion upward. Defaults to 3 (one below, level, one above). Raise it for
-  # tall targets such as trees. Supports %level% expressions like the stats above.
-  height: 3
+  # the minion upward. Omit it to use the type's default: miner 1 (the floor
+  # ring around the minion), farmer 2 (soil below, crop at the minion's level),
+  # woodcutter 6 (a full tree). Supports %level% expressions like the stats above.
+  height: 1
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 100
@@ -115,11 +116,16 @@ equipment:
 # mine, it places seed-block on the nearest air spot in range that has a valid
 # surface beneath it. Left off, a player must place the starting blocks.
 # Tree types default it on, everything else defaults it off.
+#
+# spacing is how many empty blocks self-seeding keeps between each plant, in
+# each straight direction (diagonals don't count). 0 packs them side by side. Use 1 for cactus
+# (it breaks next to other blocks) and 2 for trees (room for the leaves).
 placement:
   lift-regen: false
   surface-block: ""
   self-seed: false
   # seed-block: ""   # omit to seed the block this minion mines
+  spacing: 0
 
 particles:
   # `particle` is an eco particle string: a particle name like `flame`, or a

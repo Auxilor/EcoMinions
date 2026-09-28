@@ -7,6 +7,7 @@ base-stats:
   speed-ticks: 70
   efficiency-ticks: 12
   radius: 3
+  height: 4
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 200
@@ -24,7 +25,7 @@ spawn-item:
     shapeless: false
     recipe:
       - "SUGAR_CANE"
-      - "STONE"
+      - "SUGAR_CANE"
       - "SUGAR_CANE"
       - "SUGAR_CANE"
       - "ARMOR_STAND"
@@ -49,3 +50,8 @@ equipment:
   chestplate: LEATHER_CHESTPLATE
   leggings: LEATHER_LEGGINGS
   boots: LEATHER_BOOTS
+
+placement:
+  self-seed: true
+  # Empty blocks kept between each sugar cane.
+  spacing: 1
