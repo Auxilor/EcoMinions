@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.libreforge
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
+import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionHasFuel
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionHasUpgrade
@@ -79,12 +80,13 @@ object LibreforgeRegistrations {
      */
     fun registerAll(
         upgrades: ConfigDrivenRegistry<Upgrade>,
+        worlds: WorldSettings,
         selling: SellService,
         compacting: MinionCompactService,
         xpService: MinionXpService
     ) {
         UpgradePlaceholderProvider(upgrades::all).register()
-        MinionHolders(upgrades::find).register()
+        MinionHolders(upgrades::find).register(worlds)
 
         Effects.register(EffectMinionSpeed)
         Effects.register(EffectMinionEfficiency)

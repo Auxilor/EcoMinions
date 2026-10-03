@@ -6,14 +6,13 @@ sidebar_position: 7
 The plugin-wide settings live in `config.yml` in the EcoMinions data folder (`/plugins/EcoMinions/config.yml`).
 Edit it, then run `/minions reload` to apply changes.
 
-## worlds
+## disabled-in-worlds
 
 ```yaml
-worlds:
-  disabled: []
+disabled-in-worlds: [] # Worlds EcoMinions is fully disabled in
 ```
 
-A list of world names where minions cannot be placed or operate.
+A list of world names, case-insensitive, where minions cannot be placed, do not operate and have no effects.
 
 ## limits
 

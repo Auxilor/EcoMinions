@@ -126,7 +126,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val renderer = TemplateRenderer(placeholderRegistrar)
     private val messages = Messages(langYml, renderer)
     private val levellingPlaceholders = LevellingPlaceholders { langYml.getFormattedString("infinity") }
-    private val worlds = WorldSettings(configYml)
+    private val worlds = WorldSettings(this)
 
     // Settings
     private val minionSettingsLoader = MinionSettingsLoader(configYml)
@@ -283,7 +283,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(blockDefinitions, minionTypes, upgrades, fuels, compactorRecipes)
 
     override fun handleEnable() {
-        LibreforgeRegistrations.registerAll(upgrades, sellService, compactService, xpService)
+        LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService)
         shopIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()

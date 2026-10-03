@@ -1,11 +1,11 @@
 package com.exanthiax.ecominions.core.world
 
-import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.libreforge.loader.LibreforgePlugin
 import org.bukkit.World
 
-/** Where minions are allowed to exist. Shared by placement and mining. */
+/** Where minions are allowed to exist. Shared by placement, mining and effects. */
 class WorldSettings(
-    private val config: Config
+    private val plugin: LibreforgePlugin
 ) {
-    fun isDisabled(world: World): Boolean = world.name in config.getStrings("worlds.disabled")
+    fun isDisabled(world: World): Boolean = plugin.isDisabledIn(world)
 }

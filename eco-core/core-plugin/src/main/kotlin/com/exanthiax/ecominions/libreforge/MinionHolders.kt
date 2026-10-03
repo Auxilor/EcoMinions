@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.libreforge
 
+import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.ProvidedHolder
@@ -34,7 +35,9 @@ class MinionHolders(
         return holders
     }
 
-    fun register() {
-        registerSpecificHolderProvider<Minion> { holdersFor(it) }
+    fun register(worlds: WorldSettings) {
+        registerSpecificHolderProvider<Minion> {
+            if (worlds.isDisabled(it.entity.world)) emptyList() else holdersFor(it)
+        }
     }
 }
