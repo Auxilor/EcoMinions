@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.minions.model
 
 import java.util.EnumMap
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A minion's live stats: its type's base values plus whatever its active effects
@@ -11,14 +12,22 @@ import java.util.UUID
  * enable and drop it when they disable, so the accumulator is the single place a
  * minion's effective numbers exist. Clamps are applied on read, never when a
  * contribution lands - see [MinionStat].
+ *
+ * Placeholders and menus read it from other threads than the minion's own region
+ * on Folia, so contributions are concurrent and the caches are swapped whole.
  */
 class MinionStats(
     base: MinionDefinition.BaseStats,
     level: Int
 ) {
+    @Volatile
     private var base: MinionDefinition.BaseStats = base
-    private val contributions = HashMap<MinionStat, MutableMap<UUID, Int>>()
+    private val contributions: MutableMap<MinionStat, MutableMap<UUID, Int>> = ConcurrentHashMap()
+
+    @Volatile
     private var baseCache = EnumMap<MinionStat, Int>(MinionStat::class.java)
+
+    @Volatile
     private var maxStorageSlotsCache = 0
 
     /**
@@ -60,7 +69,7 @@ class MinionStats(
 
     /** Records [amount] against [id], replacing any earlier amount for that id. */
     fun contribute(stat: MinionStat, id: UUID, amount: Int) {
-        contributions.getOrPut(stat) { HashMap() }[id] = amount
+        contributions.computeIfAbsent(stat) { ConcurrentHashMap() }[id] = amount
     }
 
     fun remove(stat: MinionStat, id: UUID) {

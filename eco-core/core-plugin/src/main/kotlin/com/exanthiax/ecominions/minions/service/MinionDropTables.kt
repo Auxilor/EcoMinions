@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.minions.model.MinionDefinition
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * What each of a minion's target blocks actually drops.
@@ -14,6 +15,8 @@ import org.bukkit.inventory.ItemStack
  * lookup per simulated cycle would be far too expensive on the login tick.
  *
  * Both resolvers are injected so the cache can be tested without a server.
+ *
+ * Minions resume on every region at once under Folia, so the cache is concurrent.
  */
 class MinionDropTables(
     /** Reads a vanilla block's loot table. */
@@ -21,7 +24,7 @@ class MinionDropTables(
     /** Resolves one id from a definition's `drops:`, or null if this server has no such item. */
     private val resolveItem: (String) -> ItemStack?
 ) {
-    private val cache = HashMap<Key, List<ItemStack>>()
+    private val cache: MutableMap<Key, List<ItemStack>> = ConcurrentHashMap()
 
     /**
      * @return What one [block] is worth to [definition] while nobody is online.
@@ -31,7 +34,7 @@ class MinionDropTables(
      * there is no correct answer, and guessing an item is worse than none.
      */
     fun dropsFor(definition: MinionDefinition, block: MinionBlock, location: Location): List<ItemStack> {
-        val cached = cache.getOrPut(Key(definition.id, block.id)) {
+        val cached = cache.computeIfAbsent(Key(definition.id, block.id)) {
             when {
                 block.drops.isNotEmpty() -> block.drops.mapNotNull(resolveItem)
                 block.vanillaMaterial != null -> resolve(block.vanillaMaterial, location)

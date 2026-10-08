@@ -7,6 +7,7 @@ package com.exanthiax.ecominions.core.config
  * in loaders while a reload can still swap the values underneath them.
  */
 class SettingsHolder<T : Any>(initial: T) {
+    @Volatile
     var value: T = initial
         private set
 

@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.api.menu.MinionMenuType
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
+import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
@@ -34,6 +35,9 @@ import org.bukkit.inventory.ItemStack
  * Every slot is provider-backed rather than a fixed item: the minion keeps
  * mining and burning fuel while the menu is open, so the items are rebuilt on
  * each render and [MenuViewers] drives those renders.
+ *
+ * Clicks change both the player and the minion, so they are refused on Folia
+ * when the menu was opened on a minion in another region.
  */
 class MainMenu(
     private val settings: SettingsHolder<MenuSettings>,
@@ -46,7 +50,8 @@ class MainMenu(
     private val collector: MinionCollectService,
     private val upgradeList: UpgradeListMenu,
     private val viewers: MenuViewers,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val regions: Regions
 ) {
     fun open(player: Player, minion: Minion) {
         if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.MAIN))) {
@@ -112,6 +117,9 @@ class MainMenu(
             // Refreshed here as well as on the loop so the storage area empties
             // the moment it is clicked, not on the next tick of the loop.
             onLeftClick { _, _, menu ->
+                if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                    return@onLeftClick
+                }
                 val collected = collector.collect(player, minion) ?: return@onLeftClick
                 player.sendMessage(
                     messages.line("messages.collected", TemplateContext.of("count" to collected))
@@ -142,12 +150,18 @@ class MainMenu(
             onLeftClick { event, _, menu -> deposit(player, minion, event, menu, whole = true) }
             onRightClick { event, _, menu -> deposit(player, minion, event, menu, whole = false) }
             onShiftLeftClick { _, _, menu ->
+                if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                    return@onShiftLeftClick
+                }
                 announce(player, fuelService.fuelFrom(player, minion, limit = Int.MAX_VALUE))
                 menu.refresh(player)
             }
         }
 
     private fun deposit(player: Player, minion: Minion, event: InventoryClickEvent, menu: Menu, whole: Boolean) {
+        if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+            return
+        }
         val applied = fromCursor(player, minion, event, whole)
             ?.takeUnless { it == MinionFuelService.Outcome.NoFuel }
             ?: fuelService.fuelFrom(player, minion)
@@ -230,6 +244,9 @@ class MainMenu(
 
         return slot(item) {
             onLeftClick { event, _ ->
+                if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                    return@onLeftClick
+                }
                 val picked = when (val result = placement.pickUp(player, minion)) {
                     is PlacementService.PickUpResult.PickedUp -> result.item
                     PlacementService.PickUpResult.NotOwner -> {
@@ -271,5 +288,6 @@ class MainMenu(
         const val TITLE_COLUMN = 5
         const val MILLIS_PER_SECOND = 1000L
         const val MULTIPLIER_FORMAT = "%.2fx"
+        const val MENU_ACTION = "Using a minion's menu"
     }
 }

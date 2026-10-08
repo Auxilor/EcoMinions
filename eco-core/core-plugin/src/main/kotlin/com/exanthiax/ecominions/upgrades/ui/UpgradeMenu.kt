@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.api.menu.MinionMenuType
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
+import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
@@ -33,7 +34,8 @@ class UpgradeMenu(
     private val upgrades: UpgradeService,
     private val purchases: MinionUpgradeService,
     private val costSelect: CostSelectMenu,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val regions: Regions
 ) {
     /** Set by the composition root: where the back button leads. */
     var onBack: ((Player, Minion) -> Unit)? = null
@@ -127,6 +129,9 @@ class UpgradeMenu(
         when (tier.costs.size) {
             0 -> player.sendMessage(messages.line("messages.no-payment-method"))
             1 -> {
+                if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                    return
+                }
                 val result = purchases.purchase(player, minion, upgrade, tier, tier.costs.first())
                 announce(player, result, upgrade, tier)
                 if (result == MinionUpgradeService.Result.PURCHASED) {
@@ -193,5 +198,6 @@ class UpgradeMenu(
         const val FIRST_ROW = 2
         const val FIRST_COLUMN = 2
         const val COLUMNS = 7
+        const val MENU_ACTION = "Buying a minion upgrade"
     }
 }

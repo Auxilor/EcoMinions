@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.integration
 
+import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionService
 import org.bukkit.event.EventHandler
@@ -12,17 +13,22 @@ import org.bukkit.event.player.PlayerQuitEvent
  *
  * Minions do nothing at all while their owner is offline; the absence is credited
  * in one go when they come back.
+ *
+ * A player's minions can be anywhere, so each one is handed to the region that
+ * owns its stand. One whose chunk unloads before that is already marked idle by
+ * the unload, and resumes when it loads again.
  */
 class MinionOwnerListener(
     private val minions: MinionService,
-    private val activity: MinionActivityService
+    private val activity: MinionActivityService,
+    private val regions: Regions
 ) : Listener {
 
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         val now = System.currentTimeMillis()
         for (minion in minions.ownedMinions(event.player.uniqueId)) {
-            activity.resume(minion, now)
+            regions.on(minion.entity) { activity.resume(minion, now) }
         }
     }
 
@@ -30,7 +36,7 @@ class MinionOwnerListener(
     fun onQuit(event: PlayerQuitEvent) {
         val now = System.currentTimeMillis()
         for (minion in minions.ownedMinions(event.player.uniqueId)) {
-            activity.markIdle(minion, now)
+            regions.on(minion.entity) { activity.markIdle(minion, now) }
         }
     }
 }

@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.api.menu.MinionMenuType
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
+import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
@@ -27,7 +28,8 @@ class CostSelectMenu(
     private val messages: Messages,
     private val chrome: MenuChrome,
     private val purchases: MinionUpgradeService,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val regions: Regions
 ) {
     /** Set by the composition root: where to return after a successful purchase. */
     var onPurchased: ((Player, Minion, Upgrade) -> Unit)? = null
@@ -83,6 +85,9 @@ class CostSelectMenu(
 
         return slot(item) {
             onLeftClick { _, _ ->
+                if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                    return@onLeftClick
+                }
                 when (purchases.purchase(player, minion, upgrade, tier, cost)) {
                     MinionUpgradeService.Result.PURCHASED -> onPurchased?.invoke(player, minion, upgrade)
                     MinionUpgradeService.Result.CANCELLED -> Unit
@@ -96,5 +101,6 @@ class CostSelectMenu(
         const val OPTION_ROW = 2
         const val FIRST_COLUMN = 2
         const val LAST_COLUMN = 8
+        const val MENU_ACTION = "Buying a minion upgrade"
     }
 }

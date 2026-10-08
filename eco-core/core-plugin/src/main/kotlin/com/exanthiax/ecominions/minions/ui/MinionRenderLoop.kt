@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.minions.ui
 
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.lifecycle.Tickable
+import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.service.Minion
@@ -13,6 +14,9 @@ import org.bukkit.entity.Player
 /**
  * Draws every live minion from one repeating task: pose, hologram and the
  * storage-full or idle particles.
+ *
+ * As with mining, the loop runs on the global region and hands each minion to the
+ * region that owns its stand.
  */
 class MinionRenderLoop(
     private val minions: MinionService,
@@ -20,7 +24,8 @@ class MinionRenderLoop(
     private val hologram: MinionHologram,
     private val particles: ParticleEmitter,
     private val settings: SettingsHolder<MinionSettings>,
-    private val activity: MinionActivityService
+    private val activity: MinionActivityService,
+    private val regions: Regions
 ) : Tickable {
 
     override val tickInterval = RENDER_INTERVAL_TICKS
@@ -30,28 +35,32 @@ class MinionRenderLoop(
         val hologramInterval = settings.value.hologramRefreshTicks
 
         for (minion in minions.all()) {
-            if (minion.entity.isDead) {
-                continue
-            }
+            regions.on(minion.entity) { render(minion, now, hologramInterval) }
+        }
+    }
 
-            // An idle minion keeps its nameplate so it does not look broken, but
-            // it must not bob, swing or emit its full-storage particles - it is
-            // doing nothing. It gets its own idle particles instead.
-            val active = activity.isActive(minion)
-            if (active) {
-                animator.apply(minion, now)
-            }
+    private fun render(minion: Minion, now: Long, hologramInterval: Int) {
+        if (minion.entity.isDead) {
+            return
+        }
 
-            if (now % hologramInterval < RENDER_INTERVAL_TICKS) {
-                hologram.refresh(minion)
-            }
+        // An idle minion keeps its nameplate so it does not look broken, but
+        // it must not bob, swing or emit its full-storage particles - it is
+        // doing nothing. It gets its own idle particles instead.
+        val active = activity.isActive(minion)
+        if (active) {
+            animator.apply(minion, now)
+        }
 
-            if (active) {
-                emitFullParticles(minion, now)
-                emitBoundaryBox(minion, now)
-            } else {
-                emitIdleParticles(minion, now)
-            }
+        if (now % hologramInterval < RENDER_INTERVAL_TICKS) {
+            hologram.refresh(minion)
+        }
+
+        if (active) {
+            emitFullParticles(minion, now)
+            emitBoundaryBox(minion, now)
+        } else {
+            emitIdleParticles(minion, now)
         }
     }
 
@@ -85,6 +94,9 @@ class MinionRenderLoop(
         }
 
         val owner = minion.state.owner?.let { Bukkit.getPlayer(it) } ?: return
+        if (!regions.owns(owner)) {
+            return
+        }
         val corner = minion.entity.location.block.location
         if (owner.world != corner.world) {
             return
