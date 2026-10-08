@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.commands
 
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
+import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionService
@@ -10,12 +11,18 @@ import com.willfp.eco.util.StringUtils
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 
-/** `/minions give <player> <type>`. Minions are always given at level one. */
+/**
+ * `/minions give <player> <type>`. Minions are always given at level one.
+ *
+ * The item goes into the target's inventory on the target's own region, which the
+ * console never runs on under Folia.
+ */
 class CommandGive(
     plugin: EcoPlugin,
     private val minions: MinionService,
     private val items: MinionItemService,
-    private val messages: Messages
+    private val messages: Messages,
+    private val regions: Regions
 ) : Subcommand(plugin, "give", "ecominions.command.give", false) {
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
@@ -36,19 +43,19 @@ class CommandGive(
             return
         }
 
-        if (items.give(target, type, 1, 1) <= 0) {
-            return
-        }
-
-        sender.sendMessage(
-            messages.line(
-                "messages.give-success",
-                TemplateContext.of(
-                    "player" to target.name,
-                    "type" to type.name
+        regions.on(target) {
+            if (items.give(target, type, 1, 1) > 0) {
+                sender.sendMessage(
+                    messages.line(
+                        "messages.give-success",
+                        TemplateContext.of(
+                            "player" to target.name,
+                            "type" to type.name
+                        )
+                    )
                 )
-            )
-        )
+            }
+        }
     }
 
     override fun tabComplete(sender: CommandSender, args: List<String>): List<String> = when (args.size) {

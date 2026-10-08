@@ -44,7 +44,8 @@ class MinionsManagerImplTest {
 
     private fun manager(events: RecordingEventDispatcher = RecordingEventDispatcher()) = MinionsManagerImpl(
         minions, placement, itemFactory, mockk(relaxed = true), mockk(relaxed = true),
-        mockk(relaxed = true), mockk(relaxed = true), activity, mockk(relaxed = true), mockk(relaxed = true), events
+        mockk(relaxed = true), mockk(relaxed = true), activity, mockk(relaxed = true), mockk(relaxed = true), events,
+        mockk(relaxed = true)
     ) { id -> mockk<OfflinePlayer> { every { uniqueId } returns id } }
 
     @Test

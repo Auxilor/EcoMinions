@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions.ui
 import com.exanthiax.ecominions.core.lifecycle.Tickable
 import com.willfp.eco.core.gui.menu.Menu
 import org.bukkit.entity.Player
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Re-renders the menus players currently have open.
@@ -12,13 +13,16 @@ import org.bukkit.entity.Player
  * it is on screen. Menus register their viewers here and this loop drives
  * [Menu.refresh] for them; the slots themselves have to be provider-backed for
  * that refresh to produce anything new.
+ *
+ * Viewers are added and removed from every player's region on Folia, so the map
+ * is concurrent, and [refresh] is expected to run on the viewer's own region.
  */
 class MenuViewers(
     private val refresh: (Menu, Player) -> Unit = { menu, player -> menu.refresh(player) }
 ) : Tickable {
     override val tickInterval = REFRESH_INTERVAL_TICKS
 
-    private val viewing = mutableMapOf<Player, Menu>()
+    private val viewing: MutableMap<Player, Menu> = ConcurrentHashMap()
 
     /** Start refreshing [menu] for [player], replacing whatever they had open. */
     fun watch(player: Player, menu: Menu) {

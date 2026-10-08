@@ -20,6 +20,7 @@ class MinionBlockIndex(
     /** What the plugin knows without being told. A `blocks/` file with the same id wins. */
     private val defaults: VanillaBlockDefaults
 ) {
+    @Volatile
     private var index: Index? = null
 
     /** @return The definition for a configured id, or null if nothing defines it. */

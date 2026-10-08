@@ -7,6 +7,7 @@ import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
+import com.willfp.eco.core.Prerequisite
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
@@ -17,9 +18,14 @@ class MinionHologram(
     private val settings: SettingsHolder<MinionSettings>,
     private val activity: MinionActivityService
 ) {
+    /** Folia has no synchronous teleport, so the label is moved with `teleportAsync` there. */
     fun refresh(minion: Minion) {
         val display = minion.hologram ?: spawn(minion) ?: return
-        display.teleport(anchorOf(minion))
+        if (Prerequisite.HAS_FOLIA.isMet) {
+            display.teleportAsync(anchorOf(minion))
+        } else {
+            display.teleport(anchorOf(minion))
+        }
         display.text(Component.text(textFor(minion)))
     }
 

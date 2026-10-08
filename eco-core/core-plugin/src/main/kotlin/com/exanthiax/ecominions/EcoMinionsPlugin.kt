@@ -22,6 +22,7 @@ import com.exanthiax.ecominions.core.placeholders.PlaceholderRegistrar
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.placeholders.TemplateRenderer
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
+import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.core.world.EcoBlockLookup
 import com.exanthiax.ecominions.core.world.EcoItemLookup
@@ -127,6 +128,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val messages = Messages(langYml, renderer)
     private val levellingPlaceholders = LevellingPlaceholders { langYml.getFormattedString("infinity") }
     private val worlds = WorldSettings(this)
+    private val regions = Regions(this)
 
     // Settings
     private val minionSettingsLoader = MinionSettingsLoader(configYml)
@@ -213,7 +215,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     ) { Bukkit.getPlayer(it) != null }
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
-        limits, activityService, minionSettings, events
+        limits, activityService, minionSettings, events, regions
     )
     private val seedingService = SeedingService()
     private val regenService = RegenService(minionSettings, triggerDispatch, events)
@@ -238,17 +240,17 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     // Presentation
     private val chrome = MenuChrome(messages)
-    private val costSelectMenu = CostSelectMenu(upgradeMenuSettings, messages, chrome, purchases, events)
+    private val costSelectMenu = CostSelectMenu(upgradeMenuSettings, messages, chrome, purchases, events, regions)
     private val upgradeMenu = UpgradeMenu(
-        upgradeMenuSettings, messages, chrome, upgradeService, purchases, costSelectMenu, events
+        upgradeMenuSettings, messages, chrome, upgradeService, purchases, costSelectMenu, events, regions
     )
     private val upgradeListMenu = UpgradeListMenu(
         upgradeMenuSettings, messages, chrome, upgradeService, upgradeMenu, events
     )
-    private val menuViewers = MenuViewers()
+    private val menuViewers = MenuViewers { menu, player -> regions.on(player) { menu.refresh(player) } }
     private val mainMenu = MainMenu(
         menuSettings, messages, chrome, MinionStorageView(messages), placementService,
-        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events
+        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions
     )
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
 
@@ -256,11 +258,11 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val api = EcoMinionsApiImpl(
         MinionsManagerImpl(
             minionService, placementService, itemFactory, minionItems, collector,
-            sellService, repository, activityService, xpService, compactService, events
+            sellService, repository, activityService, xpService, compactService, events, regions
         ) { Bukkit.getOfflinePlayer(it) },
         UpgradesManagerImpl(upgradeService, purchases, minionService),
         FuelsManagerImpl(fuelService, minionFuelService, minionService),
-        MenusManagerImpl(mainMenu, upgradeListMenu, typeSelectMenu, minionService)
+        MenusManagerImpl(mainMenu, upgradeListMenu, typeSelectMenu, minionService, regions)
     )
 
     // Lifecycle
@@ -269,11 +271,11 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val lifecycle = LifecycleManager(
         this,
         listOf(
-            MinionMiningLoop(minionService, miningService, activityService),
+            MinionMiningLoop(minionService, miningService, activityService, regions),
             MinionRenderLoop(
                 minionService, MinionAnimator(),
                 MinionHologram(messages, minionSettings, activityService),
-                ParticleEmitter(), minionSettings, activityService
+                ParticleEmitter(), minionSettings, activityService, regions
             ),
             menuViewers
         )
@@ -322,7 +324,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         if (PaperMinionPickListener.isSupported) PaperMinionPickListener(minionService) else null,
         MinionChunkListener(minionService),
         MinionPistonListener(minionService),
-        MinionOwnerListener(minionService, activityService)
+        MinionOwnerListener(minionService, activityService, regions)
     )
 
     override fun loadPluginCommands(): List<PluginCommand> = listOf(
@@ -331,9 +333,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             typeSelectMenu,
             listOf(
                 CommandOpen(this, typeSelectMenu),
-                CommandGive(this, minionService, minionItems, messages),
-                CommandReload(this) { minionTypes.values().size },
-                CommandRemove(this, minionService, placementService, messages),
+                CommandGive(this, minionService, minionItems, messages, regions),
+                CommandReload(this, regions) { minionTypes.values().size },
+                CommandRemove(this, minionService, placementService, messages, regions),
                 CommandInfo(this, minionService, messages)
             )
         )

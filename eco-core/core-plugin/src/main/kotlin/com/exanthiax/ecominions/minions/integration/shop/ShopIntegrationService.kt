@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack
 class ShopIntegrationService(
     private val settings: SettingsHolder<MinionSettings>
 ) {
+    @Volatile
     private var pluginAvailable = false
 
     fun init() {

@@ -7,6 +7,7 @@ import com.exanthiax.ecominions.api.minion.MinionsManager
 import com.exanthiax.ecominions.api.minion.PickUpResult
 import com.exanthiax.ecominions.api.minion.PlaceResult
 import com.exanthiax.ecominions.core.event.EventDispatcher
+import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionState
@@ -29,7 +30,12 @@ import java.util.UUID
 import com.exanthiax.ecominions.api.minion.Minion as ApiMinion
 import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefinition
 
-/** The public minions API, over the internal minion services. */
+/**
+ * The public minions API, over the internal minion services.
+ *
+ * Calls that change a placed minion answer synchronously, so on Folia they run
+ * where they are called and log once when that is not the minion's region.
+ */
 class MinionsManagerImpl(
     private val minions: MinionService,
     private val placement: PlacementService,
@@ -42,6 +48,7 @@ class MinionsManagerImpl(
     private val xp: MinionXpService,
     private val compacting: MinionCompactService,
     private val events: EventDispatcher,
+    private val regions: Regions,
     private val ownerOf: (UUID) -> OfflinePlayer
 ) : MinionsManager {
 
@@ -72,11 +79,11 @@ class MinionsManagerImpl(
 
     override fun isActive(minion: ApiMinion): Boolean = activity.isActive(resolve(minion))
 
-    override fun giveXp(minion: ApiMinion, amount: Double): Boolean = xp.grant(resolve(minion), amount)
+    override fun giveXp(minion: ApiMinion, amount: Double): Boolean = xp.grant(owned(minion), amount)
 
-    override fun setLevel(minion: ApiMinion, level: Int): Boolean = xp.setLevel(resolve(minion), level)
+    override fun setLevel(minion: ApiMinion, level: Int): Boolean = xp.setLevel(owned(minion), level)
 
-    override fun compact(minion: ApiMinion): Boolean = compacting.compact(resolve(minion))
+    override fun compact(minion: ApiMinion): Boolean = compacting.compact(owned(minion))
 
     override fun isMinionItem(item: ItemStack): Boolean = itemFactory.isMinionItem(item)
 
@@ -97,16 +104,19 @@ class MinionsManagerImpl(
 
     override fun countItems(player: Player, type: ApiMinionDefinition): Int = items.count(player, resolve(type))
 
-    override fun place(player: Player, type: ApiMinionDefinition, level: Int, location: Location): PlaceResult =
-        placement.place(player, MinionState(definition = resolve(type), storedLevel = level), location).toPublic()
+    override fun place(player: Player, type: ApiMinionDefinition, level: Int, location: Location): PlaceResult {
+        regions.warnIfNotOwned(location, PLACING)
+        return placement.place(player, MinionState(definition = resolve(type), storedLevel = level), location).toPublic()
+    }
 
     override fun place(item: ItemStack, location: Location, owner: OfflinePlayer?): PlaceResult {
+        regions.warnIfNotOwned(location, PLACING)
         val state = itemFactory.read(item) ?: return PlaceResult(PlaceResult.Status.INVALID_ITEM, null, 0)
         return placement.placeUnattended(state, location, owner).toPublic()
     }
 
     override fun pickUp(player: Player, minion: ApiMinion): PickUpResult =
-        when (val result = placement.pickUp(player, resolve(minion))) {
+        when (val result = placement.pickUp(player, owned(minion))) {
             is PlacementService.PickUpResult.PickedUp -> {
                 for (leftover in player.inventory.addItem(result.item).values) {
                     player.world.dropItemNaturally(player.location, leftover)
@@ -121,16 +131,19 @@ class MinionsManagerImpl(
     override fun destroy(minion: ApiMinion, cause: DestroyCause): Boolean = destroy(minion, cause, false)
 
     override fun destroy(minion: ApiMinion, cause: DestroyCause, dropItem: Boolean): Boolean =
-        placement.destroy(resolve(minion), cause, dropItem)
+        placement.destroy(owned(minion), cause, dropItem)
 
     override fun destroyAllOwnedBy(player: OfflinePlayer): Int = destroyAllOwnedBy(player, DestroyCause.API)
 
     /** As [destroyAllOwnedBy], naming why. */
     fun destroyAllOwnedBy(player: OfflinePlayer, cause: DestroyCause): Int =
-        minions.ownedMinions(player.uniqueId).count { placement.destroy(it, cause, false) }
+        minions.ownedMinions(player.uniqueId).count {
+            regions.warnIfNotOwned(it.entity, CHANGING)
+            placement.destroy(it, cause, false)
+        }
 
     override fun setOwner(minion: ApiMinion, player: OfflinePlayer?): Boolean {
-        val resolved = resolve(minion)
+        val resolved = owned(minion)
         val event = MinionOwnerChangeEvent(resolved, resolved.state.owner?.let(ownerOf), player)
         if (!events.dispatch(event)) {
             return false
@@ -141,9 +154,13 @@ class MinionsManagerImpl(
 
     override fun storage(minion: ApiMinion): MinionStorage = MinionStorageImpl(resolve(minion), repository)
 
-    override fun sell(minion: ApiMinion): Double = selling.sellStorage(resolve(minion))
+    override fun sell(minion: ApiMinion): Double = selling.sellStorage(owned(minion))
 
-    override fun collect(minion: ApiMinion, player: Player): Int = collector.collect(player, resolve(minion)) ?: 0
+    override fun collect(minion: ApiMinion, player: Player): Int = collector.collect(player, owned(minion)) ?: 0
+
+    /** As [resolve], logging once on Folia if the caller is not on the minion's region. */
+    private fun owned(minion: ApiMinion): Minion =
+        resolve(minion).also { regions.warnIfNotOwned(it.entity, CHANGING) }
 
     private fun resolve(minion: ApiMinion): Minion =
         minions.getByUuid(minion.uuid)
@@ -158,5 +175,10 @@ class MinionsManagerImpl(
         PlacementService.PlaceResult.WorldDisabled -> PlaceResult(PlaceResult.Status.WORLD_DISABLED, null, 0)
         is PlacementService.PlaceResult.LimitReached -> PlaceResult(PlaceResult.Status.LIMIT_REACHED, null, limit)
         PlacementService.PlaceResult.Cancelled -> PlaceResult(PlaceResult.Status.CANCELLED, null, 0)
+    }
+
+    private companion object {
+        const val CHANGING = "Changing a minion through the EcoMinions API"
+        const val PLACING = "Placing a minion through the EcoMinions API"
     }
 }

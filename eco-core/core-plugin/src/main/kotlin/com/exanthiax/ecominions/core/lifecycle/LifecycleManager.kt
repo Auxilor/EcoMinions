@@ -1,8 +1,7 @@
 package com.exanthiax.ecominions.core.lifecycle
 
 import com.willfp.eco.core.EcoPlugin
-import org.bukkit.Bukkit
-import org.bukkit.scheduler.BukkitTask
+import com.willfp.eco.core.scheduling.EcoTask
 
 /**
  * Owns every repeating task in the plugin. Reload semantics live here and
@@ -12,12 +11,12 @@ class LifecycleManager(
     private val plugin: EcoPlugin,
     private val tickables: List<Tickable>
 ) {
-    private val tasks = mutableListOf<BukkitTask>()
+    private val tasks = mutableListOf<EcoTask>()
 
     fun start() {
         for (tickable in tickables) {
             val interval = tickable.tickInterval.coerceAtLeast(1L)
-            tasks += Bukkit.getScheduler().runTaskTimer(plugin, Runnable { tickable.tick() }, interval, interval)
+            tasks += plugin.scheduler.global().runTimer(Runnable { tickable.tick() }, interval, interval)
         }
     }
 

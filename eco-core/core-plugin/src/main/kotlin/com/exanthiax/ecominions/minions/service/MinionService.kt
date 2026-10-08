@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.api.event.MinionUnloadEvent
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
+import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
@@ -29,7 +30,8 @@ class MinionService(
     private val limits: PlacementLimits,
     private val activity: MinionActivityService,
     private val settings: SettingsHolder<MinionSettings>,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val regions: Regions
 ) {
 
     private val byUuid: MutableMap<UUID, Minion> = ConcurrentHashMap()
@@ -103,17 +105,23 @@ class MinionService(
      *
      * A minion whose type no longer exists keeps the definition it has, so it
      * carries on until the next restart rather than breaking mid-session.
+     *
+     * Each minion is refreshed on the region that owns its stand.
      */
     fun refreshAll() {
         for (minion in byUuid.values) {
-            val reloaded = types.find(minion.state.definition.id)
-            if (reloaded != null && reloaded !== minion.state.definition) {
-                for (item in minion.rebind(reloaded)) {
-                    minion.entity.world.dropItemNaturally(minion.entity.location, item)
-                }
-            }
-            refreshEffects(minion)
+            regions.on(minion.entity) { refresh(minion) }
         }
+    }
+
+    private fun refresh(minion: Minion) {
+        val reloaded = types.find(minion.state.definition.id)
+        if (reloaded != null && reloaded !== minion.state.definition) {
+            for (item in minion.rebind(reloaded)) {
+                minion.entity.world.dropItemNaturally(minion.entity.location, item)
+            }
+        }
+        refreshEffects(minion)
     }
 
     /**
@@ -132,8 +140,10 @@ class MinionService(
      * Base stats are level-scaled, so storage capacity can move, which is
      * structural rather than merely numeric - the same resize path
      * `EffectMinionCapacity` uses applies here.
+     *
+     * Runs on the region that owns the minion's stand, as the overflow is dropped there.
      */
-    fun onLevelChanged(minion: Minion) {
+    fun onLevelChanged(minion: Minion) = regions.on(minion.entity) {
         minion.stats.level = minion.state.level
 
         val overflow = minion.resizeStorage(minion.stats.storageSize)
@@ -144,10 +154,15 @@ class MinionService(
         refreshEffects(minion)
     }
 
+    /** Each chunk is hydrated on the region that owns it. */
     fun hydrateLoadedWorlds() {
         for (world in Bukkit.getWorlds()) {
             for (chunk in world.loadedChunks) {
-                hydrateChunk(chunk)
+                regions.at(world, chunk.x, chunk.z) {
+                    if (world.isChunkLoaded(chunk.x, chunk.z)) {
+                        hydrateChunk(chunk)
+                    }
+                }
             }
         }
     }
