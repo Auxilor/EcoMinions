@@ -97,6 +97,7 @@ class MinionDefinitionLoader(
         }
 
         val placement = readPlacement(id, config, targets, type, context)
+        val floorOffset = floorOffset(config.getStringOrNull("placement.floor-offset"), type, context)
         if (!statsValid) {
             return null
         }
@@ -107,7 +108,7 @@ class MinionDefinitionLoader(
             targetBlocks = targets,
             allowedUpgradeIds = allowedUpgrades,
             type = type,
-            baseStats = readBaseStats(config, type),
+            baseStats = readBaseStats(config, type, floorOffset),
             spawnItem = spawnItem,
             crafting = readCrafting(config, context),
             equipment = readEquipment(config),
@@ -270,13 +271,14 @@ class MinionDefinitionLoader(
      * expression - it is just rounded rather than truncated, and always clamped
      * to `minion.hard-slot-cap` on every read, in [MinionDefinition.BaseStats.maxStorageSlotsAt].
      */
-    private fun readBaseStats(config: Config, type: MinionType): MinionDefinition.BaseStats =
+    private fun readBaseStats(config: Config, type: MinionType, floorOffset: Int): MinionDefinition.BaseStats =
         MinionDefinition.BaseStats(
             speedTicks = config.getString("base-stats.speed-ticks"),
             efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
             radius = config.getString("base-stats.radius"),
             height = config.getStringOrNull("base-stats.height")?.takeIf { it.isNotBlank() }
                 ?: MinionDefinition.defaultHeight(type),
+            floorOffset = floorOffset,
             storageSlots = config.getString("base-stats.storage-slots"),
             maxStorageSlots = config.getString("base-stats.max-storage-slots"),
             regenDelayTicks = config.getString("base-stats.regen-delay-ticks"),
@@ -465,12 +467,12 @@ class MinionDefinitionLoader(
         )
     }
 
-    private companion object {
-        const val AUTO_SELL = "auto_sell"
-        const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
-        const val NAMESPACE = "ecominions"
+    internal companion object {
+        private const val AUTO_SELL = "auto_sell"
+        private const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
+        private const val NAMESPACE = "ecominions"
 
-        val BASE_STAT_MINIMUMS = mapOf(
+        private val BASE_STAT_MINIMUMS = mapOf(
             "speed-ticks" to 1,
             "efficiency-ticks" to 0,
             "radius" to 1,
@@ -479,5 +481,12 @@ class MinionDefinitionLoader(
             "max-storage-slots" to 1,
             "regen-delay-ticks" to 1
         )
+
+        internal fun floorOffset(raw: String?, type: MinionType, context: LoadContext): Int {
+            val trimmed = raw?.trim()?.takeIf { it.isNotEmpty() } ?: return MinionDefinition.defaultFloorOffset(type)
+            return trimmed.toIntOrNull()
+                ?: context.invalid<Int>("placement.floor-offset", trimmed, "a whole number")
+                ?: MinionDefinition.defaultFloorOffset(type)
+        }
     }
 }

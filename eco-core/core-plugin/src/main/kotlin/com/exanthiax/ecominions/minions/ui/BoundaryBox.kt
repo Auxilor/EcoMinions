@@ -8,14 +8,14 @@ import org.bukkit.util.Vector
  *
  * Drawn for a blocked minion so its owner can see which area needs clearing. The
  * bounds mirror the scan in `MiningTargetFinder`: the radius horizontally, and
- * the height stat vertically starting one block below the minion.
+ * the height stat vertically starting at the type's floor.
  */
 object BoundaryBox {
 
     /** @return One point per [SPACING] blocks along the box's twelve edges, corners included once. */
-    fun edges(radius: Int, height: Int): List<Vector> {
+    fun edges(radius: Int, height: Int, floorOffset: Int): List<Vector> {
         val xs = samples(-radius.toDouble(), (radius + 1).toDouble())
-        val ys = samples(FLOOR_OFFSET, (height - 1).toDouble())
+        val ys = samples(floorOffset.toDouble(), (floorOffset + height).toDouble())
         val zs = samples(-radius.toDouble(), (radius + 1).toDouble())
 
         if (xs.size * ys.size * zs.size > MAX_VOLUME_SAMPLES) {
@@ -66,8 +66,6 @@ object BoundaryBox {
         return result
     }
 
-    /** The box always starts one block below the minion, matching the mining scan. */
-    private const val FLOOR_OFFSET = -1.0
     private const val SPACING = 1.0
 
     /**

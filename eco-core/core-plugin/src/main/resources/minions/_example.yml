@@ -126,6 +126,9 @@ placement:
   self-seed: false
   # seed-block: ""   # omit to seed the block this minion mines
   spacing: 0
+  # The first layer of the work box, relative to the minion. Optional.
+  # Defaults: miner -1, farmer 0, woodcutter 0, slayer 0, fishing -1, collector -1.
+  # floor-offset: -1
 
 particles:
   # `particle` is an eco particle string: a particle name like `flame`, or a

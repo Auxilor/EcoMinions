@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.integration
 
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.error.LoadReport
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
@@ -166,6 +167,25 @@ class MinionDefinitionLoaderTest {
         compactorRecipeIds = { emptyList() },
         upgradeIds = { emptyList() }
     )
+
+    @Test
+    fun `floor-offset overrides the type default`() {
+        assertEquals(-1, MinionDefinitionLoader.floorOffset("-1", MinionType.FARMER, context()))
+    }
+
+    @Test
+    fun `no floor-offset uses the type default`() {
+        assertEquals(0, MinionDefinitionLoader.floorOffset(null, MinionType.FARMER, context()))
+        assertEquals(-1, MinionDefinitionLoader.floorOffset("  ", MinionType.MINER, context()))
+    }
+
+    @Test
+    fun `a floor-offset that is not a whole number is reported and ignored`() {
+        val violations = mutableListOf<String>()
+
+        assertEquals(0, MinionDefinitionLoader.floorOffset("abc", MinionType.WOODCUTTER, context(violations)))
+        assertEquals(listOf("placement.floor-offset"), violations)
+    }
 
     private fun config(type: String?, targets: List<String> = emptyList()): Config {
         val config = mockk<Config>(relaxed = true)

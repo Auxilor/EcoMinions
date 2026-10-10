@@ -58,16 +58,16 @@ class MinionStatsTest {
     @Test
     fun `an unset height defaults by type`() {
         assertEquals("1", MinionDefinition.defaultHeight(MinionType.MINER))
-        assertEquals("2", MinionDefinition.defaultHeight(MinionType.FARMER))
-        assertEquals("6", MinionDefinition.defaultHeight(MinionType.WOODCUTTER))
+        assertEquals("1", MinionDefinition.defaultHeight(MinionType.FARMER))
+        assertEquals("5", MinionDefinition.defaultHeight(MinionType.WOODCUTTER))
     }
 
     /** Otherwise the woodcutter default leaves the top log of every tree standing. */
     @Test
     fun `the woodcutter default reaches the top of a tree`() {
         val height = MinionDefinition.defaultHeight(MinionType.WOODCUTTER).toInt()
-        // The box tops out at height - 2 above the minion; a sapling may sit one above it.
-        assertTrue(height - 2 >= TreeShape.MAX_REACHABLE_TRUNK)
+        // The box tops out at height - 1 above the minion; a sapling may sit one above it.
+        assertTrue(height - 1 >= TreeShape.MAX_REACHABLE_TRUNK)
     }
 
     @Test

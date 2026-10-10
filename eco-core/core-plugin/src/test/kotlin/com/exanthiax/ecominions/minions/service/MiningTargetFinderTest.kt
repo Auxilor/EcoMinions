@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
 import com.exanthiax.ecominions.minions.model.MinionBlock
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.TargetSet
 import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import org.bukkit.Material
@@ -85,10 +86,32 @@ class MiningTargetFinderTest {
         assertNull(finder.find(minion))
     }
 
+    @Test
+    fun `a box with floor zero starts at the minion's own level`() {
+        val world = FakeWorld()
+        world.set(1, -1, 0, Material.OAK_LOG)
+
+        assertNull(finder.find(minionAt(world, height = 1, floorOffset = 0)))
+
+        world.set(1, 0, 0, Material.OAK_LOG)
+
+        assertEquals(0, finder.find(minionAt(world, height = 1, floorOffset = 0))?.y)
+    }
+
+    @Test
+    fun `a raised floor moves the whole box up`() {
+        val world = FakeWorld()
+        world.set(1, 1, 0, Material.OAK_LOG)
+        world.set(1, 2, 0, Material.OAK_LOG)
+
+        assertEquals(2, finder.find(minionAt(world, height = 1, floorOffset = 2))?.y)
+    }
+
     private fun minionAt(
         world: FakeWorld,
         radius: Int = 1,
-        height: Int
+        height: Int,
+        floorOffset: Int = MinionDefinition.FALLBACK_FLOOR_OFFSET
     ): Minion {
         val type = MinionDefinitionFixture.build(
             targetBlocks = TargetSet(
@@ -96,7 +119,8 @@ class MiningTargetFinderTest {
                     MinionBlock.regenDefault("oak", "OAK_LOG", FakeBlockLookup.testable(Material.OAK_LOG))
                         .copy(vanillaMaterial = Material.OAK_LOG)
                 )
-            )
+            ),
+            baseStats = MinionDefinitionFixture.build().baseStats.copy(floorOffset = floorOffset)
         )
         return mockk<Minion>().also { minion ->
             every { minion.state } returns mockk { every { this@mockk.definition } returns type }

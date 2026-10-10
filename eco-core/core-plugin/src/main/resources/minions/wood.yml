@@ -9,7 +9,7 @@ base-stats:
   radius: 3
   # Vertical span of the mining box, from one block below the minion upward.
   # 6 reaches the top log of a full tree, and is the woodcutter default.
-  height: 6
+  height: 5
   storage-slots: 27
   max-storage-slots: 54
   regen-delay-ticks: 200

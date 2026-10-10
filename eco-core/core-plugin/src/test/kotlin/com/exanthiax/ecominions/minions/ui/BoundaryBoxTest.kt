@@ -12,7 +12,7 @@ class BoundaryBoxTest {
      */
     @Test
     fun `the outline spans exactly the blocks the minion mines`() {
-        val points = BoundaryBox.edges(radius = 1, height = 3)
+        val points = BoundaryBox.edges(radius = 1, height = 3, floorOffset = -1)
 
         assertEquals(-1.0, points.minOf { it.x })
         assertEquals(2.0, points.maxOf { it.x })
@@ -25,7 +25,7 @@ class BoundaryBoxTest {
     /** A taller box only grows upward - the floor stays one block below the minion. */
     @Test
     fun `height grows the outline upward only`() {
-        val points = BoundaryBox.edges(radius = 3, height = 6)
+        val points = BoundaryBox.edges(radius = 3, height = 6, floorOffset = -1)
 
         assertEquals(-1.0, points.minOf { it.y })
         assertEquals(5.0, points.maxOf { it.y })
@@ -34,7 +34,7 @@ class BoundaryBoxTest {
     /** Only edges, so no point may sit in the middle of a face. */
     @Test
     fun `every point lies on an edge`() {
-        val points = BoundaryBox.edges(radius = 1, height = 3)
+        val points = BoundaryBox.edges(radius = 1, height = 3, floorOffset = -1)
 
         assertTrue(
             points.all { point ->
@@ -50,7 +50,7 @@ class BoundaryBoxTest {
 
     @Test
     fun `shared corners are not emitted twice`() {
-        val points = BoundaryBox.edges(radius = 1, height = 3)
+        val points = BoundaryBox.edges(radius = 1, height = 3, floorOffset = -1)
 
         assertEquals(points.size, points.distinct().size)
     }
@@ -58,6 +58,14 @@ class BoundaryBoxTest {
     /** A radius upgrade must never turn into thousands of particles per draw. */
     @Test
     fun `an oversized box draws nothing rather than flooding the client`() {
-        assertTrue(BoundaryBox.edges(radius = 200, height = 200).isEmpty())
+        assertTrue(BoundaryBox.edges(radius = 200, height = 200, floorOffset = -1).isEmpty())
+    }
+
+    @Test
+    fun `edges start at the floor offset`() {
+        val heights = BoundaryBox.edges(1, 2, 0).map { it.y }
+
+        assertEquals(0.0, heights.min())
+        assertEquals(2.0, heights.max())
     }
 }
