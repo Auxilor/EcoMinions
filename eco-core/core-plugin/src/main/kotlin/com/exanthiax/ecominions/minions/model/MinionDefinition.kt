@@ -34,7 +34,13 @@ class MinionDefinition(
      * order is the order the compactor menu upgrades through - each recipe is
      * still bought and gated independently, so this only controls display order.
      */
-    val compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
+    val compactorRecipes: List<CompactorRecipeDefinition> = emptyList(),
+    /** A collector's filter. Null for every other type. */
+    val collection: CollectionSettings? = null,
+    /** What a slayer kills. Null for every other type. */
+    val slayer: SlayerSettings? = null,
+    /** A fishing minion's water and catch table. Null for every other type. */
+    val fishing: FishingSettings? = null
 ) : ApiMinionDefinition {
 
     /** Preview value shown before a minion's actual level is known, e.g. in the type-select menu. */
@@ -64,11 +70,13 @@ class MinionDefinition(
         val efficiencyTicks: String,
         val radius: String,
         /**
-         * The mining box's vertical span in blocks, from one below the minion
-         * upward. The loader fills an unset value from [defaultHeight], so the
-         * fallback here only applies to stats built without a type.
+         * The work box's vertical span in blocks, from the type's floor upward.
+         * The loader fills an unset value from [defaultHeight], so the fallback
+         * here only applies to stats built without a type.
          */
         val height: String = FALLBACK_HEIGHT,
+        /** The first layer of the work box, relative to the minion. A whole number, never levelled. */
+        val floorOffset: Int = FALLBACK_FLOOR_OFFSET,
         val storageSlots: String,
         val maxStorageSlots: String,
         val regenDelayTicks: String,
@@ -99,18 +107,32 @@ class MinionDefinition(
         /** For stats built without a type; the three-block box every type once had. */
         const val FALLBACK_HEIGHT = "3"
 
+        const val FALLBACK_FLOOR_OFFSET = -1
+
         /**
          * The `base-stats.height` a type gets when its config sets none.
          *
-         * Sized to where each type's blocks sit, the box always starting one
-         * block below the minion: ore fills the floor ring around it, a crop
-         * stands on soil at the minion's own level, and a tree needs room for
-         * its trunk - see [TreeShape.MAX_REACHABLE_TRUNK].
+         * Sized to where each type's blocks sit above its floor: ore fills the ring
+         * below the minion, a crop stands at the minion's own level, and a tree needs
+         * room for its trunk - see [TreeShape.MAX_REACHABLE_TRUNK].
          */
         fun defaultHeight(type: MinionType): String = when (type) {
             MinionType.MINER -> "1"
-            MinionType.FARMER -> "2"
-            MinionType.WOODCUTTER -> "6"
+            MinionType.FARMER -> "1"
+            MinionType.WOODCUTTER -> "5"
+            MinionType.SLAYER -> "3"
+            MinionType.FISHING -> "1"
+            MinionType.COLLECTOR -> "3"
+        }
+
+        /** Where a type's work box starts when `placement.floor-offset` is not set. */
+        fun defaultFloorOffset(type: MinionType): Int = when (type) {
+            MinionType.MINER -> -1
+            MinionType.FARMER -> 0
+            MinionType.WOODCUTTER -> 0
+            MinionType.SLAYER -> 0
+            MinionType.FISHING -> -1
+            MinionType.COLLECTOR -> -1
         }
     }
 }

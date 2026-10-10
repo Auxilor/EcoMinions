@@ -7,6 +7,7 @@ import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
 import com.exanthiax.ecominions.minions.model.MinionSettings
+import com.exanthiax.ecominions.minions.service.activity.BlockActivity
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.data.Ageable
@@ -15,7 +16,7 @@ import org.bukkit.block.data.BlockData
 /**
  * The break-then-put-it-back half of mining, owned by the types that regenerate.
  *
- * Split out of [MiningService] so a behaviour can queue a regen without the
+ * Split out of [BlockActivity] so a behaviour can queue a regen without the
  * whole mining cycle, and so a minion that never regenerates never reaches
  * this code.
  */

@@ -4,6 +4,7 @@ import com.exanthiax.ecominions.api.minion.MinionType
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 class MinionBehavioursTest {
@@ -21,9 +22,16 @@ class MinionBehavioursTest {
     }
 
     @Test
-    fun `every type has a behaviour`() {
-        for (type in MinionType.entries) {
+    fun `every block type has a behaviour`() {
+        for (type in listOf(MinionType.MINER, MinionType.WOODCUTTER, MinionType.FARMER)) {
             assertNotNull(behaviours[type], "no behaviour for $type")
+        }
+    }
+
+    @Test
+    fun `types that break no blocks have no behaviour`() {
+        for (type in listOf(MinionType.SLAYER, MinionType.FISHING, MinionType.COLLECTOR)) {
+            assertThrows(IllegalStateException::class.java) { behaviours[type] }
         }
     }
 }

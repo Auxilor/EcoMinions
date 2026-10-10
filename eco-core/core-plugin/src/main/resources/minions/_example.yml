@@ -126,6 +126,9 @@ placement:
   self-seed: false
   # seed-block: ""   # omit to seed the block this minion mines
   spacing: 0
+  # The first layer of the work box, relative to the minion. Optional.
+  # Defaults: miner -1, farmer 0, woodcutter 0, slayer 0, fishing -1, collector -1.
+  # floor-offset: -1
 
 particles:
   # `particle` is an eco particle string: a particle name like `flame`, or a
@@ -188,3 +191,33 @@ allowed-upgrades:
 # be repeated in allowed-upgrades above.
 # compactor-recipes:
 #   - stone_block
+
+# Collector minions (type: collector) pick up dropped items and XP orbs.
+# Item ids to collect. Empty collects everything.
+# target-items: []
+# Whether XP orbs are absorbed into stored XP.
+# collect-xp: true
+
+# Slayer minions (type: slayer) kill mobs in their area.
+# Mob ids to kill: vanilla types, args like 'zombie baby', or custom mobs like 'ecomobs:tank_zombie'.
+# target-mobs:
+#   - zombie
+# Most mobs this minion keeps spawned at once when self-seeding. May use %level%.
+# max-mobs: 4
+# Kill as the owner while they are online: vanilla player-kill loot drops, and the
+# owner's own kill effects fire on every kill. Off by default.
+# credit-owner: false
+# Replaces what the mob drops. Same fields as EcoItems loots.
+# drops:
+#   - item: rotten_flesh
+#     chance: 1
+#     amount: 1-2
+#     xp: 1-3
+
+# Fishing minions (type: fishing) catch from water source blocks in their area.
+# Water source blocks needed before it fishes.
+# min-water: 1
+# Replaces the vanilla catch table. Same fields as EcoItems loots.
+# drops:
+#   - item: cod
+#     chance: 0.6

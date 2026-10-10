@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.integration
 
+import com.exanthiax.ecominions.minions.model.ExperienceMode
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import com.willfp.eco.core.config.interfaces.Config
@@ -28,6 +29,9 @@ class MinionSettingsLoader(
         sellPricing = SellPricingSettings(
             autoFromEcoShop = config.getBool("sell-pricing.auto-from-ecoshop"),
             multiplier = config.getDouble("sell-pricing.sell-price-multiplier")
-        )
+        ),
+        experienceMode = ExperienceMode.entries.firstOrNull {
+            it.name.equals(config.getStringOrNull("minion.xp.mode")?.trim(), ignoreCase = true)
+        } ?: ExperienceMode.STORE
     )
 }

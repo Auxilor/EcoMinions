@@ -48,6 +48,7 @@ class MinionPlaceholders(
             context.minion()?.state?.definition?.type?.id?.replaceFirstChar { it.uppercase() }
         },
         InternalPlaceholder("level") { it.minion()?.level?.toString() },
+        InternalPlaceholder("stored_experience") { it.minion()?.state?.storedExperience?.toString() },
         InternalPlaceholder("owner") { it.minion()?.let(::ownerName) },
         InternalPlaceholder("used") { it.minion()?.usedStorage?.toString() },
         InternalPlaceholder("total") { it.minion()?.storageSize?.toString() },

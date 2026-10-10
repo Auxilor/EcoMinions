@@ -4,8 +4,10 @@ import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.willfp.eco.core.progression.LevelCurve
 import com.willfp.libreforge.conditions.ConditionList
+import java.util.UUID
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class MinionStateTest {
@@ -86,5 +88,24 @@ class MinionStateTest {
     @Test
     fun `a non-levelling minion is never at max level`() {
         assertFalse(MinionState(definition = type).isAtMaxLevel)
+    }
+
+    @Test
+    fun `stored experience is part of equality`() {
+        val definition = MinionDefinitionFixture.build()
+
+        assertNotEquals(MinionState(definition), MinionState(definition).withStoredExperience(3))
+    }
+
+    @Test
+    fun `withStoredExperience keeps everything else`() {
+        val owner = UUID.randomUUID()
+        val state = MinionState(MinionDefinitionFixture.build(), owner = owner, xp = 4.0)
+
+        val updated = state.withStoredExperience(9)
+
+        assertEquals(9, updated.storedExperience)
+        assertEquals(owner, updated.owner)
+        assertEquals(4.0, updated.xp)
     }
 }

@@ -8,7 +8,7 @@ import org.bukkit.block.Block
 /**
  * What one [com.exanthiax.ecominions.minions.model.MinionType] actually does.
  *
- * Hooks on the points where [com.exanthiax.ecominions.minions.service.MiningService]
+ * Hooks on the points where [com.exanthiax.ecominions.minions.service.activity.BlockActivity]
  * needs one type to differ from another: what a minion does before it mines,
  * what happens to a block after it is broken, and what it does when there is
  * nothing in range to break.

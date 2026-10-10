@@ -18,9 +18,9 @@ data class TreeBlock(val x: Int, val y: Int, val z: Int, val kind: Kind) {
  * ### Trunk height and the minion's reach
  *
  * A woodcutter fells a tree by mining its logs, so every log has to sit inside
- * the minion's search box. That box runs from one block below the minion up to
- * `height - 2`, and a sapling is planted up to one block above the minion, so
- * with the default `height: 6` the highest reachable log is [MAX_REACHABLE_TRUNK]
+ * the minion's search box. That box runs from the minion's level up to
+ * `height - 1`, and a sapling is planted up to one block above the minion, so
+ * with the default `height: 5` the highest reachable log is [MAX_REACHABLE_TRUNK]
  * blocks above the sapling. A taller trunk needs a taller `height` on the minion
  * or its top logs are left standing.
  */
@@ -103,9 +103,9 @@ data class TreeShape(
 
     companion object {
         /**
-         * The tallest trunk a minion on the default `height: 6` can fell.
+         * The tallest trunk a minion on the default `height: 5` can fell.
          *
-         * The search box tops out at `height - 2` above the minion and a sapling
+         * The search box tops out at `height - 1` above the minion and a sapling
          * may be planted one block above it, so a trunk of five would leave its
          * top log unreachable.
          */

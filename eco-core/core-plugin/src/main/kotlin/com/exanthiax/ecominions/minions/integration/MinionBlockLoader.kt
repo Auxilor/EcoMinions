@@ -1,13 +1,14 @@
 package com.exanthiax.ecominions.minions.integration
 
+import com.exanthiax.ecominions.core.config.IntRanges
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.core.world.BlockLookup
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.RestoreMode
 import com.willfp.eco.core.blocks.TestableBlock
-import org.bukkit.Material
 import com.willfp.eco.core.config.interfaces.Config
+import org.bukkit.Material
 
 /**
  * Parses one file in `blocks/` into a validated [MinionBlock].
@@ -44,7 +45,8 @@ class MinionBlockLoader(
             mineable = config.getBoolOrNull("mineable") ?: true,
             stackedColumn = config.getBoolOrNull("stacked-column") ?: false,
             promotesTo = readPromotion(config, context),
-            vanillaMaterial = Material.matchMaterial(lookup)?.takeIf { it.isBlock }
+            vanillaMaterial = Material.matchMaterial(lookup)?.takeIf { it.isBlock },
+            experience = readExperience(config, context)
         )
     }
 
@@ -92,6 +94,11 @@ class MinionBlockLoader(
      * the `blocks/` catalog later, and resolving it here would only prove that
      * eco knows it, which is what this check already does.
      */
+    private fun readExperience(config: Config, context: LoadContext): IntRange? {
+        val raw = config.getStringOrNull("xp")?.takeIf { it.isNotBlank() } ?: return null
+        return IntRanges.parse(raw) ?: context.invalid("xp", raw, "a whole number or a range like 2-5")
+    }
+
     private fun readPromotion(config: Config, context: LoadContext): String? {
         val raw = config.getStringOrNull("promotes-to")?.takeIf { it.isNotBlank() } ?: return null
         if (blocks.lookup(raw) == null) {

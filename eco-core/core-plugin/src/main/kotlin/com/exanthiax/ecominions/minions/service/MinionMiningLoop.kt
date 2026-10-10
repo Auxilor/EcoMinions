@@ -5,7 +5,7 @@ import com.exanthiax.ecominions.core.scheduling.Regions
 import org.bukkit.Bukkit
 
 /**
- * Ticks mining for every live minion from one repeating task, rather than
+ * Ticks every live minion from one repeating task, rather than
  * scheduling four tasks per placed minion.
  *
  * The loop itself runs on the global region; each minion's mining is handed to
@@ -14,7 +14,7 @@ import org.bukkit.Bukkit
  */
 class MinionMiningLoop(
     private val minions: MinionService,
-    private val mining: MiningService,
+    private val ticker: MinionTicker,
     private val activity: MinionActivityService,
     private val regions: Regions
 ) : Tickable {
@@ -27,7 +27,7 @@ class MinionMiningLoop(
             if (!activity.isActive(minion)) {
                 continue
             }
-            regions.on(minion.entity) { mining.tick(minion, now) }
+            regions.on(minion.entity) { ticker.tick(minion, now) }
         }
     }
 }

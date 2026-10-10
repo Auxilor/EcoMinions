@@ -158,6 +158,9 @@ class MinionsManagerImpl(
 
     override fun collect(minion: ApiMinion, player: Player): Int = collector.collect(player, owned(minion)) ?: 0
 
+    override fun claimExperience(minion: ApiMinion, player: Player): Int =
+        collector.claimExperience(player, owned(minion))
+
     /** As [resolve], logging once on Folia if the caller is not on the minion's region. */
     private fun owned(minion: ApiMinion): Minion =
         resolve(minion).also { regions.warnIfNotOwned(it.entity, CHANGING) }

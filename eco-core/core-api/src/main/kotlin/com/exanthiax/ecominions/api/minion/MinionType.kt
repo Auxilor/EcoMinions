@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.api.minion
 
 /**
- * What a minion does with the blocks it breaks.
+ * What a minion does with its turn.
  *
  * A fixed set rather than a config category, because the behaviour is code: a
  * woodcutter's plant-wait-fell cycle cannot be written in yml. Adding a type
@@ -15,7 +15,16 @@ enum class MinionType {
     WOODCUTTER,
 
     /** Harvests a ripe crop and replants it. */
-    FARMER;
+    FARMER,
+
+    /** Kills mobs in its area, spawning its own when self-seeding. */
+    SLAYER,
+
+    /** Catches fish from water in its area. */
+    FISHING,
+
+    /** Picks up dropped items and XP orbs in its area. */
+    COLLECTOR;
 
     /** How this type is spelled in a minion's config file. */
     val id: String

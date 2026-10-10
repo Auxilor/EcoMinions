@@ -98,7 +98,14 @@ class Minion(
     override val regenDelayTicks: Int
         get() = stats.regenDelayTicks
 
+    override val storedExperience: Int
+        get() = state.storedExperience
+
     var animation: AnimationState = AnimationState.IDLE
+        internal set
+
+    /** Which `hologram.<reason>` line explains a blocked or waiting minion. Reset before each action. */
+    var blockedReason: String = NO_TARGET
         internal set
 
     var hologram: TextDisplay? = null
@@ -138,7 +145,7 @@ class Minion(
         burningFuelEndsAt = now + burningFuelRemainingMillis
     }
 
-    /** Transient per-tick bookkeeping, owned by [MiningService]. */
+    /** Transient per-tick bookkeeping, owned by [MinionTicker] and the activities. */
     val mining = MiningState()
 
     override val isStorageFull: Boolean
@@ -147,4 +154,8 @@ class Minion(
     override fun toString(): String = "Minion(uuid=$uuid, type=${state.definition.id}, owner=${state.owner})"
 
     enum class AnimationState { IDLE, MINING, FULL, BLOCKED }
+
+    companion object {
+        const val NO_TARGET = "no-target"
+    }
 }

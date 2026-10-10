@@ -13,9 +13,9 @@ import io.mockk.slot
 import org.bukkit.Material
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class MinionBlockLoaderTest {
@@ -128,6 +128,7 @@ class MinionBlockLoaderTest {
         every { config.getStrings("drops") } returns drops
         every { config.getBoolOrNull("mineable") } returns mineable
         every { config.getBoolOrNull("stacked-column") } returns stackedColumn
+        every { config.getStringOrNull("xp") } returns null
         return config
     }
 
@@ -185,5 +186,28 @@ class MinionBlockLoaderTest {
         val param = slot<ConfigViolation>()
         every { violationContext.log(capture(param)) } answers { violations += param.captured.param }
         return LoadContext(violationContext, LoadReport())
+    }
+
+    @Test
+    fun `xp range is read`() {
+        val config = config(block = "OAK_LOG")
+        every { config.getStringOrNull("xp") } returns "2-5"
+
+        assertEquals(2..5, MinionBlockLoader(lookup).load("oak", config, context())!!.experience)
+    }
+
+    @Test
+    fun `bad xp is reported and left unset`() {
+        val violations = mutableListOf<String>()
+        val config = config(block = "OAK_LOG")
+        every { config.getStringOrNull("xp") } returns "lots"
+
+        assertNull(MinionBlockLoader(lookup).load("oak", config, context(violations))!!.experience)
+        assertEquals(listOf("xp"), violations)
+    }
+
+    @Test
+    fun `no xp leaves it unset`() {
+        assertNull(MinionBlockLoader(lookup).load("oak", config(block = "OAK_LOG"), context())!!.experience)
     }
 }

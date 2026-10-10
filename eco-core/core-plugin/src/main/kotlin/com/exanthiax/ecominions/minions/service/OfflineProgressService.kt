@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.api.event.MinionOfflineProgressEvent
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.fuel.service.FuelService
@@ -8,6 +9,7 @@ import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.OfflineProgress
+import com.exanthiax.ecominions.minions.service.activity.MinionActivity
 import com.willfp.libreforge.triggers.event.DropCause
 import org.bukkit.inventory.ItemStack
 
@@ -15,22 +17,23 @@ import org.bukkit.inventory.ItemStack
 class OfflineProgressService(
     private val settings: SettingsHolder<MinionSettings>,
     private val fuels: FuelService,
-    private val dropTables: MinionDropTables,
     private val dispatch: MinionTriggerDispatch,
     private val events: EventDispatcher,
-    private val hasWork: (Minion) -> Boolean
+    private val experience: ExperienceSink,
+    private val activityOf: (MinionType) -> MinionActivity
 ) {
     /**
      * @param idleSince When the minion went idle.
      * @param now The current wall-clock time.
      */
     fun apply(minion: Minion, idleSince: Long, now: Long) {
-        val targets = minion.state.definition.targetBlocks.definitions
-        if (targets.isEmpty() || !hasWork(minion)) {
+        val activity = activityOf(minion.state.definition.type)
+        if (!activity.hasWork(minion)) {
             return
         }
 
         val accumulated = mutableListOf<ItemStack>()
+        var earned = 0
 
         val result = OfflineProgress.simulate(
             elapsedMillis = now - idleSince,
@@ -42,8 +45,9 @@ class OfflineProgressService(
             if (accumulated.size >= minion.storageSize) {
                 return@simulate false
             }
-            val block = targets.random()
-            accumulated += dropTables.dropsFor(minion.state.definition, block, minion.location)
+            val cycle = activity.offlineCycle(minion) ?: return@simulate false
+            accumulated += cycle.drops
+            earned += cycle.experience
             true
         }
 
@@ -52,7 +56,7 @@ class OfflineProgressService(
             return
         }
 
-        creditDrops(minion, event.drops)
+        experience.add(minion, earned + creditDrops(minion, event.drops))
 
         minion.burningFuelRemainingMillis =
             (minion.burningFuelRemainingMillis - result.fuelMillisConsumed).coerceAtLeast(0L)
@@ -76,9 +80,9 @@ class OfflineProgressService(
      * The visible trade is that `chance:` rolls once per window - acceptable on a
      * path that is already scaled by offline-efficiency.
      */
-    private fun creditDrops(minion: Minion, drops: List<ItemStack>) {
+    private fun creditDrops(minion: Minion, drops: List<ItemStack>): Int {
         if (drops.isEmpty()) {
-            return
+            return 0
         }
 
         val results = dispatch.drops(
@@ -91,6 +95,7 @@ class OfflineProgressService(
             value = drops.size.toDouble()
         )
 
-        dispatch.storeAndDispatchCollect(minion, results.map { (item, _) -> item })
+        dispatch.storeAndDispatchCollect(minion, results.results.map { (item, _) -> item })
+        return results.results.sumOf { it.xp } + results.contributedExperience
     }
 }

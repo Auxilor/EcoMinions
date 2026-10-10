@@ -1,0 +1,54 @@
+name: "&7Zombie Minion"
+type: slayer
+target-mobs:
+  - zombie
+max-mobs: 4
+
+base-stats:
+  speed-ticks: 60
+  efficiency-ticks: 10
+  radius: 3
+  storage-slots: 27
+  max-storage-slots: 54
+  regen-delay-ticks: 100
+
+spawn-item:
+  item: "ZOMBIE_HEAD"
+  display-name: "&7Zombie Minion &8(Lvl %level%)"
+  lore:
+    - "&8Kills zombies"
+    - "&8Level: &7%level%"
+  crafting:
+    enabled: true
+    give-amount: 1
+    permission: ""
+    shapeless: false
+    recipe:
+      - "ZOMBIE_HEAD"
+      - "ZOMBIE_HEAD"
+      - "ZOMBIE_HEAD"
+      - "ZOMBIE_HEAD"
+      - "ARMOR_STAND"
+      - "ZOMBIE_HEAD"
+      - "ZOMBIE_HEAD"
+      - "ZOMBIE_HEAD"
+      - "ZOMBIE_HEAD"
+
+sell-prices:
+  ROTTEN_FLESH: 1.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - radius
+  - capacity
+  - auto_sell
+  - experience
+
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS
+
+placement:
+  self-seed: true

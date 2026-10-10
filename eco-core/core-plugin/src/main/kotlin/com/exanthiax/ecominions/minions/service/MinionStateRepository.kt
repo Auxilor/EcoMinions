@@ -1,16 +1,17 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
+import com.exanthiax.ecominions.core.persistence.KillSampleCodec
 import com.exanthiax.ecominions.core.persistence.MinionDataKeys
-import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.StoredFuel
 import com.exanthiax.ecominions.minions.model.UpgradeCodec
+import java.util.UUID
 import org.bukkit.Location
 import org.bukkit.entity.ArmorStand
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataContainer
-import java.util.UUID
 
 /**
  * Reads and writes minion state to persistent data containers, whether they
@@ -39,7 +40,11 @@ class MinionStateRepository(
             inventoryBytes = container.get(keys.inventory, MinionDataKeys.BYTES),
             uuid = container.get(keys.minionUuid, MinionDataKeys.STRING)?.toUuidOrNull(),
             shutdownTimestamp = container.get(keys.shutdownTimestamp, MinionDataKeys.LONG),
-            fuel = readStoredFuel(container)
+            fuel = readStoredFuel(container),
+            storedExperience = container.get(keys.storedExperience, MinionDataKeys.INT) ?: 0,
+            killSample = container.get(keys.killSample, MinionDataKeys.BYTES)
+                ?.let { runCatching { KillSampleCodec.decode(it) }.getOrNull() }
+                .orEmpty()
         )
     }
 
@@ -62,6 +67,18 @@ class MinionStateRepository(
         } else {
             container.remove(keys.fuelId)
             container.remove(keys.fuelRemaining)
+        }
+
+        if (state.storedExperience > 0) {
+            container.set(keys.storedExperience, MinionDataKeys.INT, state.storedExperience)
+        } else {
+            container.remove(keys.storedExperience)
+        }
+
+        if (state.killSample.isNotEmpty()) {
+            container.set(keys.killSample, MinionDataKeys.BYTES, KillSampleCodec.encode(state.killSample))
+        } else {
+            container.remove(keys.killSample)
         }
     }
 

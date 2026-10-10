@@ -4,6 +4,7 @@ import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.model.Fuel
+import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionHasFuel
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionHasUpgrade
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionIsType
@@ -11,20 +12,23 @@ import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionLevelAbove
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionLevelBelow
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionOwnerOnline
 import com.exanthiax.ecominions.libreforge.conditions.ConditionMinionStorageAbovePercent
-import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTargetBlock
-import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
+import com.exanthiax.ecominions.libreforge.effects.EffectGiveMinionXp
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCapacity
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionCompact
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionEfficiency
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionHeight
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
-import com.exanthiax.ecominions.libreforge.effects.EffectGiveMinionXp
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSellStorage
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
-import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
+import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTargetBlock
+import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
 import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCatchFish
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollectItem
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelStart
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionKillMob
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionLevelUp
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPickup
@@ -34,7 +38,6 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionSell
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
-import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.MinionCompactService
@@ -104,6 +107,9 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionStorageFull)
         Triggers.register(TriggerMinionRegenBlock)
         Triggers.register(TriggerMinionTick)
+        Triggers.register(TriggerMinionCollectItem)
+        Triggers.register(TriggerMinionKillMob)
+        Triggers.register(TriggerMinionCatchFish)
         Triggers.register(TriggerGroupMinionStatic)
         Triggers.register(TriggerMinionPlace)
         Triggers.register(TriggerMinionPickup)

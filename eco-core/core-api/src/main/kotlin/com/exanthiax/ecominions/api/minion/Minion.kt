@@ -55,4 +55,7 @@ interface Minion {
 
     /** Ticks a broken block takes to grow back. */
     val regenDelayTicks: Int
+
+    /** XP the minion has earned and its owner has not claimed yet. */
+    val storedExperience: Int
 }

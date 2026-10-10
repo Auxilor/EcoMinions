@@ -9,6 +9,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly("com.willfp:eco:$ecoVersion")
     compileOnly("com.willfp:EcoShop:2026.33")
+    compileOnly("com.willfp:EcoItems:2026.40")
 
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     testImplementation("com.willfp:eco:$ecoVersion")
@@ -29,6 +30,7 @@ configurations.testRuntimeClasspath.get().exclude(group = "libreforge.core")
 
 tasks.test {
     useJUnitPlatform()
+    maxHeapSize = "1g"
     testLogging {
         events("passed", "skipped", "failed")
     }

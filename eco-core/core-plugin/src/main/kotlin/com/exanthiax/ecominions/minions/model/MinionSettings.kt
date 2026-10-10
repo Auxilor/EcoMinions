@@ -19,5 +19,15 @@ data class MinionSettings(
     val limitsEnabled: Boolean,
     val defaultLimit: Int,
     val permissionOverrides: Boolean,
-    val sellPricing: SellPricingSettings
+    val sellPricing: SellPricingSettings,
+    val experienceMode: ExperienceMode = ExperienceMode.STORE
 )
+
+/** Where the XP a minion earns goes. */
+enum class ExperienceMode {
+    /** Kept on the minion until the owner claims it from the menu. */
+    STORE,
+
+    /** Dropped as an orb at the minion, as before stored XP existed. */
+    ORB
+}

@@ -1,0 +1,47 @@
+name: "&7Collector Minion"
+type: collector
+target-items: []
+collect-xp: true
+
+base-stats:
+  speed-ticks: 60
+  efficiency-ticks: 10
+  radius: 3
+  storage-slots: 27
+  max-storage-slots: 54
+  regen-delay-ticks: 100
+
+spawn-item:
+  item: "HOPPER"
+  display-name: "&7Collector Minion &8(Lvl %level%)"
+  lore:
+    - "&8Picks up dropped items and XP"
+    - "&8Level: &7%level%"
+  crafting:
+    enabled: true
+    give-amount: 1
+    permission: ""
+    shapeless: false
+    recipe:
+      - "HOPPER"
+      - "HOPPER"
+      - "HOPPER"
+      - "HOPPER"
+      - "ARMOR_STAND"
+      - "HOPPER"
+      - "HOPPER"
+      - "HOPPER"
+      - "HOPPER"
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - radius
+  - capacity
+  - auto_sell
+  - experience
+
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS

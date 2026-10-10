@@ -34,7 +34,8 @@ class VanillaBlockDefaults(
             COLUMNS.mapNotNull { column(it) } +
             GROUNDED.mapNotNull { grounded(it) } +
             PROMOTIONS.mapNotNull { promotion(it) } +
-            UNMINEABLE.mapNotNull { unmineable(it) }
+            UNMINEABLE.mapNotNull { unmineable(it) } +
+            ORES.mapNotNull { ore(it) }
 
         return definitions.associateBy { it.lookup }
     }
@@ -74,6 +75,10 @@ class VanillaBlockDefaults(
     private fun unmineable(lookup: String): MinionBlock? =
         define(lookup.lowercase(), lookup) { it.copy(mineable = false) }
 
+    /** An ore: regenerates in place and is worth the XP vanilla drops for it. */
+    private fun ore(spec: Ore): MinionBlock? =
+        define(spec.block.lowercase(), spec.block) { it.copy(experience = spec.experience) }
+
     private fun define(id: String, lookup: String, fill: (MinionBlock) -> MinionBlock): MinionBlock? {
         val block = blocks.lookup(lookup) ?: return null
         val base = MinionBlock.regenDefault(id, lookup, block)
@@ -94,6 +99,8 @@ class VanillaBlockDefaults(
     private data class Column(val block: String, val surface: String? = null)
 
     private data class Grounded(val block: String, val surface: String)
+
+    private data class Ore(val block: String, val experience: IntRange)
 
     private data class Promotion(
         val id: String,
@@ -164,6 +171,23 @@ class VanillaBlockDefaults(
             "TWISTING_VINES_PLANT",
             "WEEPING_VINES",
             "WEEPING_VINES_PLANT"
+        )
+
+        /** Vanilla's XP per ore. Deepslate variants drop the same as their stone ones. */
+        val ORES = listOf(
+            Ore("COAL_ORE", 0..2),
+            Ore("DEEPSLATE_COAL_ORE", 0..2),
+            Ore("DIAMOND_ORE", 3..7),
+            Ore("DEEPSLATE_DIAMOND_ORE", 3..7),
+            Ore("EMERALD_ORE", 3..7),
+            Ore("DEEPSLATE_EMERALD_ORE", 3..7),
+            Ore("LAPIS_ORE", 2..5),
+            Ore("DEEPSLATE_LAPIS_ORE", 2..5),
+            Ore("REDSTONE_ORE", 1..5),
+            Ore("DEEPSLATE_REDSTONE_ORE", 1..5),
+            Ore("NETHER_QUARTZ_ORE", 2..5),
+            Ore("NETHER_GOLD_ORE", 0..1),
+            Ore("SCULK", 1..1)
         )
     }
 }

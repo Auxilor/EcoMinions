@@ -8,6 +8,7 @@ import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionService
+import com.exanthiax.ecominions.minions.service.MinionWorkArea
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
@@ -106,7 +107,7 @@ class MinionRenderLoop(
             return
         }
 
-        for (offset in BoundaryBox.edges(minion.stats.radius, minion.stats.height)) {
+        for (offset in BoundaryBox.edges(minion.stats.radius, minion.stats.height, MinionWorkArea.floorOffset(minion))) {
             particles.emitTo(owner, corner.clone().add(offset), layer)
         }
     }

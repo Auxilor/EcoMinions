@@ -1,19 +1,21 @@
 package com.exanthiax.ecominions.minions.integration
 
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.core.world.BlockLookup
+import com.exanthiax.ecominions.core.world.EcoEntityLookup
+import com.exanthiax.ecominions.core.world.EntityLookup
 import com.exanthiax.ecominions.core.world.ItemLookup
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
 import com.exanthiax.ecominions.minions.model.MinionBlock
-import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.PriceList
-import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.TargetSet
 import com.willfp.eco.core.blocks.TestableBlock
@@ -26,8 +28,8 @@ import com.willfp.libreforge.Holder
 import com.willfp.libreforge.SimpleHolder
 import com.willfp.libreforge.conditions.Conditions
 import com.willfp.libreforge.effects.Effects
-import org.bukkit.Material
 import kotlin.math.roundToInt
+import org.bukkit.Material
 
 /** Parses one file in `minions/` into a validated [MinionDefinition]. */
 class MinionDefinitionLoader(
@@ -52,8 +54,14 @@ class MinionDefinitionLoader(
     /** Every catalog id, for the "known: [...]" half of an unresolvable-id violation. */
     private val compactorRecipeIds: () -> Collection<String>,
     /** Every upgrade id, so `allowed-upgrades` can reject one that does not exist. */
-    private val upgradeIds: () -> Collection<String>
+    private val upgradeIds: () -> Collection<String>,
+    private val entities: EntityLookup = EcoEntityLookup()
 ) : ConfigLoader<MinionDefinition> {
+    private val collectionSettings = CollectionSettingsLoader(items)
+    private val dropLists = MinionDropListLoader(items)
+    private val slayerSettings = SlayerSettingsLoader(entities, dropLists)
+    private val fishingSettings = FishingSettingsLoader(dropLists)
+
 
     override fun load(id: String, config: Config, context: LoadContext): MinionDefinition? {
         val type = MinionType.parse(config.getStringOrNull("type"))
@@ -65,19 +73,11 @@ class MinionDefinitionLoader(
             return null
         }
 
-        val configured = readTargetBlocks(config)
-        if (configured.isEmpty()) {
-            context.violation("target-blocks", "no valid blocks - the minion would never mine")
-            return null
-        }
-
-        val targets = resolveTargets(configured, context)
-        if (targets.isEmpty) {
-            context.violation("target-blocks", "every configured block is an invalid mining target")
-            return null
-        }
-        if (!rejectUnfellableTargets(type, targets, context)) {
-            return null
+        val targets = if (type.usesTargetBlocks) {
+            readBlockTargets(type, config, context) ?: return null
+        } else {
+            reportUnusedTargets(type, config, context)
+            TargetSet.EMPTY
         }
 
         val levelling = levelling.load(config, context)
@@ -97,6 +97,8 @@ class MinionDefinitionLoader(
         }
 
         val placement = readPlacement(id, config, targets, type, context)
+        val floorOffset = floorOffset(config.getStringOrNull("placement.floor-offset"), type, context)
+        val slayer = if (type == MinionType.SLAYER) slayerSettings.load(config, context) ?: return null else null
         if (!statsValid) {
             return null
         }
@@ -107,7 +109,7 @@ class MinionDefinitionLoader(
             targetBlocks = targets,
             allowedUpgradeIds = allowedUpgrades,
             type = type,
-            baseStats = readBaseStats(config, type),
+            baseStats = readBaseStats(config, type, floorOffset),
             spawnItem = spawnItem,
             crafting = readCrafting(config, context),
             equipment = readEquipment(config),
@@ -116,7 +118,10 @@ class MinionDefinitionLoader(
             prices = sellPrices,
             levelling = levelling,
             holder = compileHolder(id, config, context),
-            compactorRecipes = compactorRecipes
+            compactorRecipes = compactorRecipes,
+            collection = if (type == MinionType.COLLECTOR) collectionSettings.load(config, context) else null,
+            slayer = slayer,
+            fishing = if (type == MinionType.FISHING) fishingSettings.load(config, context) else null
         )
     }
 
@@ -270,13 +275,14 @@ class MinionDefinitionLoader(
      * expression - it is just rounded rather than truncated, and always clamped
      * to `minion.hard-slot-cap` on every read, in [MinionDefinition.BaseStats.maxStorageSlotsAt].
      */
-    private fun readBaseStats(config: Config, type: MinionType): MinionDefinition.BaseStats =
+    private fun readBaseStats(config: Config, type: MinionType, floorOffset: Int): MinionDefinition.BaseStats =
         MinionDefinition.BaseStats(
             speedTicks = config.getString("base-stats.speed-ticks"),
             efficiencyTicks = config.getString("base-stats.efficiency-ticks"),
             radius = config.getString("base-stats.radius"),
             height = config.getStringOrNull("base-stats.height")?.takeIf { it.isNotBlank() }
                 ?: MinionDefinition.defaultHeight(type),
+            floorOffset = floorOffset,
             storageSlots = config.getString("base-stats.storage-slots"),
             maxStorageSlots = config.getString("base-stats.max-storage-slots"),
             regenDelayTicks = config.getString("base-stats.regen-delay-ticks"),
@@ -344,6 +350,26 @@ class MinionDefinitionLoader(
      * Self-seeding is off unless asked for, except on woodcutters, which have
      * always planted their own saplings.
      */
+    private fun readBlockTargets(type: MinionType, config: Config, context: LoadContext): TargetSet? {
+        val configured = readTargetBlocks(config)
+        if (configured.isEmpty()) {
+            context.violation("target-blocks", "no valid blocks - the minion would never mine")
+            return null
+        }
+        val targets = resolveTargets(configured, context)
+        if (targets.isEmpty) {
+            context.violation("target-blocks", "every configured block is an invalid mining target")
+            return null
+        }
+        return targets.takeIf { rejectUnfellableTargets(type, it, context) }
+    }
+
+    private fun reportUnusedTargets(type: MinionType, config: Config, context: LoadContext) {
+        if (readTargetBlocks(config).isNotEmpty()) {
+            context.violation("target-blocks", "is not used by type: ${type.id}")
+        }
+    }
+
     private fun readPlacement(
         id: String,
         config: Config,
@@ -352,10 +378,13 @@ class MinionDefinitionLoader(
         context: LoadContext
     ): PlacementSettings {
         val section = config.getSubsection("placement")
+        if (!type.usesTargetBlocks) {
+            return PlacementSettings.NONE.copy(selfSeed = section.getBoolOrNull("self-seed") ?: type.selfSeedsByDefault)
+        }
         val regen = readRegenPlacement(id, section, targets, context)
         val spacing = readSpacing(section, context)
 
-        if (section.getBoolOrNull("self-seed") ?: (type == MinionType.WOODCUTTER)) {
+        if (section.getBoolOrNull("self-seed") ?: type.selfSeedsByDefault) {
             readSeedBlocks(section, targets, type, context)
                 .takeIf { it.isNotEmpty() }
                 ?.let { return regen.copy(selfSeed = true, seedBlocks = it, spacing = spacing) }
@@ -465,12 +494,12 @@ class MinionDefinitionLoader(
         )
     }
 
-    private companion object {
-        const val AUTO_SELL = "auto_sell"
-        const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
-        const val NAMESPACE = "ecominions"
+    internal companion object {
+        private const val AUTO_SELL = "auto_sell"
+        private const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
+        private const val NAMESPACE = "ecominions"
 
-        val BASE_STAT_MINIMUMS = mapOf(
+        private val BASE_STAT_MINIMUMS = mapOf(
             "speed-ticks" to 1,
             "efficiency-ticks" to 0,
             "radius" to 1,
@@ -479,5 +508,21 @@ class MinionDefinitionLoader(
             "max-storage-slots" to 1,
             "regen-delay-ticks" to 1
         )
+
+        private val MinionType.usesTargetBlocks: Boolean
+            get() = when (this) {
+                MinionType.MINER, MinionType.FARMER, MinionType.WOODCUTTER -> true
+                MinionType.SLAYER, MinionType.FISHING, MinionType.COLLECTOR -> false
+            }
+
+        private val MinionType.selfSeedsByDefault: Boolean
+            get() = this == MinionType.WOODCUTTER || this == MinionType.SLAYER
+
+        internal fun floorOffset(raw: String?, type: MinionType, context: LoadContext): Int {
+            val trimmed = raw?.trim()?.takeIf { it.isNotEmpty() } ?: return MinionDefinition.defaultFloorOffset(type)
+            return trimmed.toIntOrNull()
+                ?: context.invalid<Int>("placement.floor-offset", trimmed, "a whole number")
+                ?: MinionDefinition.defaultFloorOffset(type)
+        }
     }
 }
