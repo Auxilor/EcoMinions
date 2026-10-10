@@ -19,6 +19,7 @@ class OfflineProgressService(
     private val fuels: FuelService,
     private val dispatch: MinionTriggerDispatch,
     private val events: EventDispatcher,
+    private val experience: ExperienceSink,
     private val activityOf: (MinionType) -> MinionActivity
 ) {
     /**
@@ -32,6 +33,7 @@ class OfflineProgressService(
         }
 
         val accumulated = mutableListOf<ItemStack>()
+        var earned = 0
 
         val result = OfflineProgress.simulate(
             elapsedMillis = now - idleSince,
@@ -45,6 +47,7 @@ class OfflineProgressService(
             }
             val cycle = activity.offlineCycle(minion) ?: return@simulate false
             accumulated += cycle.drops
+            earned += cycle.experience
             true
         }
 
@@ -53,7 +56,7 @@ class OfflineProgressService(
             return
         }
 
-        creditDrops(minion, event.drops)
+        experience.add(minion, earned + creditDrops(minion, event.drops))
 
         minion.burningFuelRemainingMillis =
             (minion.burningFuelRemainingMillis - result.fuelMillisConsumed).coerceAtLeast(0L)
@@ -77,9 +80,9 @@ class OfflineProgressService(
      * The visible trade is that `chance:` rolls once per window - acceptable on a
      * path that is already scaled by offline-efficiency.
      */
-    private fun creditDrops(minion: Minion, drops: List<ItemStack>) {
+    private fun creditDrops(minion: Minion, drops: List<ItemStack>): Int {
         if (drops.isEmpty()) {
-            return
+            return 0
         }
 
         val results = dispatch.drops(
@@ -93,5 +96,6 @@ class OfflineProgressService(
         )
 
         dispatch.storeAndDispatchCollect(minion, results.results.map { (item, _) -> item })
+        return results.results.sumOf { it.xp } + results.contributedExperience
     }
 }

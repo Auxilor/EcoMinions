@@ -20,6 +20,8 @@ messages:
   info-header: "&e%minion_name% &7(Lvl %level%) &8| &7Owner: &f%owner%"
   inventory-full: "&cMinion inventory is full!"
   collected: "&aCollected &e%count% &aitems."
+  claimed-xp: "&aClaimed &e%amount% &aXP."
+  no-stored-xp: "&cThis minion has no stored XP."
   upgrade-purchased: "&aUpgraded &e%upgrade% &ato tier &e%tier%&a."
   upgrade-cant-afford: "&cYou can't afford that upgrade."
   upgrade-conditions-not-met: "&cYou don't meet the requirements to buy that upgrade."
@@ -77,6 +79,10 @@ gui:
         - "&7Click to feed another."
         - "&7Shift-click to feed all of it."
         - "&7Or drop a stack here to feed it."
+    stored-xp:
+      name: "&aStored XP: &f%stored_experience%"
+      lore:
+        - "&7Click to claim."
     info:
       name: "&bMinion Info"
       lore:

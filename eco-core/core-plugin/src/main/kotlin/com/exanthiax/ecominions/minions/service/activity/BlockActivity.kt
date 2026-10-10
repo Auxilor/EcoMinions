@@ -5,10 +5,11 @@ import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.libreforge.MinionDrops
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
+import com.exanthiax.ecominions.minions.service.ExperienceSink
+import com.exanthiax.ecominions.minions.service.MiningTargetFinder
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionBlockIndex
 import com.exanthiax.ecominions.minions.service.MinionDropTables
-import com.exanthiax.ecominions.minions.service.MiningTargetFinder
 import com.exanthiax.ecominions.minions.service.RegenService
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
@@ -26,7 +27,7 @@ class BlockActivity(
     private val dispatch: MinionTriggerDispatch,
     private val events: EventDispatcher,
     private val dropTables: MinionDropTables,
-    private val spawnOrb: (Minion, Int) -> Unit
+    private val experience: ExperienceSink
 ) : MinionActivity {
 
     override fun onTick(minion: Minion, now: Long) {
@@ -54,7 +55,7 @@ class BlockActivity(
     override fun offlineCycle(minion: Minion): OfflineYield? {
         val definition = minion.state.definition
         val block = definition.targetBlocks.definitions.randomOrNull() ?: return null
-        return OfflineYield(dropTables.dropsFor(definition, block, minion.location), 0)
+        return OfflineYield(dropTables.dropsFor(definition, block, minion.location), block.experience?.random() ?: 0)
     }
 
     private fun completePendingBreak(minion: Minion, now: Long) {
@@ -93,7 +94,7 @@ class BlockActivity(
             value = column.size.toDouble()
         )
 
-        storeDrops(minion, results)
+        storeDrops(minion, results, column.sumOf { definition?.experience?.random() ?: 0 })
 
         for (segment in column.drop(1)) {
             segment.type = Material.AIR
@@ -116,11 +117,8 @@ class BlockActivity(
         return if (events.dispatch(event)) event.drops else null
     }
 
-    private fun storeDrops(minion: Minion, drops: MinionDrops) {
-        val experience = drops.results.sumOf { it.xp } + drops.contributedExperience
-        if (experience > 0) {
-            spawnOrb(minion, experience)
-        }
+    private fun storeDrops(minion: Minion, drops: MinionDrops, blockExperience: Int) {
+        experience.add(minion, drops.results.sumOf { it.xp } + drops.contributedExperience + blockExperience)
         dispatch.storeAndDispatchCollect(minion, drops.results.map { (item, _) -> item })
     }
 

@@ -39,7 +39,8 @@ class MinionStateRepository(
             inventoryBytes = container.get(keys.inventory, MinionDataKeys.BYTES),
             uuid = container.get(keys.minionUuid, MinionDataKeys.STRING)?.toUuidOrNull(),
             shutdownTimestamp = container.get(keys.shutdownTimestamp, MinionDataKeys.LONG),
-            fuel = readStoredFuel(container)
+            fuel = readStoredFuel(container),
+            storedExperience = container.get(keys.storedExperience, MinionDataKeys.INT) ?: 0
         )
     }
 
@@ -62,6 +63,12 @@ class MinionStateRepository(
         } else {
             container.remove(keys.fuelId)
             container.remove(keys.fuelRemaining)
+        }
+
+        if (state.storedExperience > 0) {
+            container.set(keys.storedExperience, MinionDataKeys.INT, state.storedExperience)
+        } else {
+            container.remove(keys.storedExperience)
         }
     }
 

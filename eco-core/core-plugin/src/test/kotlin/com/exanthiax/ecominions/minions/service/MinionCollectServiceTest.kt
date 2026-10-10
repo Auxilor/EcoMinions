@@ -98,4 +98,26 @@ class MinionCollectServiceTest {
         assertEquals(10, collected)
         assertEquals(2, subject.storage.count { true })
     }
+
+    @Test
+    fun `claiming gives the stored xp and empties it`() {
+        val subject = minion()
+        subject.state = subject.state.withStoredExperience(12)
+        val player = mockk<Player>(relaxed = true)
+
+        val claimed = MinionCollectService(repository, RecordingEventDispatcher()).claimExperience(player, subject)
+
+        assertEquals(12, claimed)
+        assertEquals(0, subject.state.storedExperience)
+        verify { player.giveExp(12) }
+        verify { repository.save(subject) }
+    }
+
+    @Test
+    fun `claiming nothing gives nothing`() {
+        val player = mockk<Player>(relaxed = true)
+
+        assertEquals(0, MinionCollectService(repository, RecordingEventDispatcher()).claimExperience(player, minion()))
+        verify(exactly = 0) { player.giveExp(any()) }
+    }
 }

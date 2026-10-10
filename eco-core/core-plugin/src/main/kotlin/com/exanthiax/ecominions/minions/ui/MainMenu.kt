@@ -86,6 +86,9 @@ class MainMenu(
             setSlot(rows, 5, pickupSlot(player, minion))
             setSlot(rows, 7, upgradesSlot(player, minion))
             setSlot(rows, 8, infoSlot(minion))
+            if (messages.has("gui.main.stored-xp.name")) {
+                setSlot(rows, 6, storedExperienceSlot(player, minion))
+            }
 
             onOpen { viewer, menu -> viewers.watch(viewer, menu) }
             onClose { event, menu ->
@@ -276,6 +279,30 @@ class MainMenu(
             onLeftClick { _, _ -> upgradeList.open(player, minion) }
         }
     }
+
+    private fun storedExperienceSlot(player: Player, minion: Minion): Slot =
+        slot({ _, _ ->
+            chrome.named(
+                Material.EXPERIENCE_BOTTLE,
+                messages.line("gui.main.stored-xp.name", context(minion)),
+                messages.lines("gui.main.stored-xp.lore", context(minion))
+            )
+        }) {
+            onLeftClick { _, _, menu ->
+                if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                    return@onLeftClick
+                }
+                val claimed = collector.claimExperience(player, minion)
+                player.sendMessage(
+                    if (claimed > 0) {
+                        messages.line("messages.claimed-xp", TemplateContext.of("amount" to claimed))
+                    } else {
+                        messages.line("messages.no-stored-xp")
+                    }
+                )
+                menu.refresh(player)
+            }
+        }
 
     private fun infoSlot(minion: Minion): Slot =
         slot({ _, _ ->

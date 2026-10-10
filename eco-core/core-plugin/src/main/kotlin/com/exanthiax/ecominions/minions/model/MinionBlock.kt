@@ -66,7 +66,9 @@ data class MinionBlock(
      * stays server-free - and resolved once, so the per-tick target scan can
      * index by it instead of walking every definition.
      */
-    val vanillaMaterial: Material? = null
+    val vanillaMaterial: Material? = null,
+    /** XP one break of this block is worth, or null for none. */
+    val experience: IntRange? = null
 ) {
     val isPlantable: Boolean
         get() = plant != null

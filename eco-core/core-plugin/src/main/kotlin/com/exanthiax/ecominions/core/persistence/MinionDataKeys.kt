@@ -22,6 +22,7 @@ class MinionDataKeys(plugin: EcoPlugin) {
     val fuelId: NamespacedKey = NamespacedKey(plugin, "fuel_id")
     val fuelRemaining: NamespacedKey = NamespacedKey(plugin, "fuel_remaining")
     val seeded: NamespacedKey = NamespacedKey(plugin, "seeded")
+    val storedExperience: NamespacedKey = NamespacedKey(plugin, "stored_experience")
 
     companion object {
         val STRING: PersistentDataType<String, String> = PersistentDataType.STRING

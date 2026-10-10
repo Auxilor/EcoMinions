@@ -30,31 +30,34 @@ import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.levelling.integration.LevellingLoader
+import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
 import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.libreforge.LibreforgeRegistrations
-import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
+import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
+import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCustomItems
+import com.exanthiax.ecominions.minions.integration.MinionDefinitionLoader
 import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
 import com.exanthiax.ecominions.minions.integration.MinionPickListener
 import com.exanthiax.ecominions.minions.integration.MinionPistonListener
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
+import com.exanthiax.ecominions.minions.integration.MinionRecipes
+import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
 import com.exanthiax.ecominions.minions.integration.PaperMinionAttackListener
 import com.exanthiax.ecominions.minions.integration.PaperMinionPickListener
-import com.exanthiax.ecominions.minions.integration.MinionRecipes
-import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
-import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
-import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
-import com.exanthiax.ecominions.levelling.integration.LevellingLoader
-import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
-import com.exanthiax.ecominions.minions.integration.MinionDefinitionLoader
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
+import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.service.ExperienceSink
+import com.exanthiax.ecominions.minions.service.MiningTargetFinder
+import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionBlockIndex
 import com.exanthiax.ecominions.minions.service.MinionCollectService
@@ -64,28 +67,26 @@ import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
-import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.MinionStateRepository
 import com.exanthiax.ecominions.minions.service.MinionTicker
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
-import com.exanthiax.ecominions.minions.service.MiningTargetFinder
 import com.exanthiax.ecominions.minions.service.OfflineProgressService
-import com.exanthiax.ecominions.minions.service.PlacementLimits
 import com.exanthiax.ecominions.minions.service.PlacedMinionRegistry
+import com.exanthiax.ecominions.minions.service.PlacementLimits
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.service.RegenService
 import com.exanthiax.ecominions.minions.service.SeedingService
+import com.exanthiax.ecominions.minions.service.SellPricingService
+import com.exanthiax.ecominions.minions.service.SellService
+import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.minions.service.activity.BlockActivity
 import com.exanthiax.ecominions.minions.service.activity.MinionActivities
 import com.exanthiax.ecominions.minions.service.behaviour.FarmerBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinerBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
 import com.exanthiax.ecominions.minions.service.behaviour.WoodcutterBehaviour
-import com.exanthiax.ecominions.minions.service.SellPricingService
-import com.exanthiax.ecominions.minions.service.SellService
-import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.minions.ui.MainMenu
 import com.exanthiax.ecominions.minions.ui.MenuChrome
 import com.exanthiax.ecominions.minions.ui.MenuViewers
@@ -223,12 +224,13 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         farmer = FarmerBehaviour(regenService, seedingService)
     )
     private val miningTargets = MiningTargetFinder()
+    private val experienceSink = ExperienceSink(minionSettings) { minion, amount -> spawnXpOrb(minion, amount) }
     private val blockActivity = BlockActivity(
-        miningTargets, blockIndex, regenService, behaviours, triggerDispatch, events, dropTables
-    ) { minion, amount -> spawnXpOrb(minion, amount) }
+        miningTargets, blockIndex, regenService, behaviours, triggerDispatch, events, dropTables, experienceSink
+    )
     private val activities = MinionActivities(blockActivity)
     private val offlineProgress = OfflineProgressService(
-        minionSettings, fuelService, triggerDispatch, events, activities::get
+        minionSettings, fuelService, triggerDispatch, events, experienceSink, activities::get
     )
     private val ticker = MinionTicker(worlds, fuelService, triggerDispatch, events, activities::get)
     private val activityService = MinionActivityService(

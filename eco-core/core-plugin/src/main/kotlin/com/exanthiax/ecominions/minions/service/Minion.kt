@@ -98,6 +98,9 @@ class Minion(
     override val regenDelayTicks: Int
         get() = stats.regenDelayTicks
 
+    override val storedExperience: Int
+        get() = state.storedExperience
+
     var animation: AnimationState = AnimationState.IDLE
         internal set
 

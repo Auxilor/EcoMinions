@@ -49,6 +49,12 @@ minion:
   # need more.
   hard-slot-cap: 54
 
+  xp:
+    # Where the XP a minion earns goes.
+    # store - kept on the minion and claimed from its menu.
+    # orb - dropped as an orb at the minion.
+    mode: store
+
 
 gui:
   main:

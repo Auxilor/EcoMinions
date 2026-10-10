@@ -42,4 +42,20 @@ class MinionCollectService(
         repository.save(minion)
         return collected
     }
+
+    /**
+     * Gives [player] the XP [minion] has stored, and empties the store.
+     *
+     * @return How much was given.
+     */
+    fun claimExperience(player: Player, minion: Minion): Int {
+        val amount = minion.state.storedExperience
+        if (amount <= 0) {
+            return 0
+        }
+        minion.state = minion.state.withStoredExperience(0)
+        player.giveExp(amount)
+        repository.save(minion)
+        return amount
+    }
 }

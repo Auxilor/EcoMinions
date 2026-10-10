@@ -169,4 +169,11 @@ interface MinionsManager {
      * @return How many items were moved.
      */
     fun collect(minion: Minion, player: Player): Int
+
+    /**
+     * Gives [player] the XP [minion] has stored, as the stored XP button does, and empties the store.
+     *
+     * @return How much XP was given.
+     */
+    fun claimExperience(minion: Minion, player: Player): Int
 }

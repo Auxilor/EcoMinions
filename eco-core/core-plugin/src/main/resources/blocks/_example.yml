@@ -70,3 +70,7 @@ surface: GRASS_BLOCK
 # always needs it, as a custom block's drops cannot be rolled while nobody is online.
 # drops:
 #   - "itemsadder:ruby"
+
+# (Optional) XP one break is worth. A whole number or a range like 2-5.
+# Vanilla ores already have their vanilla XP.
+# xp: 2-5

@@ -24,6 +24,9 @@ class Messages(
     fun render(text: String, context: TemplateContext = TemplateContext.EMPTY): String =
         renderer.render(text, context)
 
+    /** @return Whether `lang.yml` defines [path], so optional buttons and lines can be left out. */
+    fun has(path: String): Boolean = lang.has(path)
+
     /** Unrendered text, for callers that need the raw template. */
     fun raw(path: String): String = lang.getString(path)
 
