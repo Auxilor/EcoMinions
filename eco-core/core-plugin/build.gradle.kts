@@ -30,6 +30,7 @@ configurations.testRuntimeClasspath.get().exclude(group = "libreforge.core")
 
 tasks.test {
     useJUnitPlatform()
+    maxHeapSize = "1g"
     testLogging {
         events("passed", "skipped", "failed")
     }
