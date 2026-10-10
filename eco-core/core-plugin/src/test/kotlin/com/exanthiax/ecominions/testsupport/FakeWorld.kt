@@ -58,6 +58,7 @@ class FakeWorld {
         every { block.world } returns bukkit
         every { block.type } answers { typeAt(x, y, z) }
         every { block.isSolid } answers { typeAt(x, y, z) != Material.AIR }
+        every { block.isPassable } answers { typeAt(x, y, z) == Material.AIR || typeAt(x, y, z) == Material.WATER }
         every { block.type = any() } answers { set(x, y, z, firstArg()) }
         // Real block data needs a running server; nothing under test is Ageable.
         every { block.blockData } returns mockk<BlockData>()
