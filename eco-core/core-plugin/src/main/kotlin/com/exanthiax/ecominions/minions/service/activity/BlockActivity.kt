@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.minions.service.activity
 
 import com.exanthiax.ecominions.api.event.MinionMineEvent
 import com.exanthiax.ecominions.core.event.EventDispatcher
+import com.exanthiax.ecominions.libreforge.MinionDrops
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.minions.service.Minion
@@ -12,7 +13,6 @@ import com.exanthiax.ecominions.minions.service.RegenService
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
 import com.willfp.libreforge.triggers.event.DropCause
-import com.willfp.libreforge.triggers.event.DropResult
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
@@ -116,14 +116,12 @@ class BlockActivity(
         return if (events.dispatch(event)) event.drops else null
     }
 
-    private fun storeDrops(minion: Minion, results: List<DropResult>) {
-        for ((_, xp) in results) {
-            if (xp > 0) {
-                spawnOrb(minion, xp)
-            }
+    private fun storeDrops(minion: Minion, drops: MinionDrops) {
+        val experience = drops.results.sumOf { it.xp } + drops.contributedExperience
+        if (experience > 0) {
+            spawnOrb(minion, experience)
         }
-
-        dispatch.storeAndDispatchCollect(minion, results.map { (item, _) -> item })
+        dispatch.storeAndDispatchCollect(minion, drops.results.map { (item, _) -> item })
     }
 
     private fun collectColumn(bottom: Block): List<Block> {

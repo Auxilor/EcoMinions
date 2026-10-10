@@ -4,6 +4,8 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelStart
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
 import com.exanthiax.ecominions.minions.service.Minion
+import com.willfp.libreforge.drops.DropContribution
+import com.willfp.libreforge.drops.LibreforgeDrops
 import com.willfp.libreforge.triggers.DispatchedTrigger
 import com.willfp.libreforge.triggers.Trigger
 import com.willfp.libreforge.triggers.TriggerData
@@ -13,7 +15,11 @@ import com.willfp.libreforge.triggers.event.DropResult
 import com.willfp.libreforge.triggers.event.EditableDropEvent
 import org.bukkit.Location
 import org.bukkit.block.Block
+import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
+
+/** What a drop dispatch left, plus the XP libreforge contributors added. */
+data class MinionDrops(val results: List<DropResult>, val contributedExperience: Int)
 
 /**
  * The one path a minion trigger takes.
@@ -26,7 +32,9 @@ import org.bukkit.inventory.ItemStack
  * would silently never gain XP.
  */
 class MinionTriggerDispatch(
-    private val listener: MinionTriggerListener = MinionTriggerListener.None
+    private val listener: MinionTriggerListener = MinionTriggerListener.None,
+    /** Null calls libreforge directly, which is not on the classpath yet when the plugin is constructed. */
+    private val contributions: ((DropCause, DropContext, Location) -> DropContribution)? = null
 ) {
     /**
      * Runs [drops] through [trigger] as an editable drop event, and returns what
@@ -35,6 +43,10 @@ class MinionTriggerDispatch(
      * Using libreforge's own drop event is the whole point: every stock drop
      * effect reads it, so autosmelt and multiply_drops work on minions without
      * EcoMinions writing a line of drop-handling logic.
+     *
+     * Block and entity drops also take libreforge contributions, which is how
+     * EcoItems `loots/` reach a minion. Contributed XP rides separately because
+     * libreforge's [DropResult] ties XP to one item.
      */
     fun drops(
         minion: Minion,
@@ -43,14 +55,18 @@ class MinionTriggerDispatch(
         block: Block?,
         location: Location,
         cause: DropCause,
-        value: Double = 1.0
-    ): List<DropResult> {
+        value: Double = 1.0,
+        entity: Entity? = null
+    ): MinionDrops {
         val player = minion.ownerPlayer()
+        val context = DropContext(player = player, block = block, entity = entity)
+        val contributed = contribute(cause, context, location)
+        val initial = drops + contributed.items
 
         val event = EditableDropEvent(
-            initialDrops = drops,
+            initialDrops = initial,
             cause = cause,
-            context = DropContext(player = player, block = block),
+            context = context,
             dropLocation = location
         )
 
@@ -63,13 +79,21 @@ class MinionTriggerDispatch(
                 block = block,
                 event = event,
                 location = location,
-                item = drops.firstOrNull(),
+                item = initial.firstOrNull(),
                 value = value
             )
         )
 
-        return event.items
+        return MinionDrops(event.items, contributed.xp)
     }
+
+    /** Only block and entity drops take contributions; a custom roll is already the whole loot. */
+    internal fun contribute(cause: DropCause, context: DropContext, location: Location): DropContribution =
+        if (cause == DropCause.BLOCK || cause == DropCause.ENTITY) {
+            contributions?.invoke(cause, context, location) ?: LibreforgeDrops.contributions(cause, context, location)
+        } else {
+            DropContribution.EMPTY
+        }
 
     /** Dispatches [trigger] against [minion] with no drops attached. */
     fun trigger(
