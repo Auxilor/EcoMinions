@@ -116,7 +116,7 @@ elsewhere in this config or another recipe's `buy-conditions`.
 
 ## Where to go next
 
-- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) for the `compactor-recipes` and `effects`
+- **Build a minion:** [Configuring a Minion](how-to-make-a-minion/configuring-a-minion) for the `compactor-recipes` and `effects`
   keys that expose a recipe to a minion.
 - **Build an upgrade:** [How to Make an Upgrade](how-to-make-an-upgrade) for hand-authored, non-compactor
   upgrades.

@@ -134,6 +134,6 @@ conditions, and mutators available inside `effects`, plus the stock libreforge c
 
 ## Where to go next
 
-- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) for the `allowed-upgrades` list that exposes
+- **Build a minion:** [Configuring a Minion](how-to-make-a-minion/configuring-a-minion) for the `allowed-upgrades` list that exposes
   an upgrade to a minion.
 - **Build a fuel:** [How to Make a Fuel](how-to-make-a-fuel) to keep minions active.

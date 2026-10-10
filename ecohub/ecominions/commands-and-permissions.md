@@ -36,5 +36,5 @@ Every EcoMinions command and the permission node it requires.
 
 ## Where to go next
 
-- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) to create minions to give with `/minions give`.
+- **Build a minion:** [Configuring a Minion](how-to-make-a-minion/configuring-a-minion) to create minions to give with `/minions give`.
 - **Plugin config:** [Plugin Config](plugin-config) for the plugin-wide settings.

@@ -9,7 +9,7 @@ EcoMinions upgrades and minion `effects:` blocks are built on [libreforge](https
 same effect/trigger/condition/mutator system used across eco plugins. This page lists every minion-specific
 component EcoMinions registers, plus the stock libreforge components that are known to work well on minions.
 
-See [How to Make an Upgrade](how-to-make-an-upgrade) and [How to Make a Minion](how-to-make-a-minion) for how
+See [How to Make an Upgrade](how-to-make-an-upgrade) and [Configuring a Minion](how-to-make-a-minion/configuring-a-minion) for how
 `effects:` blocks are authored in practice.
 
 ## Triggers

@@ -6,7 +6,7 @@ sidebar_position: 5
 ## Levelling
 
 Levelling is an opt-in `levelling:` block nested inside a minion's YAML file (see
-[How to Make a Minion](how-to-make-a-minion)). With the block absent, or `enabled: false`, a minion's level is
+[Configuring a Minion](how-to-make-a-minion/configuring-a-minion)). With the block absent, or `enabled: false`, a minion's level is
 just the sum of its purchased upgrade tiers plus one - the original, non-levelling behaviour. With levelling
 turned on, a minion instead earns XP toward explicit levels, independently of any upgrades it owns.
 
@@ -166,7 +166,7 @@ lore - for any minion, levelling or not (non-levelling minions read as if they h
 
 ## Where to go next
 
-- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) for the `levelling:` block's place in a
+- **Build a minion:** [Configuring a Minion](how-to-make-a-minion/configuring-a-minion) for the `levelling:` block's place in a
   minion file, and for `base-stats` expressions that read `%level%`.
 - **Effects, triggers, and conditions:** [Libreforge Components](libreforge-components) for `minion_level_up`,
   `give_minion_xp`, and everything else available inside `xp-gain-methods` and `level-up-effects`.

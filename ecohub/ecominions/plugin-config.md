@@ -85,6 +85,10 @@ minion:
 
   # Upper bound on any minion's storage-slots and max-storage-slots.
   hard-slot-cap: 54
+
+  xp:
+    # Where the XP a minion earns goes: store or orb.
+    mode: store
 ```
 
 `seeded-blocks-on-pickup` decides whether a self-seeding minion leaves its blocks behind. With `mine`, players
@@ -94,6 +98,11 @@ to air, except spots where the block has since been replaced with something the 
 `hard-slot-cap` bounds what any minion may declare for `storage-slots` and `max-storage-slots`. Minion
 storage is virtual and is never opened as a chest, so this is a guard against typos rather than a Minecraft
 limit - raise it if your types need more than a double chest's worth.
+
+`xp.mode` decides where the XP a minion earns goes: ore XP, kill XP, catch XP, and any XP from effects or
+EcoItems loot. With `store`, the default, it is kept on the minion and claimed from the stored XP button in its
+menu. With `orb`, it drops as an orb at the minion, as it did before stored XP existed. A collection minion
+always stores the orbs it absorbs, whatever the mode.
 
 Controls the minion's hologram, its invulnerability, and how mined block regeneration is shown. The auto-sell
 interval is no longer plugin-wide config - it's set with `every:` on the auto-sell upgrade's own effect block,
@@ -131,5 +140,5 @@ type browser opened by `/minions`, the list of a minion's available upgrades, an
 
 ## Where to go next
 
-- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) covers the per-type config files.
+- **Build a minion:** [Configuring a Minion](how-to-make-a-minion/configuring-a-minion) covers the per-type config files.
 - **Commands:** [Commands and Permissions](commands-and-permissions) for the reload and admin commands.
