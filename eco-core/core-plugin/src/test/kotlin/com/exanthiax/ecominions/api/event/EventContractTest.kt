@@ -52,7 +52,8 @@ class EventContractTest {
         val events: List<MinionEvent> = listOf(
             MinionDestroyEvent(minion, DestroyCause.API),
             MinionStorageFullEvent(minion),
-            MinionLevelUpEvent(minion, 1, 2)
+            MinionLevelUpEvent(minion, 1, 2),
+            MinionCollectItemEvent(minion, mockk(relaxed = true))
         )
 
         assertTrue(events.all { it.minion === minion })

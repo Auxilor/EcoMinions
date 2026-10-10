@@ -1,10 +1,11 @@
 package com.exanthiax.ecominions.minions
 
-import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.api.minion.MinionType
+import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
-import com.exanthiax.ecominions.minions.model.MinionEquipment
+import com.exanthiax.ecominions.minions.model.CollectionSettings
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.PriceList
@@ -39,7 +40,8 @@ object MinionDefinitionFixture {
         placement: PlacementSettings = PlacementSettings.NONE,
         levelling: LevellingSpec = LevellingSpec.DISABLED,
         holder: Holder? = null,
-        compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
+        compactorRecipes: List<CompactorRecipeDefinition> = emptyList(),
+        collection: CollectionSettings? = null
     ) = MinionDefinition(
         id = id,
         name = "Stone Minion",
@@ -66,6 +68,7 @@ object MinionDefinitionFixture {
         prices = prices,
         levelling = levelling,
         holder = holder,
-        compactorRecipes = compactorRecipes
+        compactorRecipes = compactorRecipes,
+        collection = collection
     )
 }

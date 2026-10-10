@@ -191,3 +191,9 @@ allowed-upgrades:
 # be repeated in allowed-upgrades above.
 # compactor-recipes:
 #   - stone_block
+
+# Collector minions (type: collector) pick up dropped items and XP orbs.
+# Item ids to collect. Empty collects everything.
+# target-items: []
+# Whether XP orbs are absorbed into stored XP.
+# collect-xp: true

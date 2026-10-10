@@ -55,6 +55,7 @@ import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.service.BukkitWorkAreaEntities
 import com.exanthiax.ecominions.minions.service.ExperienceSink
 import com.exanthiax.ecominions.minions.service.MiningTargetFinder
 import com.exanthiax.ecominions.minions.service.Minion
@@ -82,6 +83,7 @@ import com.exanthiax.ecominions.minions.service.SellPricingService
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.minions.service.activity.BlockActivity
+import com.exanthiax.ecominions.minions.service.activity.CollectionActivity
 import com.exanthiax.ecominions.minions.service.activity.MinionActivities
 import com.exanthiax.ecominions.minions.service.behaviour.FarmerBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinerBehaviour
@@ -228,7 +230,12 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val blockActivity = BlockActivity(
         miningTargets, blockIndex, regenService, behaviours, triggerDispatch, events, dropTables, experienceSink
     )
-    private val activities = MinionActivities(blockActivity)
+    private val workAreaEntities = BukkitWorkAreaEntities()
+    private val collectionActivity = CollectionActivity(
+        workAreaEntities, triggerDispatch, events, experienceSink,
+        { item -> item.itemMeta?.persistentDataContainer?.let(repository::isMinion) == true }
+    )
+    private val activities = MinionActivities(blockActivity, collectionActivity)
     private val offlineProgress = OfflineProgressService(
         minionSettings, fuelService, triggerDispatch, events, experienceSink, activities::get
     )

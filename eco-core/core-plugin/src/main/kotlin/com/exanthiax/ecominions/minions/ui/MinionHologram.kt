@@ -71,12 +71,16 @@ class MinionHologram(
             return lines.joinToString("\n")
         }
 
-        when (minion.animation) {
-            Minion.AnimationState.FULL -> lines += messages.line("hologram.full", context)
-            Minion.AnimationState.BLOCKED -> lines += messages.line("hologram.no-target", context)
-            else -> Unit
+        when {
+            minion.animation == Minion.AnimationState.FULL -> lines += messages.line("hologram.full", context)
+            minion.animation == Minion.AnimationState.BLOCKED || minion.blockedReason != Minion.NO_TARGET ->
+                lines += messages.line(statusPath(minion), context)
         }
 
         return lines.joinToString("\n")
     }
+
+    /** A reason with no lang line falls back to the original "No Blocks to Mine" text. */
+    private fun statusPath(minion: Minion): String =
+        "hologram.${minion.blockedReason}".takeIf { messages.has(it) } ?: "hologram.no-target"
 }

@@ -42,4 +42,11 @@ class MinionTypeTest {
             assertEquals(type.name.lowercase(), type.id)
         }
     }
+
+    @Test
+    fun `collector parses`() {
+        assertEquals(MinionType.COLLECTOR, MinionType.parse("collector"))
+        assertEquals(MinionType.COLLECTOR, MinionType.parse("COLLECTOR"))
+        assertEquals("collector", MinionType.COLLECTOR.id)
+    }
 }

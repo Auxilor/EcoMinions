@@ -14,4 +14,10 @@ class MinionDefinitionFloorTest {
         assertEquals("1", MinionDefinition.defaultHeight(MinionType.FARMER))
         assertEquals("5", MinionDefinition.defaultHeight(MinionType.WOODCUTTER))
     }
+
+    @Test
+    fun `collector box starts below the minion and is three high`() {
+        assertEquals(-1, MinionDefinition.defaultFloorOffset(MinionType.COLLECTOR))
+        assertEquals("3", MinionDefinition.defaultHeight(MinionType.COLLECTOR))
+    }
 }

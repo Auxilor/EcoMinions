@@ -9,9 +9,11 @@ import com.exanthiax.ecominions.api.minion.MinionType
  * here until its activity exists.
  */
 class MinionActivities(
-    private val block: BlockActivity
+    private val block: BlockActivity,
+    private val collection: CollectionActivity
 ) {
     operator fun get(type: MinionType): MinionActivity = when (type) {
         MinionType.MINER, MinionType.FARMER, MinionType.WOODCUTTER -> block
+        MinionType.COLLECTOR -> collection
     }
 }

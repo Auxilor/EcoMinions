@@ -206,4 +206,29 @@ class MinionDefinitionLoaderTest {
         }
         return LoadContext(violationContext, LoadReport())
     }
+
+    @Test
+    fun `a collector needs no target blocks`() {
+        val violations = mutableListOf<String>()
+
+        runCatching { load(type = "collector", context = context(violations)) }
+
+        assertTrue("target-blocks" !in violations, "was: $violations")
+    }
+
+    @Test
+    fun `target blocks on a collector are reported as unused`() {
+        val messages = mutableListOf<String>()
+
+        runCatching {
+            load(
+                type = "collector",
+                targets = listOf("STONE"),
+                blocks = FakeBlockLookup(mapOf("STONE" to FakeBlockLookup.testable(Material.STONE))),
+                context = context(messages = messages)
+            )
+        }
+
+        assertTrue(messages.any { it.contains("not used by type: collector") }, "was: $messages")
+    }
 }

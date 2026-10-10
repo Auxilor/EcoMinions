@@ -19,6 +19,7 @@ class MinionBehaviours(
         MinionType.MINER -> miner
         MinionType.WOODCUTTER -> woodcutter
         MinionType.FARMER -> farmer
+        MinionType.COLLECTOR -> error("$type has no block behaviour")
     }
 
     /**

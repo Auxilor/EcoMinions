@@ -34,7 +34,9 @@ class MinionDefinition(
      * order is the order the compactor menu upgrades through - each recipe is
      * still bought and gated independently, so this only controls display order.
      */
-    val compactorRecipes: List<CompactorRecipeDefinition> = emptyList()
+    val compactorRecipes: List<CompactorRecipeDefinition> = emptyList(),
+    /** A collector's filter. Null for every other type. */
+    val collection: CollectionSettings? = null
 ) : ApiMinionDefinition {
 
     /** Preview value shown before a minion's actual level is known, e.g. in the type-select menu. */
@@ -114,6 +116,7 @@ class MinionDefinition(
             MinionType.MINER -> "1"
             MinionType.FARMER -> "1"
             MinionType.WOODCUTTER -> "5"
+            MinionType.COLLECTOR -> "3"
         }
 
         /** Where a type's work box starts when `placement.floor-offset` is not set. */
@@ -121,6 +124,7 @@ class MinionDefinition(
             MinionType.MINER -> -1
             MinionType.FARMER -> 0
             MinionType.WOODCUTTER -> 0
+            MinionType.COLLECTOR -> -1
         }
     }
 }
