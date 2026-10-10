@@ -27,6 +27,7 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollectItem
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelStart
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionKillMob
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionLevelUp
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPickup
@@ -106,6 +107,7 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionRegenBlock)
         Triggers.register(TriggerMinionTick)
         Triggers.register(TriggerMinionCollectItem)
+        Triggers.register(TriggerMinionKillMob)
         Triggers.register(TriggerGroupMinionStatic)
         Triggers.register(TriggerMinionPlace)
         Triggers.register(TriggerMinionPickup)

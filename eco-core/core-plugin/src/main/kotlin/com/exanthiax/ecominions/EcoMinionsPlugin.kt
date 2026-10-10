@@ -48,6 +48,7 @@ import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
 import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
+import com.exanthiax.ecominions.minions.integration.MinionSlayerListener
 import com.exanthiax.ecominions.minions.integration.PaperMinionAttackListener
 import com.exanthiax.ecominions.minions.integration.PaperMinionPickListener
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
@@ -85,6 +86,7 @@ import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.minions.service.activity.BlockActivity
 import com.exanthiax.ecominions.minions.service.activity.CollectionActivity
 import com.exanthiax.ecominions.minions.service.activity.MinionActivities
+import com.exanthiax.ecominions.minions.service.activity.SlayerActivity
 import com.exanthiax.ecominions.minions.service.behaviour.FarmerBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinerBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
@@ -117,6 +119,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.ExperienceOrb
+import org.bukkit.entity.LivingEntity
 import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.ServicePriority
@@ -235,7 +238,15 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         workAreaEntities, triggerDispatch, events, experienceSink,
         { item -> item.itemMeta?.persistentDataContainer?.let(repository::isMinion) == true }
     )
-    private val activities = MinionActivities(blockActivity, collectionActivity)
+    private val slayerActivity = SlayerActivity(
+        entities = workAreaEntities,
+        spawner = { mob, location -> mob.spawn(location) as? LivingEntity },
+        dispatch = triggerDispatch,
+        events = events,
+        experience = experienceSink,
+        spawnedByKey = dataKeys.spawnedBy
+    )
+    private val activities = MinionActivities(blockActivity, collectionActivity, slayerActivity)
     private val offlineProgress = OfflineProgressService(
         minionSettings, fuelService, triggerDispatch, events, experienceSink, activities::get
     )
@@ -357,6 +368,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionPickListener(minionService),
         if (PaperMinionPickListener.isSupported) PaperMinionPickListener(minionService) else null,
         MinionChunkListener(minionService),
+        MinionSlayerListener(slayerActivity, minionService),
         MinionPistonListener(minionService),
         MinionOwnerListener(minionService, activityService, regions)
     )

@@ -9,6 +9,7 @@ import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.PriceList
+import com.exanthiax.ecominions.minions.model.SlayerSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.TargetSet
 import com.willfp.libreforge.Holder
@@ -41,7 +42,8 @@ object MinionDefinitionFixture {
         levelling: LevellingSpec = LevellingSpec.DISABLED,
         holder: Holder? = null,
         compactorRecipes: List<CompactorRecipeDefinition> = emptyList(),
-        collection: CollectionSettings? = null
+        collection: CollectionSettings? = null,
+        slayer: SlayerSettings? = null
     ) = MinionDefinition(
         id = id,
         name = "Stone Minion",
@@ -69,6 +71,7 @@ object MinionDefinitionFixture {
         levelling = levelling,
         holder = holder,
         compactorRecipes = compactorRecipes,
-        collection = collection
+        collection = collection,
+        slayer = slayer
     )
 }

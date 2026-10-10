@@ -6,6 +6,8 @@ import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.core.world.BlockLookup
+import com.exanthiax.ecominions.core.world.EcoEntityLookup
+import com.exanthiax.ecominions.core.world.EntityLookup
 import com.exanthiax.ecominions.core.world.ItemLookup
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
@@ -52,9 +54,12 @@ class MinionDefinitionLoader(
     /** Every catalog id, for the "known: [...]" half of an unresolvable-id violation. */
     private val compactorRecipeIds: () -> Collection<String>,
     /** Every upgrade id, so `allowed-upgrades` can reject one that does not exist. */
-    private val upgradeIds: () -> Collection<String>
+    private val upgradeIds: () -> Collection<String>,
+    private val entities: EntityLookup = EcoEntityLookup()
 ) : ConfigLoader<MinionDefinition> {
     private val collectionSettings = CollectionSettingsLoader(items)
+    private val dropLists = MinionDropListLoader(items)
+    private val slayerSettings = SlayerSettingsLoader(entities, dropLists)
 
 
     override fun load(id: String, config: Config, context: LoadContext): MinionDefinition? {
@@ -92,6 +97,7 @@ class MinionDefinitionLoader(
 
         val placement = readPlacement(id, config, targets, type, context)
         val floorOffset = floorOffset(config.getStringOrNull("placement.floor-offset"), type, context)
+        val slayer = if (type == MinionType.SLAYER) slayerSettings.load(config, context) ?: return null else null
         if (!statsValid) {
             return null
         }
@@ -112,7 +118,8 @@ class MinionDefinitionLoader(
             levelling = levelling,
             holder = compileHolder(id, config, context),
             compactorRecipes = compactorRecipes,
-            collection = if (type == MinionType.COLLECTOR) collectionSettings.load(config, context) else null
+            collection = if (type == MinionType.COLLECTOR) collectionSettings.load(config, context) else null,
+            slayer = slayer
         )
     }
 
@@ -503,11 +510,11 @@ class MinionDefinitionLoader(
         private val MinionType.usesTargetBlocks: Boolean
             get() = when (this) {
                 MinionType.MINER, MinionType.FARMER, MinionType.WOODCUTTER -> true
-                MinionType.COLLECTOR -> false
+                MinionType.SLAYER, MinionType.COLLECTOR -> false
             }
 
         private val MinionType.selfSeedsByDefault: Boolean
-            get() = this == MinionType.WOODCUTTER
+            get() = this == MinionType.WOODCUTTER || this == MinionType.SLAYER
 
         internal fun floorOffset(raw: String?, type: MinionType, context: LoadContext): Int {
             val trimmed = raw?.trim()?.takeIf { it.isNotEmpty() } ?: return MinionDefinition.defaultFloorOffset(type)

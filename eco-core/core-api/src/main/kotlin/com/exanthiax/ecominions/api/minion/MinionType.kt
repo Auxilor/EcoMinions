@@ -17,6 +17,9 @@ enum class MinionType {
     /** Harvests a ripe crop and replants it. */
     FARMER,
 
+    /** Kills mobs in its area, spawning its own when self-seeding. */
+    SLAYER,
+
     /** Picks up dropped items and XP orbs in its area. */
     COLLECTOR;
 

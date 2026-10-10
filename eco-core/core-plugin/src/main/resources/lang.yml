@@ -41,6 +41,7 @@ hologram:
   full: "&c&lINVENTORY FULL"
   no-target: "&e&lNo Blocks to Mine in %diameter%x%height%x%diameter% Area"
   nothing-to-collect: "&e&lNothing to Collect in %diameter%x%height%x%diameter% Area"
+  no-mobs: "&e&lNo Mobs in %diameter%x%height%x%diameter% Area"
   idle: "&7&lIDLE &8- &7Owner offline"
 
 gui:

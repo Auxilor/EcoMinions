@@ -15,7 +15,9 @@ data class MinionState(
     /** The fuel burning when this state was taken, so it survives pickup and restart. */
     val fuel: StoredFuel? = null,
     /** XP earned and not yet claimed by the owner. Distinct from [xp], which levels the minion. */
-    val storedExperience: Int = 0
+    val storedExperience: Int = 0,
+    /** The last real kills of a slayer, replayed by its offline cycles. */
+    val killSample: List<KillRecord> = emptyList()
 ) {
     /**
      * Clamped on read so that lowering `max-level` in config demotes minions
@@ -54,6 +56,8 @@ data class MinionState(
     /** @return A copy holding [amount] claimable XP. Distinct from [xp], which levels the minion. */
     fun withStoredExperience(amount: Int): MinionState = copy(storedExperience = amount.coerceAtLeast(0))
 
+    fun withKillSample(sample: List<KillRecord>): MinionState = copy(killSample = sample)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -67,6 +71,7 @@ data class MinionState(
             shutdownTimestamp == other.shutdownTimestamp &&
             fuel == other.fuel &&
             storedExperience == other.storedExperience &&
+            killSample.map { it.experience to it.drops.size } == other.killSample.map { it.experience to it.drops.size } &&
             (inventoryBytes?.contentEquals(other.inventoryBytes) ?: (other.inventoryBytes == null))
     }
 
@@ -80,6 +85,7 @@ data class MinionState(
         result = 31 * result + (shutdownTimestamp?.hashCode() ?: 0)
         result = 31 * result + (fuel?.hashCode() ?: 0)
         result = 31 * result + storedExperience
+        result = 31 * result + killSample.size
         result = 31 * result + (inventoryBytes?.contentHashCode() ?: 0)
         return result
     }

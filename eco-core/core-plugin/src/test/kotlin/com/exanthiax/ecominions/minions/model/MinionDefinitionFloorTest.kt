@@ -20,4 +20,10 @@ class MinionDefinitionFloorTest {
         assertEquals(-1, MinionDefinition.defaultFloorOffset(MinionType.COLLECTOR))
         assertEquals("3", MinionDefinition.defaultHeight(MinionType.COLLECTOR))
     }
+
+    @Test
+    fun `slayer box starts at the minion and is three high`() {
+        assertEquals(0, MinionDefinition.defaultFloorOffset(MinionType.SLAYER))
+        assertEquals("3", MinionDefinition.defaultHeight(MinionType.SLAYER))
+    }
 }

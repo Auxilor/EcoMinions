@@ -1,0 +1,55 @@
+name: "&7Skeleton Minion"
+type: slayer
+target-mobs:
+  - skeleton
+max-mobs: 4
+
+base-stats:
+  speed-ticks: 60
+  efficiency-ticks: 10
+  radius: 3
+  storage-slots: 27
+  max-storage-slots: 54
+  regen-delay-ticks: 100
+
+spawn-item:
+  item: "SKELETON_SKULL"
+  display-name: "&7Skeleton Minion &8(Lvl %level%)"
+  lore:
+    - "&8Kills skeletons"
+    - "&8Level: &7%level%"
+  crafting:
+    enabled: true
+    give-amount: 1
+    permission: ""
+    shapeless: false
+    recipe:
+      - "SKELETON_SKULL"
+      - "SKELETON_SKULL"
+      - "SKELETON_SKULL"
+      - "SKELETON_SKULL"
+      - "ARMOR_STAND"
+      - "SKELETON_SKULL"
+      - "SKELETON_SKULL"
+      - "SKELETON_SKULL"
+      - "SKELETON_SKULL"
+
+sell-prices:
+  BONE: 1.0
+  ARROW: 1.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - radius
+  - capacity
+  - auto_sell
+  - experience
+
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS
+
+placement:
+  self-seed: true

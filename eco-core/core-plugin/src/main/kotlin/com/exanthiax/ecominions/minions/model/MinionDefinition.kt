@@ -36,7 +36,9 @@ class MinionDefinition(
      */
     val compactorRecipes: List<CompactorRecipeDefinition> = emptyList(),
     /** A collector's filter. Null for every other type. */
-    val collection: CollectionSettings? = null
+    val collection: CollectionSettings? = null,
+    /** What a slayer kills. Null for every other type. */
+    val slayer: SlayerSettings? = null
 ) : ApiMinionDefinition {
 
     /** Preview value shown before a minion's actual level is known, e.g. in the type-select menu. */
@@ -116,6 +118,7 @@ class MinionDefinition(
             MinionType.MINER -> "1"
             MinionType.FARMER -> "1"
             MinionType.WOODCUTTER -> "5"
+            MinionType.SLAYER -> "3"
             MinionType.COLLECTOR -> "3"
         }
 
@@ -124,6 +127,7 @@ class MinionDefinition(
             MinionType.MINER -> -1
             MinionType.FARMER -> 0
             MinionType.WOODCUTTER -> 0
+            MinionType.SLAYER -> 0
             MinionType.COLLECTOR -> -1
         }
     }

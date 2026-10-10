@@ -16,6 +16,7 @@ import com.willfp.libreforge.triggers.event.EditableDropEvent
 import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.inventory.ItemStack
 
 /** What a drop dispatch left, plus the XP libreforge contributors added. */
@@ -76,6 +77,7 @@ class MinionTriggerDispatch(
             TriggerData(
                 dispatcher = minion.toDispatcher(),
                 player = player,
+                victim = entity as? LivingEntity,
                 block = block,
                 event = event,
                 location = location,

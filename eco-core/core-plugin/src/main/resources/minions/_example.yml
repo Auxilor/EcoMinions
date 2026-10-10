@@ -197,3 +197,19 @@ allowed-upgrades:
 # target-items: []
 # Whether XP orbs are absorbed into stored XP.
 # collect-xp: true
+
+# Slayer minions (type: slayer) kill mobs in their area.
+# Mob ids to kill: vanilla types, args like 'zombie baby', or custom mobs like 'ecomobs:tank_zombie'.
+# target-mobs:
+#   - zombie
+# Most mobs this minion keeps spawned at once when self-seeding. May use %level%.
+# max-mobs: 4
+# Kill as the owner while they are online: vanilla player-kill loot drops, and the
+# owner's own kill effects fire on every kill. Off by default.
+# credit-owner: false
+# Replaces what the mob drops. Same fields as EcoItems loots.
+# drops:
+#   - item: rotten_flesh
+#     chance: 1
+#     amount: 1-2
+#     xp: 1-3

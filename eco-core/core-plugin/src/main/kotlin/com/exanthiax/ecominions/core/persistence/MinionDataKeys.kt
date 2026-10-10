@@ -23,6 +23,10 @@ class MinionDataKeys(plugin: EcoPlugin) {
     val fuelRemaining: NamespacedKey = NamespacedKey(plugin, "fuel_remaining")
     val seeded: NamespacedKey = NamespacedKey(plugin, "seeded")
     val storedExperience: NamespacedKey = NamespacedKey(plugin, "stored_experience")
+    val killSample: NamespacedKey = NamespacedKey(plugin, "kill_sample")
+
+    /** On a mob a slayer spawned: the spawning minion's UUID. */
+    val spawnedBy: NamespacedKey = NamespacedKey(plugin, "minion")
 
     companion object {
         val STRING: PersistentDataType<String, String> = PersistentDataType.STRING

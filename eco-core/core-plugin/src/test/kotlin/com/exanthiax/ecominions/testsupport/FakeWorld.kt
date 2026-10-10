@@ -73,6 +73,7 @@ class FakeWorld {
             every { this@mockk.blockX } returns x
             every { this@mockk.blockY } returns y
             every { this@mockk.blockZ } returns z
+            every { add(any<Double>(), any<Double>(), any<Double>()) } returns this@mockk
         }
     }
 

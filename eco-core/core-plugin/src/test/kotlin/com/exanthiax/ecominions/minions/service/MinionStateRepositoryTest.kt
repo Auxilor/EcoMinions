@@ -8,6 +8,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.bukkit.NamespacedKey
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class MinionStateRepositoryTest {
@@ -25,6 +26,7 @@ class MinionStateRepositoryTest {
         every { fuelId } returns NamespacedKey("ecominions", "fuel_id")
         every { fuelRemaining } returns NamespacedKey("ecominions", "fuel_remaining")
         every { storedExperience } returns NamespacedKey("ecominions", "stored_experience")
+        every { killSample } returns NamespacedKey("ecominions", "kill_sample")
     }
     private val repository = MinionStateRepository(keys) { id -> definition.takeIf { it.id == id } }
 
@@ -44,5 +46,13 @@ class MinionStateRepositoryTest {
         container.remove(keys.storedExperience)
 
         assertEquals(0, repository.read(container)!!.storedExperience)
+    }
+
+    @Test
+    fun `a container without a kill sample reads an empty one`() {
+        val container = FakePersistentDataContainer.create()
+        repository.write(container, MinionState(definition))
+
+        assertTrue(repository.read(container)!!.killSample.isEmpty())
     }
 }

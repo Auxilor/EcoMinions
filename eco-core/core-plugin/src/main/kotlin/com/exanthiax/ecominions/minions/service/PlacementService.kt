@@ -139,11 +139,20 @@ class PlacementService(
             )
         )
 
+    /** A slayer's frozen mobs would stand forever without it. */
+    private fun removeSpawnedMobs(minion: Minion) {
+        for (uuid in minion.mining.spawnedMobs.toList()) {
+            minion.entity.world.getEntity(uuid)?.remove()
+        }
+        minion.mining.spawnedMobs.clear()
+    }
+
     private fun remove(minion: Minion) {
         clearRegenMarkers(minion)
         if (settings.value.clearSeededOnPickup) {
             clearSeeded(minion)
         }
+        removeSpawnedMobs(minion)
         minions.retire(minion)
         minion.entity.remove()
     }
