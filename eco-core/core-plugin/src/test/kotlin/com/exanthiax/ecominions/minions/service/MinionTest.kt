@@ -43,7 +43,7 @@ class MinionTest {
         val subject = minion(MinionDefinitionFixture.build(baseStats = base()))
         val reloaded = MinionDefinitionFixture.build(
             baseStats = base(radius = "5", storageSlots = "9"),
-            placement = PlacementSettings(false, null, selfSeed = true, seedBlock = mockk())
+            placement = PlacementSettings(false, null, selfSeed = true, seedBlocks = listOf(mockk()))
         )
 
         val overflow = subject.rebind(reloaded)

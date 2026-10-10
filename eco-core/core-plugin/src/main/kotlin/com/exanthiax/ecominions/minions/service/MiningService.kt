@@ -38,7 +38,8 @@ class MiningService(
     private val behaviours: MinionBehaviours,
     private val fuels: FuelService,
     private val dispatch: MinionTriggerDispatch,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val dropTables: MinionDropTables
 ) {
     fun tick(minion: Minion, now: Long) {
         if (minion.entity.isDead || worlds.isDisabled(minion.entity.world)) {
@@ -70,13 +71,16 @@ class MiningService(
         }
         minion.mining.wasFull = false
 
-        if (behaviourOf(minion).onBeforeMine(minion, now)) {
+        val ready = if (minion.mining.seededLastCycle) targets.find(minion) else null
+        if (ready == null && behaviourOf(minion).onBeforeMine(minion, now)) {
+            minion.mining.seededLastCycle = true
             minion.animation = Minion.AnimationState.IDLE
             minion.mining.nextActionAt = now + effectiveSpeedTicks(minion)
             return
         }
+        minion.mining.seededLastCycle = false
 
-        val target = targets.find(minion)
+        val target = ready ?: targets.find(minion)
         if (target == null) {
             handleNoTarget(minion, now)
             return
@@ -84,6 +88,10 @@ class MiningService(
 
         beginBreak(minion, target, now)
     }
+
+    /** @return true if [minion] has anything in range to mine, or could stock its area itself. */
+    fun hasWork(minion: Minion): Boolean =
+        targets.find(minion) != null || behaviourOf(minion).canStock(minion)
 
     /**
      * Fuel expiry is never announced - it is inferred from the clock - so the
@@ -136,10 +144,13 @@ class MiningService(
 
     private fun breakBlock(minion: Minion, block: Block, now: Long) {
         val original = block.type
-        val definition = blocks.forBlock(block)
+        val definition = minion.state.definition.targetBlocks.definitionFor(block) ?: blocks.forBlock(block)
         val behaviour = behaviours.forBlock(minion.state.definition.type, definition)
         val column = if (definition?.stackedColumn == true) collectColumn(block) else listOf(block)
-        val drops = mineEvent(minion, block, column.flatMap { it.getDrops() }) ?: return
+        val configured = definition?.let { dropTables.configuredDrops(minion.state.definition, it) }
+        val rolled = configured?.let { drops -> column.flatMap { drops.map { it.clone() } } }
+            ?: column.flatMap { segment -> definition?.block?.getDrops(segment, null) ?: segment.getDrops() }
+        val drops = mineEvent(minion, block, rolled) ?: return
 
         val results = dispatch.drops(
             minion = minion,
@@ -184,8 +195,15 @@ class MiningService(
         dispatch.storeAndDispatchCollect(minion, results.map { (item, _) -> item })
     }
 
+    /** Adds to an orb already at the minion, so an unattended minion keeps one orb rather than a pile. */
     private fun spawnXp(minion: Minion, amount: Int) {
         val location = minion.entity.location.clone().add(0.0, 0.5, 0.0)
+        location.getNearbyEntitiesByType(ExperienceOrb::class.java, XP_MERGE_RADIUS)
+            .firstOrNull { it.isValid }
+            ?.let {
+                it.experience += amount
+                return
+            }
         minion.entity.world.spawn(location, ExperienceOrb::class.java).experience = amount
     }
 
@@ -206,5 +224,6 @@ class MiningService(
 
     private companion object {
         const val FULL_RETRY_TICKS = 20L
+        const val XP_MERGE_RADIUS = 1.5
     }
 }

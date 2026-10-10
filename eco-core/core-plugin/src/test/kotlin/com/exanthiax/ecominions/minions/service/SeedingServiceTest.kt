@@ -72,6 +72,46 @@ class SeedingServiceTest {
         assertEquals(Material.AIR, world.typeAt(1, 0, 0))
     }
 
+    /** Every target is seeded, not only the first one listed. */
+    @Test
+    fun `seeds every configured block`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val placement = selfSeeding(Material.COAL_ORE).copy(
+            seedBlocks = listOf(
+                FakeBlockLookup.testable(Material.COAL_ORE),
+                FakeBlockLookup.testable(Material.DEEPSLATE_COAL_ORE)
+            )
+        )
+        val minion = minionAt(world, placement = placement, height = 2)
+        val service = service()
+
+        repeat(SPOTS_AROUND_MINION) { service.tick(minion) }
+
+        assertTrue(world.countOf(Material.COAL_ORE) > 0)
+        assertTrue(world.countOf(Material.DEEPSLATE_COAL_ORE) > 0)
+    }
+
+    /** A regen marker is a stand-in, so a plant set on it pops when the regen fires. */
+    @Test
+    fun `does not seed on top of a spot waiting on regen`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        world.fillLayer(0, Material.COAL_ORE)
+        world.set(1, 0, 0, Material.COBBLESTONE)
+        val minion = minionAt(world, placement = selfSeeding(Material.COAL_ORE), height = 3)
+        minion.mining.regenQueue += MiningState.RegenEntry(
+            location = world.blockAt(1, 0, 0).location,
+            regenData = mockk<BlockData>(),
+            surfaceBlock = null,
+            regenAt = REGEN_DELAY_TICKS.toLong()
+        )
+
+        repeat(SPOTS_AROUND_MINION) { service().tick(minion) }
+
+        assertEquals(Material.AIR, world.typeAt(1, 1, 0))
+    }
+
     /** A full area has nothing pending, so the minion reports blocked rather than waiting. */
     @Test
     fun `is pending only while somewhere is left to seed`() {
@@ -168,7 +208,7 @@ class SeedingServiceTest {
         }
         val minion = minionAt(
             world,
-            placement = PlacementSettings(liftRegen = false, surfaceBlock = null, selfSeed = true, seedBlock = seed)
+            placement = PlacementSettings(liftRegen = false, surfaceBlock = null, selfSeed = true, seedBlocks = listOf(seed))
         )
 
         assertTrue(service().tick(minion))
@@ -180,7 +220,7 @@ class SeedingServiceTest {
         liftRegen = true,
         surfaceBlock = FakeBlockLookup.testable(Material.FARMLAND),
         selfSeed = true,
-        seedBlock = FakeBlockLookup.testable(Material.WHEAT)
+        seedBlocks = listOf(FakeBlockLookup.testable(Material.WHEAT))
     )
 
     /**
@@ -302,7 +342,7 @@ class SeedingServiceTest {
         liftRegen = false,
         surfaceBlock = null,
         selfSeed = true,
-        seedBlock = FakeBlockLookup.testable(seed),
+        seedBlocks = listOf(FakeBlockLookup.testable(seed)),
         spacing = spacing
     )
 

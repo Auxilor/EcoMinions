@@ -12,7 +12,7 @@ output-amount: 1
 
 cost-options:
   - value: 100000
-    type: vault
+    type: coins
     display: "&a$%value_commas%"
 
 # buy-conditions: []   # (optional) gates the purchase itself

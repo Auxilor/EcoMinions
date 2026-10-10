@@ -22,6 +22,11 @@ class MinionFactory {
                 }
         }
 
-        return Minion(state, entity, storage, stats)
+        return Minion(state, entity, storage, stats).apply {
+            state.fuel?.let {
+                burningFuelId = it.id
+                burningFuelRemainingMillis = it.remainingMillis
+            }
+        }
     }
 }

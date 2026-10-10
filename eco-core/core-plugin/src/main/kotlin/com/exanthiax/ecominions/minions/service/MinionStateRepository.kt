@@ -4,7 +4,10 @@ import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.core.persistence.MinionDataKeys
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.StoredFuel
 import com.exanthiax.ecominions.minions.model.UpgradeCodec
+import org.bukkit.Location
+import org.bukkit.entity.ArmorStand
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataContainer
 import java.util.UUID
@@ -35,7 +38,8 @@ class MinionStateRepository(
             upgrades = UpgradeCodec.decode(container.get(keys.upgrades, MinionDataKeys.STRING) ?: ""),
             inventoryBytes = container.get(keys.inventory, MinionDataKeys.BYTES),
             uuid = container.get(keys.minionUuid, MinionDataKeys.STRING)?.toUuidOrNull(),
-            shutdownTimestamp = container.get(keys.shutdownTimestamp, MinionDataKeys.LONG)
+            shutdownTimestamp = container.get(keys.shutdownTimestamp, MinionDataKeys.LONG),
+            fuel = readStoredFuel(container)
         )
     }
 
@@ -50,6 +54,15 @@ class MinionStateRepository(
         state.uuid?.let { container.set(keys.minionUuid, MinionDataKeys.STRING, it.toString()) }
         state.inventoryBytes?.let { container.set(keys.inventory, MinionDataKeys.BYTES, it) }
         state.shutdownTimestamp?.let { container.set(keys.shutdownTimestamp, MinionDataKeys.LONG, it) }
+
+        val fuel = state.fuel
+        if (fuel != null && fuel.remainingMillis > 0L) {
+            container.set(keys.fuelId, MinionDataKeys.STRING, fuel.id)
+            container.set(keys.fuelRemaining, MinionDataKeys.LONG, fuel.remainingMillis)
+        } else {
+            container.remove(keys.fuelId)
+            container.remove(keys.fuelRemaining)
+        }
     }
 
     /** Persists a live minion, including its storage and burning fuel. */
@@ -61,31 +74,34 @@ class MinionStateRepository(
             container,
             minion.state.copy(
                 uuid = minion.uuid,
-                inventoryBytes = InventoryCodec.encode(snapshot)
+                inventoryBytes = InventoryCodec.encode(snapshot),
+                fuel = fuelOf(minion)
             )
         )
+        container.set(keys.seeded, MinionDataKeys.LONGS, minion.mining.seeded.map(BlockPositions::pack).toLongArray())
+    }
 
-        val fuelId = minion.burningFuelId
+    /** @return The positions [stand]'s minion placed blocks at, as last saved. */
+    fun readSeeded(stand: ArmorStand): List<Location> =
+        stand.persistentDataContainer.get(keys.seeded, MinionDataKeys.LONGS)
+            ?.map { BlockPositions.unpack(stand.world, it) }
+            .orEmpty()
+
+    /** @return The fuel [minion] is burning and the time left on it, if any. */
+    fun fuelOf(minion: Minion): StoredFuel? {
+        val id = minion.burningFuelId ?: return null
         val remaining = if (minion.burningFuelEndsAt > 0L) {
             (minion.burningFuelEndsAt - System.currentTimeMillis()).coerceAtLeast(0L)
         } else {
             minion.burningFuelRemainingMillis
         }
-
-        if (fuelId != null && remaining > 0L) {
-            container.set(keys.fuelId, MinionDataKeys.STRING, fuelId)
-            container.set(keys.fuelRemaining, MinionDataKeys.LONG, remaining)
-        } else {
-            container.remove(keys.fuelId)
-            container.remove(keys.fuelRemaining)
-        }
+        return StoredFuel(id, remaining).takeIf { remaining > 0L }
     }
 
-    /** @return The fuel id and the millis left on it, if any is stored on [container]. */
-    fun readStoredFuel(container: PersistentDataContainer): Pair<String, Long>? {
+    private fun readStoredFuel(container: PersistentDataContainer): StoredFuel? {
         val id = container.get(keys.fuelId, MinionDataKeys.STRING) ?: return null
         val remaining = container.get(keys.fuelRemaining, MinionDataKeys.LONG) ?: return null
-        return if (remaining > 0L) id to remaining else null
+        return StoredFuel(id, remaining).takeIf { remaining > 0L }
     }
 
     fun markShutdown(minion: Minion, timestamp: Long) {

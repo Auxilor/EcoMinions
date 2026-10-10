@@ -37,6 +37,12 @@ minion:
   # Replaces any cobblestone regen markers left behind. Use AIR to simply remove them.
   regen-marker-fallback-block: AIR
 
+  # What happens to the blocks a minion placed (seeded ores and crops, saplings,
+  # grown trees and the water it laid) when it is picked up or removed:
+  #   mine  - they stay in the world for players to mine
+  #   clear - they are removed, unless a player has since replaced them
+  seeded-blocks-on-pickup: mine
+
   # Upper bound on any minion type's storage-slots and max-storage-slots.
   # Minion storage is virtual and is never opened as a chest, so this is a
   # sanity guard against typos, not a Minecraft limit. Raise it if your types
@@ -64,10 +70,3 @@ gui:
   cost-select:
     title: "&8Choose Payment"
     rows: 3
-
-storage:
-  # Storage backend: pdc-only or sqlite
-  # PDC-only relies entirely on per-item PDC + per-entity PDC.
-  # SQLite stores a registry of placed minion UUIDs and their owners
-  # to allow cross-server-restart limit enforcement and admin queries.
-  backend: pdc-only

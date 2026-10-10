@@ -17,7 +17,8 @@ class OfflineProgressService(
     private val fuels: FuelService,
     private val dropTables: MinionDropTables,
     private val dispatch: MinionTriggerDispatch,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val hasWork: (Minion) -> Boolean
 ) {
     /**
      * @param idleSince When the minion went idle.
@@ -25,7 +26,7 @@ class OfflineProgressService(
      */
     fun apply(minion: Minion, idleSince: Long, now: Long) {
         val targets = minion.state.definition.targetBlocks.definitions
-        if (targets.isEmpty()) {
+        if (targets.isEmpty() || !hasWork(minion)) {
             return
         }
 

@@ -21,6 +21,7 @@ class MinionDataKeys(plugin: EcoPlugin) {
     val shutdownTimestamp: NamespacedKey = NamespacedKey(plugin, "shutdown_ts")
     val fuelId: NamespacedKey = NamespacedKey(plugin, "fuel_id")
     val fuelRemaining: NamespacedKey = NamespacedKey(plugin, "fuel_remaining")
+    val seeded: NamespacedKey = NamespacedKey(plugin, "seeded")
 
     companion object {
         val STRING: PersistentDataType<String, String> = PersistentDataType.STRING
@@ -29,5 +30,6 @@ class MinionDataKeys(plugin: EcoPlugin) {
         val BYTE: PersistentDataType<Byte, Byte> = PersistentDataType.BYTE
         val BYTES: PersistentDataType<ByteArray, ByteArray> = PersistentDataType.BYTE_ARRAY
         val DOUBLE: PersistentDataType<Double, Double> = PersistentDataType.DOUBLE
+        val LONGS: PersistentDataType<LongArray, LongArray> = PersistentDataType.LONG_ARRAY
     }
 }

@@ -66,17 +66,21 @@ class UpgradeListMenu(
 
     private fun upgradeSlot(player: Player, minion: Minion, upgrade: Upgrade): Slot {
         val tier = upgrades.tierOf(minion, upgrade)
-        val hasChoice = (upgrades.nextTier(minion, upgrade)?.costs?.size ?: 0) > 1
+        val nextCosts = upgrades.nextTier(minion, upgrade)?.costs
         val context = TemplateContext.of(
             UpgradePlaceholders.UPGRADE to upgrade,
             "tier" to tier,
-            "multi_pay_indicator" to if (hasChoice) messages.line("gui.main.multi-pay-indicator") else ""
+            "multi_pay_indicator" to if ((nextCosts?.size ?: 0) > 1) messages.line("gui.main.multi-pay-indicator") else "",
+            "next_cost" to (
+                nextCosts?.joinToString(messages.line("gui.main.upgrade-button.cost-separator")) { it.display(player) }
+                    ?: messages.line("gui.main.upgrade-button.maxed")
+                )
         )
 
         val item = Items.lookup(upgrade.iconLookup).item.clone()
         item.itemMeta?.let { meta ->
             meta.setDisplayName(messages.line("gui.main.upgrade-button.name", context))
-            meta.lore = messages.lines("gui.main.upgrade-button.lore", context)
+            meta.lore = messages.linesWithout("gui.main.upgrade-button.lore", "multi_pay_indicator", context)
             item.itemMeta = meta
         }
 

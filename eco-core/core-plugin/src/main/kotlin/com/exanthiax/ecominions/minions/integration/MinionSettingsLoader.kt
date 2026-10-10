@@ -17,6 +17,8 @@ class MinionSettingsLoader(
         regenMarkerFallback = Material.matchMaterial(
             config.getString("minion.regen-marker-fallback-block").uppercase()
         ) ?: Material.AIR,
+        clearSeededOnPickup = config.getStringOrNull("minion.seeded-blocks-on-pickup")
+            ?.equals("clear", ignoreCase = true) == true,
         hardSlotCap = config.getInt("minion.hard-slot-cap").coerceAtLeast(1),
         offlineEnabled = config.getBool("unloaded-calculation.enabled"),
         offlineEfficiency = config.getDouble("unloaded-calculation.offline-efficiency"),

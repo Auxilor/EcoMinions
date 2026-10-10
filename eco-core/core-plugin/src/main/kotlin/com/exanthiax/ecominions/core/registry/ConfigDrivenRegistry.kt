@@ -40,9 +40,10 @@ class ConfigDrivenRegistry<T : Any>(
         report.recordLoaded(displayName, values().size)
     }
 
-    fun all(): Collection<T> = values().map { it.value }
+    /** Sorted by id: eco's registry has no order, and menus built from it must not shuffle. */
+    fun all(): Collection<T> = values().sortedBy { it.id }.map { it.value }
 
-    fun ids(): Collection<String> = values().map { it.id }
+    fun ids(): Collection<String> = values().map { it.id }.sorted()
 
     fun find(id: String?): T? = getByID(id)?.value
 }

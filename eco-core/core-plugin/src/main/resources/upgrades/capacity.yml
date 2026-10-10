@@ -13,19 +13,19 @@ tiers:
     stat-delta: "+9 slots"
     cost-options:
       - value: 5000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   2:
     value: 18
     stat-delta: "+18 slots"
     cost-options:
       - value: 12000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   3:
     value: 27
     stat-delta: "+27 slots"
     cost-options:
       - value: 25000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"

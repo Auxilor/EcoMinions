@@ -13,7 +13,7 @@ tiers:
     stat-delta: "-5 ticks"
     cost-options:
       - value: 5000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
       - value: 64
         type: stone
@@ -23,7 +23,7 @@ tiers:
     stat-delta: "-10 ticks"
     cost-options:
       - value: 12000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
       - value: 64
         type: coal
@@ -33,57 +33,54 @@ tiers:
     stat-delta: "-15 ticks"
     cost-options:
       - value: 25000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
-      - value: 100
-        type: gems
-        display: "&b%value_commas% Gems"
   4:
     value: 20
     stat-delta: "-20 ticks"
     cost-options:
       - value: 50000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   5:
     value: 25
     stat-delta: "-25 ticks"
     cost-options:
       - value: 100000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   6:
     value: 28
     stat-delta: "-28 ticks"
     cost-options:
       - value: 175000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   7:
     value: 30
     stat-delta: "-30 ticks"
     cost-options:
       - value: 275000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   8:
     value: 32
     stat-delta: "-32 ticks"
     cost-options:
       - value: 400000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   9:
     value: 34
     stat-delta: "-34 ticks"
     cost-options:
       - value: 600000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   10:
     value: 36
     stat-delta: "-36 ticks"
     cost-options:
       - value: 1000000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"

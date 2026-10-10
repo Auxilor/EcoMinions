@@ -44,12 +44,12 @@ class MinionDropTablesTest {
 
         val drops = tables.dropsFor(type, ironOre, location)
 
-        assertEquals(listOf(ItemStack(Material.RAW_IRON, 1)), drops)
+        assertEquals(listOf(Material.RAW_IRON to 1), drops.map { it.type to it.amount })
         assertEquals(1, calls)
     }
 
     @Test
-    fun `caches per minion and block so the loot table is read once`() {
+    fun `rolls vanilla drops on every call`() {
         var calls = 0
         val tables = tables(resolve = { _, _ ->
             calls++
@@ -58,22 +58,23 @@ class MinionDropTablesTest {
 
         repeat(5) { tables.dropsFor(type, ironOre, location) }
 
-        assertEquals(1, calls)
+        assertEquals(5, calls)
     }
 
     @Test
-    fun `falls back to the block itself when no loot table resolves`() {
+    fun `credits nothing rather than the ore when no drops resolve`() {
         val drops = tables().dropsFor(type, ironOre, location)
 
-        assertEquals(listOf(ItemStack(Material.IRON_ORE, 1)), drops)
+        assertTrue(drops.isEmpty())
     }
 
     @Test
     fun `returns copies so callers cannot mutate the cache`() {
-        val tables = tables(resolve = { _, _ -> listOf(ItemStack(Material.RAW_IRON, 1)) })
+        val tables = tables(resolveItem = { ItemStack(Material.EMERALD, 1) })
+        val ruby = custom(listOf("itemsadder:ruby"))
 
-        tables.dropsFor(type, ironOre, location).first().amount = 64
-        val second = tables.dropsFor(type, ironOre, location)
+        tables.dropsFor(type, ruby, location).first().amount = 64
+        val second = tables.dropsFor(type, ruby, location)
 
         assertEquals(1, second.first().amount)
     }

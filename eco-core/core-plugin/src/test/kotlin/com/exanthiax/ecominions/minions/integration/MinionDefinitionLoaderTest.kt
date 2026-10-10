@@ -163,7 +163,8 @@ class MinionDefinitionLoaderTest {
         autoPricingEnabled = { false },
         hardSlotCap = { 54 },
         compactorRecipe = { null },
-        compactorRecipeIds = { emptyList() }
+        compactorRecipeIds = { emptyList() },
+        upgradeIds = { emptyList() }
     )
 
     private fun config(type: String?, targets: List<String> = emptyList()): Config {

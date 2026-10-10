@@ -10,6 +10,7 @@ import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.price.ConfiguredPrice
+import com.willfp.eco.core.price.impl.PriceFree
 import com.willfp.libreforge.conditions.ConditionList
 import com.willfp.libreforge.conditions.Conditions
 
@@ -91,11 +92,11 @@ class CompactorRecipeLoader : ConfigLoader<CompactorRecipeDefinition> {
     private fun readCosts(config: Config, context: LoadContext): List<TierCost> =
         config.getSubsections("cost-options").mapNotNull { costConfig ->
             val price = ConfiguredPrice.create(costConfig)
-            if (price == null) {
+            if (price == null || price.price is PriceFree) {
                 context.violation(
                     "cost-options",
                     "could not read a price from '${costConfig.getStringOrNull("type")}' - " +
-                        "expected a registered price type such as vault, a material, or a currency id"
+                        "expected a registered price type such as coins, a material, or a currency id"
                 )
                 return@mapNotNull null
             }

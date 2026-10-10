@@ -13,10 +13,11 @@ messages:
   not-owner: "&cYou are not the owner of this minion."
   no-such-type: "&cNo minion type with id &e%id%&c."
   no-such-player: "&cNo player with name &e%name%&c."
-  reloaded: "Reloaded in %time%ms! Loaded %count% minions."
-  give-success: "&aGave &e%player% &aa &e%type% &aminion."
+  reloaded: "Reloaded in %time%ms! Loaded %count% minion types."
+  give-success: "&aGave &e%player% &a1x &e%type%&a."
   remove-success: "&aRemoved &e%count% &aminions for &e%player%&a."
   info-no-target: "&cYou are not looking at a minion."
+  info-header: "&e%minion_name% &7(Lvl %level%) &8| &7Owner: &f%owner%"
   inventory-full: "&cMinion inventory is full!"
   collected: "&aCollected &e%count% &aitems."
   upgrade-purchased: "&aUpgraded &e%upgrade% &ato tier &e%tier%&a."
@@ -44,7 +45,7 @@ gui:
     title-item:
       name: "&f%minion_name% &7(Lvl %level%)"
       lore:
-        - "&7Type: &f%type%"
+        - "&7Type: &f%kind%"
         - "&7Owner: &f%owner%"
     storage-item:
       name: "&f%item_name% &7x %count%"
@@ -91,8 +92,12 @@ gui:
     upgrade-button:
       name: "&e%upgrade_name% &7(Tier %tier%/%max_tier%)"
       lore:
-        - "&7Click to upgrade"
+        - "&7Next: &f%next_cost%"
         - "%multi_pay_indicator%"
+        - ""
+        - "&7Click to upgrade"
+      cost-separator: " &7or &f"
+      maxed: "&aMaxed"
     multi-pay-indicator: "&8(Multiple payment options)"
 
   upgrade:

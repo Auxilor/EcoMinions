@@ -21,7 +21,9 @@ class LoadContext(
     /** Reports a problem with [param] and counts it towards the startup summary. */
     fun violation(param: String, message: String) {
         report.recordViolation()
-        violationContext.log(ConfigViolation(param, message))
+        if (!report.quiet) {
+            violationContext.log(ConfigViolation(param, message))
+        }
     }
 
     /**

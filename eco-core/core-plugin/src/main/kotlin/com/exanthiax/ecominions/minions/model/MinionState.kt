@@ -11,7 +11,9 @@ data class MinionState(
     val upgrades: Map<String, Int> = emptyMap(),
     val inventoryBytes: ByteArray? = null,
     val uuid: UUID? = null,
-    val shutdownTimestamp: Long? = null
+    val shutdownTimestamp: Long? = null,
+    /** The fuel burning when this state was taken, so it survives pickup and restart. */
+    val fuel: StoredFuel? = null
 ) {
     /**
      * Clamped on read so that lowering `max-level` in config demotes minions
@@ -58,6 +60,7 @@ data class MinionState(
             upgrades == other.upgrades &&
             uuid == other.uuid &&
             shutdownTimestamp == other.shutdownTimestamp &&
+            fuel == other.fuel &&
             (inventoryBytes?.contentEquals(other.inventoryBytes) ?: (other.inventoryBytes == null))
     }
 
@@ -69,6 +72,7 @@ data class MinionState(
         result = 31 * result + upgrades.hashCode()
         result = 31 * result + (uuid?.hashCode() ?: 0)
         result = 31 * result + (shutdownTimestamp?.hashCode() ?: 0)
+        result = 31 * result + (fuel?.hashCode() ?: 0)
         result = 31 * result + (inventoryBytes?.contentHashCode() ?: 0)
         return result
     }

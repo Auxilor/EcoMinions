@@ -61,11 +61,12 @@ class TargetSetTest {
         assertSame(ruby, TargetSet(listOf(ruby)).definitionFor(blockOf(Material.DIAMOND_ORE)))
     }
 
+    /** A custom block is drawn with a vanilla block state, so its material alone must not win. */
     @Test
-    fun `prefers the vanilla index over scanning custom definitions`() {
+    fun `prefers a custom block over the vanilla material it is drawn with`() {
         val customStone = custom("plugin:fake_stone", Material.STONE)
 
-        assertSame(stone, TargetSet(listOf(customStone, stone)).definitionFor(blockOf(Material.STONE)))
+        assertSame(customStone, TargetSet(listOf(stone, customStone)).definitionFor(blockOf(Material.STONE)))
     }
 
     @Test

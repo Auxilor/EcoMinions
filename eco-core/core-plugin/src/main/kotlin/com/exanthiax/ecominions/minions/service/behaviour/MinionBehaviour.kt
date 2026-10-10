@@ -18,10 +18,10 @@ interface MinionBehaviour {
      * Called before the minion looks for something to break.
      *
      * @return true if the behaviour used this cycle, so nothing is mined on it.
-     * Self-seeding types place their block here and keep the cycle until the
-     * area is full: seeding after the search for a target would only ever run
-     * on an area with nothing left in it, which is how a self-seeder ends up
-     * stuck at a few blocks.
+     * Self-seeding types place their block here: seeding after the search for
+     * a target would only ever run on an area with nothing left in it, which is
+     * how a self-seeder ends up stuck at a few blocks. After a seeding cycle the
+     * next one mines if it can, so output starts before the area is full.
      */
     fun onBeforeMine(minion: Minion, now: Long): Boolean = false
 
@@ -43,4 +43,10 @@ interface MinionBehaviour {
      * idles rather than reporting that it is blocked.
      */
     fun onIdle(minion: Minion, now: Long): Boolean
+
+    /**
+     * @return true if the minion could stock its own area, so an area with
+     * nothing to mine yet still counts as work.
+     */
+    fun canStock(minion: Minion): Boolean
 }

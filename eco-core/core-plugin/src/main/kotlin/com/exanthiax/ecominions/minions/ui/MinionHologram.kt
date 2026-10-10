@@ -18,9 +18,14 @@ class MinionHologram(
     private val settings: SettingsHolder<MinionSettings>,
     private val activity: MinionActivityService
 ) {
-    /** Folia has no synchronous teleport, so the label is moved with `teleportAsync` there. */
+    /**
+     * Folia has no synchronous teleport, so the label is moved with `teleportAsync` there.
+     *
+     * A label removed with its chunk is spawned again rather than moved, or the
+     * minion would carry a dead label and show none.
+     */
     fun refresh(minion: Minion) {
-        val display = minion.hologram ?: spawn(minion) ?: return
+        val display = minion.hologram?.takeIf { it.isValid } ?: spawn(minion) ?: return
         if (Prerequisite.HAS_FOLIA.isMet) {
             display.teleportAsync(anchorOf(minion))
         } else {

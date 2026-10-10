@@ -13,8 +13,8 @@ data class PlacementSettings(
     val liftRegen: Boolean,
     val surfaceBlock: TestableBlock?,
     val selfSeed: Boolean = false,
-    /** What self-seeding places. Null whenever [selfSeed] is false. */
-    val seedBlock: TestableBlock? = null,
+    /** What self-seeding places, each in turn. Empty whenever [selfSeed] is false. */
+    val seedBlocks: List<TestableBlock> = emptyList(),
     /**
      * Empty blocks self-seeding keeps between each planted column, along X and
      * Z only - diagonals are not counted. 0 packs them side by side.

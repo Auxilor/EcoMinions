@@ -10,13 +10,15 @@ import org.bukkit.inventory.ItemStack
  * Fired before a minion's storage is sold to its owner.
  *
  * [items] is everything about to be sold. [total] is what the server economy
- * will pay; EcoShop sales settle in their own currency and are not part of it.
- * A listener may change [total] to adjust the payout.
+ * will pay, and a listener may change it to adjust the payout. [shopTotal] is
+ * what EcoShop will pay for the items it prices, in each shop item's own
+ * currency; EcoShop settles those itself, so it is read-only.
  */
 class MinionSellEvent(
     override val minion: Minion,
     var total: Double,
-    val items: List<ItemStack>
+    val items: List<ItemStack>,
+    val shopTotal: Double = 0.0
 ) : Event(), Cancellable, MinionEvent {
 
     private var cancelled = false

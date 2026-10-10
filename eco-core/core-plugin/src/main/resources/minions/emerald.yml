@@ -36,6 +36,7 @@ spawn-item:
 
 sell-prices:
   EMERALD: 300.0
+  EMERALD_BLOCK: 2700.0
 
 allowed-upgrades:
   - speed

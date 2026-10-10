@@ -37,6 +37,8 @@ spawn-item:
 sell-prices:
   RAW_COPPER: 8.0
   COPPER_INGOT: 12.0
+  RAW_COPPER_BLOCK: 72.0
+  COPPER_BLOCK: 108.0
 
 allowed-upgrades:
   - speed
@@ -49,6 +51,7 @@ allowed-upgrades:
   - experience
 
 compactor-recipes:
+  - raw_copper_block
   - copper_block
 
 effects:

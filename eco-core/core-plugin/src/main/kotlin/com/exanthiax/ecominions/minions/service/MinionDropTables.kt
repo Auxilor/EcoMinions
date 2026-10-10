@@ -10,16 +10,16 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * What each of a minion's target blocks actually drops.
  *
- * Offline catch-up used to credit the ore block itself, which diverged from live
- * mining and left the drops unsellable. Resolution is cached because a loot table
- * lookup per simulated cycle would be far too expensive on the login tick.
+ * Vanilla drops are rolled on every call, as live mining rolls them on every
+ * break; caching one roll would credit the same random result forever. A custom
+ * block's declared `drops:` never change, so only those are cached.
  *
  * Both resolvers are injected so the cache can be tested without a server.
  *
  * Minions resume on every region at once under Folia, so the cache is concurrent.
  */
 class MinionDropTables(
-    /** Reads a vanilla block's loot table. */
+    /** Rolls what a vanilla block drops when broken, as live mining does. */
     private val resolve: (Material, Location) -> List<ItemStack>,
     /** Resolves one id from a definition's `drops:`, or null if this server has no such item. */
     private val resolveItem: (String) -> ItemStack?
@@ -33,18 +33,22 @@ class MinionDropTables(
      * `drops:` list is for. A custom block with no `drops:` credits nothing:
      * there is no correct answer, and guessing an item is worse than none.
      */
-    fun dropsFor(definition: MinionDefinition, block: MinionBlock, location: Location): List<ItemStack> {
-        val cached = cache.computeIfAbsent(Key(definition.id, block.id)) {
-            when {
-                block.drops.isNotEmpty() -> block.drops.mapNotNull(resolveItem)
-                block.vanillaMaterial != null -> resolve(block.vanillaMaterial, location)
-                    .ifEmpty { listOf(ItemStack(block.vanillaMaterial, 1)) }
+    fun dropsFor(definition: MinionDefinition, block: MinionBlock, location: Location): List<ItemStack> =
+        configuredDrops(definition, block)
+            ?: block.vanillaMaterial?.let { resolve(it, location) }.orEmpty()
 
-                else -> emptyList()
-            }
+    /**
+     * @return [block]'s declared `drops:`, or null if it declares none.
+     *
+     * Live mining uses these too, ahead of what the custom block plugin rolls
+     * through eco, so an admin can always override a block's drops.
+     */
+    fun configuredDrops(definition: MinionDefinition, block: MinionBlock): List<ItemStack>? {
+        if (block.drops.isEmpty()) {
+            return null
         }
-
-        return cached.map { it.clone() }
+        return cache.computeIfAbsent(Key(definition.id, block.id)) { block.drops.mapNotNull(resolveItem) }
+            .map { it.clone() }
     }
 
     fun clear() {

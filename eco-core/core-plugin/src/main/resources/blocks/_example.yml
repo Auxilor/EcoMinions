@@ -64,7 +64,9 @@ surface: GRASS_BLOCK
 # target seeds should mine the grown crop, so the seed promotes to it.
 # promotes-to: WHEAT
 
-# (Optional) What this block is worth during offline catch-up.
-# Only needed for custom blocks, whose drops cannot be read while nobody is online.
+# (Optional) What the minion gets for this block, live and during offline catch-up.
+# Only needed for custom blocks. Live mining already uses the drops of an EcoItems
+# block; set this for other plugins' blocks, or to override them. Offline catch-up
+# always needs it, as a custom block's drops cannot be rolled while nobody is online.
 # drops:
 #   - "itemsadder:ruby"

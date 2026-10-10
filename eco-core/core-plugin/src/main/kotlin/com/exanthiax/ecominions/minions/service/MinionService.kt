@@ -12,7 +12,6 @@ import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.willfp.libreforge.forceRefreshHolders
 import org.bukkit.Bukkit
-import org.bukkit.Chunk
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
@@ -31,7 +30,8 @@ class MinionService(
     private val activity: MinionActivityService,
     private val settings: SettingsHolder<MinionSettings>,
     private val events: EventDispatcher,
-    private val regions: Regions
+    private val regions: Regions,
+    private val placed: PlacedMinionRegistry
 ) {
 
     private val byUuid: MutableMap<UUID, Minion> = ConcurrentHashMap()
@@ -47,7 +47,10 @@ class MinionService(
     fun ownedBy(player: OfflinePlayer): Collection<Minion> =
         byOwner[player.uniqueId].orEmpty().mapNotNull { byUuid[it] }
 
-    fun countOwnedBy(player: OfflinePlayer): Int = byOwner[player.uniqueId]?.size ?: 0
+    /** Counts loaded and unloaded minions alike, from the owner's saved data. */
+    fun countOwnedBy(player: OfflinePlayer): Int = placed.count(player.uniqueId)
+
+    fun countOwnedBy(player: OfflinePlayer, typeId: String): Int = placed.count(player.uniqueId, typeId)
 
     fun placementLimit(player: OfflinePlayer): Int = limits.limitFor(player)
 
@@ -55,13 +58,24 @@ class MinionService(
 
     fun getType(id: String): MinionDefinition? = types.find(id)
 
+    /** Also records the minion in its owner's data, which backfills minions placed before the registry existed. */
     fun register(minion: Minion): Minion {
         byUuid[minion.uuid] = minion
         minion.state.owner?.let { owner ->
             byOwner.computeIfAbsent(owner) { ConcurrentHashMap.newKeySet() }.add(minion.uuid)
+            placed.add(owner, minion.uuid, minion.state.definition.id)
         }
         return minion
     }
+
+    /** Unregisters a minion that is leaving the world for good, so its owner no longer counts it. */
+    fun retire(minion: Minion) {
+        minion.state.owner?.let { placed.remove(it, minion.uuid) }
+        unregister(minion)
+    }
+
+    /** Forgets every minion [owner] placed; any still in the world record themselves again when they load. */
+    fun forgetPlaced(owner: UUID) = placed.clear(owner)
 
     fun unregister(minion: Minion) {
         byUuid.remove(minion.uuid)
@@ -72,8 +86,14 @@ class MinionService(
 
     /** Moves [minion] to [owner], or makes it unowned, keeping the owner index in step. */
     fun changeOwner(minion: Minion, owner: UUID?) {
-        minion.state.owner?.let { byOwner[it]?.remove(minion.uuid) }
-        owner?.let { byOwner.computeIfAbsent(it) { ConcurrentHashMap.newKeySet() }.add(minion.uuid) }
+        minion.state.owner?.let {
+            byOwner[it]?.remove(minion.uuid)
+            placed.remove(it, minion.uuid)
+        }
+        owner?.let {
+            byOwner.computeIfAbsent(it) { ConcurrentHashMap.newKeySet() }.add(minion.uuid)
+            placed.add(it, minion.uuid, minion.state.definition.id)
+        }
         updateState(minion, minion.state.copy(owner = owner))
 
         if (activity.isActive(minion)) {
@@ -154,21 +174,24 @@ class MinionService(
         refreshEffects(minion)
     }
 
-    /** Each chunk is hydrated on the region that owns it. */
+    /**
+     * Each chunk is hydrated on the region that owns it. Runs on every reload,
+     * as minion types only exist once configs have loaded; live minions are skipped.
+     */
     fun hydrateLoadedWorlds() {
         for (world in Bukkit.getWorlds()) {
             for (chunk in world.loadedChunks) {
                 regions.at(world, chunk.x, chunk.z) {
                     if (world.isChunkLoaded(chunk.x, chunk.z)) {
-                        hydrateChunk(chunk)
+                        hydrateEntities(chunk.entities.asList())
                     }
                 }
             }
         }
     }
 
-    fun hydrateChunk(chunk: Chunk) {
-        for (entity in chunk.entities) {
+    fun hydrateEntities(entities: List<Entity>) {
+        for (entity in entities) {
             if (entity is ArmorStand) {
                 hydrate(entity)
             }
@@ -179,14 +202,9 @@ class MinionService(
     fun hydrate(stand: ArmorStand): Minion? {
         getByEntity(stand)?.let { return it }
 
-        val container = stand.persistentDataContainer
-        val state = repository.read(container) ?: return null
+        val state = repository.read(stand.persistentDataContainer) ?: return null
         val minion = factory.create(state.copy(uuid = state.uuid ?: stand.uniqueId), stand)
-
-        repository.readStoredFuel(container)?.let { (id, remaining) ->
-            minion.burningFuelId = id
-            minion.burningFuelRemainingMillis = remaining
-        }
+        minion.mining.seeded += repository.readSeeded(stand)
 
         val registered = register(minion)
         if (activity.isActive(registered)) {
@@ -197,9 +215,9 @@ class MinionService(
         return registered
     }
 
-    /** Persists and drops every minion in [chunk]; they rehydrate when it reloads. */
-    fun dehydrateChunk(chunk: Chunk) {
-        for (entity in chunk.entities) {
+    /** Persists and drops every minion in [entities]; they rehydrate when they load again. */
+    fun dehydrateEntities(entities: List<Entity>) {
+        for (entity in entities) {
             val minion = getByEntity(entity) ?: continue
             events.dispatch(MinionUnloadEvent(minion))
             activity.markIdle(minion)

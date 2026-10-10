@@ -31,12 +31,13 @@ class MinionBlockIndex(
      *
      * Read on every break, so the vanilla case is a hash lookup. Only custom
      * definitions are walked, because a custom block answers to nothing but its
-     * owning plugin's own test.
+     * owning plugin's own test. They are walked first, as a custom block is drawn
+     * with a vanilla block state and would otherwise read as that vanilla block.
      */
     fun forBlock(block: Block): MinionBlock? {
         val current = index()
-        return current.byMaterial[block.type]
-            ?: current.custom.firstOrNull { it.block.matches(block) }
+        return current.custom.firstOrNull { it.block.matches(block) }
+            ?: current.byMaterial[block.type]
     }
 
     /** Drops the cached index, so the next read sees a reloaded catalog. */

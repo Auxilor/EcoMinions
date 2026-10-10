@@ -42,6 +42,7 @@ import com.exanthiax.ecominions.minions.integration.MinionPickListener
 import com.exanthiax.ecominions.minions.integration.MinionPistonListener
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
+import com.exanthiax.ecominions.minions.integration.PaperMinionAttackListener
 import com.exanthiax.ecominions.minions.integration.PaperMinionPickListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
 import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
@@ -71,6 +72,7 @@ import com.exanthiax.ecominions.minions.service.MiningService
 import com.exanthiax.ecominions.minions.service.MiningTargetFinder
 import com.exanthiax.ecominions.minions.service.OfflineProgressService
 import com.exanthiax.ecominions.minions.service.PlacementLimits
+import com.exanthiax.ecominions.minions.service.PlacedMinionRegistry
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.service.RegenService
 import com.exanthiax.ecominions.minions.service.SeedingService
@@ -99,16 +101,17 @@ import com.exanthiax.ecominions.upgrades.ui.CostSelectMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeMenu
 import com.willfp.eco.core.command.impl.PluginCommand
+import com.willfp.eco.core.data.PlayerProfile
+import com.willfp.eco.core.data.keys.PersistentDataKey
+import com.willfp.eco.core.data.keys.PersistentDataKeyType
 import com.willfp.eco.core.items.Items
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack
-import org.bukkit.loot.LootContext
 import org.bukkit.plugin.ServicePriority
 
 /**
@@ -120,7 +123,7 @@ import org.bukkit.plugin.ServicePriority
 class EcoMinionsPlugin : LibreforgePlugin() {
 
     // Core
-    private val report = LoadReport()
+    private val report = LoadReport().apply { quiet = true }
     private val events = BukkitEventDispatcher
     private val dataKeys = MinionDataKeys(this)
     private val placeholderRegistrar = PlaceholderRegistrar(this)
@@ -162,7 +165,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             { minionSettings.value.sellPricing.autoFromEcoShop },
             { minionSettings.value.hardSlotCap },
             compactorRecipes::find,
-            compactorRecipes::ids
+            compactorRecipes::ids,
+            { upgrades.ids() }
         ),
         report
     )
@@ -202,20 +206,29 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val shopIntegration = ShopIntegrationService(minionSettings)
     private val sellPricingSettings = SettingsHolder(minionSettings.value.sellPricing)
     private val sellPricing = SellPricingService(sellPricingSettings) { shopIntegration.unitsFor(it) }
-    private val sellService = SellService(sellPricing, shopIntegration, events)
+    private val sellService = SellService(sellPricing, shopIntegration, events, compactService::isInput)
     private val dropTables = MinionDropTables(
         resolve = { material, location -> vanillaDrops(material, location) },
         resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
     )
     private val offlineProgress = OfflineProgressService(
         minionSettings, fuelService, dropTables, triggerDispatch, events
-    )
+    ) { miningService.hasWork(it) }
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings
     ) { Bukkit.getPlayer(it) != null }
+    private val placedMinionsKey = PersistentDataKey(
+        namespacedKeyFactory.create("placed_minions"),
+        PersistentDataKeyType.STRING_LIST,
+        emptyList()
+    )
+    private val placedMinions = PlacedMinionRegistry(
+        read = { PlayerProfile.load(it).read(placedMinionsKey) },
+        write = { owner, entries -> PlayerProfile.load(owner).write(placedMinionsKey, entries) }
+    )
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
-        limits, activityService, minionSettings, events, regions
+        limits, activityService, minionSettings, events, regions, placedMinions
     )
     private val seedingService = SeedingService()
     private val regenService = RegenService(minionSettings, triggerDispatch, events)
@@ -227,7 +240,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val miningTargets = MiningTargetFinder()
     private val miningService = MiningService(
         minionSettings, worlds, miningTargets, blockIndex, regenService, behaviours,
-        fuelService, triggerDispatch, events
+        fuelService, triggerDispatch, events, dropTables
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
@@ -266,6 +279,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
 
     // Lifecycle
+    private val placementListener = MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages)
     private val customItems = MinionCustomItems(this, minionService, itemFactory)
     private val recipes = MinionRecipes(this, minionService, itemFactory)
     private val lifecycle = LifecycleManager(
@@ -293,10 +307,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
         customItems.registerAll()
         recipes.registerAll()
-        minionService.hydrateLoadedWorlds()
         lifecycle.start()
-
-        logger.info(report.summary())
     }
 
     override fun handleReload() {
@@ -308,9 +319,17 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         customItems.registerAll()
         recipes.registerAll()
         minionService.refreshAll()
+        minionService.hydrateLoadedWorlds()
         lifecycle.restart()
 
-        logger.info(report.summary())
+        if (!report.quiet) {
+            logger.info(report.summary())
+        }
+        report.reset()
+    }
+
+    override fun handleAfterLoad() {
+        report.quiet = false
     }
 
     override fun handleDisable() {
@@ -319,7 +338,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     }
 
     override fun loadListeners(): List<Listener> = listOfNotNull(
-        MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages),
+        placementListener,
+        if (PaperMinionAttackListener.isSupported) PaperMinionAttackListener(minionService, placementListener) else null,
         MinionPickListener(minionService),
         if (PaperMinionPickListener.isSupported) PaperMinionPickListener(minionService) else null,
         MinionChunkListener(minionService),
@@ -351,7 +371,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private fun registerPlaceholders() {
         placeholderRegistrar.registerAll(
             listOf(
-                MinionPlaceholders(minionService),
+                MinionPlaceholders(minionService, fuelService),
                 UpgradePlaceholders(),
                 levellingPlaceholders
             )
@@ -368,22 +388,15 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     }
 
     /**
-     * What a vanilla block drops when broken, or nothing if this server will not say.
+     * What a vanilla block drops when broken, rolled the way live mining rolls it.
      *
-     * A `blocks/` loot table requires the tool and the block state that broke the
-     * block, and neither can be carried by Bukkit's [LootContext], so populating
-     * one throws on a modern server rather than returning empty. Catch-up then
-     * falls back to the block itself, which is what a block's `drops:` list is
-     * there to correct.
+     * A `blocks/` loot table cannot be populated through Bukkit's loot context, so
+     * the drops come from a snapshot of the block at [location] retyped to
+     * [material]; the world itself is never changed.
      */
-    private fun vanillaDrops(material: Material, location: Location): List<ItemStack> {
-        val key = NamespacedKey.minecraft("blocks/${material.key.key}")
-        val table = Bukkit.getLootTable(key) ?: return emptyList()
-        val context = LootContext.Builder(location).build()
-
-        return runCatching { table.populateLoot(java.util.Random(), context).toList() }
+    private fun vanillaDrops(material: Material, location: Location): List<ItemStack> =
+        runCatching { location.block.state.apply { type = material }.drops.toList() }
             .getOrDefault(emptyList())
-    }
 
     private fun refreshSettings() {
         minionSettings.update(minionSettingsLoader.load())

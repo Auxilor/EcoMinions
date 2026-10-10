@@ -5,14 +5,14 @@ import com.exanthiax.ecominions.minions.model.MinionSettings
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 
-/** How many minions a player may place. */
+/** How many minions a player may place. Admins bypass the limit. */
 class PlacementLimits(
     private val settings: SettingsHolder<MinionSettings>
 ) {
     fun limitFor(player: OfflinePlayer): Int {
         val current = settings.value
-        if (!current.limitsEnabled) {
-            return Int.MAX_VALUE
+        if (!current.limitsEnabled || (player is Player && player.hasPermission(ADMIN_PERMISSION))) {
+            return UNLIMITED
         }
         if (!current.permissionOverrides || player !is Player) {
             return current.defaultLimit
@@ -35,7 +35,9 @@ class PlacementLimits(
         return best
     }
 
-    private companion object {
-        const val LIMIT_PREFIX = "ecominions.limit."
+    companion object {
+        const val UNLIMITED = Int.MAX_VALUE
+        private const val LIMIT_PREFIX = "ecominions.limit."
+        private const val ADMIN_PERMISSION = "ecominions.admin"
     }
 }

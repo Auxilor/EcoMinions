@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.minions.model.TreeShape
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
+import org.bukkit.block.data.type.Leaves
 import org.bukkit.inventory.ItemStack
 
 /** Grows and harvests the trees that woodcutter minions farm. */
@@ -18,11 +19,14 @@ class TreeService {
      * custom log named after no known species grows [TreeShape.DEFAULT] unless
      * its definition picks one with `tree-pattern`.
      *
+     * Leaves are never placed in the column at [keepClear], so a canopy cannot
+     * grow through the minion standing there.
+     *
      * @return The tree that now stands there. A definition with no
      * [MinionBlock.leaves] grows a bare trunk rather than nothing, so a
      * half-configured tree still farms wood.
      */
-    fun growTree(base: Location, definition: MinionBlock): GrownTree {
+    fun growTree(base: Location, definition: MinionBlock, keepClear: Location? = null): GrownTree {
         val world = base.world ?: return GrownTree.NONE
         val shape = TreeShape.forSpecies(definition.patternKey) ?: TreeShape.DEFAULT
         val logs = mutableListOf<Block>()
@@ -40,9 +44,9 @@ class TreeService {
                     logs += block
                 }
 
-                TreeBlock.Kind.LEAF -> if (block.type == Material.AIR) {
+                TreeBlock.Kind.LEAF -> if (block.type == Material.AIR && !block.isInColumnOf(keepClear)) {
                     definition.leaves?.let {
-                        it.place(block.location)
+                        keepFromDecaying(it.place(block.location))
                         leaves += block
                     }
                 }
@@ -51,6 +55,20 @@ class TreeService {
 
         return GrownTree(logs, leaves)
     }
+
+    /**
+     * Placed leaves count as natural and decay once the logs holding them up are
+     * felled, which drops saplings and sticks on the ground before the minion
+     * collects the canopy.
+     */
+    private fun keepFromDecaying(block: Block) {
+        val data = block.blockData as? Leaves ?: return
+        data.isPersistent = true
+        block.blockData = data
+    }
+
+    private fun Block.isInColumnOf(location: Location?): Boolean =
+        location != null && x == location.blockX && z == location.blockZ
 
     /**
      * Breaks [leaves] and returns their drops.

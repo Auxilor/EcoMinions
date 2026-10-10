@@ -31,6 +31,7 @@ class MinionActivityServiceTest {
             invulnerable = true,
             showRegenMarker = true,
             regenMarkerFallback = Material.AIR,
+            clearSeededOnPickup = false,
             hardSlotCap = 54,
             offlineEnabled = true,
             offlineEfficiency = 1.0,

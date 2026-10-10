@@ -36,6 +36,7 @@ spawn-item:
 
 sell-prices:
   COAL: 5.0
+  COAL_BLOCK: 45.0
 
 allowed-upgrades:
   - speed

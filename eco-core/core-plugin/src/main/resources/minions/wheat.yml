@@ -35,6 +35,7 @@ spawn-item:
 
 sell-prices:
   WHEAT: 2.0
+  HAY_BLOCK: 18.0
   WHEAT_SEEDS: 0.5
 
 allowed-upgrades:

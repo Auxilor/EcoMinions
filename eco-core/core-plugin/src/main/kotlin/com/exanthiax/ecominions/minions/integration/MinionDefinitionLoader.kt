@@ -21,6 +21,7 @@ import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.placeholder.context.placeholderContext
 import com.willfp.eco.util.NamespacedKeyUtils
 import com.willfp.eco.util.evaluateExpression
+import com.willfp.eco.util.evaluateExpressionOrNull
 import com.willfp.libreforge.Holder
 import com.willfp.libreforge.SimpleHolder
 import com.willfp.libreforge.conditions.Conditions
@@ -49,7 +50,9 @@ class MinionDefinitionLoader(
     /** Looks one entry out of the `compactor-recipes/` catalog. */
     private val compactorRecipe: (String) -> CompactorRecipeDefinition?,
     /** Every catalog id, for the "known: [...]" half of an unresolvable-id violation. */
-    private val compactorRecipeIds: () -> Collection<String>
+    private val compactorRecipeIds: () -> Collection<String>,
+    /** Every upgrade id, so `allowed-upgrades` can reject one that does not exist. */
+    private val upgradeIds: () -> Collection<String>
 ) : ConfigLoader<MinionDefinition> {
 
     override fun load(id: String, config: Config, context: LoadContext): MinionDefinition? {
@@ -77,9 +80,12 @@ class MinionDefinitionLoader(
             return null
         }
 
+        val levelling = levelling.load(config, context)
+        val statsValid = validateBaseStats(config, levelling.maxLevel, context)
+
         val spawnItem = readSpawnItem(config)
         val compactorRecipes = readCompactorRecipes(config, context)
-        val allowedUpgrades = config.getStrings("allowed-upgrades") + compactorRecipes.map { it.upgrade.id }
+        val allowedUpgrades = readAllowedUpgrades(config, context) + compactorRecipes.map { it.upgrade.id }
         val sellPrices = readSellPrices(config, context)
 
         if (AUTO_SELL in allowedUpgrades && sellPrices.isEmpty && !autoPricingEnabled()) {
@@ -88,6 +94,11 @@ class MinionDefinitionLoader(
                 "'$AUTO_SELL' is allowed but no prices are configured, and sell-pricing." +
                     "auto-from-ecoshop is off - auto sell would pay nothing"
             )
+        }
+
+        val placement = readPlacement(id, config, targets, type, context)
+        if (!statsValid) {
+            return null
         }
 
         return MinionDefinition(
@@ -101,12 +112,68 @@ class MinionDefinitionLoader(
             crafting = readCrafting(config, context),
             equipment = readEquipment(config),
             particles = particles.load(config.getSubsection("particles"), context),
-            placement = readPlacement(id, config, targets, type, context),
+            placement = placement,
             prices = sellPrices,
-            levelling = levelling.load(config, context),
+            levelling = levelling,
             holder = compileHolder(id, config, context),
             compactorRecipes = compactorRecipes
         )
+    }
+
+    /** An id that names no upgrade is dropped with a violation, as it could never be bought. */
+    private fun readAllowedUpgrades(config: Config, context: LoadContext): List<String> {
+        val known = upgradeIds()
+        return config.getStrings("allowed-upgrades").filter { upgradeId ->
+            upgradeId in known || context.unknown<String>("allowed-upgrades", upgradeId, known) != null
+        }
+    }
+
+    /**
+     * Checks every `base-stats` value at level 1 and at the type's top level.
+     *
+     * A value that does not evaluate rejects the type: it would read as 0, and a
+     * speed of 0 is clamped to mining every tick. A value out of range only warns,
+     * because reads clamp it as they always have. Every value is checked before
+     * rejecting, so one reload reports every problem in the file.
+     */
+    private fun validateBaseStats(config: Config, maxLevel: Int, context: LoadContext): Boolean {
+        val stats = context.with("base-stats")
+        val levels = setOf(1, maxLevel)
+        val evaluated = BASE_STAT_MINIMUMS.mapValues { (key, _) ->
+            val raw = config.getStringOrNull("base-stats.$key")?.takeIf { it.isNotBlank() }
+            if (raw == null) {
+                if (key != "height") {
+                    stats.violation(key, "is not set")
+                }
+                return@mapValues emptyList()
+            }
+            levels.map { level ->
+                evaluateExpressionOrNull(raw, placeholderContext(injectable = LevelInjectable(level)))
+                    ?: return@mapValues stats.invalid<List<Double>>(key, raw, "a number or %level% expression")
+            }
+        }
+        for ((key, values) in evaluated) {
+            val minimum = BASE_STAT_MINIMUMS.getValue(key)
+            values.orEmpty().firstOrNull { it < minimum }?.let {
+                stats.violation(key, "evaluates to ${it.toInt()}, below the minimum of $minimum - it is raised to $minimum")
+            }
+        }
+
+        val slots = evaluated.getValue("storage-slots").orEmpty()
+        val maxSlots = evaluated.getValue("max-storage-slots").orEmpty()
+        slots.zip(maxSlots).firstOrNull { (current, max) -> current > max }?.let { (current, max) ->
+            stats.violation(
+                "storage-slots",
+                "${current.toInt()} is above max-storage-slots (${max.toInt()}) - it is lowered to ${max.toInt()}"
+            )
+        }
+        maxSlots.firstOrNull { it > hardSlotCap() }?.let {
+            stats.violation(
+                "max-storage-slots",
+                "${it.toInt()} is above minion.hard-slot-cap (${hardSlotCap()}) - it is lowered to ${hardSlotCap()}"
+            )
+        }
+        return evaluated.values.none { it == null }
     }
 
     /** Resolves this type's `compactor-recipes:` ids; an unresolvable one is dropped, not fatal. */
@@ -289,8 +356,9 @@ class MinionDefinitionLoader(
         val spacing = readSpacing(section, context)
 
         if (section.getBoolOrNull("self-seed") ?: (type == MinionType.WOODCUTTER)) {
-            readSeedBlock(section, targets, type, context)
-                ?.let { return regen.copy(selfSeed = true, seedBlock = it, spacing = spacing) }
+            readSeedBlocks(section, targets, type, context)
+                .takeIf { it.isNotEmpty() }
+                ?.let { return regen.copy(selfSeed = true, seedBlocks = it, spacing = spacing) }
         }
         return regen
     }
@@ -319,8 +387,9 @@ class MinionDefinitionLoader(
     }
 
     /**
-     * What self-seeding places: whatever was asked for, else what the target
-     * declares as its `plant`, else the target block itself.
+     * What self-seeding places: whatever was asked for, else what each target
+     * declares as its `plant`, else the target blocks themselves. Every target
+     * is seeded, so a coal minion places deepslate coal as well as coal.
      *
      * Seeding the target block back is the point of a self-seeding miner - it
      * supplies its own ore instead of waiting on a player. What keeps that from
@@ -330,22 +399,26 @@ class MinionDefinitionLoader(
      * A woodcutter must plant a sapling rather than a log, so a target with no
      * `plant` gives it nothing to seed and is reported.
      */
-    private fun readSeedBlock(
+    private fun readSeedBlocks(
         section: Config,
         targets: TargetSet,
         type: MinionType,
         context: LoadContext
-    ): TestableBlock? {
+    ): List<TestableBlock> {
         val raw = section.getStringOrNull("seed-block")
         if (!raw.isNullOrBlank()) {
-            return blocks.lookup(raw)
-                ?: context.invalid("placement.seed-block", raw, "a block or custom block id")
+            return listOfNotNull(
+                blocks.lookup(raw)
+                    ?: context.invalid("placement.seed-block", raw, "a block or custom block id")
+            )
         }
 
-        val fallback = targets.definitions.firstNotNullOfOrNull { it.plant }
-            ?: targets.definitions.firstOrNull()?.block.takeIf { type != MinionType.WOODCUTTER }
+        val plants = targets.definitions.mapNotNull { it.plant }
+        val fallback = plants.ifEmpty {
+            if (type == MinionType.WOODCUTTER) emptyList() else targets.definitions.map { it.block }
+        }
 
-        if (fallback == null) {
+        if (fallback.isEmpty()) {
             context.violation(
                 "placement.self-seed",
                 "self-seed is on but there is nothing to seed - give the target block a " +
@@ -396,5 +469,15 @@ class MinionDefinitionLoader(
         const val AUTO_SELL = "auto_sell"
         const val DEFAULT_SPAWN_ITEM = "ARMOR_STAND"
         const val NAMESPACE = "ecominions"
+
+        val BASE_STAT_MINIMUMS = mapOf(
+            "speed-ticks" to 1,
+            "efficiency-ticks" to 0,
+            "radius" to 1,
+            "height" to 1,
+            "storage-slots" to 1,
+            "max-storage-slots" to 1,
+            "regen-delay-ticks" to 1
+        )
     }
 }
