@@ -60,6 +60,7 @@ class MinionDefinitionLoader(
     private val collectionSettings = CollectionSettingsLoader(items)
     private val dropLists = MinionDropListLoader(items)
     private val slayerSettings = SlayerSettingsLoader(entities, dropLists)
+    private val fishingSettings = FishingSettingsLoader(dropLists)
 
 
     override fun load(id: String, config: Config, context: LoadContext): MinionDefinition? {
@@ -119,7 +120,8 @@ class MinionDefinitionLoader(
             holder = compileHolder(id, config, context),
             compactorRecipes = compactorRecipes,
             collection = if (type == MinionType.COLLECTOR) collectionSettings.load(config, context) else null,
-            slayer = slayer
+            slayer = slayer,
+            fishing = if (type == MinionType.FISHING) fishingSettings.load(config, context) else null
         )
     }
 
@@ -510,7 +512,7 @@ class MinionDefinitionLoader(
         private val MinionType.usesTargetBlocks: Boolean
             get() = when (this) {
                 MinionType.MINER, MinionType.FARMER, MinionType.WOODCUTTER -> true
-                MinionType.SLAYER, MinionType.COLLECTOR -> false
+                MinionType.SLAYER, MinionType.FISHING, MinionType.COLLECTOR -> false
             }
 
         private val MinionType.selfSeedsByDefault: Boolean

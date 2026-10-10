@@ -11,11 +11,13 @@ import com.exanthiax.ecominions.api.minion.MinionType
 class MinionActivities(
     private val block: BlockActivity,
     private val collection: CollectionActivity,
-    private val slayer: SlayerActivity
+    private val slayer: SlayerActivity,
+    private val fishing: FishingActivity
 ) {
     operator fun get(type: MinionType): MinionActivity = when (type) {
         MinionType.MINER, MinionType.FARMER, MinionType.WOODCUTTER -> block
         MinionType.SLAYER -> slayer
+        MinionType.FISHING -> fishing
         MinionType.COLLECTOR -> collection
     }
 }

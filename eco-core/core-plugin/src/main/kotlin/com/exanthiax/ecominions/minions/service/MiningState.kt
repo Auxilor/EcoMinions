@@ -32,6 +32,13 @@ class MiningState {
     /** Live mobs this slayer spawned. Never persisted: recounted from tags when the minion loads. */
     val spawnedMobs: MutableSet<UUID> = ConcurrentHashMap.newKeySet()
 
+    /** The water a fishing minion has cast into; the catch lands on [breakAt]. */
+    var pendingCatch: Block? = null
+
+    /** Water sources found by the last scan, and cycles until the next one. */
+    var waterBlocks: List<Block> = emptyList()
+    var waterScanDue: Int = 0
+
     /** Which of several seed blocks goes in next, so each is seeded in turn. */
     var nextSeedIndex: Int = 0
 

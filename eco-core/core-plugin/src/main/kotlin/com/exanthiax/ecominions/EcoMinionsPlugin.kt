@@ -53,11 +53,14 @@ import com.exanthiax.ecominions.minions.integration.PaperMinionAttackListener
 import com.exanthiax.ecominions.minions.integration.PaperMinionPickListener
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
+import com.exanthiax.ecominions.minions.integration.items.EcoItemsIntegrationService
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.VanillaFishingTable
 import com.exanthiax.ecominions.minions.service.BukkitWorkAreaEntities
 import com.exanthiax.ecominions.minions.service.ExperienceSink
+import com.exanthiax.ecominions.minions.service.FishingLootRoller
 import com.exanthiax.ecominions.minions.service.MiningTargetFinder
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
@@ -85,6 +88,7 @@ import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.minions.service.activity.BlockActivity
 import com.exanthiax.ecominions.minions.service.activity.CollectionActivity
+import com.exanthiax.ecominions.minions.service.activity.FishingActivity
 import com.exanthiax.ecominions.minions.service.activity.MinionActivities
 import com.exanthiax.ecominions.minions.service.activity.SlayerActivity
 import com.exanthiax.ecominions.minions.service.behaviour.FarmerBehaviour
@@ -115,13 +119,17 @@ import com.willfp.eco.core.data.keys.PersistentDataKeyType
 import com.willfp.eco.core.items.Items
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
+import java.util.concurrent.ThreadLocalRandom
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.ExperienceOrb
 import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack
+import org.bukkit.loot.LootContext
+import org.bukkit.loot.LootTables
 import org.bukkit.plugin.ServicePriority
 
 /**
@@ -246,7 +254,12 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         experience = experienceSink,
         spawnedByKey = dataKeys.spawnedBy
     )
-    private val activities = MinionActivities(blockActivity, collectionActivity, slayerActivity)
+    private val ecoItemsIntegration = EcoItemsIntegrationService()
+    private val fishingActivity = FishingActivity(
+        FishingLootRoller(ecoItemsIntegration, { location, owner -> vanillaFishingLoot(location, owner) }),
+        triggerDispatch, events, experienceSink
+    )
+    private val activities = MinionActivities(blockActivity, collectionActivity, slayerActivity, fishingActivity)
     private val offlineProgress = OfflineProgressService(
         minionSettings, fuelService, triggerDispatch, events, experienceSink, activities::get
     )
@@ -326,6 +339,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     override fun handleEnable() {
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService)
         shopIntegration.init()
+        ecoItemsIntegration.init()
         wireMenuNavigation()
         registerPlaceholders()
         registerApi()
@@ -435,6 +449,16 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             }
         minion.entity.world.spawn(location, ExperienceOrb::class.java).experience = amount
     }
+
+    /**
+     * Rolls the server's own fishing loot table. Null when it cannot be rolled
+     * without a hook, and the caller falls back to [VanillaFishingTable].
+     */
+    private fun vanillaFishingLoot(location: Location, owner: Player?): List<ItemStack>? =
+        runCatching {
+            val context = LootContext.Builder(location).luck(0f).apply { owner?.let(::killer) }.build()
+            LootTables.FISHING.lootTable.populateLoot(ThreadLocalRandom.current(), context).toList()
+        }.getOrNull()
 
     private fun refreshSettings() {
         minionSettings.update(minionSettingsLoader.load())

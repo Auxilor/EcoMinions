@@ -23,6 +23,7 @@ import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTargetBlock
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
 import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCatchFish
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollectItem
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
@@ -108,6 +109,7 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionTick)
         Triggers.register(TriggerMinionCollectItem)
         Triggers.register(TriggerMinionKillMob)
+        Triggers.register(TriggerMinionCatchFish)
         Triggers.register(TriggerGroupMinionStatic)
         Triggers.register(TriggerMinionPlace)
         Triggers.register(TriggerMinionPickup)

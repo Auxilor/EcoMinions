@@ -54,7 +54,8 @@ class EventContractTest {
             MinionStorageFullEvent(minion),
             MinionLevelUpEvent(minion, 1, 2),
             MinionCollectItemEvent(minion, mockk(relaxed = true)),
-            MinionKillEvent(minion, mockk(relaxed = true), mutableListOf(), 0)
+            MinionKillEvent(minion, mockk(relaxed = true), mutableListOf(), 0),
+            MinionCatchEvent(minion, mockk(relaxed = true), mutableListOf(), 0)
         )
 
         assertTrue(events.all { it.minion === minion })

@@ -55,4 +55,10 @@ class MinionTypeTest {
         assertEquals(MinionType.SLAYER, MinionType.parse("slayer"))
         assertEquals("slayer", MinionType.SLAYER.id)
     }
+
+    @Test
+    fun `fishing parses`() {
+        assertEquals(MinionType.FISHING, MinionType.parse("fishing"))
+        assertEquals("fishing", MinionType.FISHING.id)
+    }
 }

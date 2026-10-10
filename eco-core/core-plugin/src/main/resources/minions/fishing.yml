@@ -1,0 +1,55 @@
+name: "&7Fishing Minion"
+type: fishing
+min-water: 1
+
+base-stats:
+  speed-ticks: 60
+  efficiency-ticks: 10
+  radius: 3
+  storage-slots: 27
+  max-storage-slots: 54
+  regen-delay-ticks: 100
+
+spawn-item:
+  item: "FISHING_ROD"
+  display-name: "&7Fishing Minion &8(Lvl %level%)"
+  lore:
+    - "&8Catches fish from nearby water"
+    - "&8Level: &7%level%"
+  crafting:
+    enabled: true
+    give-amount: 1
+    permission: ""
+    shapeless: false
+    recipe:
+      - "FISHING_ROD"
+      - "FISHING_ROD"
+      - "FISHING_ROD"
+      - "FISHING_ROD"
+      - "ARMOR_STAND"
+      - "FISHING_ROD"
+      - "FISHING_ROD"
+      - "FISHING_ROD"
+      - "FISHING_ROD"
+
+sell-prices:
+  COD: 1.0
+  SALMON: 1.0
+  TROPICAL_FISH: 1.0
+  PUFFERFISH: 1.0
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - radius
+  - capacity
+  - auto_sell
+  - experience
+
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS
+
+placement:
+  self-seed: false

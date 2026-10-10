@@ -26,4 +26,10 @@ class MinionDefinitionFloorTest {
         assertEquals(0, MinionDefinition.defaultFloorOffset(MinionType.SLAYER))
         assertEquals("3", MinionDefinition.defaultHeight(MinionType.SLAYER))
     }
+
+    @Test
+    fun `fishing box is the layer below the minion`() {
+        assertEquals(-1, MinionDefinition.defaultFloorOffset(MinionType.FISHING))
+        assertEquals("1", MinionDefinition.defaultHeight(MinionType.FISHING))
+    }
 }
