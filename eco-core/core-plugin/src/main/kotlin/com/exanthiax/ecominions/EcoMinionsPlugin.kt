@@ -64,11 +64,12 @@ import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
+import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.MinionStateRepository
+import com.exanthiax.ecominions.minions.service.MinionTicker
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
-import com.exanthiax.ecominions.minions.service.MiningService
 import com.exanthiax.ecominions.minions.service.MiningTargetFinder
 import com.exanthiax.ecominions.minions.service.OfflineProgressService
 import com.exanthiax.ecominions.minions.service.PlacementLimits
@@ -76,6 +77,8 @@ import com.exanthiax.ecominions.minions.service.PlacedMinionRegistry
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.service.RegenService
 import com.exanthiax.ecominions.minions.service.SeedingService
+import com.exanthiax.ecominions.minions.service.activity.BlockActivity
+import com.exanthiax.ecominions.minions.service.activity.MinionActivities
 import com.exanthiax.ecominions.minions.service.behaviour.FarmerBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinerBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
@@ -110,6 +113,7 @@ import com.willfp.libreforge.loader.configs.ConfigCategory
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.entity.ExperienceOrb
 import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.ServicePriority
@@ -211,9 +215,22 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         resolve = { material, location -> vanillaDrops(material, location) },
         resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
     )
+    private val seedingService = SeedingService()
+    private val regenService = RegenService(minionSettings, triggerDispatch, events)
+    private val behaviours = MinionBehaviours(
+        miner = MinerBehaviour(regenService, seedingService),
+        woodcutter = WoodcutterBehaviour(TreeService()),
+        farmer = FarmerBehaviour(regenService, seedingService)
+    )
+    private val miningTargets = MiningTargetFinder()
+    private val blockActivity = BlockActivity(
+        miningTargets, blockIndex, regenService, behaviours, triggerDispatch, events, dropTables
+    ) { minion, amount -> spawnXpOrb(minion, amount) }
+    private val activities = MinionActivities(blockActivity)
     private val offlineProgress = OfflineProgressService(
-        minionSettings, fuelService, dropTables, triggerDispatch, events
-    ) { miningService.hasWork(it) }
+        minionSettings, fuelService, triggerDispatch, events, activities::get
+    )
+    private val ticker = MinionTicker(worlds, fuelService, triggerDispatch, events, activities::get)
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings
     ) { Bukkit.getPlayer(it) != null }
@@ -229,18 +246,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions
-    )
-    private val seedingService = SeedingService()
-    private val regenService = RegenService(minionSettings, triggerDispatch, events)
-    private val behaviours = MinionBehaviours(
-        miner = MinerBehaviour(regenService, seedingService),
-        woodcutter = WoodcutterBehaviour(TreeService()),
-        farmer = FarmerBehaviour(regenService, seedingService)
-    )
-    private val miningTargets = MiningTargetFinder()
-    private val miningService = MiningService(
-        minionSettings, worlds, miningTargets, blockIndex, regenService, behaviours,
-        fuelService, triggerDispatch, events, dropTables
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
@@ -285,7 +290,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val lifecycle = LifecycleManager(
         this,
         listOf(
-            MinionMiningLoop(minionService, miningService, activityService, regions),
+            MinionMiningLoop(minionService, ticker, activityService, regions),
             MinionRenderLoop(
                 minionService, MinionAnimator(),
                 MinionHologram(messages, minionSettings, activityService),
@@ -398,10 +403,26 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         runCatching { location.block.state.apply { type = material }.drops.toList() }
             .getOrDefault(emptyList())
 
+    /** Adds to an orb already at the minion, so an unattended minion keeps one orb rather than a pile. */
+    private fun spawnXpOrb(minion: Minion, amount: Int) {
+        val location = minion.entity.location.clone().add(0.0, 0.5, 0.0)
+        location.getNearbyEntitiesByType(ExperienceOrb::class.java, XP_MERGE_RADIUS)
+            .firstOrNull { it.isValid }
+            ?.let {
+                it.experience += amount
+                return
+            }
+        minion.entity.world.spawn(location, ExperienceOrb::class.java).experience = amount
+    }
+
     private fun refreshSettings() {
         minionSettings.update(minionSettingsLoader.load())
         sellPricingSettings.update(minionSettings.value.sellPricing)
         menuSettings.update(menuSettingsLoader.load())
         upgradeMenuSettings.update(upgradeMenuSettingsLoader.load())
+    }
+
+    private companion object {
+        const val XP_MERGE_RADIUS = 1.5
     }
 }
