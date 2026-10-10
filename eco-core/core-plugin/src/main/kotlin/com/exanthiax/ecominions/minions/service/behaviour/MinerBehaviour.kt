@@ -30,4 +30,6 @@ class MinerBehaviour(
 
     /** Nothing to mine, but a seed still on the way is waiting rather than blocked. */
     override fun onIdle(minion: Minion, now: Long): Boolean = seeding.isPending(minion)
+
+    override fun canStock(minion: Minion): Boolean = seeding.isPending(minion)
 }

@@ -1,0 +1,13 @@
+name: "&6Raw Gold Compactor"
+display:
+  icon: raw_gold_block
+
+input: RAW_GOLD
+input-amount: 9
+output: RAW_GOLD_BLOCK
+output-amount: 1
+
+cost-options:
+  - value: 25000
+    type: coins
+    display: "&a$%value_commas%"

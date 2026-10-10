@@ -26,7 +26,7 @@ tiers:
     stat-delta: "-5 ticks"
     cost-options:
       - value: 5000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
       - value: 64
         type: stone
@@ -36,7 +36,7 @@ tiers:
     stat-delta: "-10 ticks"
     cost-options:
       - value: 12000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
       - value: 64
         type: coal
@@ -56,7 +56,7 @@ tiers:
     `"+10% drops"`, `"Enabled"`).
   - `cost-options` - one or more ways a player can pay for this tier; the player picks one at purchase time.
     Each entry has:
-    - `value` (amount) and `type` - `type` can be `vault` for Vault economy money, a material name to charge
+    - `value` (amount) and `type` - `type` can be `coins` for economy money, a material name to charge
       an item, or another registered currency id (e.g. a custom currency plugin's `gems`).
     - `display` (**required**) - the text shown for this price option in the upgrade menu, e.g. `"&a$%value_commas%"`.
       `%value%` and `%value_commas%` (comma-grouped) are available inside it. Omitting `display` isn't just

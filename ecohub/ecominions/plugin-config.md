@@ -77,9 +77,19 @@ minion:
   # Replaces any bedrock regen markers left behind. Use AIR to simply remove them.
   regen-marker-fallback-block: AIR
 
+  # What happens to the blocks a minion placed (seeded ores and crops, saplings,
+  # grown trees and the water it laid) when it is picked up or removed:
+  #   mine  - they stay in the world for players to mine
+  #   clear - they are removed, unless a player has since replaced them
+  seeded-blocks-on-pickup: mine
+
   # Upper bound on any minion's storage-slots and max-storage-slots.
   hard-slot-cap: 54
 ```
+
+`seeded-blocks-on-pickup` decides whether a self-seeding minion leaves its blocks behind. With `mine`, players
+can break them by hand like any other block. With `clear`, every spot the minion placed something at goes back
+to air, except spots where the block has since been replaced with something the minion would not place.
 
 `hard-slot-cap` bounds what any minion may declare for `storage-slots` and `max-storage-slots`. Minion
 storage is virtual and is never opened as a chest, so this is a guard against typos rather than a Minecraft
@@ -116,21 +126,6 @@ gui:
 
 Titles and row counts for every GUI: the minion's main storage/control menu, the per-upgrade purchase menu, the
 type browser opened by `/minions`, the list of a minion's available upgrades, and the payment-method chooser.
-
-## storage
-
-```yaml
-storage:
-  # Storage backend: pdc-only or sqlite
-  # PDC-only relies entirely on per-item PDC + per-entity PDC.
-  # SQLite stores a registry of placed minion UUIDs and their owners
-  # to allow cross-server-restart limit enforcement and admin queries.
-  backend: pdc-only
-```
-
-`pdc-only` keeps all minion state in persistent data on the item/entity themselves. `sqlite` additionally
-registers placed minion UUIDs and their owners in a database, which lets per-player limits and admin queries
-survive a server restart even before every minion's chunk has loaded.
 
 <hr/>
 

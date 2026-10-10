@@ -37,6 +37,8 @@ spawn-item:
 sell-prices:
   RAW_GOLD: 30.0
   GOLD_INGOT: 50.0
+  RAW_GOLD_BLOCK: 270.0
+  GOLD_BLOCK: 450.0
 
 allowed-upgrades:
   - speed
@@ -49,6 +51,7 @@ allowed-upgrades:
   - experience
 
 compactor-recipes:
+  - raw_gold_block
   - gold_block
 
 effects:

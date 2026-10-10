@@ -144,5 +144,7 @@ class Minion(
     override val isStorageFull: Boolean
         get() = storage.isFull
 
+    override fun toString(): String = "Minion(uuid=$uuid, type=${state.definition.id}, owner=${state.owner})"
+
     enum class AnimationState { IDLE, MINING, FULL, BLOCKED }
 }

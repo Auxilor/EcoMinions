@@ -26,4 +26,15 @@ class Messages(
 
     /** Unrendered text, for callers that need the raw template. */
     fun raw(path: String): String = lang.getString(path)
+
+    /**
+     * Renders [path] and drops each line whose template uses [placeholder] when that
+     * placeholder rendered to nothing, so an empty optional value leaves no blank line.
+     */
+    fun linesWithout(path: String, placeholder: String, context: TemplateContext): List<String> {
+        val templates = lang.getStrings(path)
+        return renderer.render(templates, context).filterIndexed { index, line ->
+            line.isNotBlank() || templates.getOrNull(index)?.contains("%$placeholder%") != true
+        }
+    }
 }

@@ -32,6 +32,7 @@ class VanillaBlockDefaults(
         val definitions = TREES.mapNotNull { tree(it) } +
             CROPS.mapNotNull { crop(it) } +
             COLUMNS.mapNotNull { column(it) } +
+            GROUNDED.mapNotNull { grounded(it) } +
             PROMOTIONS.mapNotNull { promotion(it) } +
             UNMINEABLE.mapNotNull { unmineable(it) }
 
@@ -56,8 +57,14 @@ class VanillaBlockDefaults(
     }
 
     /** A plant that grows upward and is only ever cut at its base. */
-    private fun column(lookup: String): MinionBlock? =
-        define(lookup.lowercase(), lookup) { it.copy(stackedColumn = true) }
+    private fun column(spec: Column): MinionBlock? =
+        define(spec.block.lowercase(), spec.block) {
+            it.copy(stackedColumn = true, surface = spec.surface?.let(blocks::lookup))
+        }
+
+    /** A plant that only survives on one kind of ground. */
+    private fun grounded(spec: Grounded): MinionBlock? =
+        define(spec.block.lowercase(), spec.block) { it.copy(surface = blocks.lookup(spec.surface)) }
 
     private fun promotion(spec: Promotion): MinionBlock? = define(spec.id, spec.block) {
         it.copy(promotesTo = spec.becomes, stackedColumn = spec.stackedColumn)
@@ -83,6 +90,10 @@ class VanillaBlockDefaults(
     )
 
     private data class Crop(val id: String, val block: String, val surface: String)
+
+    private data class Column(val block: String, val surface: String? = null)
+
+    private data class Grounded(val block: String, val surface: String)
 
     private data class Promotion(
         val id: String,
@@ -117,7 +128,18 @@ class VanillaBlockDefaults(
             Crop("nether_wart", "NETHER_WART", "SOUL_SAND")
         )
 
-        val COLUMNS = listOf("SUGAR_CANE", "CACTUS", "BAMBOO", "KELP")
+        val COLUMNS = listOf(
+            Column("SUGAR_CANE"),
+            Column("CACTUS", surface = "SAND"),
+            Column("BAMBOO"),
+            Column("KELP")
+        )
+
+        /** Mycelium rather than podzol: mushrooms on it grow in any light. */
+        val GROUNDED = listOf(
+            Grounded("RED_MUSHROOM", "MYCELIUM"),
+            Grounded("BROWN_MUSHROOM", "MYCELIUM")
+        )
 
         val PROMOTIONS = listOf(
             Promotion("bamboo_sapling", "BAMBOO_SAPLING", "BAMBOO"),

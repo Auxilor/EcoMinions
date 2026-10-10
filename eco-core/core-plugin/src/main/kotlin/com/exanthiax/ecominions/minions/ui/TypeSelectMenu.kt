@@ -59,8 +59,12 @@ class TypeSelectMenu(
 
         return slot(item) {
             onLeftClick { event, _ ->
-                items.give(player, type, 1, 1)
                 event.whoClicked.closeInventory()
+                if (!player.hasPermission(GIVE_PERMISSION)) {
+                    player.sendMessage(messages.line("messages.no-permission"))
+                    return@onLeftClick
+                }
+                items.give(player, type, 1, 1)
             }
         }
     }
@@ -69,5 +73,6 @@ class TypeSelectMenu(
         const val FIRST_ROW = 2
         const val FIRST_COLUMN = 2
         const val COLUMNS = 7
+        const val GIVE_PERMISSION = "ecominions.command.give"
     }
 }

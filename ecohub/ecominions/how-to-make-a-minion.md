@@ -388,6 +388,7 @@ These resolve anywhere minion placeholders work - holograms, `lang.yml`, menu ti
 | --- | --- |
 | `%minion_name%` | The minion's display `name`, colour codes included. |
 | `%type%` | The minion's ID, i.e. its filename without `.yml`. |
+| `%kind%` | The minion's `type`: `Miner`, `Farmer` or `Woodcutter`. |
 | `%level%` | The minion's current level. |
 | `%owner%` | The owner's name, or `Unowned` if it has none. |
 | `%used%` | Stack slots currently filled in the minion's storage. |
@@ -396,7 +397,7 @@ These resolve anywhere minion placeholders work - holograms, `lang.yml`, menu ti
 | `%radius%` | How far the minion reaches horizontally, in blocks. |
 | `%diameter%` | The full width of the mining box, i.e. `radius * 2 + 1`. |
 | `%height%` | The vertical span of the mining box, in blocks. |
-| `%speed%` | Ticks between mining attempts, after upgrades. Active fuel speeds the minion up without changing this number. |
+| `%speed%` | Ticks between mining attempts, after upgrades and any active fuel. |
 | `%efficiency%` | Ticks each mining action itself takes. |
 
 Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%` and `%level_numeral%` - see

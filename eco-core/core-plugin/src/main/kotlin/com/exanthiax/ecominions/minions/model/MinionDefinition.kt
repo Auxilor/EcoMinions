@@ -91,6 +91,8 @@ class MinionDefinition(
         fun maxStorageSlotsAt(level: Int): Int = evaluateRounded(maxStorageSlots, level).coerceIn(1, hardSlotCap)
     }
 
+    override fun toString(): String = "MinionDefinition(id=$id)"
+
     companion object {
         private const val PREVIEW_LEVEL = 1
 

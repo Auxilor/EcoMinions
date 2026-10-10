@@ -28,6 +28,8 @@ class Upgrade(
      *   that tier is unowned, unconfigured, or declares no effects.
      */
     fun holderFor(tier: Int): Holder? = tiers[tier]?.holder
+
+    override fun toString(): String = "Upgrade(id=$id)"
 }
 
 /** One rung of an upgrade ladder. */

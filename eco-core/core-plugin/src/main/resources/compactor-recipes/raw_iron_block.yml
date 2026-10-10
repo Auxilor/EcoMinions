@@ -1,0 +1,13 @@
+name: "&fRaw Iron Compactor"
+display:
+  icon: raw_iron_block
+
+input: RAW_IRON
+input-amount: 9
+output: RAW_IRON_BLOCK
+output-amount: 1
+
+cost-options:
+  - value: 20000
+    type: coins
+    display: "&a$%value_commas%"

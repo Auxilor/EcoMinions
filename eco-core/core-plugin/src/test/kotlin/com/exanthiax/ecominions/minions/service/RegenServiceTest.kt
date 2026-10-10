@@ -72,6 +72,7 @@ class RegenServiceTest {
         invulnerable = true,
         showRegenMarker = showMarker,
         regenMarkerFallback = Material.AIR,
+        clearSeededOnPickup = false,
         hardSlotCap = 54,
         offlineEnabled = true,
         offlineEfficiency = 1.0,

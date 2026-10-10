@@ -20,19 +20,31 @@ class MiningState {
     var pendingTarget: Block? = null
     var breakAt: Long = 0L
 
-    /** Set while a tree minion is waiting for its sapling to mature. */
-    var saplingPosition: Location? = null
-    var saplingPlantedAt: Long = 0L
+    /** Whether the last cycle seeded, so the next one mines instead when it can. */
+    var seededLastCycle: Boolean = false
+
+    /** Which of several seed blocks goes in next, so each is seeded in turn. */
+    var nextSeedIndex: Int = 0
+
+    /** A tree minion's saplings, each with the tick it was planted on. */
+    val saplings: MutableMap<Location, Long> = mutableMapOf()
 
     /**
-     * The tree a woodcutter is currently cutting down.
+     * The trees a woodcutter has grown and not yet cut down.
      *
-     * Its leaves stay standing until its last log is felled, so the tracking has
-     * to outlive the tick that grew it.
+     * Each tree's leaves stay standing until its last log is felled, so the
+     * tracking has to outlive the tick that grew it.
      */
-    var standingTree: TreeService.GrownTree? = null
+    val standingTrees: MutableList<TreeService.GrownTree> = mutableListOf()
 
     val regenQueue: MutableList<RegenEntry> = mutableListOf()
+
+    /**
+     * Every block position this minion has placed something at: seeds, saplings,
+     * grown trees and the water it laid. Persisted on the stand, so a minion picked
+     * up after a restart can still clear what it placed.
+     */
+    val seeded: MutableSet<Location> = mutableSetOf()
 
     /** Blocks currently showing the regen marker, cleared if the minion is picked up. */
     val pendingRegen: MutableList<Location> = mutableListOf()

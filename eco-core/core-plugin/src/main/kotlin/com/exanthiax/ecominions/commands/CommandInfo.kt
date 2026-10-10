@@ -7,7 +7,6 @@ import com.exanthiax.ecominions.minions.integration.targetedArmorStand
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.command.impl.Subcommand
-import com.willfp.eco.util.StringUtils
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -28,7 +27,7 @@ class CommandInfo(
         }
 
         val context = TemplateContext.of(MinionPlaceholders.MINION to minion)
-        player.sendMessage(StringUtils.format("&eMinion ${minion.uuid}"))
+        player.sendMessage(messages.line("messages.info-header", context))
         for (line in messages.lines("gui.main.info.lore", context)) {
             player.sendMessage(line)
         }

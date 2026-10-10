@@ -33,9 +33,14 @@ class TargetSet(
 
     fun matches(block: Block): Boolean = definitionFor(block) != null
 
-    /** @return The definition [block] is an instance of, or null if it is not a target. */
+    /**
+     * @return The definition [block] is an instance of, or null if it is not a target.
+     *
+     * Custom blocks are tested first: one is drawn with a vanilla block state, so
+     * its material alone would mistake it for the vanilla block.
+     */
     fun definitionFor(block: Block): MinionBlock? =
-        byMaterial[block.type] ?: custom.firstOrNull { it.block.matches(block) }
+        custom.firstOrNull { it.block.matches(block) } ?: byMaterial[block.type]
 
     companion object {
         val EMPTY = TargetSet(emptyList())

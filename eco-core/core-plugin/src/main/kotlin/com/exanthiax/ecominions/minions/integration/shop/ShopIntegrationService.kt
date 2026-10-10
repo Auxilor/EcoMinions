@@ -45,27 +45,40 @@ class ShopIntegrationService(
     }
 
     /**
+     * What [units] of [item] would pay [player] at EcoShop's price, in the shop
+     * item's own currency, or null if EcoShop would not buy it.
+     */
+    fun valueOf(player: Player, item: ItemStack, units: Int, multiplier: Double): Double? {
+        if (!isEnabled() || units <= 0) {
+            return null
+        }
+        val shopItem = item.shopItem ?: return null
+        val price = shopItem.sellPrice ?: return null
+        return price.getValue(player, units.toDouble() * shopItem.getEffectiveSellMultiplier(player) * multiplier)
+    }
+
+    /**
      * Pays [player] for [units] of [item] at EcoShop's price.
      *
      * Uses getSellStatus rather than getCurrentSellStatus: the latter checks the
      * player's own inventory, which is irrelevant to a minion's storage.
      *
-     * @return Whether the sale went through.
+     * @return What was paid, in the shop item's own currency, or null if the sale did not go through.
      */
-    fun sell(player: Player, item: ItemStack, units: Int, multiplier: Double): Boolean {
+    fun sell(player: Player, item: ItemStack, units: Int, multiplier: Double): Double? {
         if (!isEnabled() || units <= 0) {
-            return false
+            return null
         }
-        val shopItem = item.shopItem ?: return false
-        val price = shopItem.sellPrice ?: return false
+        val shopItem = item.shopItem ?: return null
+        val price = shopItem.sellPrice ?: return null
 
         if (shopItem.getSellStatus(player, units) != SellStatus.ALLOW) {
-            return false
+            return null
         }
 
-        val dynamic = shopItem.getEffectiveSellMultiplier(player)
-        price.giveTo(player, units.toDouble() * dynamic * multiplier)
+        val paidMultiplier = units.toDouble() * shopItem.getEffectiveSellMultiplier(player) * multiplier
+        price.giveTo(player, paidMultiplier)
         shopItem.recordSell(player, units)
-        return true
+        return price.getValue(player, paidMultiplier)
     }
 }

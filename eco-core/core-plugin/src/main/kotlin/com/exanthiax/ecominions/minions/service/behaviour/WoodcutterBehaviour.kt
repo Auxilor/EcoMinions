@@ -30,53 +30,81 @@ class WoodcutterBehaviour(
         now: Long
     ) {
         block.type = Material.AIR
-        harvestIfFelled(minion)
+        harvestFelled(minion)
     }
 
     /**
-     * Takes the leaves once the last log of the standing tree is gone.
+     * Grows every sapling that has matured, then plants one more if there is a
+     * spaced spot left, so the area fills with trees before the first is felled.
+     *
+     * @return true if a sapling was planted, which spends the cycle.
+     */
+    override fun onBeforeMine(minion: Minion, now: Long): Boolean {
+        if (!minion.state.definition.placement.selfSeed) {
+            return false
+        }
+        // A player can clear a trunk themselves, which never reaches
+        // onBlockBroken - its leaves would then block the next sapling.
+        harvestFelled(minion)
+        val definition = definitionFor(minion) ?: return false
+        val plant = definition.plant ?: return false
+
+        growMatured(minion, definition, plant, now)
+
+        val spot = findPlantSpot(minion, definition) ?: return false
+        SeedSurface.prepare(SeedSurface.below(spot), surfaceFor(minion, definition))
+        plant.place(spot)
+        minion.mining.saplings[spot] = now
+        minion.mining.seeded += spot.block.location
+        return true
+    }
+
+    /** Nothing to fell, but a sapling still growing is waiting rather than blocked. */
+    override fun onIdle(minion: Minion, now: Long): Boolean = minion.mining.saplings.isNotEmpty()
+
+    override fun canStock(minion: Minion): Boolean {
+        if (!minion.state.definition.placement.selfSeed) {
+            return false
+        }
+        val definition = definitionFor(minion) ?: return false
+        return minion.mining.saplings.isNotEmpty() ||
+            minion.mining.standingTrees.isNotEmpty() ||
+            findPlantSpot(minion, definition) != null
+    }
+
+    /**
+     * Takes the leaves of every tree whose last log is gone.
      *
      * Leaves are not a target block, so nothing else would ever clear them, and
      * a tree left leafless while its trunk is still standing looks wrong. This
      * is also where the drops the leaves owe the minion are collected.
      */
-    private fun harvestIfFelled(minion: Minion) {
-        val tree = minion.mining.standingTree ?: return
-        if (tree.logs.any { it.type != Material.AIR }) {
-            return
+    private fun harvestFelled(minion: Minion) {
+        val felled = minion.mining.standingTrees.filter { tree -> tree.logs.all { it.type == Material.AIR } }
+        for (tree in felled) {
+            minion.storage.store(trees.harvestLeaves(tree.leaves))
+            minion.mining.standingTrees.remove(tree)
         }
-        minion.storage.store(trees.harvestLeaves(tree.leaves))
-        minion.mining.standingTree = null
     }
 
-    override fun onIdle(minion: Minion, now: Long): Boolean {
-        if (!minion.state.definition.placement.selfSeed) {
-            return false
-        }
-        // A player can clear the trunk themselves, which never reaches
-        // onBlockBroken - the leaves would then block the next sapling.
-        harvestIfFelled(minion)
-        val definition = definitionFor(minion) ?: return false
-        val plant = definition.plant ?: return false
-        val planted = minion.mining.saplingPosition
-
-        if (planted != null) {
-            if (!plant.matches(planted.block)) {
-                minion.mining.saplingPosition = null
-            } else {
-                if (now - minion.mining.saplingPlantedAt >= minion.stats.regenDelayTicks) {
-                    growTree(minion, definition, planted)
-                }
-                return true
+    /** Turns each sapling that has waited out the regen delay into a standing tree. */
+    private fun growMatured(minion: Minion, definition: MinionBlock, plant: TestableBlock, now: Long) {
+        val saplings = minion.mining.saplings.entries.iterator()
+        while (saplings.hasNext()) {
+            val (sapling, plantedAt) = saplings.next()
+            if (!plant.matches(sapling.block)) {
+                saplings.remove()
+                continue
             }
+            if (now - plantedAt < minion.stats.regenDelayTicks) {
+                continue
+            }
+            sapling.block.type = Material.AIR
+            val grown = trees.growTree(sapling, definition, minion.entity.location)
+            minion.mining.standingTrees += grown
+            (grown.logs + grown.leaves).mapTo(minion.mining.seeded) { it.location }
+            saplings.remove()
         }
-
-        val spot = findPlantSpot(minion, definition) ?: return false
-        SeedSurface.prepare(SeedSurface.below(spot),surfaceFor(minion, definition))
-        plant.place(spot)
-        minion.mining.saplingPosition = spot
-        minion.mining.saplingPlantedAt = now
-        return true
     }
 
     /**
@@ -89,19 +117,9 @@ class WoodcutterBehaviour(
         minion.state.definition.targetBlocks.definitions.firstOrNull { it.plant != null }
 
     /**
-     * Turns a matured sapling into a standing tree.
-     *
-     * The tree is left whole: its logs become the minion's targets and its
-     * leaves stay up until [harvestIfFelled] takes them with the last log.
+     * The nearest air block on a valid surface with room for a tree above it,
+     * kept as far from the minion as from any other tree.
      */
-    private fun growTree(minion: Minion, definition: MinionBlock, sapling: Location) {
-        sapling.block.type = Material.AIR
-
-        minion.mining.standingTree = trees.growTree(sapling, definition)
-        minion.mining.saplingPosition = null
-    }
-
-    /** The nearest air block on a valid surface with room for a tree above it. */
     private fun findPlantSpot(minion: Minion, definition: MinionBlock): Location? {
         val radius = minion.stats.radius
         val center = minion.entity.location.block
@@ -114,9 +132,11 @@ class WoodcutterBehaviour(
         var best: Location? = null
         var bestDistance = Double.MAX_VALUE
 
+        val minionGap = spacing.coerceAtLeast(MIN_MINION_GAP)
+
         for (x in -radius..radius) {
             for (z in -radius..radius) {
-                if (x == 0 && z == 0) {
+                if (x in -minionGap..minionGap && z in -minionGap..minionGap) {
                     continue
                 }
                 for (y in -1..1) {
@@ -160,5 +180,8 @@ class WoodcutterBehaviour(
 
     private companion object {
         const val CLEARANCE_HEIGHT = 4
+
+        /** A trunk is never planted right beside the minion, whatever the spacing. */
+        const val MIN_MINION_GAP = 1
     }
 }

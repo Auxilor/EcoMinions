@@ -27,7 +27,7 @@ output-amount: 1
 
 cost-options:
   - value: 15000
-    type: vault
+    type: coins
     display: "&a$%value_commas%"
 ```
 

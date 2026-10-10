@@ -154,9 +154,11 @@ interface MinionsManager {
     /**
      * Sells [minion]'s storage to its owner. Fires `MinionSellEvent`.
      *
-     * Only an online owner can be paid, so this does nothing otherwise.
+     * Only an online owner can be paid, so this does nothing otherwise. Items an
+     * active compactor recipe takes are kept back to compact.
      *
-     * @return How much was paid through the server economy.
+     * @return How much was paid: the server economy payout plus what EcoShop paid
+     *         in each shop item's own currency.
      */
     fun sell(minion: Minion): Double
 

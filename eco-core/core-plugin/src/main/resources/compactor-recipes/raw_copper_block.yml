@@ -1,0 +1,13 @@
+name: "&cRaw Copper Compactor"
+display:
+  icon: raw_copper_block
+
+input: RAW_COPPER
+input-amount: 9
+output: RAW_COPPER_BLOCK
+output-amount: 1
+
+cost-options:
+  - value: 15000
+    type: coins
+    display: "&a$%value_commas%"

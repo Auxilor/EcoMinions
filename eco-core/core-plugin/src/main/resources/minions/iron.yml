@@ -37,6 +37,8 @@ spawn-item:
 sell-prices:
   RAW_IRON: 15.0
   IRON_INGOT: 25.0
+  RAW_IRON_BLOCK: 135.0
+  IRON_BLOCK: 225.0
 
 allowed-upgrades:
   - speed
@@ -49,6 +51,7 @@ allowed-upgrades:
   - experience
 
 compactor-recipes:
+  - raw_iron_block
   - iron_block
 
 effects:

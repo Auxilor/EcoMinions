@@ -75,7 +75,7 @@ class MinionPlacementListener(
 
         event.isCancelled = true
         sendSummary(event.player, minion)
-        mainMenu.open(event.player, minion)
+        openIfAllowed(event.player, minion)
     }
 
     /** Minions are indestructible; hitting one opens it instead. */
@@ -85,7 +85,15 @@ class MinionPlacementListener(
         val minion = minions.getByEntity(stand) ?: return
 
         event.isCancelled = true
-        (event.damager as? Player)?.let { mainMenu.open(it, minion) }
+        (event.damager as? Player)?.let { openIfAllowed(it, minion) }
+    }
+
+    fun openIfAllowed(player: Player, minion: Minion) {
+        if (!placement.canPickUp(player, minion)) {
+            player.sendMessage(messages.line("messages.not-owner"))
+            return
+        }
+        mainMenu.open(player, minion)
     }
 
     private fun celebrate(minion: Minion) {

@@ -34,6 +34,10 @@ class CompactorService {
         return overflow
     }
 
+    /** @return Whether [storage] holds a full batch of [recipe]'s input. */
+    fun canCompact(storage: MinionStorage, recipe: CompactorRecipe): Boolean =
+        countMatching(storage, recipe) >= recipe.inputAmount
+
     /** Runs a recipe after the one it's a `higher-level-of`, e.g. coal -> coal_block first. */
     private fun orderByChain(recipes: List<CompactorRecipe>): List<CompactorRecipe> {
         val byId = recipes.associateBy { it.id }

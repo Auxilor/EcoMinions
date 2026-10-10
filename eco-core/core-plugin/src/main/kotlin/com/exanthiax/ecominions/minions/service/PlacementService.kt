@@ -52,10 +52,9 @@ class PlacementService(
         if (isDisabled(location)) {
             return PlaceResult.WorldDisabled
         }
-        if (!player.hasPermission(ADMIN_PERMISSION) &&
-            minions.countOwnedBy(player) >= limits.limitFor(player)
-        ) {
-            return PlaceResult.LimitReached(limits.limitFor(player))
+        val limit = limits.limitFor(player)
+        if (minions.countOwnedBy(player) >= limit) {
+            return PlaceResult.LimitReached(limit)
         }
 
         val owner = state.owner?.takeIf { it != player.uniqueId }?.let { Bukkit.getOfflinePlayer(it) } ?: player
@@ -133,11 +132,19 @@ class PlacementService(
 
     /** The item that places [minion] again with everything it has, storage included. */
     fun itemFor(minion: Minion): ItemStack =
-        itemFactory.build(minion.state.copy(inventoryBytes = InventoryCodec.encode(minion.storage.snapshot())))
+        itemFactory.build(
+            minion.state.copy(
+                inventoryBytes = InventoryCodec.encode(minion.storage.snapshot()),
+                fuel = repository.fuelOf(minion)
+            )
+        )
 
     private fun remove(minion: Minion) {
         clearRegenMarkers(minion)
-        minions.unregister(minion)
+        if (settings.value.clearSeededOnPickup) {
+            clearSeeded(minion)
+        }
+        minions.retire(minion)
         minion.entity.remove()
     }
 
@@ -160,6 +167,9 @@ class PlacementService(
         }
 
         val minion = factory.create(state.copy(uuid = state.uuid ?: stand.uniqueId), stand)
+        if (state.shutdownTimestamp == null) {
+            minion.thawFuel(System.currentTimeMillis())
+        }
         repository.save(minion)
         val registered = minions.register(minion)
         minions.refreshEffects(registered)
@@ -196,6 +206,20 @@ class PlacementService(
             }
         }
         minion.mining.pendingRegen.clear()
+    }
+
+    /** Clears what [minion] placed, leaving any spot a player has since built on. */
+    private fun clearSeeded(minion: Minion) {
+        val definition = minion.state.definition
+        val own = definition.placement.seedBlocks +
+            definition.targetBlocks.definitions.flatMap { listOfNotNull(it.block, it.plant, it.leaves) }
+        for (location in minion.mining.seeded) {
+            val block = location.block
+            if (block.type == Material.WATER || block.type == RegenService.MARKER_BLOCK || own.any { it.matches(block) }) {
+                block.type = Material.AIR
+            }
+        }
+        minion.mining.seeded.clear()
     }
 
     private fun String.toItemStack(): ItemStack = Items.lookup(this).item.clone()

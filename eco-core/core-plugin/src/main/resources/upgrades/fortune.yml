@@ -15,68 +15,68 @@ tiers:
     stat-delta: "+10% drops"
     cost-options:
       - value: 8000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   2:
     value: 0.20
     stat-delta: "+20% drops"
     cost-options:
       - value: 16000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   3:
     value: 0.35
     stat-delta: "+35% drops"
     cost-options:
       - value: 32000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   4:
     value: 0.50
     stat-delta: "+50% drops"
     cost-options:
       - value: 65000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   5:
     value: 0.75
     stat-delta: "+75% drops"
     cost-options:
       - value: 130000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   6:
     value: 1.00
     stat-delta: "+100% drops"
     cost-options:
       - value: 250000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   7:
     value: 1.25
     stat-delta: "+125% drops"
     cost-options:
       - value: 450000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   8:
     value: 1.50
     stat-delta: "+150% drops"
     cost-options:
       - value: 700000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   9:
     value: 2.00
     stat-delta: "+200% drops"
     cost-options:
       - value: 1100000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   10:
     value: 3.00
     stat-delta: "+300% drops"
     cost-options:
       - value: 2000000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"

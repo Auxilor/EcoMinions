@@ -80,6 +80,9 @@ class FakeWorld {
         every { stand.world } returns bukkit
         every { stand.location } returns mockk<Location> {
             every { block } returns blockAt(0, 0, 0)
+            every { blockX } returns 0
+            every { blockY } returns 0
+            every { blockZ } returns 0
         }
     }
 }

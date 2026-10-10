@@ -36,6 +36,7 @@ class CommandRemove(
         val target = Bukkit.getOfflinePlayer(args[0])
         val name = target.name ?: args[0]
         val owned = minions.ownedMinions(target.uniqueId)
+        minions.forgetPlaced(target.uniqueId)
         if (owned.isEmpty()) {
             report(sender, name, 0)
             return

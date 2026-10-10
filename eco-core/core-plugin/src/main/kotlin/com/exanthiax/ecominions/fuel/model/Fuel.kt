@@ -14,4 +14,6 @@ class Fuel(
 
     /** @return [baseTicks] shortened by this fuel, never below one tick. */
     fun applyTo(baseTicks: Int): Int = (baseTicks / speedMultiplier).toInt().coerceAtLeast(1)
+
+    override fun toString(): String = "Fuel(id=$id)"
 }

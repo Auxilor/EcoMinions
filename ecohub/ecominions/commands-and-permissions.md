@@ -13,7 +13,7 @@ Every EcoMinions command and the permission node it requires.
 | `/minions open`                 | Opens the minion browser GUI                                                                     | `ecominions.command.open`    |
 | `/minions give <player> <type>` | Gives a player a minion item. Minions are always given at level one - there is no level argument | `ecominions.command.give`    |
 | `/minions reload`               | Reloads the plugin's configuration                                                               | `ecominions.command.reload`  |
-| `/minions remove <player>`      | Removes every minion owned by a player                                                           | `ecominions.command.remove`  |
+| `/minions remove <player>`      | Removes a player's loaded minions and resets their count; unloaded ones count again on load      | `ecominions.command.remove`  |
 | `/minions info`                 | Reports information about the minion the sender is looking at                                    | `ecominions.command.info`    |
 
 **Aliases:** `/minions` can also be run as `/minion` or `/ecominions`.

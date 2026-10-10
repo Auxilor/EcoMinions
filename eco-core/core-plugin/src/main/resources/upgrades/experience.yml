@@ -15,33 +15,33 @@ tiers:
     stat-delta: "+1 XP per block"
     cost-options:
       - value: 10000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   2:
     value: 2
     stat-delta: "+2 XP per block"
     cost-options:
       - value: 22000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   3:
     value: 3
     stat-delta: "+3 XP per block"
     cost-options:
       - value: 45000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   4:
     value: 5
     stat-delta: "+5 XP per block"
     cost-options:
       - value: 90000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
   5:
     value: 10
     stat-delta: "+10 XP per block"
     cost-options:
       - value: 180000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"

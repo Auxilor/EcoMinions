@@ -27,7 +27,7 @@ tiers:
     stat-delta: "-5 ticks"
     cost-options:
       - value: 1000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
       - value: 32
         type: stone
@@ -41,7 +41,7 @@ tiers:
         type: gems
         display: "&b%value_commas% Gems"
       - value: 5000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"
 
   3:
@@ -49,5 +49,5 @@ tiers:
     stat-delta: "-15 ticks"
     cost-options:
       - value: 25000
-        type: vault
+        type: coins
         display: "&a$%value_commas%"

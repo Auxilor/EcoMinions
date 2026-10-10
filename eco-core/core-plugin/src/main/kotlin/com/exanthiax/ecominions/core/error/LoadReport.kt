@@ -8,6 +8,13 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class LoadReport {
     private val violations = AtomicInteger(0)
+
+    /**
+     * True during eco's preliminary reload, which runs before other plugins have
+     * registered their custom blocks and items, so its violations are not real.
+     */
+    @Volatile
+    var quiet: Boolean = false
     private val loaded = LinkedHashMap<String, Int>()
 
     val violationCount: Int

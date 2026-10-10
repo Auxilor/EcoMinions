@@ -24,6 +24,7 @@ import com.willfp.eco.core.gui.onRender
 import com.willfp.eco.core.gui.onShiftLeftClick
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
+import com.willfp.eco.core.items.Items
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -229,7 +230,8 @@ class MainMenu(
         }
 
         return chrome.named(
-            if (active != null) Material.BLAZE_ROD else Material.COAL,
+            active?.let { Items.lookup(it.itemLookup).item.type.takeIf { type -> type.isItem && !type.isAir } }
+                ?: Material.COAL,
             messages.line("gui.main.fuel.name"),
             lore
         )
