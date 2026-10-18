@@ -18,11 +18,13 @@ class UpgradesManagerImpl(
     private val minions: MinionService
 ) : UpgradesManager {
 
-    override fun all(): Collection<ApiUpgrade> = upgrades.all()
+    override fun all(): Collection<ApiUpgrade> = upgrades.all() + compactorUpgrades()
 
-    override fun getById(id: String): ApiUpgrade? = upgrades.getById(id)
+    override fun getById(id: String): ApiUpgrade? =
+        upgrades.getById(id) ?: compactorUpgrades().firstOrNull { it.id == id }
 
-    override fun allowedFor(minion: ApiMinion): List<ApiUpgrade> = upgrades.allowedFor(minion)
+    override fun allowedFor(minion: ApiMinion): List<ApiUpgrade> =
+        upgrades.allowedFor(minion) + resolve(minion).state.definition.compactorRecipes.map { it.upgrade }
 
     override fun tierOf(minion: ApiMinion, upgrade: ApiUpgrade): Int = upgrades.tierOf(minion, upgrade)
 
@@ -72,6 +74,10 @@ class UpgradesManagerImpl(
     private fun resolve(minion: Minion, upgrade: ApiUpgrade): Upgrade =
         findUpgrade(minion, upgrade.id)
             ?: throw IllegalArgumentException("Unknown upgrade: ${upgrade.id}")
+
+    /** Every type's compactor recipe upgrades, one per recipe id. */
+    private fun compactorUpgrades(): List<Upgrade> =
+        minions.types().flatMap { type -> type.compactorRecipes.map { it.upgrade } }.distinctBy { it.id }
 
     /** Compactor upgrades belong to a minion type rather than the registry, so both are searched. */
     private fun findUpgrade(minion: Minion, id: String): Upgrade? =
