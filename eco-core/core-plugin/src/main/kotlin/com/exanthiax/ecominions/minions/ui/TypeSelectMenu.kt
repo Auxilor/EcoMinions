@@ -9,9 +9,13 @@ import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionService
+import com.willfp.eco.core.gui.addPage
+import com.willfp.eco.core.gui.addPageChanger
 import com.willfp.eco.core.gui.menu
+import com.willfp.eco.core.gui.page.PageChanger
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
+import org.bukkit.Material
 import org.bukkit.entity.Player
 
 /** Browse and take one of every configured minion. */
@@ -26,17 +30,42 @@ class TypeSelectMenu(
     fun open(player: Player) {
         val current = settings.value
         val rows = current.typeSelectRows
+        val pages = minions.types()
+            .chunked(((rows - FIRST_ROW) * COLUMNS).coerceAtLeast(COLUMNS))
+            .ifEmpty { listOf(emptyList()) }
 
         menu(rows) {
             setTitle(messages.render(current.typeSelectTitle))
             setMask(chrome.fillerMask(rows))
+            maxPages(pages.size)
 
-            for ((index, type) in minions.types().withIndex()) {
-                val row = FIRST_ROW + (index / COLUMNS)
-                if (row >= rows) {
-                    break
+            addPageChanger(
+                PageChanger.Direction.BACKWARDS,
+                chrome.named(Material.ARROW, messages.line("gui.type-select.previous-page.name")),
+                null,
+                null,
+                rows,
+                1
+            )
+            addPageChanger(
+                PageChanger.Direction.FORWARDS,
+                chrome.named(Material.ARROW, messages.line("gui.type-select.next-page.name")),
+                null,
+                null,
+                rows,
+                9
+            )
+
+            pages.forEachIndexed { index, types ->
+                addPage(index + 1) {
+                    for ((position, type) in types.withIndex()) {
+                        setSlot(
+                            FIRST_ROW + (position / COLUMNS),
+                            FIRST_COLUMN + (position % COLUMNS),
+                            typeSlot(player, type)
+                        )
+                    }
                 }
-                setSlot(row, FIRST_COLUMN + (index % COLUMNS), typeSlot(player, type))
             }
         }.open(player)
     }
