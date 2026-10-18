@@ -111,6 +111,7 @@ allprojects {
         maven("https://repo.auxilor.io/repository/maven-public/")
         maven("https://repo.codemc.org/repository/nms/")
         maven("https://jitpack.io")
+        maven("https://repo.bg-software.com/repository/api/")
     }
 
     dependencies {

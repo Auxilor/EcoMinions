@@ -36,6 +36,7 @@ import com.exanthiax.ecominions.islands.IslandMemberListener
 import com.exanthiax.ecominions.islands.IslandMinionIndex
 import com.exanthiax.ecominions.islands.IslandRegistry
 import com.exanthiax.ecominions.islands.MinionAccess
+import com.exanthiax.ecominions.islands.providers.SuperiorSkyblockIslandProvider
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
 import com.exanthiax.ecominions.levelling.service.MinionXpService
@@ -379,7 +380,18 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     override fun loadConfigCategories(): List<ConfigCategory> =
         LibreforgeRegistrations.configCategories(blockDefinitions, minionTypes, upgrades, fuels, compactorRecipes)
 
+    override fun handleLoad() {
+        if (Bukkit.getPluginManager().getPlugin(SUPERIOR_SKYBLOCK) != null) {
+            SuperiorSkyblockIslandProvider.registerPrivileges()
+        }
+    }
+
     override fun handleEnable() {
+        if (Bukkit.getPluginManager().isPluginEnabled(SUPERIOR_SKYBLOCK)) {
+            SuperiorSkyblockIslandProvider.registerPrivileges()
+            islandRegistry.register(SuperiorSkyblockIslandProvider())
+            SuperiorSkyblockIslandProvider.applyDefaultsAndListen(this)
+        }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)
         shopIntegration.init()
         ecoItemsIntegration.init()
@@ -513,5 +525,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     private companion object {
         const val XP_MERGE_RADIUS = 1.5
+        const val SUPERIOR_SKYBLOCK = "SuperiorSkyblock2"
     }
 }

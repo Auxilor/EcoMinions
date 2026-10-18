@@ -9,6 +9,7 @@ depend:
 softdepend:
   - EcoItems
   - EcoShop
+  - SuperiorSkyblock2
 commands:
   minions:
     aliases: [minion, ecominions]
