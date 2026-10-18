@@ -102,6 +102,8 @@ class UpgradeMenu(
         return slot(item) {
             if (state == TierState.NEXT) {
                 onLeftClick { _, _ -> buy(player, minion, upgrade, tier) }
+            } else if (owned >= upgrade.maxTier) {
+                onLeftClick { _, _ -> player.sendMessage(messages.line("messages.upgrade-already-max")) }
             }
         }
     }
