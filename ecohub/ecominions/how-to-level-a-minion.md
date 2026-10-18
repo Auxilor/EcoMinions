@@ -99,7 +99,18 @@ With neither `multiplier` nor `value`, the trigger's own value is given as XP, s
 The top-level `conditions` apply to every method: when they fail, the minion gains no XP at all.
 
 :::tip
-To give XP from anything else, such as a fuel or an upgrade, use the `give_minion_xp` effect.
+To give XP from anything else, use the `give_minion_xp` effect: in an upgrade's effects, or from a player's own item with the `click_minion` trigger and the `minion_as_dispatcher` mutator. Shift-right-clicking a minion with the item gives that minion the XP:
+
+```yaml
+effects:
+  - id: give_minion_xp
+    args:
+      amount: 500 # The XP to give the clicked minion.
+    triggers:
+      - click_minion # Shift-right-click on a minion you own.
+    mutators:
+      - id: minion_as_dispatcher # Runs the effect on the clicked minion.
+```
 :::
 
 ### Level up
