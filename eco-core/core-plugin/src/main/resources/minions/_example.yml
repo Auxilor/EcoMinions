@@ -17,7 +17,8 @@ name: "&fExample Minion" # The name shown on its hologram and item.
 type: miner
 
 # The blocks this minion works, for miners, farmers and woodcutters.
-# A woodcutter lists its log here. A seed or crop is promoted to its grown form.
+# A woodcutter lists its log here. A farmer lists the crop block, e.g. WHEAT or
+# BEETROOTS, not the seed item.
 target-blocks:
   - STONE
   - COBBLESTONE
