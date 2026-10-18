@@ -15,6 +15,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege as SuperiorPrivilege
 
 /** Island provider backed by SuperiorSkyblock2. */
@@ -22,10 +23,15 @@ class SuperiorSkyblockIslandProvider : IslandProvider {
     override val id = PLUGIN_NAME
 
     override fun islandAt(location: Location): MinionIsland? =
-        SuperiorSkyblockAPI.getIslandAt(location)?.let(::SuperiorSkyblockMinionIsland)
+        SuperiorSkyblockAPI.getIslandAt(location)?.let(::wrap)
 
     override fun islandsOf(uuid: UUID): Collection<MinionIsland> =
-        SuperiorSkyblockAPI.getPlayer(uuid)?.island?.let { listOf(SuperiorSkyblockMinionIsland(it)) }.orEmpty()
+        SuperiorSkyblockAPI.getPlayer(uuid)?.island?.let { listOf(wrap(it)) }.orEmpty()
+
+    private fun wrap(island: Island): MinionIsland {
+        applyDefaultsOnce(island)
+        return SuperiorSkyblockMinionIsland(island)
+    }
 
     private class SuperiorSkyblockMinionIsland(private val island: Island) : MinionIsland {
         override val provider = PLUGIN_NAME
@@ -33,11 +39,19 @@ class SuperiorSkyblockIslandProvider : IslandProvider {
         override val owner: UUID? = island.owner?.uniqueId
 
         override fun isAllowed(player: Player, privilege: IslandPrivilege): Boolean {
-            val superiorPrivilege = SuperiorPrivilege.getByName(privilegeName(privilege)) ?: return true
+            val name = privilegeName(privilege)
+            val superiorPrivilege = SuperiorPrivilege.getByName(name)
+            if (superiorPrivilege == null) {
+                if (reportedMissing.add(name)) {
+                    Bukkit.getLogger().warning("SuperiorSkyblock2 privilege $name is not registered, denying it")
+                }
+                return false
+            }
             return island.hasPermission(SuperiorSkyblockAPI.getPlayer(player), superiorPrivilege)
         }
 
-        override fun isMember(uuid: UUID): Boolean = members().contains(uuid)
+        override fun isMember(uuid: UUID): Boolean =
+            owner == uuid || SuperiorSkyblockAPI.getPlayer(uuid)?.let(island::isMember) == true
 
         override fun members(): Collection<UUID> =
             island.getIslandMembers(true).map(SuperiorPlayer::getUniqueId)
@@ -46,12 +60,15 @@ class SuperiorSkyblockIslandProvider : IslandProvider {
     private class IslandCreateListener : Listener {
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
         fun onIslandCreate(event: IslandCreateEvent) {
-            applyDefaults(event.island)
+            applyDefaultsOnce(event.island)
         }
     }
 
     companion object {
         const val PLUGIN_NAME = "SuperiorSkyblock2"
+
+        private val defaultsApplied = ConcurrentHashMap.newKeySet<UUID>()
+        private val reportedMissing = ConcurrentHashMap.newKeySet<String>()
 
         private fun privilegeName(privilege: IslandPrivilege) = "ECOMINIONS_${privilege.name}"
 
@@ -64,13 +81,15 @@ class SuperiorSkyblockIslandProvider : IslandProvider {
             }
         }
 
-        /**
-         * Listens for new islands and gives every existing island its default privileges.
-         * Call after [registerPrivileges].
-         */
-        fun applyDefaultsAndListen(plugin: Plugin) {
+        /** Listens for new islands so they get their default privileges. Call after [registerPrivileges]. */
+        fun listenForNewIslands(plugin: Plugin) {
             Bukkit.getPluginManager().registerEvents(IslandCreateListener(), plugin)
-            SuperiorSkyblockAPI.getGrid().islands.forEach(::applyDefaults)
+        }
+
+        private fun applyDefaultsOnce(island: Island) {
+            if (defaultsApplied.add(island.uniqueId)) {
+                applyDefaults(island)
+            }
         }
 
         /**

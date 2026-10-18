@@ -382,15 +382,17 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     override fun handleLoad() {
         if (Bukkit.getPluginManager().getPlugin(SUPERIOR_SKYBLOCK) != null) {
-            SuperiorSkyblockIslandProvider.registerPrivileges()
+            runCatching { SuperiorSkyblockIslandProvider.registerPrivileges() }
+                .onFailure { logger.warning("SuperiorSkyblock2 support disabled: ${it.message}") }
         }
     }
 
     override fun handleEnable() {
         if (Bukkit.getPluginManager().isPluginEnabled(SUPERIOR_SKYBLOCK)) {
-            SuperiorSkyblockIslandProvider.registerPrivileges()
-            islandRegistry.register(SuperiorSkyblockIslandProvider())
-            SuperiorSkyblockIslandProvider.applyDefaultsAndListen(this)
+            runCatching {
+                islandRegistry.register(SuperiorSkyblockIslandProvider())
+                SuperiorSkyblockIslandProvider.listenForNewIslands(this)
+            }.onFailure { logger.warning("SuperiorSkyblock2 support disabled: ${it.message}") }
         }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)
         shopIntegration.init()
