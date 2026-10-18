@@ -10,8 +10,12 @@ import com.willfp.libreforge.conditions.Condition
 import com.willfp.libreforge.get
 
 object ConditionMinionOwnerOnline : Condition<NoCompileData>("minion_owner_online") {
-    override val description = "Passes while the minion's owner is online."
+    override val description = "Passes when the minion's owner is online."
     override val categories = setOf("minion")
+    override val additionalInfo = listOf(
+        "Only works on minions. Anywhere else it never passes.",
+        "Use it to guard effects that act on the player, as minions keep working while their owner is offline."
+    )
 
     override fun isMet(
         dispatcher: Dispatcher<*>,

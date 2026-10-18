@@ -21,6 +21,10 @@ import com.willfp.libreforge.triggers.TriggerParameter
 object MutatorMinionOwnerAsDispatcher : Mutator<NoCompileData>("minion_owner_as_dispatcher") {
     override val description = "Makes the minion's owner the dispatcher for the rest of the chain."
     override val categories = setOf("minion")
+    override val additionalInfo = listOf(
+        "Only works in a chain run by a minion.",
+        "Does nothing while the owner is offline, so the rest of the chain still runs on the minion."
+    )
 
     override val parameterTransformers = parameterTransformers {
         adds(TriggerParameter.PLAYER)

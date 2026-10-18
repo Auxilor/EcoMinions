@@ -8,6 +8,10 @@ object TriggerMinionCollectItem : Trigger("minion_collect_item") {
 
     override val categories = setOf("minion")
 
+    override val additionalInfo = listOf(
+        "Only fires for minions. Use it in a minion type's effects, an upgrade's effects, or xp-gain-methods."
+    )
+
     override val parameterDescriptions = mapOf(
         TriggerParameter.ITEM to "The item picked up.",
         TriggerParameter.PLAYER to "The owning player, if they are online.",

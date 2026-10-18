@@ -15,6 +15,9 @@ import com.willfp.libreforge.triggers.TriggerData
 object ConditionMinionStorageAbovePercent : Condition<NoCompileData>("minion_storage_above_percent") {
     override val description = "Passes when the minion's storage is at least the given percentage full."
     override val categories = setOf("minion")
+    override val additionalInfo = listOf(
+        "Only works on minions. Anywhere else it never passes."
+    )
 
     override val arguments = arguments {
         require(

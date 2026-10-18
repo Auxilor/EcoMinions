@@ -23,6 +23,10 @@ class EffectMinionSellStorage(
 ) : Effect<NoCompileData>("minion_sell_storage") {
     override val description = "Sells the entire contents of a minion's storage."
     override val categories = setOf("minion", "economy")
+    override val additionalInfo = listOf(
+        "Only works on minions: in a minion type's effects, an upgrade's effects, or level-up-effects. Anywhere else it does nothing.",
+        "Only sells items with a price, from the minion's sell-prices or EcoShop. Fires minion_sell when it earns anything."
+    )
 
     override val parameters = setOf(TriggerParameter.LOCATION)
 

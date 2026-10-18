@@ -15,6 +15,9 @@ import com.willfp.libreforge.triggers.TriggerData
 object ConditionMinionLevelAbove : Condition<NoCompileData>("minion_level_above") {
     override val description = "Passes when the minion's level is at or above the given level."
     override val categories = setOf("minion")
+    override val additionalInfo = listOf(
+        "Only works on minions. Anywhere else it never passes."
+    )
 
     override val arguments = arguments {
         require(
