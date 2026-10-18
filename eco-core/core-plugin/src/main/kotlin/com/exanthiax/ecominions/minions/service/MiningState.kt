@@ -19,6 +19,9 @@ class MiningState {
     /** Whether storage was full at the last action, so filling up is announced once. */
     var wasFull: Boolean = false
 
+    /** The tick this minion's libreforge conditions were last re-evaluated. */
+    var conditionsPolledAt: Long = 0L
+
     /** The block being swung at, and the tick the swing lands on. */
     var pendingTarget: Block? = null
     var breakAt: Long = 0L

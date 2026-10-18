@@ -71,15 +71,32 @@ class MinionTickerTest {
         stats = stats
     )
 
-    private fun ticker(activity: MinionActivity, events: EventDispatcher = RecordingEventDispatcher()) =
-        MinionTicker(
-            worlds = worlds,
-            fuels = fuels,
-            dispatch = mockk(relaxed = true),
-            events = events,
-            activityOf = { activity },
-            dueTriggers = { emptyList() }
-        )
+    private fun ticker(
+        activity: MinionActivity,
+        events: EventDispatcher = RecordingEventDispatcher(),
+        updateConditions: (Minion) -> Unit = {}
+    ) = MinionTicker(
+        worlds = worlds,
+        fuels = fuels,
+        dispatch = mockk(relaxed = true),
+        events = events,
+        activityOf = { activity },
+        dueTriggers = { emptyList() },
+        updateConditions = updateConditions
+    )
+
+    @Test
+    fun `conditions are re-evaluated every 20 ticks`() {
+        val subject = minion()
+        var polls = 0
+        val ticker = ticker(ScriptedActivity(ActivityResult.WORKED), updateConditions = { polls++ })
+
+        for (tick in 100L..140L) {
+            ticker.tick(subject, tick)
+        }
+
+        assertEquals(3, polls)
+    }
 
     @Test
     fun `worked sets mining animation and waits speed plus efficiency`() {
