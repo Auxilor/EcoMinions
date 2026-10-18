@@ -37,6 +37,7 @@ import com.exanthiax.ecominions.islands.IslandMinionIndex
 import com.exanthiax.ecominions.islands.IslandRegistry
 import com.exanthiax.ecominions.islands.MinionAccess
 import com.exanthiax.ecominions.islands.providers.BentoBoxIslandProvider
+import com.exanthiax.ecominions.islands.providers.IridiumSkyblockIslandProvider
 import com.exanthiax.ecominions.islands.providers.SuperiorSkyblockIslandProvider
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
@@ -403,6 +404,13 @@ class EcoMinionsPlugin : LibreforgePlugin() {
                 islandRegistry.register(BentoBoxIslandProvider(logger::warning).also(BentoBoxIslandProvider::register))
             }.onFailure { logger.warning("BentoBox support disabled: ${it.message}") }
         }
+        if (Bukkit.getPluginManager().isPluginEnabled(IRIDIUM_SKYBLOCK)) {
+            runCatching {
+                islandRegistry.register(
+                    IridiumSkyblockIslandProvider(logger::warning).also(IridiumSkyblockIslandProvider::register)
+                )
+            }.onFailure { logger.warning("IridiumSkyblock support disabled: ${it.message}") }
+        }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)
         shopIntegration.init()
         ecoItemsIntegration.init()
@@ -538,5 +546,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         const val XP_MERGE_RADIUS = 1.5
         const val SUPERIOR_SKYBLOCK = "SuperiorSkyblock2"
         const val BENTO_BOX = "BentoBox"
+        const val IRIDIUM_SKYBLOCK = "IridiumSkyblock"
     }
 }

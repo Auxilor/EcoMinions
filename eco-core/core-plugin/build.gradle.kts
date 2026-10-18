@@ -12,6 +12,14 @@ repositories {
         }
         filter { includeModule("world.bentobox", "bentobox") }
     }
+    exclusiveContent {
+        forRepository {
+            maven("https://nexus.iridiumdevelopment.net/repository/maven-releases/") {
+                metadataSources { artifact() }
+            }
+        }
+        filter { includeGroup("com.iridium") }
+    }
 }
 
 dependencies {
@@ -23,6 +31,7 @@ dependencies {
     compileOnly("com.willfp:EcoItems:2026.41.1")
     compileOnly("com.bgsoftware:SuperiorSkyblockAPI:2026.3")
     compileOnly("world.bentobox:bentobox:2.7.0")
+    compileOnly("com.iridium:IridiumSkyblock:4.1.5")
 
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     testImplementation("com.willfp:eco:$ecoVersion")
