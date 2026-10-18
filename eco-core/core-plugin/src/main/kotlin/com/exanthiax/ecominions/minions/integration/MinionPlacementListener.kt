@@ -2,12 +2,15 @@ package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
+import com.exanthiax.ecominions.libreforge.triggers.TriggerClickMinion
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.ui.MainMenu
 import com.willfp.eco.util.asAudience
+import com.willfp.libreforge.toDispatcher
+import com.willfp.libreforge.triggers.TriggerData
 import net.kyori.adventure.text.Component
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -73,9 +76,36 @@ class MinionPlacementListener(
         val stand = event.rightClicked as? ArmorStand ?: return
         val minion = minions.getByEntity(stand) ?: return
 
+        if (event.player.isSneaking) {
+            clickIfAllowed(event, stand, minion)
+            event.isCancelled = true
+            return
+        }
         event.isCancelled = true
         sendSummary(event.player, minion)
         openIfAllowed(event.player, minion)
+    }
+
+    /**
+     * Shift-right-click fires [TriggerClickMinion] for the player instead of opening the menu.
+     *
+     * Dispatched before the event is cancelled, as libreforge skips effects on a cancelled event.
+     */
+    private fun clickIfAllowed(event: PlayerInteractAtEntityEvent, stand: ArmorStand, minion: Minion) {
+        val player = event.player
+        if (!placement.canPickUp(player, minion)) {
+            player.sendMessage(messages.line("messages.not-owner"))
+            return
+        }
+        TriggerClickMinion.dispatch(
+            player.toDispatcher(),
+            TriggerData(
+                player = player,
+                victim = stand,
+                location = minion.location,
+                event = event
+            )
+        )
     }
 
     /** Minions are indestructible; hitting one opens it instead. */

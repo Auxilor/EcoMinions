@@ -20,8 +20,10 @@ import com.exanthiax.ecominions.libreforge.effects.EffectMinionHeight
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSellStorage
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
+import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionAsDispatcher
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTargetBlock
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
+import com.exanthiax.ecominions.libreforge.triggers.TriggerClickMinion
 import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCatchFish
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
@@ -40,6 +42,7 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionCompactService
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.upgrades.model.Upgrade
@@ -48,6 +51,7 @@ import com.willfp.libreforge.effects.Effects
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import com.willfp.libreforge.mutators.Mutators
 import com.willfp.libreforge.triggers.Triggers
+import org.bukkit.entity.Entity
 
 /**
  * Single owner of everything the plugin hands to libreforge.
@@ -86,7 +90,8 @@ object LibreforgeRegistrations {
         worlds: WorldSettings,
         selling: SellService,
         compacting: MinionCompactService,
-        xpService: MinionXpService
+        xpService: MinionXpService,
+        minionAt: (Entity) -> Minion?
     ) {
         UpgradePlaceholderProvider(upgrades::all).register()
         MinionHolders(upgrades::find).register(worlds)
@@ -102,6 +107,7 @@ object LibreforgeRegistrations {
 
         Mutators.register(MutatorMinionOwnerAsDispatcher)
         Mutators.register(MutatorMinionLocationToTargetBlock)
+        Mutators.register(MutatorMinionAsDispatcher(minionAt))
 
         Triggers.register(TriggerMinionMineBlock)
         Triggers.register(TriggerMinionStorageFull)
@@ -119,6 +125,7 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionSell)
         Triggers.register(TriggerMinionLevelUp)
         Triggers.register(TriggerMinionCollect)
+        Triggers.register(TriggerClickMinion)
 
         Conditions.register(ConditionMinionLevelAbove)
         Conditions.register(ConditionMinionLevelBelow)
