@@ -23,6 +23,7 @@ import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionAsDispatcher
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTargetBlock
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
+import com.exanthiax.ecominions.libreforge.triggers.TriggerClickMinion
 import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCatchFish
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
@@ -124,6 +125,7 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionSell)
         Triggers.register(TriggerMinionLevelUp)
         Triggers.register(TriggerMinionCollect)
+        Triggers.register(TriggerClickMinion)
 
         Conditions.register(ConditionMinionLevelAbove)
         Conditions.register(ConditionMinionLevelBelow)
