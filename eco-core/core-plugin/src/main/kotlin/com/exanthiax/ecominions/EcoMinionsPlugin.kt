@@ -5,7 +5,6 @@ import com.exanthiax.ecominions.api.impl.FuelsManagerImpl
 import com.exanthiax.ecominions.api.impl.MenusManagerImpl
 import com.exanthiax.ecominions.api.impl.MinionsManagerImpl
 import com.exanthiax.ecominions.api.impl.UpgradesManagerImpl
-import com.exanthiax.ecominions.api.island.IslandProvider
 import com.exanthiax.ecominions.commands.CommandGive
 import com.exanthiax.ecominions.commands.CommandInfo
 import com.exanthiax.ecominions.commands.CommandMinions
@@ -385,7 +384,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         LibreforgeRegistrations.configCategories(blockDefinitions, minionTypes, upgrades, fuels, compactorRecipes)
 
     private var superiorSkyblockPrivilegesRegistered = false
-    private var landsProvider: IslandProvider? = null
+    private var landsProvider: LandsIslandProvider? = null
 
     override fun handleLoad() {
         if (Bukkit.getPluginManager().getPlugin(SUPERIOR_SKYBLOCK) != null) {
@@ -419,7 +418,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             }.onFailure { logger.warning("IridiumSkyblock support disabled: ${it.message}") }
         }
         landsProvider?.takeIf { Bukkit.getPluginManager().isPluginEnabled(LANDS) }?.let { provider ->
-            runCatching { islandRegistry.register(provider) }
+            runCatching {
+                islandRegistry.register(provider)
+                provider.listenForNewLands(this)
+            }
                 .onFailure { logger.warning("Lands support disabled: ${it.message}") }
         }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)

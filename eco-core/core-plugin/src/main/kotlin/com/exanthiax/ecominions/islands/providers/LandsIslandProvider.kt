@@ -4,15 +4,19 @@ import com.exanthiax.ecominions.api.island.IslandPrivilege
 import com.exanthiax.ecominions.api.island.IslandProvider
 import com.exanthiax.ecominions.api.island.MinionIsland
 import me.angeschossen.lands.api.LandsIntegration
+import me.angeschossen.lands.api.events.land.create.LandPostCreateEvent
 import me.angeschossen.lands.api.flags.enums.FlagTarget
 import me.angeschossen.lands.api.flags.enums.RoleFlagCategory
 import me.angeschossen.lands.api.flags.type.RoleFlag
 import me.angeschossen.lands.api.land.Area
 import me.angeschossen.lands.api.land.Land
 import me.angeschossen.lands.api.role.enums.RoleType
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import java.util.UUID
@@ -36,6 +40,11 @@ class LandsIslandProvider private constructor(
 
     override fun islandsOf(uuid: UUID): Collection<MinionIsland> =
         landsOf(uuid).map { wrap(it.defaultArea, it) }
+
+    /** Seeds the EcoMinions flags on lands created after startup. Call once Lands is enabled. */
+    fun listenForNewLands(plugin: Plugin) {
+        Bukkit.getPluginManager().registerEvents(NewLandListener(flags), plugin)
+    }
 
     private fun landsOf(uuid: UUID): Collection<Land> =
         integration.getLandPlayer(uuid)?.lands
@@ -66,7 +75,20 @@ class LandsIslandProvider private constructor(
 
         override fun isMember(uuid: UUID): Boolean = owner == uuid || land.isTrusted(uuid)
 
-        override fun members(): Collection<UUID> = land.trustedPlayers + listOfNotNull(owner)
+        override fun members(): Collection<UUID> = (land.trustedPlayers + listOfNotNull(owner)).distinct()
+    }
+
+    private class NewLandListener(private val flags: Map<IslandPrivilege, RoleFlag>) : Listener {
+        @EventHandler
+        fun onLandCreate(event: LandPostCreateEvent) {
+            event.land.defaultArea.roles.forEach { role ->
+                flags.forEach { (privilege, flag) ->
+                    if (spec(privilege).enabledForRole(role.type) && !role.hasFlag(flag)) {
+                        role.toggleFlag(flag)
+                    }
+                }
+            }
+        }
     }
 
     private data class FlagSpec(
@@ -102,9 +124,9 @@ class LandsIslandProvider private constructor(
         /**
          * Registers the three EcoMinions role flags with Lands and returns the provider that checks them.
          *
-         * New flags are switched on for the owner and normal member roles of existing lands (owner only
-         * for pick up), never for visitors, and an existing flag state is left alone. Flags default to
-         * off for roles Lands creates itself.
+         * Flags are switched on for the owner and normal member roles (owner only for pick up), never
+         * for visitors. Lands seeds roles of lands that exist at startup from the update predicate, and
+         * [listenForNewLands] seeds lands created later. An existing flag state is left alone.
          */
         fun create(plugin: Plugin, warn: (String) -> Unit): LandsIslandProvider {
             val integration = LandsIntegration.of(plugin)
