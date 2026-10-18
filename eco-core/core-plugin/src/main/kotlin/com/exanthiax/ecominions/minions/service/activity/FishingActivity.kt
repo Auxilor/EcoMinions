@@ -107,7 +107,7 @@ class FishingActivity(
 
     private fun seed(minion: Minion): Boolean {
         val spot = MinionWorkArea.blocks(minion)
-            .filter { it.type == Material.AIR && it.world.getBlockAt(it.x, it.y - 1, it.z).isSolid }
+            .filter { (it.type == Material.AIR || isFlowingWater(it)) && it.world.getBlockAt(it.x, it.y - 1, it.z).isSolid }
             .randomOrNull(random)
             ?: return false
         spot.type = Material.WATER
@@ -125,3 +125,6 @@ class FishingActivity(
 
 private fun isStillWater(block: Block): Boolean =
     block.type == Material.WATER && (block.blockData as? Levelled)?.level == 0
+
+private fun isFlowingWater(block: Block): Boolean =
+    block.type == Material.WATER && !isStillWater(block)
