@@ -9,6 +9,8 @@ import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.core.world.WorldSettings
+import com.exanthiax.ecominions.islands.IslandLimits
+import com.exanthiax.ecominions.islands.IslandRegistry
 import com.exanthiax.ecominions.islands.MinionAccess
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPickup
@@ -38,12 +40,15 @@ class PlacementService(
     private val triggers: MinionTriggerDispatch,
     private val events: EventDispatcher,
     private val access: MinionAccess,
+    private val islands: IslandRegistry,
+    private val islandLimits: IslandLimits,
     private val canPlace: (Player, Block) -> Boolean
 ) {
     sealed interface PlaceResult {
         data class Placed(val minion: Minion) : PlaceResult
         data object WorldDisabled : PlaceResult
         data class LimitReached(val limit: Int) : PlaceResult
+        data class IslandLimitReached(val limit: Int) : PlaceResult
         data object Protected : PlaceResult
         data object NoIslandPermission : PlaceResult
         data object Cancelled : PlaceResult
@@ -69,6 +74,11 @@ class PlacementService(
         val limit = limits.limitFor(player)
         if (minions.countOwnedBy(player) >= limit) {
             return PlaceResult.LimitReached(limit)
+        }
+        if (!player.hasPermission(ADMIN_PERMISSION)) {
+            islands.islandAt(location)?.takeIf { islandLimits.isFull(it) }?.let {
+                return PlaceResult.IslandLimitReached(islandLimits.limitFor(it))
+            }
         }
 
         val owner = state.owner?.takeIf { it != player.uniqueId }?.let { Bukkit.getOfflinePlayer(it) } ?: player
@@ -245,4 +255,8 @@ class PlacementService(
     }
 
     private fun String.toItemStack(): ItemStack = Items.lookup(this).item.clone()
+
+    private companion object {
+        const val ADMIN_PERMISSION = "ecominions.admin"
+    }
 }

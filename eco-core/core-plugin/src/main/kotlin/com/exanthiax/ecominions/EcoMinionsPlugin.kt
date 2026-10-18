@@ -30,6 +30,7 @@ import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.islands.IslandLimits
 import com.exanthiax.ecominions.islands.IslandMinionIndex
 import com.exanthiax.ecominions.islands.IslandRegistry
 import com.exanthiax.ecominions.islands.MinionAccess
@@ -311,9 +312,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         onRetire = { islandIndex.remove(it.uuid) }
     )
     private val minionAccess = MinionAccess(islandRegistry, minionSettings)
+    private val islandLimits = IslandLimits(minionSettings, islandIndex) { Bukkit.getPlayer(it) }
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
-        triggerDispatch, events, minionAccess, AntigriefManager::canPlaceBlock
+        triggerDispatch, events, minionAccess, islandRegistry, islandLimits, AntigriefManager::canPlaceBlock
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
@@ -340,7 +342,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val api = EcoMinionsApiImpl(
         MinionsManagerImpl(
             minionService, placementService, itemFactory, minionItems, collector,
-            sellService, repository, activityService, xpService, compactService, events, regions, minionAccess
+            sellService, repository, activityService, xpService, compactService, events, regions, minionAccess,
+            islandLimits
         ) { Bukkit.getOfflinePlayer(it) },
         UpgradesManagerImpl(upgradeService, purchases, minionService),
         FuelsManagerImpl(fuelService, minionFuelService, minionService),

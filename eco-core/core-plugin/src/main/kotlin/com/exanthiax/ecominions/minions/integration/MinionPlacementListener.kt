@@ -67,6 +67,11 @@ class MinionPlacementListener(
                     messages.line("messages.limit-reached-player", TemplateContext.of("limit" to result.limit))
                 )
 
+            is PlacementService.PlaceResult.IslandLimitReached ->
+                player.sendMessage(
+                    messages.line("messages.limit-reached-island", TemplateContext.of("limit" to result.limit))
+                )
+
             is PlacementService.PlaceResult.Placed -> {
                 item.amount -= 1
                 celebrate(result.minion)
