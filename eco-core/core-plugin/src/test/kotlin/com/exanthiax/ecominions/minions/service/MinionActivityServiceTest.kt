@@ -65,13 +65,28 @@ class MinionActivityServiceTest {
     private fun service(
         online: Set<UUID> = setOf(owner),
         repository: MinionStateRepository = mockk(relaxed = true),
-        offlineProgress: OfflineProgressService = mockk(relaxed = true)
+        offlineProgress: OfflineProgressService = mockk(relaxed = true),
+        members: Collection<UUID> = emptyList()
     ) = MinionActivityService(
         repository = repository,
         offlineProgress = offlineProgress,
         settings = settings,
-        isOnline = { it in online }
+        isOnline = { it in online },
+        islandMembers = { members }
     )
+
+    private val member = UUID.randomUUID()
+
+    private fun ownedMinion() = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = owner))
+
+    private fun withToggle(enabled: Boolean, block: () -> Unit) {
+        settings.update(settings.value.copy(activeWhileMemberOnline = enabled))
+        try {
+            block()
+        } finally {
+            settings.update(settings.value.copy(activeWhileMemberOnline = false))
+        }
+    }
 
     @Test
     fun `a minion with an online owner is active`() {
@@ -164,5 +179,57 @@ class MinionActivityServiceTest {
         verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
         assertNull(subject.state.shutdownTimestamp)
         settings.update(settings.value.copy(offlineEnabled = true))
+    }
+
+    @Test
+    fun `toggle off keeps owner only activity`() = withToggle(false) {
+        val subject = ownedMinion()
+
+        assertFalse(service(online = setOf(member), members = listOf(owner, member)).isActive(subject))
+    }
+
+    @Test
+    fun `toggle on runs while a member is online`() = withToggle(true) {
+        val subject = ownedMinion()
+
+        assertTrue(service(online = setOf(member), members = listOf(owner, member)).isActive(subject))
+        assertFalse(service(online = emptySet(), members = listOf(owner, member)).isActive(subject))
+    }
+
+    @Test
+    fun `toggle on never activates an unowned minion`() = withToggle(true) {
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = null))
+
+        assertFalse(service(online = setOf(member), members = listOf(member)).isActive(subject))
+    }
+
+    @Test
+    fun `leaving with the toggle off is inactive even for the owner`() = withToggle(false) {
+        val subject = ownedMinion()
+
+        assertFalse(service(online = setOf(owner, member), members = listOf(owner, member)).isActiveWithout(subject, owner))
+    }
+
+    @Test
+    fun `the owner leaving keeps a minion running while members are on`() = withToggle(true) {
+        val subject = ownedMinion()
+        val subjectService = service(online = setOf(owner, member), members = listOf(owner, member))
+
+        assertTrue(subjectService.isActiveWithout(subject, owner))
+    }
+
+    @Test
+    fun `the last member leaving makes a minion inactive`() = withToggle(true) {
+        val subject = ownedMinion()
+        val subjectService = service(online = setOf(member), members = listOf(owner, member))
+
+        assertFalse(subjectService.isActiveWithout(subject, member))
+    }
+
+    @Test
+    fun `leaving does not count the leaver as online`() = withToggle(true) {
+        val subject = ownedMinion()
+
+        assertFalse(service(online = setOf(owner), members = listOf(owner)).isActiveWithout(subject, owner))
     }
 }

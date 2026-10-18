@@ -100,4 +100,17 @@ class IslandMinionIndexTest {
 
         assertEquals(1, index.count(island))
     }
+
+    @Test
+    fun `minionsOn lists the minions recorded on one island only`() {
+        val other = FakeIsland("Lands", "island-one", UUID.randomUUID())
+        val first = UUID.randomUUID()
+        val second = UUID.randomUUID()
+
+        index.record(island, first)
+        index.record(island, second)
+        index.record(other, UUID.randomUUID())
+
+        assertEquals(listOf(first, second), index.minionsOn(island))
+    }
 }

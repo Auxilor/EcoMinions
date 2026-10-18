@@ -20,6 +20,12 @@ class IslandMinionIndex(
 ) {
     fun count(island: MinionIsland): Int = readMinions().count { it.startsWith(prefix(island)) }
 
+    /** The minions recorded on [island], loaded or not. */
+    fun minionsOn(island: MinionIsland): List<UUID> =
+        readMinions().filter { it.startsWith(prefix(island)) }.mapNotNull {
+            runCatching { UUID.fromString(it.substringAfterLast(SEPARATOR)) }.getOrNull()
+        }
+
     /** Records [minion] on [island]; a minion already recorded there is left as it is. */
     @Synchronized
     fun record(island: MinionIsland, minion: UUID) {

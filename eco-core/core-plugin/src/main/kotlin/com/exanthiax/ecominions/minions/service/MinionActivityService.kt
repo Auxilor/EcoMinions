@@ -7,7 +7,8 @@ import java.util.UUID
 /**
  * Decides whether a minion is running, and moves it between running and idle.
  *
- * A minion runs only while its owner is online. Anything else - mining, selling,
+ * A minion runs while its owner is online or, when `islands.active-while-member-online`
+ * is on, while any member of the island it stands on is. Anything else - mining, selling,
  * fuel burn, animation - is a consequence of that one rule, so the rule lives in
  * one place rather than being implied by chunk loading.
  *
@@ -18,12 +19,25 @@ class MinionActivityService(
     private val repository: MinionStateRepository,
     private val offlineProgress: OfflineProgressService,
     private val settings: SettingsHolder<MinionSettings>,
-    private val isOnline: (UUID) -> Boolean
+    private val isOnline: (UUID) -> Boolean,
+    private val islandMembers: (Minion) -> Collection<UUID>
 ) {
     /** An unowned minion is never active: there is nobody to gate on or pay. */
-    fun isActive(minion: Minion): Boolean {
+    fun isActive(minion: Minion): Boolean = isActiveWhere(minion) { isOnline(it) }
+
+    /**
+     * As [isActive], treating [leaving] as offline. Bukkit still lists a player
+     * while their quit event is being handled.
+     */
+    fun isActiveWithout(minion: Minion, leaving: UUID): Boolean =
+        isActiveWhere(minion) { it != leaving && isOnline(it) }
+
+    private fun isActiveWhere(minion: Minion, online: (UUID) -> Boolean): Boolean {
         val owner = minion.state.owner ?: return false
-        return isOnline(owner)
+        if (online(owner)) {
+            return true
+        }
+        return settings.value.activeWhileMemberOnline && islandMembers(minion).any(online)
     }
 
     /**

@@ -31,6 +31,7 @@ import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.islands.IslandLimits
+import com.exanthiax.ecominions.islands.IslandMemberListener
 import com.exanthiax.ecominions.islands.IslandMinionIndex
 import com.exanthiax.ecominions.islands.IslandRegistry
 import com.exanthiax.ecominions.islands.MinionAccess
@@ -277,8 +278,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val ticker = MinionTicker(worlds, fuelService, triggerDispatch, events, activities::get)
     private val activityService = MinionActivityService(
-        repository, offlineProgress, minionSettings
-    ) { Bukkit.getPlayer(it) != null }
+        repository, offlineProgress, minionSettings,
+        { Bukkit.getPlayer(it) != null },
+        { islandRegistry.islandAt(it.location)?.members().orEmpty() }
+    )
     private val placedMinionsKey = PersistentDataKey(
         namespacedKeyFactory.create("placed_minions"),
         PersistentDataKeyType.STRING_LIST,
@@ -419,7 +422,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionChunkListener(minionService),
         MinionSlayerListener(slayerActivity, minionService),
         MinionPistonListener(minionService),
-        MinionOwnerListener(minionService, activityService, regions)
+        MinionOwnerListener(minionService, activityService, regions),
+        IslandMemberListener(minionService, activityService, islandRegistry, islandIndex, minionSettings, regions)
     )
 
     override fun loadPluginCommands(): List<PluginCommand> = listOf(
