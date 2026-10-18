@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.placeholders.TemplateRenderer
+import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.willfp.eco.core.items.Items
@@ -17,10 +18,7 @@ class MinionItemFactory(
         val item = Items.lookup(type.spawnItem.itemLookup).item.clone()
 
         val meta = item.itemMeta ?: return item
-        val context = TemplateContext.of(
-            "level" to state.level,
-            "minion_name" to type.name
-        )
+        val context = TemplateContext.of(MinionPlaceholders.STATE to state)
 
         meta.setDisplayName(renderer.render(type.spawnItem.displayName, context))
         meta.lore = renderer.render(type.spawnItem.lore, context)

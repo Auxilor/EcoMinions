@@ -1,9 +1,12 @@
 package com.exanthiax.ecominions.minions.integration
 
+import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.core.placeholders.InternalPlaceholder
 import com.exanthiax.ecominions.core.placeholders.PlaceholderSource
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.minions.model.MinionState
+import com.exanthiax.ecominions.minions.model.MinionStats
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.PlacementLimits
@@ -42,36 +45,54 @@ class MinionPlaceholders(
     }
 
     override fun internalPlaceholders(): List<InternalPlaceholder> = listOf(
-        InternalPlaceholder("minion_name") { it.minion()?.state?.definition?.name },
-        InternalPlaceholder("type") { it.minion()?.state?.definition?.id },
+        InternalPlaceholder("minion_name") { it.state()?.definition?.name },
+        InternalPlaceholder("type") { it.state()?.definition?.id },
         InternalPlaceholder("kind") { context ->
-            context.minion()?.state?.definition?.type?.id?.replaceFirstChar { it.uppercase() }
+            context.state()?.definition?.type?.id?.replaceFirstChar { it.uppercase() }
         },
-        InternalPlaceholder("level") { it.minion()?.level?.toString() },
-        InternalPlaceholder("stored_experience") { it.minion()?.state?.storedExperience?.toString() },
-        InternalPlaceholder("owner") { it.minion()?.let(::ownerName) },
-        InternalPlaceholder("used") { it.minion()?.usedStorage?.toString() },
-        InternalPlaceholder("total") { it.minion()?.storageSize?.toString() },
-        InternalPlaceholder("radius") { it.minion()?.stats?.radius?.toString() },
-        InternalPlaceholder("diameter") { it.minion()?.stats?.radius?.let { radius -> (radius * 2 + 1).toString() } },
-        InternalPlaceholder("height") { it.minion()?.stats?.height?.toString() },
+        InternalPlaceholder("level") { it.state()?.level?.toString() },
+        InternalPlaceholder("stored_experience") { it.state()?.storedExperience?.toString() },
+        InternalPlaceholder("owner") { it.state()?.let(::ownerName) },
+        InternalPlaceholder("used") { context ->
+            context.minion()?.usedStorage?.toString() ?: context.state()?.let(::storedSlots)?.toString()
+        },
+        InternalPlaceholder("total") { context ->
+            context.minion()?.storageSize?.toString() ?: context.stats()?.storageSize?.toString()
+        },
+        InternalPlaceholder("radius") { it.stats()?.radius?.toString() },
+        InternalPlaceholder("diameter") { it.stats()?.radius?.let { radius -> (radius * 2 + 1).toString() } },
+        InternalPlaceholder("height") { it.stats()?.height?.toString() },
         InternalPlaceholder("speed") { context ->
             context.minion()?.let { fuels.effectiveSpeedTicks(it, it.stats.speedTicks).toString() }
+                ?: context.stats()?.speedTicks?.toString()
         },
-        InternalPlaceholder("efficiency") { it.minion()?.stats?.efficiencyTicks?.toString() },
-        InternalPlaceholder("capacity") { it.minion()?.stats?.storageSize?.toString() }
+        InternalPlaceholder("efficiency") { it.stats()?.efficiencyTicks?.toString() },
+        InternalPlaceholder("capacity") { it.stats()?.storageSize?.toString() }
     )
 
-    private fun ownerName(minion: Minion): String {
-        val owner = minion.state.owner ?: return UNOWNED
+    private fun ownerName(state: MinionState): String {
+        val owner = state.owner ?: return UNOWNED
         return Bukkit.getOfflinePlayer(owner).name ?: UNKNOWN
     }
 
+    private fun storedSlots(state: MinionState): Int =
+        state.inventoryBytes?.let { bytes -> InventoryCodec.decode(bytes).count { it != null } } ?: 0
+
     private fun TemplateContext.minion(): Minion? = get(MINION)
+
+    /** A placed minion's state, or the state carried by an item when there is no minion. */
+    private fun TemplateContext.state(): MinionState? = minion()?.state ?: get(STATE)
+
+    /** A placed minion's live stats, or an item's base stats at its stored level. */
+    private fun TemplateContext.stats(): MinionStats? =
+        minion()?.stats ?: get<MinionState>(STATE)?.let { MinionStats(it.definition.baseStats, it.level) }
 
     companion object {
         /** Context key every minion-aware placeholder resolves against. */
         const val MINION = "minion"
+
+        /** Context key for a minion that is not placed, such as the one an item carries. */
+        const val STATE = "minion_state"
 
         private const val UNOWNED = "Unowned"
         private const val UNKNOWN = "Unknown"
