@@ -65,6 +65,10 @@ class MinionHologram(
             messages.line("hologram.line-1", context),
             messages.line("hologram.line-2", context)
         )
+        generateSequence(3) { it + 1 }
+            .map { "hologram.line-$it" }
+            .takeWhile { messages.has(it) }
+            .forEach { lines += messages.line(it, context) }
 
         if (!activity.isActive(minion)) {
             lines += messages.line("hologram.idle", context)
