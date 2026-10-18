@@ -1,5 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.minions.MinionDefinitionFixture
+import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
@@ -13,9 +15,14 @@ class MinionProtectionTest {
 
     private val world = FakeWorld()
     private val owner = mockk<Player>()
-    private val minion = mockk<Minion> { every { mining } returns MiningState() }
+    private val minion = minionOf(bypassAntigrief = false)
     private var now = 0L
     private var asked = 0
+
+    private fun minionOf(bypassAntigrief: Boolean) = mockk<Minion> {
+        every { mining } returns MiningState()
+        every { state } returns MinionState(definition = MinionDefinitionFixture.build(bypassAntigrief = bypassAntigrief))
+    }
 
     private fun protection(allowed: Boolean = true, online: Boolean = true) = MinionProtection(
         ownerOf = { if (online) owner else null },
@@ -63,4 +70,11 @@ class MinionProtectionTest {
         assertEquals(0, asked)
     }
 
+    @Test
+    fun `a type that bypasses antigrief is never refused`() {
+        val bypassing = minionOf(bypassAntigrief = true)
+
+        assertTrue(protection(allowed = false).allows(bypassing, world.blockAt(1, 0, 0)))
+        assertEquals(0, asked)
+    }
 }

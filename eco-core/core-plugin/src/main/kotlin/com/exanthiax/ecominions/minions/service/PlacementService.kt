@@ -55,7 +55,7 @@ class PlacementService(
         if (isDisabled(location)) {
             return PlaceResult.WorldDisabled
         }
-        if (!canPlace(player, location.block)) {
+        if (!state.definition.bypassAntigrief && !canPlace(player, location.block)) {
             return PlaceResult.Protected
         }
         val limit = limits.limitFor(player)

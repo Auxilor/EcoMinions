@@ -6,7 +6,8 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Player
 
 /**
- * Whether a minion may work a block: its owner must be able to build there.
+ * Whether a minion may work a block: its owner must be able to build there,
+ * unless its type bypasses antigrief.
  *
  * Protection plugins are slow to ask and a work area is scanned every cycle,
  * so answers are cached per minion and asked again after [RECHECK_MILLIS], in
@@ -20,6 +21,9 @@ class MinionProtection(
     private val clock: () -> Long = System::currentTimeMillis
 ) {
     fun allows(minion: Minion, block: Block): Boolean {
+        if (minion.state.definition.bypassAntigrief) {
+            return true
+        }
         val mining = minion.mining
         val now = clock()
         if (now - mining.protectionCheckedAt >= RECHECK_MILLIS) {
