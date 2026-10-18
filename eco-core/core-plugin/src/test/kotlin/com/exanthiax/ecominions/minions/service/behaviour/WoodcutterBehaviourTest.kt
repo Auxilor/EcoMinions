@@ -89,6 +89,37 @@ class WoodcutterBehaviourTest {
         assertFalse(sapling in listOf(Triple(-2, 0, -1), Triple(-2, 0, 1)), "planted beside the log")
     }
 
+    @Test
+    fun `plants no sapling where the owner cannot build`() {
+        val world = FakeWorld()
+        world.fillFloor(Material.DIRT)
+        val protectedBehaviour = WoodcutterBehaviour(TreeService()) { _, block -> block.x >= 0 }
+        val minion = minion(world)
+
+        while (protectedBehaviour.onBeforeMine(minion, now = 0L)) {
+            // plant until nowhere is left
+        }
+
+        assertTrue(world.countOf(Material.OAK_SAPLING) > 0)
+        assertTrue(world.positionsOf(Material.OAK_SAPLING).all { it.first >= 0 })
+    }
+
+    @Test
+    fun `a tree grows no leaves where the owner cannot build`() {
+        val world = FakeWorld()
+        world.fillFloor(Material.DIRT)
+        val protectedBehaviour = WoodcutterBehaviour(TreeService()) { _, block -> block.y < 1 || block.x != -1 }
+        val minion = minion(world)
+        assertTrue(protectedBehaviour.onBeforeMine(minion, now = 0L))
+        minion.mining.saplings.keys.retainAll { it.blockX == -2 && it.blockZ == 0 }
+
+        protectedBehaviour.onBeforeMine(minion, now = REGEN_DELAY_TICKS.toLong())
+
+        assertEquals(Material.OAK_LOG, world.typeAt(-2, 0, 0))
+        assertTrue(world.countOf(Material.OAK_LEAVES) > 0)
+        assertTrue(world.positionsOf(Material.OAK_LEAVES).none { it.first == -1 })
+    }
+
     /** The minion counts as a tree for spacing, so nothing is planted right beside it. */
     @Test
     fun `plants nothing within spacing of the minion`() {

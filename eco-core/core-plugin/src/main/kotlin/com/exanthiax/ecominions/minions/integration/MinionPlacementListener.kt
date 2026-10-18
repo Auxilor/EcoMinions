@@ -53,6 +53,9 @@ class MinionPlacementListener(
             is PlacementService.PlaceResult.WorldDisabled ->
                 player.sendMessage(messages.line("messages.world-disabled"))
 
+            is PlacementService.PlaceResult.Protected ->
+                player.sendMessage(messages.line("messages.cannot-place-here"))
+
             is PlacementService.PlaceResult.LimitReached ->
                 player.sendMessage(
                     messages.line("messages.limit-reached-player", TemplateContext.of("limit" to result.limit))

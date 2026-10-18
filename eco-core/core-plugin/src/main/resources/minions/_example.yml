@@ -16,6 +16,11 @@ name: "&fExample Minion" # The name shown on its hologram and item.
 # A block definition in blocks/ can force a behaviour for one block with restore.
 type: miner
 
+# If true, this minion is placed and works where its owner cannot build, in
+# claims, islands and protected regions. Leave it false unless only admins can
+# get this minion.
+bypass-antigrief: false
+
 # The blocks this minion works, for miners, farmers and woodcutters.
 # A woodcutter lists its log here. A farmer lists the crop block, e.g. WHEAT or
 # BEETROOTS, not the seed item.

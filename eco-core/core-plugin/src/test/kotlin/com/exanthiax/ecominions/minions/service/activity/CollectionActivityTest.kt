@@ -18,6 +18,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.bukkit.Material
+import org.bukkit.block.Block
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
 import org.bukkit.entity.ExperienceOrb
@@ -65,8 +66,25 @@ class CollectionActivityTest {
         every { storeAndDispatchCollect(minion, any()) } answers { minion.storage.store(secondArg()) }
     }
 
-    private fun activity(minion: Minion, events: EventDispatcher = RecordingEventDispatcher(), isMinionItem: (ItemStack) -> Boolean = { false }) =
-        CollectionActivity(entities, dispatch(minion), events, sink, isMinionItem, listening = { true })
+    private fun activity(
+        minion: Minion,
+        events: EventDispatcher = RecordingEventDispatcher(),
+        isMinionItem: (ItemStack) -> Boolean = { false },
+        canWork: (Minion, Block) -> Boolean = { _, _ -> true }
+    ) = CollectionActivity(entities, dispatch(minion), events, sink, isMinionItem, listening = { true }, canWork = canWork)
+
+    @Test
+    fun `leaves items and orbs where the owner cannot build`() {
+        val subject = minion()
+        val dropped = item(ItemStack(Material.COBBLESTONE))
+        items += dropped
+        orbs += mockk<ExperienceOrb>(relaxed = true) { every { isValid } returns true; every { experience } returns 3 }
+
+        assertEquals(ActivityResult.BUSY, activity(subject, canWork = { _, _ -> false }).act(subject, 0L))
+
+        verify(exactly = 0) { dropped.remove() }
+        verify(exactly = 0) { sink.store(any(), 3) }
+    }
 
     private fun item(stack: ItemStack, pickupDelay: Int = 0): Item {
         var current = stack

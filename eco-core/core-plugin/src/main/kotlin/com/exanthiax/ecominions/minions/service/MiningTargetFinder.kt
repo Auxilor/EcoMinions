@@ -15,7 +15,9 @@ import org.bukkit.block.data.Ageable
  * configurable, since their upper logs sit well above the three-block box that
  * used to be hardcoded here.
  */
-class MiningTargetFinder {
+class MiningTargetFinder(
+    private val canWork: (Minion, Block) -> Boolean = { _, _ -> true }
+) {
     fun find(minion: Minion): Block? {
         val radius = minion.stats.radius
         val center = minion.entity.location.block
@@ -30,7 +32,7 @@ class MiningTargetFinder {
                     if (minion.mining.isAwaitingRegen(candidate)) {
                         continue
                     }
-                    if (targets.matches(candidate) && isMineableNow(candidate, targets)) {
+                    if (targets.matches(candidate) && isMineableNow(candidate, targets) && canWork(minion, candidate)) {
                         candidates += candidate
                     }
                 }

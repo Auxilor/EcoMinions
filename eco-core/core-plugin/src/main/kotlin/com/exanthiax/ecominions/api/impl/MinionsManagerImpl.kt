@@ -181,6 +181,7 @@ class MinionsManagerImpl(
         is PlacementService.PlaceResult.Placed -> PlaceResult(PlaceResult.Status.PLACED, minion, 0)
         PlacementService.PlaceResult.WorldDisabled -> PlaceResult(PlaceResult.Status.WORLD_DISABLED, null, 0)
         is PlacementService.PlaceResult.LimitReached -> PlaceResult(PlaceResult.Status.LIMIT_REACHED, null, limit)
+        PlacementService.PlaceResult.Protected -> PlaceResult(PlaceResult.Status.PROTECTED, null, 0)
         PlacementService.PlaceResult.Cancelled -> PlaceResult(PlaceResult.Status.CANCELLED, null, 0)
     }
 

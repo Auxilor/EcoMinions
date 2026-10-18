@@ -27,6 +27,7 @@ import io.mockk.verify
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.block.Block
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
@@ -98,7 +99,11 @@ class SlayerActivityTest {
 
     private val owner = mockk<Player>(relaxed = true)
 
-    private fun activity(minion: Minion, events: EventDispatcher = RecordingEventDispatcher()) = SlayerActivity(
+    private fun activity(
+        minion: Minion,
+        events: EventDispatcher = RecordingEventDispatcher(),
+        canWork: (Minion, Block) -> Boolean = { _, _ -> true }
+    ) = SlayerActivity(
         entities = entities,
         spawner = { _, _ -> mob(EntityType.ZOMBIE).also { spawned += it } },
         dispatch = dispatch(minion),
@@ -108,8 +113,26 @@ class SlayerActivityTest {
         ownerOf = { owner },
         listening = { true },
         rewardOf = { 5 },
-        random = Random(1)
+        random = Random(1),
+        canWork = canWork
     )
+
+    @Test
+    fun `a mob where the owner cannot build is skipped`() {
+        val subject = minion(selfSeed = false)
+        living += mob(EntityType.ZOMBIE)
+
+        assertEquals(ActivityResult.BLOCKED, activity(subject, canWork = { _, _ -> false }).act(subject, 0L))
+    }
+
+    @Test
+    fun `self-seed spawns nothing where the owner cannot build`() {
+        world.fillLayer(-1)
+        val subject = minion()
+
+        assertEquals(ActivityResult.BUSY, activity(subject, canWork = { _, _ -> false }).act(subject, 0L))
+        assertTrue(spawned.isEmpty())
+    }
 
     private fun mob(type: EntityType, tag: String? = null, named: Boolean = false): LivingEntity {
         val container = FakePersistentDataContainer.create()

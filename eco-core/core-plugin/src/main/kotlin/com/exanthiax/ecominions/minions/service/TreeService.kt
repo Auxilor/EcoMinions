@@ -20,13 +20,19 @@ class TreeService {
      * its definition picks one with `tree-pattern`.
      *
      * Leaves are never placed in the column at [keepClear], so a canopy cannot
-     * grow through the minion standing there.
+     * grow through the minion standing there, and nothing is placed where
+     * [canPlace] refuses.
      *
      * @return The tree that now stands there. A definition with no
      * [MinionBlock.leaves] grows a bare trunk rather than nothing, so a
      * half-configured tree still farms wood.
      */
-    fun growTree(base: Location, definition: MinionBlock, keepClear: Location? = null): GrownTree {
+    fun growTree(
+        base: Location,
+        definition: MinionBlock,
+        keepClear: Location? = null,
+        canPlace: (Block) -> Boolean = { true }
+    ): GrownTree {
         val world = base.world ?: return GrownTree.NONE
         val shape = TreeShape.forSpecies(definition.patternKey) ?: TreeShape.DEFAULT
         val logs = mutableListOf<Block>()
@@ -38,6 +44,9 @@ class TreeService {
                 base.blockY + placement.y,
                 base.blockZ + placement.z
             )
+            if (!canPlace(block)) {
+                continue
+            }
             when (placement.kind) {
                 TreeBlock.Kind.LOG -> if (block.type == Material.AIR || definition.block.matches(block)) {
                     definition.block.place(block.location)

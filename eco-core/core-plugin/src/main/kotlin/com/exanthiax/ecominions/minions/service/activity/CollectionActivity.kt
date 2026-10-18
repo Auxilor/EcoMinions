@@ -8,6 +8,7 @@ import com.exanthiax.ecominions.minions.model.CollectionSettings
 import com.exanthiax.ecominions.minions.service.ExperienceSink
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.WorkAreaEntities
+import org.bukkit.block.Block
 import org.bukkit.entity.ExperienceOrb
 import org.bukkit.entity.Item
 import org.bukkit.event.HandlerList
@@ -20,7 +21,8 @@ class CollectionActivity(
     private val events: EventDispatcher,
     private val experience: ExperienceSink,
     private val isMinionItem: (ItemStack) -> Boolean,
-    private val listening: (HandlerList) -> Boolean = { it.registeredListeners.isNotEmpty() }
+    private val listening: (HandlerList) -> Boolean = { it.registeredListeners.isNotEmpty() },
+    private val canWork: (Minion, Block) -> Boolean = { _, _ -> true }
 ) : MinionActivity {
 
     override fun act(minion: Minion, now: Long): ActivityResult {
@@ -39,7 +41,7 @@ class CollectionActivity(
     override fun offlineCycle(minion: Minion): OfflineYield? = null
 
     private fun collect(minion: Minion, item: Item, settings: CollectionSettings): Boolean {
-        if (!item.isValid || item.pickupDelay > 0) {
+        if (!item.isValid || item.pickupDelay > 0 || !canWork(minion, item.location.block)) {
             return false
         }
         val stack = item.itemStack
@@ -65,7 +67,7 @@ class CollectionActivity(
     }
 
     private fun absorbOrbs(minion: Minion): Int {
-        val orbs = entities.find(minion, ExperienceOrb::class.java).filter { it.isValid }
+        val orbs = entities.find(minion, ExperienceOrb::class.java).filter { it.isValid && canWork(minion, it.location.block) }
         experience.store(minion, orbs.sumOf { it.experience })
         orbs.forEach { it.remove() }
         return orbs.size

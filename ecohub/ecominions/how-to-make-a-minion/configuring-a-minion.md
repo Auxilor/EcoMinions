@@ -45,6 +45,7 @@ name: "&8Coal Minion" # The name shown on its hologram and item.
 type: miner # One of miner, farmer, woodcutter, slayer, fishing or collector.
 target-blocks: # Type keys go here; see the type's page.
   - COAL_ORE
+bypass-antigrief: false # If true, it is placed and works where its owner cannot build.
 
 # === Stats: level-one values before upgrades ===
 base-stats:
@@ -306,6 +307,18 @@ placement:
 | `spacing` | `miner`, `farmer`, `woodcutter` | Empty blocks `self-seed` keeps between plants, along each straight direction. `0` packs them side by side. |
 | `lift-regen` | `miner`, `farmer`, `woodcutter` | When a block regenerates, `surface-block` is placed under it first if it is missing, e.g. farmland under wheat. Left out, it is on when a target has a `surface` in its [block definition](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block), as crops and trees do. |
 | `surface-block` | `miner`, `farmer`, `woodcutter` | The block placed under a regenerating block when `lift-regen` is on. |
+
+### Land protection
+
+A minion respects land protection plugins, such as WorldGuard, GriefPrevention, Lands, Towny, SuperiorSkyblock2 and BentoBox. A player can't place one where they can't build. A placed minion leaves alone every block in its work area that its owner can't build at: it does not mine, plant, seed or lay water there, and it does not collect items or kill mobs standing there.
+
+```yaml
+bypass-antigrief: false # If true, it is placed and works where its owner cannot build.
+```
+
+:::warning Bypassing protection
+A type with `bypass-antigrief: true` ignores land protection completely, so its owner can use it to grief claims. Give it only to admins.
+:::
 
 ### Stored XP
 

@@ -9,6 +9,7 @@ messages:
   picked-up: "&7Minion picked up."
   limit-reached-player: "&cYou have reached your minion limit (&e%limit%&c)."
   world-disabled: "&cMinions are disabled in this world."
+  cannot-place-here: "&cYou can't place a minion here."
   not-owner: "&cYou are not the owner of this minion."
   no-such-type: "&cNo minion type with id &e%id%&c."
   no-such-player: "&cNo player with name &e%name%&c."

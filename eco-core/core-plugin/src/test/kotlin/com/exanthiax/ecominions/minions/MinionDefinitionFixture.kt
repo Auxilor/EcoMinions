@@ -45,7 +45,8 @@ object MinionDefinitionFixture {
         compactorRecipes: List<CompactorRecipeDefinition> = emptyList(),
         collection: CollectionSettings? = null,
         slayer: SlayerSettings? = null,
-        fishing: FishingSettings? = null
+        fishing: FishingSettings? = null,
+        bypassAntigrief: Boolean = false
     ) = MinionDefinition(
         id = id,
         name = "Stone Minion",
@@ -75,6 +76,7 @@ object MinionDefinitionFixture {
         compactorRecipes = compactorRecipes,
         collection = collection,
         slayer = slayer,
-        fishing = fishing
+        fishing = fishing,
+        bypassAntigrief = bypassAntigrief
     )
 }

@@ -65,6 +65,10 @@ class MiningState {
      */
     val seeded: MutableSet<Location> = mutableSetOf()
 
+    /** Whether the owner can build at each block position asked about, and when the answers were reset. */
+    val protectedBlocks: MutableMap<Long, Boolean> = mutableMapOf()
+    var protectionCheckedAt: Long = 0L
+
     /** Blocks currently showing the regen marker, cleared if the minion is picked up. */
     val pendingRegen: MutableList<Location> = mutableListOf()
 
