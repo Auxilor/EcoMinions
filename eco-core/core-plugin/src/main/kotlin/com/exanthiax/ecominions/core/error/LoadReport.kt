@@ -38,6 +38,10 @@ class LoadReport {
         val counts = loaded.entries.joinToString(", ") { "${it.value} ${it.key}" }
         val body = if (counts.isBlank()) "Loaded nothing" else "Loaded $counts"
         val count = violationCount
-        return if (count == 0) body else "$body ($count violations - see above)"
+        return when (count) {
+            0 -> body
+            1 -> "$body (1 violation - see above)"
+            else -> "$body ($count violations - see above)"
+        }
     }
 }

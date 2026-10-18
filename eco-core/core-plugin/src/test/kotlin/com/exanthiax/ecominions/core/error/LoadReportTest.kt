@@ -26,6 +26,15 @@ class LoadReportTest {
     }
 
     @Test
+    fun `a single violation is singular`() {
+        val report = LoadReport()
+        report.recordLoaded("minion types", 14)
+        report.recordViolation()
+
+        assertEquals("Loaded 14 minion types (1 violation - see above)", report.summary())
+    }
+
+    @Test
     fun `a reload starts the counts again`() {
         val report = LoadReport()
         report.recordViolation()
