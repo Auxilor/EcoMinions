@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege as SuperiorPrivilege
 
 /** Island provider backed by SuperiorSkyblock2. */
-class SuperiorSkyblockIslandProvider : IslandProvider {
+class SuperiorSkyblockIslandProvider(private val warn: (String) -> Unit) : IslandProvider {
     override val id = PLUGIN_NAME
 
     override fun islandAt(location: Location): MinionIsland? =
@@ -30,10 +30,10 @@ class SuperiorSkyblockIslandProvider : IslandProvider {
 
     private fun wrap(island: Island): MinionIsland {
         applyDefaultsOnce(island)
-        return SuperiorSkyblockMinionIsland(island)
+        return SuperiorSkyblockMinionIsland(island, warn)
     }
 
-    private class SuperiorSkyblockMinionIsland(private val island: Island) : MinionIsland {
+    private class SuperiorSkyblockMinionIsland(private val island: Island, private val warn: (String) -> Unit) : MinionIsland {
         override val provider = PLUGIN_NAME
         override val id: String = island.uniqueId.toString()
         override val owner: UUID? = island.owner?.uniqueId
@@ -43,7 +43,7 @@ class SuperiorSkyblockIslandProvider : IslandProvider {
             val superiorPrivilege = SuperiorPrivilege.getByName(name)
             if (superiorPrivilege == null) {
                 if (reportedMissing.add(name)) {
-                    Bukkit.getLogger().warning("SuperiorSkyblock2 privilege $name is not registered, denying it")
+                    warn("SuperiorSkyblock2 privilege $name is not registered, denying it")
                 }
                 return false
             }
@@ -88,7 +88,12 @@ class SuperiorSkyblockIslandProvider : IslandProvider {
 
         private fun applyDefaultsOnce(island: Island) {
             if (defaultsApplied.add(island.uniqueId)) {
-                applyDefaults(island)
+                try {
+                    applyDefaults(island)
+                } catch (exception: Exception) {
+                    defaultsApplied.remove(island.uniqueId)
+                    throw exception
+                }
             }
         }
 

@@ -380,17 +380,20 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     override fun loadConfigCategories(): List<ConfigCategory> =
         LibreforgeRegistrations.configCategories(blockDefinitions, minionTypes, upgrades, fuels, compactorRecipes)
 
+    private var superiorSkyblockPrivilegesRegistered = false
+
     override fun handleLoad() {
         if (Bukkit.getPluginManager().getPlugin(SUPERIOR_SKYBLOCK) != null) {
             runCatching { SuperiorSkyblockIslandProvider.registerPrivileges() }
+                .onSuccess { superiorSkyblockPrivilegesRegistered = true }
                 .onFailure { logger.warning("SuperiorSkyblock2 support disabled: ${it.message}") }
         }
     }
 
     override fun handleEnable() {
-        if (Bukkit.getPluginManager().isPluginEnabled(SUPERIOR_SKYBLOCK)) {
+        if (superiorSkyblockPrivilegesRegistered && Bukkit.getPluginManager().isPluginEnabled(SUPERIOR_SKYBLOCK)) {
             runCatching {
-                islandRegistry.register(SuperiorSkyblockIslandProvider())
+                islandRegistry.register(SuperiorSkyblockIslandProvider(logger::warning))
                 SuperiorSkyblockIslandProvider.listenForNewIslands(this)
             }.onFailure { logger.warning("SuperiorSkyblock2 support disabled: ${it.message}") }
         }
