@@ -135,13 +135,24 @@ class UpgradeMenu(
                     return
                 }
                 val result = purchases.purchase(player, minion, upgrade, tier, tier.costs.first())
-                announce(player, result, upgrade, tier)
-                if (result == MinionUpgradeService.Result.PURCHASED) {
-                    open(player, minion, upgrade)
-                }
+                finishPurchase(player, minion, upgrade, tier, result)
             }
 
             else -> costSelect.open(player, minion, upgrade, tier)
+        }
+    }
+
+    /** Tells [player] how buying [tier] went, and reopens the upgrade after a purchase. */
+    fun finishPurchase(
+        player: Player,
+        minion: Minion,
+        upgrade: Upgrade,
+        tier: UpgradeTier,
+        result: MinionUpgradeService.Result
+    ) {
+        announce(player, result, upgrade, tier)
+        if (result == MinionUpgradeService.Result.PURCHASED) {
+            open(player, minion, upgrade)
         }
     }
 
