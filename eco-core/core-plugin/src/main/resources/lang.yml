@@ -129,6 +129,10 @@ gui:
         - "&7Target: &f%targets%"
         - "&7Speed: &f%speed%"
         - "&7Capacity: &f%capacity%"
+    previous-page:
+      name: "&fPrevious Page"
+    next-page:
+      name: "&fNext Page"
 
   cost-select:
     option:
