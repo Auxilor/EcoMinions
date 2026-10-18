@@ -168,7 +168,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val itemLookup = EcoItemLookup()
     private val blockDefinitions = ConfigDrivenRegistry(
         "minion_block", "blocks", "block definitions",
-        MinionBlockLoader(blockLookup), report
+        MinionBlockLoader(blockLookup), report,
+        onBeforeReload = { refreshSettings() }
     )
     private val vanillaBlocks = VanillaBlockDefaults(blockLookup)
     private val blockIndex = MinionBlockIndex({ blockDefinitions.all() }, vanillaBlocks)
