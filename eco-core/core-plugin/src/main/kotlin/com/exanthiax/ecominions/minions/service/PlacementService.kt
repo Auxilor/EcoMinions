@@ -18,6 +18,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
+import org.bukkit.block.Block
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -33,12 +34,14 @@ class PlacementService(
     private val worlds: WorldSettings,
     private val settings: SettingsHolder<MinionSettings>,
     private val triggers: MinionTriggerDispatch,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val canPlace: (Player, Block) -> Boolean
 ) {
     sealed interface PlaceResult {
         data class Placed(val minion: Minion) : PlaceResult
         data object WorldDisabled : PlaceResult
         data class LimitReached(val limit: Int) : PlaceResult
+        data object Protected : PlaceResult
         data object Cancelled : PlaceResult
     }
 
@@ -51,6 +54,9 @@ class PlacementService(
     fun place(player: Player, state: MinionState, location: Location): PlaceResult {
         if (isDisabled(location)) {
             return PlaceResult.WorldDisabled
+        }
+        if (!canPlace(player, location.block)) {
+            return PlaceResult.Protected
         }
         val limit = limits.limitFor(player)
         if (minions.countOwnedBy(player) >= limit) {

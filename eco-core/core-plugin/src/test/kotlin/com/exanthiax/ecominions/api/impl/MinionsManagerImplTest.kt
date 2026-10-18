@@ -66,6 +66,7 @@ class MinionsManagerImplTest {
             PlacementService.PlaceResult.Placed(minion) to PlaceResult.Status.PLACED,
             PlacementService.PlaceResult.WorldDisabled to PlaceResult.Status.WORLD_DISABLED,
             PlacementService.PlaceResult.LimitReached(3) to PlaceResult.Status.LIMIT_REACHED,
+            PlacementService.PlaceResult.Protected to PlaceResult.Status.PROTECTED,
             PlacementService.PlaceResult.Cancelled to PlaceResult.Status.CANCELLED
         )
 

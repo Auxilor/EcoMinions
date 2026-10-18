@@ -13,6 +13,9 @@ data class PlaceResult(
         WORLD_DISABLED,
         LIMIT_REACHED,
 
+        /** The player cannot build where the minion would stand. */
+        PROTECTED,
+
         /** The item given to place from does not carry a minion. */
         INVALID_ITEM,
         CANCELLED

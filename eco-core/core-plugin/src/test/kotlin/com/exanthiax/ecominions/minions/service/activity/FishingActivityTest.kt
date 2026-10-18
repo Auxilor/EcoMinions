@@ -22,6 +22,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.bukkit.Material
+import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -70,7 +71,11 @@ class FishingActivityTest {
         every { storeAndDispatchCollect(minion, any()) } answers { minion.storage.store(secondArg()) }
     }
 
-    private fun activity(minion: Minion, events: EventDispatcher = RecordingEventDispatcher()) = FishingActivity(
+    private fun activity(
+        minion: Minion,
+        events: EventDispatcher = RecordingEventDispatcher(),
+        canWork: (Minion, Block) -> Boolean = { _, _ -> true }
+    ) = FishingActivity(
         roller = roller,
         dispatch = dispatch(minion),
         events = events,
@@ -79,8 +84,19 @@ class FishingActivityTest {
         listening = { true },
         isWaterSource = { it.type == Material.WATER },
         splash = {},
-        random = Random(1)
+        random = Random(1),
+        canWork = canWork
     )
+
+    @Test
+    fun `self-seed lays no water where the owner cannot build`() {
+        world.fillLayer(-2)
+        val subject = minion(selfSeed = true)
+
+        activity(subject, canWork = { _, _ -> false }).act(subject, 0L)
+
+        assertEquals(0, world.countOf(Material.WATER))
+    }
 
     @Test
     fun `without enough water it is blocked with no-water`() {

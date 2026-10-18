@@ -73,6 +73,7 @@ import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
+import com.exanthiax.ecominions.minions.service.MinionProtection
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.MinionStateRepository
 import com.exanthiax.ecominions.minions.service.MinionTicker
@@ -116,6 +117,7 @@ import com.willfp.eco.core.command.impl.PluginCommand
 import com.willfp.eco.core.data.PlayerProfile
 import com.willfp.eco.core.data.keys.PersistentDataKey
 import com.willfp.eco.core.data.keys.PersistentDataKeyType
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager
 import com.willfp.eco.core.items.Items
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
@@ -230,14 +232,15 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         resolve = { material, location -> vanillaDrops(material, location) },
         resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
     )
-    private val seedingService = SeedingService()
+    private val protection = MinionProtection()
+    private val seedingService = SeedingService(protection::allows)
     private val regenService = RegenService(minionSettings, triggerDispatch, events)
     private val behaviours = MinionBehaviours(
         miner = MinerBehaviour(regenService, seedingService),
-        woodcutter = WoodcutterBehaviour(TreeService()),
+        woodcutter = WoodcutterBehaviour(TreeService(), protection::allows),
         farmer = FarmerBehaviour(regenService, seedingService)
     )
-    private val miningTargets = MiningTargetFinder()
+    private val miningTargets = MiningTargetFinder(protection::allows)
     private val experienceSink = ExperienceSink(minionSettings) { minion, amount -> spawnXpOrb(minion, amount) }
     private val blockActivity = BlockActivity(
         miningTargets, blockIndex, regenService, behaviours, triggerDispatch, events, dropTables, experienceSink
@@ -245,7 +248,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val workAreaEntities = BukkitWorkAreaEntities()
     private val collectionActivity = CollectionActivity(
         workAreaEntities, triggerDispatch, events, experienceSink,
-        { item -> item.itemMeta?.persistentDataContainer?.let(repository::isMinion) == true }
+        { item -> item.itemMeta?.persistentDataContainer?.let(repository::isMinion) == true },
+        canWork = protection::allows
     )
     private val slayerActivity = SlayerActivity(
         entities = workAreaEntities,
@@ -253,12 +257,14 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         dispatch = triggerDispatch,
         events = events,
         experience = experienceSink,
-        spawnedByKey = dataKeys.spawnedBy
+        spawnedByKey = dataKeys.spawnedBy,
+        canWork = protection::allows
     )
     private val ecoItemsIntegration = EcoItemsIntegrationService()
     private val fishingActivity = FishingActivity(
         FishingLootRoller(ecoItemsIntegration, { location, owner -> vanillaFishingLoot(location, owner) }),
-        triggerDispatch, events, experienceSink
+        triggerDispatch, events, experienceSink,
+        canWork = protection::allows
     )
     private val activities = MinionActivities(blockActivity, collectionActivity, slayerActivity, fishingActivity)
     private val offlineProgress = OfflineProgressService(
@@ -283,7 +289,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
-        triggerDispatch, events
+        triggerDispatch, events, AntigriefManager::canPlaceBlock
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)

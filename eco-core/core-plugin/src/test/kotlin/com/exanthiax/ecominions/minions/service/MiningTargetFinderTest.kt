@@ -87,6 +87,16 @@ class MiningTargetFinderTest {
     }
 
     @Test
+    fun `a block the owner cannot build at is not a target`() {
+        val world = FakeWorld()
+        world.set(1, 0, 0, Material.OAK_LOG)
+        world.set(-1, 0, 0, Material.OAK_LOG)
+        val protectedFinder = MiningTargetFinder { _, block -> block.x != 1 }
+
+        repeat(10) { assertEquals(-1, protectedFinder.find(minionAt(world, height = 3))?.x) }
+    }
+
+    @Test
     fun `a box with floor zero starts at the minion's own level`() {
         val world = FakeWorld()
         world.set(1, -1, 0, Material.OAK_LOG)

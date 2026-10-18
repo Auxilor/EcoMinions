@@ -19,7 +19,8 @@ import org.bukkit.block.Block
  * wood in the same place.
  */
 class WoodcutterBehaviour(
-    private val trees: TreeService
+    private val trees: TreeService,
+    private val canWork: (Minion, Block) -> Boolean = { _, _ -> true }
 ) : MinionBehaviour {
 
     override fun onBlockBroken(
@@ -100,7 +101,7 @@ class WoodcutterBehaviour(
                 continue
             }
             sapling.block.type = Material.AIR
-            val grown = trees.growTree(sapling, definition, minion.entity.location)
+            val grown = trees.growTree(sapling, definition, minion.entity.location) { canWork(minion, it) }
             minion.mining.standingTrees += grown
             (grown.logs + grown.leaves).mapTo(minion.mining.seeded) { it.location }
             saplings.remove()
@@ -141,7 +142,7 @@ class WoodcutterBehaviour(
                 }
                 for (y in -1..1) {
                     val candidate = world.getBlockAt(center.x + x, center.y + y, center.z + z)
-                    if (!isPlantable(candidate, expectedSurface, targets)) {
+                    if (!isPlantable(minion, candidate, expectedSurface, targets)) {
                         continue
                     }
                     val clear = PlantSpacing.isClear(minion, candidate, spacing) {
@@ -165,12 +166,15 @@ class WoodcutterBehaviour(
     private fun surfaceFor(minion: Minion, definition: MinionBlock): TestableBlock? =
         definition.surface ?: minion.state.definition.placement.surfaceBlock
 
-    private fun isPlantable(block: Block, expectedSurface: TestableBlock?, targets: TargetSet): Boolean {
+    private fun isPlantable(minion: Minion, block: Block, expectedSurface: TestableBlock?, targets: TargetSet): Boolean {
         if (block.type != Material.AIR) {
             return false
         }
-        return SeedSurface.accepts(SeedSurface.below(block), expectedSurface, targets) &&
-            hasClearance(block)
+        val below = SeedSurface.below(block)
+        return SeedSurface.accepts(below, expectedSurface, targets) &&
+            hasClearance(block) &&
+            canWork(minion, block) &&
+            (SeedSurface.isPrepared(below, expectedSurface) || canWork(minion, below))
     }
 
     private fun hasClearance(block: Block): Boolean =
