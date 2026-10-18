@@ -1,49 +1,48 @@
-# The ID of the minion type is the name of the .yml file,
-# for example wood.yml has the ID of wood
-# You can place minion types anywhere in this folder,
-# including in subfolders if you want to organize your configs
+# The ID of the minion is the name of the .yml file.
+# For example wood.yml has the ID of wood.
+# You can place minions anywhere in this folder,
+# including in subfolders if you want to organise your configs.
 # _example.yml is not loaded.
 
-name: "&fExample Minion"
+name: "&fExample Minion" # The name shown on its hologram and item.
 
-# What this minion does with the blocks it breaks:
-#   miner      - breaks the block and puts it back after the regen delay
-#   woodcutter - fells the tree, plants a sapling, waits for it to grow
-#   farmer     - harvests the ripe crop and replants it
-# Required. A block definition in blocks/ can override this for one
-# specific block with its own 'restore:' key.
+# What this minion does with its turn. Required.
+# miner: breaks the block and puts it back after the regen delay.
+# woodcutter: fells the tree, plants a sapling, and waits for it to grow.
+# farmer: harvests the ripe crop and replants it.
+# slayer: kills mobs in its area. See target-mobs below.
+# fishing: catches from water in its area. See min-water below.
+# collector: picks up dropped items and XP orbs. See target-items below.
+# A block definition in blocks/ can force a behaviour for one block with restore.
 type: miner
 
-# Blocks this minion mines. A woodcutter lists its log here like any other
-# minion lists its block. Any configured seed or crop is promoted to its
-# grown form automatically.
+# The blocks this minion works, for miners, farmers and woodcutters.
+# A woodcutter lists its log here. A seed or crop is promoted to its grown form.
 target-blocks:
   - STONE
   - COBBLESTONE
 
-# Every stat here may be a plain number or a %level%-scaled expression, e.g.
-# "max(1, 60 - %level% * 2)". max-storage-slots is rounded rather than
-# truncated, and is always clamped to config.yml's minion.hard-slot-cap,
-# however high a formula pushes it.
+# Every stat may be a plain number or an expression in %level%, such as
+# "max(1, 60 - %level% * 2)". The slot stats are always capped by
+# minion.hard-slot-cap in config.yml, however high a formula goes.
 base-stats:
-  speed-ticks: 60
-  efficiency-ticks: 10
-  radius: 3
-  # Vertical span of the mining box in blocks, measured from one block below
-  # the minion upward. Omit it to use the type's default: miner 1 (the floor
-  # ring around the minion), farmer 2 (soil below, crop at the minion's level),
-  # woodcutter 6 (a full tree). Supports %level% expressions like the stats above.
+  speed-ticks: 60 # Ticks between actions.
+  efficiency-ticks: 10 # Extra ticks each action takes.
+  radius: 3 # How far the work area reaches sideways, in blocks.
+  # How tall the work area is, in blocks, counted up from placement.floor-offset.
+  # Leave it out for the type's default: miner 1, farmer 1, woodcutter 5,
+  # slayer 3, fishing 1, collector 3.
   height: 1
-  storage-slots: 27
-  max-storage-slots: 54
-  regen-delay-ticks: 100
+  storage-slots: 27 # Stack slots in its storage.
+  max-storage-slots: 54 # The most slots capacity upgrades can reach.
+  regen-delay-ticks: 100 # How long a broken block takes to come back.
 
-# Levelling is opt-in. With it off (or this block removed) a minion's level is
-# the sum of its purchased upgrade tiers, plus one.
+# (Optional) Levelling. Without it, a minion's level is the number of upgrade
+# tiers it owns, plus one.
 # levelling:
 #   enabled: true
 #   xp-formula: "100 * %level% ^ 1.5"
-#   # or an explicit ladder - the first entry is the cost of reaching level 2:
+#   # Or a list of costs. The first entry is the cost of reaching level 2.
 #   # xp-requirements: [100, 250, 500]
 #   max-level: 50
 #   xp-gain-methods:
@@ -57,8 +56,8 @@ base-stats:
 #       args:
 #         message: "&aYour minion reached level %level%!"
 
-# Effects that are always active on this minion type, with no upgrade needed.
-# Any libreforge effect works; minion-specific ones are listed in the docs.
+# (Optional) Effects that are always active on this minion, with no upgrade needed.
+# Any libreforge effect works. The minion effects are listed on the EcoMinions wiki.
 # effects:
 #   - id: minion_radius
 #     args:
@@ -68,23 +67,23 @@ base-stats:
 #       - minion_mine_block
 #     args:
 #       multiplier: 1.5
+# (Optional) Conditions that must pass for the effects above to be active.
+# conditions: []
 
 spawn-item:
-  # An eco item lookup - a vanilla material, a custom item, a #tag, or a
-  # player head via "player_head texture:<base64>".
+  # The item it is placed from. Any item lookup: a vanilla item, a custom
+  # item, a #tag, or a player head with "player_head texture:<base64>".
   item: "STONE"
-  display-name: "&fExample Minion &7(Lvl %level%)"
-  lore:
+  display-name: "&fExample Minion &7(Lvl %level%)" # The item name.
+  lore: # The item lore.
     - "&7Replace this with your description"
     - "&7Level: &f%level%"
   crafting:
-    enabled: false
-    give-amount: 1
-    # (optional) permission required to see/use the recipe - blank allows everyone
-    permission: ""
-    shapeless: false
-    # Flat nine-entry grid, eco item lookups - an empty string is an empty slot
-    recipe:
+    enabled: false # If the minion has a crafting recipe.
+    give-amount: 1 # How many minions the recipe makes.
+    permission: "" # (Optional) The permission needed to craft it. Blank allows everyone.
+    shapeless: false # If true, slot positions don't matter.
+    recipe: # The 3x3 recipe ingredients, use "" for empty slots.
       - "STONE"
       - "STONE"
       - "STONE"
@@ -95,65 +94,51 @@ spawn-item:
       - "STONE"
       - "STONE"
 
-# What the minion's stand wears/holds - each slot is an eco item lookup
-# string, so custom items and #tags work same as everywhere else. Every
-# slot is optional: a missing hand falls back to an iron pickaxe, and the
-# rest are simply left bare.
+# What the minion's armour stand wears and holds. Every slot is an optional
+# item lookup. Set a slot to "" to leave it bare.
 equipment:
-  # helmet: ""   # omit to default to this minion's own spawn-item icon,
-  #              # worn on its head - the same item as spawn-item.item above
+  # helmet: "" # Leave out to wear the spawn item on its head.
   chestplate: "LEATHER_CHESTPLATE"
   leggings: "LEATHER_LEGGINGS"
   boots: "LEATHER_BOOTS"
-  # hand: ""     # omit to default to an iron pickaxe
+  # hand: "" # Leave out to hold an iron pickaxe.
 
-# lift-regen picks the block back up as a surface (e.g. farmland, the
-# sapling's dirt) when the minion is placed, and puts it back on pickup.
-# Left off, trees and crops default this on automatically from their target
-# blocks; anything else defaults it off.
-#
-# self-seed lets the minion supply its own blocks: whenever it has nothing to
-# mine, it places seed-block on the nearest air spot in range that has a valid
-# surface beneath it. Left off, a player must place the starting blocks.
-# Tree types default it on, everything else defaults it off.
-#
-# spacing is how many empty blocks self-seeding keeps between each plant, in
-# each straight direction (diagonals don't count). 0 packs them side by side. Use 1 for cactus
-# (it breaks next to other blocks) and 2 for trees (room for the leaves).
 placement:
+  # If true, surface-block is put back under a block when it regenerates, such
+  # as farmland under wheat. Left out, it is on when a target block has a
+  # surface in blocks/, as crops and trees do.
   lift-regen: false
-  surface-block: ""
+  surface-block: "" # The block put back under a regenerating block. Required when lift-regen is on.
+  # If true, the minion makes its own work when it has nothing to do: it places
+  # blocks, spawns mobs or lays water, as its type does. Left out, it is on for
+  # woodcutters and slayers, and off for the rest.
   self-seed: false
-  # seed-block: ""   # omit to seed the block this minion mines
+  # seed-block: "" # What self-seeding places. Leave out to seed each target's plant, or the target itself.
+  # Empty blocks self-seeding keeps between plants, in each straight direction.
+  # 0 packs them side by side. Use 1 for cactus and 2 for trees.
   spacing: 0
-  # The first layer of the work box, relative to the minion. Optional.
+  # (Optional) The first layer of the work area, relative to the minion.
   # Defaults: miner -1, farmer 0, woodcutter 0, slayer 0, fishing -1, collector -1.
   # floor-offset: -1
 
+# Each layer takes an eco particle, such as flame or dust:ff5050, and spawns
+# count particles per burst, spread within offset blocks.
 particles:
-  # `particle` is an eco particle string: a particle name like `flame`, or a
-  # factory form like `dust:ff5050` or `dust_transition:ff0000:0000ff`.
-  # `count` particles are spawned per burst, scattered within `offset` blocks.
-  full:
+  full: # Shown while its storage is full.
     enabled: true
     particle: "angry_villager"
-    interval-ticks: 20
-    count: 4
-    offset: 0.4
-    nearby-player-radius: 16
-  # Shown instead of the full-storage particles while the minion is idle
-  # (its owner is offline), and only when a player is nearby to see it.
-  idle:
+    interval-ticks: 20 # How often a burst is shown.
+    count: 4 # Particles per burst.
+    offset: 0.4 # How far the particles spread, in blocks.
+    nearby-player-radius: 16 # Only shown when a player is this close.
+  idle: # Shown while the minion is idle, instead of full.
     enabled: false
     particle: "smoke"
     interval-ticks: 20
     count: 2
     offset: 0.3
     nearby-player-radius: 16
-  # Traces a wireframe box around the mining area while the minion has nothing
-  # to mine, so its owner can see what needs clearing. Sized from radius and
-  # height above. Shown to the owner alone, never to other players.
-  blocked:
+  blocked: # A box around the work area while there is nothing to work on. Only the owner sees it.
     enabled: true
     particle: "dust:ff5050"
     interval-ticks: 20
@@ -161,18 +146,16 @@ particles:
     offset: 0.0
     nearby-player-radius: 16
 
-# Prices for auto_sell, keyed by item id - what the block drops, not the block.
-# Custom item ids work here too, which is the only way to price a drop from
-# ItemsAdder, Oraxen, Nexo or CraftEngine. Leave empty (or omit entirely) to
-# fall back to config.yml's sell-pricing.auto-from-ecoshop, if it's on.
+# What each stored item sells for, keyed by the item, not the block it came from.
+# Custom item ids work too. Items with no price here use EcoShop, if
+# sell-pricing.auto-from-ecoshop is on in config.yml.
 sell-prices:
   STONE: 1.0
   COBBLESTONE: 1.0
   # "itemsadder:ruby": 100.0
 
-# IDs of upgrades this type may purchase, each matching a filename in
-# upgrades/ (see upgrades/_example.yml). auto_sell only pays out if
-# sell-prices above has entries, or EcoShop auto-pricing is enabled.
+# The upgrades this minion can buy, by ID from upgrades/.
+# auto_sell only pays for items that have a price.
 allowed-upgrades:
   - speed
   - efficiency
@@ -184,28 +167,26 @@ allowed-upgrades:
   - auto_sell
   - experience
 
-# (optional) IDs of compactor recipes this type may buy, each matching a
-# filename in compactor-recipes/ (see compactor-recipes/_example.yml). Listed
-# order is the order the compactor menu upgrades through, e.g. coal before
-# coal_block. Buying one also implicitly allows its upgrade, so it need not
-# be repeated in allowed-upgrades above.
+# (Optional) The compactor recipes this minion can buy, by ID from
+# compactor-recipes/, in menu order. They need no entry in allowed-upgrades,
+# but only run with a minion_compact effect in effects above.
 # compactor-recipes:
-#   - stone_block
+#   - coal_block
 
-# Collector minions (type: collector) pick up dropped items and XP orbs.
-# Item ids to collect. Empty collects everything.
+# Collectors (type: collector) pick up dropped items and XP orbs.
+# The item ids to collect. Empty collects everything.
 # target-items: []
-# Whether XP orbs are absorbed into stored XP.
+# If XP orbs are absorbed into stored XP.
 # collect-xp: true
 
-# Slayer minions (type: slayer) kill mobs in their area.
-# Mob ids to kill: vanilla types, args like 'zombie baby', or custom mobs like 'ecomobs:tank_zombie'.
+# Slayers (type: slayer) kill mobs in their area.
+# The mobs to kill: vanilla types, with arguments like 'zombie baby', or custom mobs like 'ecomobs:tank_zombie'.
 # target-mobs:
 #   - zombie
-# Most mobs this minion keeps spawned at once when self-seeding. May use %level%.
+# The most mobs it keeps spawned at once when self-seeding. May use %level%.
 # max-mobs: 4
-# Kill as the owner while they are online: vanilla player-kill loot drops, and the
-# owner's own kill effects fire on every kill. Off by default.
+# If kills count as the owner's while they are online: vanilla player-kill loot
+# drops, and the owner's own kill effects fire. Off by default.
 # credit-owner: false
 # Replaces what the mob drops. Same fields as EcoItems loots.
 # drops:
@@ -215,7 +196,7 @@ allowed-upgrades:
 #     xp: 1-3
 
 # Fishing minions (type: fishing) catch from water source blocks in their area.
-# Water source blocks needed before it fishes.
+# The water source blocks needed before it fishes.
 # min-water: 1
 # Replaces the vanilla catch table. Same fields as EcoItems loots.
 # drops:

@@ -8,6 +8,10 @@ object TriggerMinionCatchFish : Trigger("minion_catch_fish") {
 
     override val categories = setOf("minion")
 
+    override val additionalInfo = listOf(
+        "Only fires for minions. Use it in a minion type's effects, an upgrade's effects, or xp-gain-methods."
+    )
+
     override val parameterDescriptions = mapOf(
         TriggerParameter.BLOCK to "The water block fished in.",
         TriggerParameter.EVENT to "An editable drop event over the catch.",

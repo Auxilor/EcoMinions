@@ -3,120 +3,142 @@ title: "How to Make a Compactor Recipe"
 sidebar_position: 4
 ---
 
-## Compactor recipes
+A **compactor recipe** turns items in a minion's storage into a more compact form, such as nine coal into a coal block. Each recipe sets its **input** and **output**, its **price**, and optional **conditions**, and each minion type picks which recipes it can buy. This page covers making one from scratch.
 
-Compacting turns bulk drops into their block form (nine coal into a coal block, and so on). Each recipe is a
-YAML file in `compactor-recipes/`, shared across minions the same way a fuel or an upgrade is - the file
-name (without `.yml`) is the recipe's catalog id. An `_example.yml` is provided in the folder to copy from.
+## Quick start
 
-Unlike other upgrades, a compactor recipe is not written by hand as a full `upgrades/*.yml` file - loading it
-generates a single-tier purchasable automatically, with the recipe's own price, `buy-conditions`, and
-`conditions`.
+1. Open the `/plugins/EcoMinions/compactor-recipes/` folder and copy `_example.yml` to a new file, e.g. `coal_block.yml`. The file name is the recipe ID.
+2. Set `name`, `display.icon`, `input`, `output` and their amounts.
+3. Set `cost-options`.
+4. In a minion's config, add the recipe ID to `compactor-recipes` and add a `minion_compact` effect (see [Letting a minion compact](#letting-a-minion-compact)).
+5. Run `/minions reload`, buy the recipe from that minion's upgrades menu, and confirm its storage compacts.
 
-## Common config
+:::tip
+`_example.yml` is included as a reference and is **never loaded**, so copy or rename it to make a real recipe. You can also organise recipes into subfolders inside `compactor-recipes/`, and they'll still load.
+:::
+
+## Naming and IDs
+
+The file name without `.yml` is the recipe ID. This is what a minion's `compactor-recipes` list references. Each recipe is bought as its own upgrade, with the ID `compactor_<recipe id>`, so `coal_block` becomes `compactor_coal_block` for the `minion_has_upgrade` condition. `input`, `output` and `display.icon` use the [Item Lookup System](https://hub.auxilor.io/wiki/eco/the-item-lookup-system-the-item-lookup-system).
+
+:::warning ID rules
+IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). No spaces, capitals, or hyphens, or the recipe will not load.
+:::
+
+## The structure of a compactor recipe
+
+| Part | What it controls |
+| --- | --- |
+| **Display** | The recipe's name and icon in the upgrade menu |
+| **Recipe** | What is used up and what is made |
+| **Price** | What the recipe costs to buy |
+| **Conditions** | Who can buy it and when it runs |
 
 ```yaml
-name: "&8Coal Compactor"
+# === Display: how it shows in the upgrade menu ===
+name: "&8Coal Compactor" # The recipe's name in the menu.
 display:
-  icon: coal_block
+  icon: coal_block # The recipe's icon in the menu.
 
-input: COAL
-input-amount: 9
-output: COAL_BLOCK
-output-amount: 1
+# === Recipe: what is used up and what is made ===
+input: COAL # The item used up.
+input-amount: 9 # How many are used up each time.
+output: COAL_BLOCK # The item made.
+output-amount: 1 # How many are made each time.
 
-cost-options:
+# === Price: what the recipe costs ===
+cost-options: # The ways a player can pay for the recipe. They pick one.
+  - value: 15000
+    type: coins
+    display: "&a$%value_commas%"
+
+# === Conditions: who can buy it and when it runs ===
+buy-conditions: [] # Optional. Conditions that must pass to buy the recipe.
+conditions: [] # Optional. Conditions that must pass each time it compacts.
+higher-level-of: "" # Optional. The recipe whose output this one uses up, so it runs after it.
+```
+
+### Display
+
+How the recipe shows in the minion's upgrade menu, the same as an upgrade.
+
+```yaml
+name: "&8Coal Compactor" # The recipe's name in the menu.
+display:
+  icon: coal_block # The recipe's icon in the menu.
+```
+
+### Recipe
+
+What the recipe uses up and makes. It runs again and again while the storage holds at least `input-amount` of `input`.
+
+```yaml
+input: COAL # The item used up.
+input-amount: 9 # How many are used up each time.
+output: COAL_BLOCK # The item made.
+output-amount: 1 # How many are made each time.
+```
+
+:::warning
+`output` must be a different item to `input`, and `input-amount` must be more than `output-amount`. A recipe that feeds itself, or does not shrink the stack, will loop and can destroy a player's items.
+:::
+
+### Price
+
+What the recipe costs. It is bought once, with no tiers, and uses the same `cost-options` as an upgrade tier. See [How to Make an Upgrade](how-to-make-an-upgrade#tiers).
+
+```yaml
+cost-options: # The ways a player can pay for the recipe. They pick one.
   - value: 15000
     type: coins
     display: "&a$%value_commas%"
 ```
 
-- `name` / `display.icon` - the recipe's own display name and menu icon, same as an upgrade's.
-- `input` / `input-amount` - the eco item lookup consumed, and how many are consumed per compaction.
-- `output` / `output-amount` - the eco item lookup produced, and how many are produced per compaction.
-- `cost-options` - one or more ways a player can pay to unlock this recipe, same format as an upgrade tier's
-  `cost-options` (see [How to Make an Upgrade](how-to-make-an-upgrade)) - each entry needs its own `display`
-  string or the upgrade menu throws trying to render that price.
+### Conditions
 
-**`output` must never resolve to the same item as `input`, and `input-amount` must exceed `output-amount`.**
-The compact loop repeatedly consumes `input-amount` and produces `output-amount` while enough `input` remains
-in storage, so a recipe that feeds itself (or that doesn't shrink the stack) will churn or destroy a player's
-items rather than compact them.
-
-## buy-conditions and conditions
-
-Two optional, separate gates - each a list of libreforge conditions (see
-[Libreforge Components](libreforge-components) for the available ones):
+Two separate, optional gates, plus an ordering hint for chained recipes.
 
 ```yaml
-buy-conditions:
+buy-conditions: # Optional. Conditions that must pass to buy the recipe.
   - id: minion_has_upgrade
     args:
       upgrade: compactor_coal_block
-
-conditions:
+conditions: # Optional. Conditions that must pass each time it compacts.
   - id: minion_level_above
     args:
       level: 5
+higher-level-of: coal_block # Optional. The recipe whose output this one uses up, so it runs after it.
 ```
 
-- `buy-conditions` - must pass for a player to buy this recipe at all, checked before affordability. Use this
-  to require another recipe be bought first (with `minion_has_upgrade`, referencing its `compactor_<id>`
-  upgrade id), gate a recipe behind a permission, or anything else a condition can express.
-- `conditions` - must pass every time a minion tries to compact for this recipe to actually run. Unlike
-  `buy-conditions`, this is re-checked continuously - a minion can own the recipe and still have it do nothing
-  if the condition isn't currently met.
+`buy-conditions` are checked once, when a player tries to buy the recipe. `conditions` are checked every time the minion compacts, so an owned recipe does nothing while they fail.
 
-Both default to empty (no gate) if omitted.
+`higher-level-of` only sets the order. A recipe that uses up coal blocks with `higher-level-of: coal_block` runs after `coal_block`, so coal becomes coal blocks first. It does not lock the purchase: use a `minion_has_upgrade` buy condition for that, as above.
 
-## higher-level-of
+## Letting a minion compact
+
+A recipe does nothing until a minion type lists it and has a `minion_compact` effect to run it. Both go in the minion's own config:
 
 ```yaml
-higher-level-of: coal_block
-```
-
-An optional ordering hint: if this recipe's `input` is another recipe's `output` - e.g. an `enchanted_coal`
-recipe consuming `COAL_BLOCK`, where `coal_block` is the recipe that produces `COAL_BLOCK` from `COAL` - set
-`higher-level-of` to that lower recipe's id, so the compactor processes `coal -> coal_block` before
-`coal_block -> enchanted_coal`. This is not required for correctness (compacting repeats until nothing more
-changes, so a chain converges regardless of order over multiple passes) but keeps a linear chain predictable.
-
-It does **not** gate purchase or ownership on its own - pair it with a `buy-conditions: minion_has_upgrade`
-entry (as shown above) if a recipe should require the lower one to be bought first.
-
-## Letting a minion use a recipe
-
-A recipe in the catalog does nothing on its own - a minion has to opt in with two top-level keys in its
-`minions/<type>.yml`:
-
-```yaml
-compactor-recipes:
+compactor-recipes: # The recipes this minion can buy, in menu order.
   - coal_block
-  - iron_block
-
-effects:
+effects: # The effect that runs the minion's owned recipes.
   - id: minion_compact
     triggers:
       - minion_mine_block
 ```
 
-- `compactor-recipes` - the list of catalog ids this type allows. The order here is just menu display order -
-  each recipe is bought and gated independently, there is no shared tier or level.
-- `effects` - the type also needs `minion_compact` in its own top-level `effects:` block, or nothing ever
-  dispatches compacting. This is different from every other upgrade, where the upgrade file itself owns the
-  `effects:` block that fires it.
+Listing a recipe also allows its upgrade, so it does not need to be in `allowed-upgrades` too. Without the `minion_compact` effect, owned recipes never run.
 
-Referencing a catalog id that doesn't exist is dropped (with a violation reported at startup); every other id
-in the list still resolves normally.
-
-The resulting upgrade's id is always `compactor_<recipe id>` - use that id from `minion_has_upgrade`,
-elsewhere in this config or another recipe's `buy-conditions`.
+:::tip Troubleshooting
+- **Recipe not in the menu?** Add its ID to the minion's `compactor-recipes`.
+- **Recipe bought but nothing compacts?** The minion needs a `minion_compact` effect with a trigger, and the recipe's `conditions` must pass.
+- **Upgrade menu not opening?** Check every cost option has a `display`.
+:::
 
 <hr/>
 
 ## Where to go next
 
-- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) for the `compactor-recipes` and `effects`
-  keys that expose a recipe to a minion.
-- **Build an upgrade:** [How to Make an Upgrade](how-to-make-an-upgrade) for hand-authored, non-compactor
-  upgrades.
+- **Minions:** list recipes with `compactor-recipes` in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
+- **Upgrades:** the shared `cost-options` format is in [How to Make an Upgrade](how-to-make-an-upgrade).
+- **Defaults:** the shipped recipes live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/compactor-recipes).

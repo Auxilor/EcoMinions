@@ -7,6 +7,10 @@ import com.willfp.libreforge.triggers.TriggerParameter
 object TriggerMinionLevelUp : Trigger("minion_level_up") {
     override val description = "Fires when a minion levels up."
     override val categories = setOf("minion")
+    override val additionalInfo = listOf(
+        "Only fires for minions. Use it in a minion type's effects, an upgrade's effects, or xp-gain-methods.",
+        "Can fire while the owner is offline, when catch-up or a timer gives the minion XP."
+    )
 
     override val parameterDescriptions = mapOf(
         TriggerParameter.VALUE to "The level the minion reached.",

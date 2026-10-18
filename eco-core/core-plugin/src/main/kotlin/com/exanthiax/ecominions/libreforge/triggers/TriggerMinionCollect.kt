@@ -4,10 +4,14 @@ import com.willfp.libreforge.triggers.Trigger
 import com.willfp.libreforge.triggers.TriggerParameter
 
 object TriggerMinionCollect : Trigger("minion_collect") {
-    override val description = "Fires once per item actually stored in a minion's storage - " +
-        "useful for leveling collections or skills off what a minion gathers."
+    override val description = "Fires each time a stack of items is stored in a minion's storage."
 
     override val categories = setOf("minion", "inventory")
+
+    override val additionalInfo = listOf(
+        "Only fires for minions. Use it in a minion type's effects, an upgrade's effects, or xp-gain-methods.",
+        "Items that did not fit in a full storage do not count, so it is safe for levelling collections or skills."
+    )
 
     override val parameterDescriptions = mapOf(
         TriggerParameter.ITEM to "The item that was stored.",

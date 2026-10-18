@@ -15,6 +15,10 @@ import com.willfp.libreforge.triggers.TriggerData
 object ConditionMinionHasUpgrade : Condition<NoCompileData>("minion_has_upgrade") {
     override val description = "Passes when the minion owns the given upgrade at or above a tier."
     override val categories = setOf("minion")
+    override val additionalInfo = listOf(
+        "Only works on minions. Anywhere else it never passes.",
+        "A compactor recipe counts as the upgrade compactor_<recipe id>."
+    )
 
     override val arguments = arguments {
         require(

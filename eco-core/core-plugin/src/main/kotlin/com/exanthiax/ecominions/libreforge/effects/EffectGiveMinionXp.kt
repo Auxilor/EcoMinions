@@ -17,13 +17,23 @@ class EffectGiveMinionXp(
     private val xp: MinionXpService
 ) : Effect<NoCompileData>("give_minion_xp") {
 
-    override val description = "Grants XP to a minion."
+    override val description = "Gives XP to a minion."
     override val categories = setOf("minion")
+    override val additionalInfo = listOf(
+        "Only works on minions: in a minion type's effects, an upgrade's effects, or level-up-effects. Anywhere else it does nothing.",
+        "Use it to feed levelling from something that is not an xp-gain-method, such as an upgrade."
+    )
 
     override val parameters = setOf(TriggerParameter.PLAYER)
 
     override val arguments = arguments {
-        require("amount", "You must specify the amount of xp!", type = ArgType.EXPRESSION)
+        require(
+            "amount",
+            "You must specify the amount of xp!",
+            description = "The XP to give the minion.",
+            type = ArgType.EXPRESSION,
+            example = "10"
+        )
     }
 
     override fun onTrigger(

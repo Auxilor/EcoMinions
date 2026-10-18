@@ -3,11 +3,9 @@ package com.exanthiax.ecominions.libreforge.effects
 import com.exanthiax.ecominions.minions.model.MinionStat
 import com.exanthiax.ecominions.minions.service.Minion
 import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.ArgType
 import com.willfp.libreforge.Dispatcher
 import com.willfp.libreforge.NoCompileData
 import com.willfp.libreforge.ProvidedHolder
-import com.willfp.libreforge.arguments
 import com.willfp.libreforge.effects.Effect
 import com.willfp.libreforge.effects.Identifiers
 import com.willfp.libreforge.effects.RunOrder
@@ -32,15 +30,6 @@ abstract class MinionStatEffect(
 ) : Effect<NoCompileData>(id) {
 
     override val runOrder = RunOrder.START
-
-    override val arguments = arguments {
-        require(
-            argument,
-            "You must specify $argument!",
-            description = "How far to move the stat. Supports expressions.",
-            type = ArgType.EXPRESSION
-        )
-    }
 
     override fun onEnable(
         dispatcher: Dispatcher<*>,

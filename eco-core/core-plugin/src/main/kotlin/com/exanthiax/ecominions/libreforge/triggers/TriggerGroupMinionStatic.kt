@@ -46,14 +46,29 @@ object TriggerGroupMinionStatic : TriggerGroup("minion_static") {
     }
 
     class MinionStaticTrigger(val interval: Int) : Trigger("minion_static_$interval") {
-        override val description = "Fires for an active minion every $interval ticks."
+        override val description = "Fires for each working minion on a fixed tick interval."
         override val categories = setOf("minion")
+        override val additionalInfo = listOf(
+            "Only fires for minions. Use it in a minion type's effects or an upgrade's effects.",
+            "Use minion_static_<ticks>, e.g. minion_static_200 for every 200 ticks.",
+            "Carries no player, so effects that need one cannot use it."
+        )
+        override val parameterDescriptions = mapOf(
+            TriggerParameter.LOCATION to "The minion's location."
+        )
         override val parameters = setOf(TriggerParameter.LOCATION)
     }
 
     class MinionDynamicStaticTrigger(val expression: String) : Trigger("minion_static_$expression") {
-        override val description = "Fires for an active minion every `$expression` ticks."
+        override val description = "Fires for each working minion on a tick interval set by an expression."
         override val categories = setOf("minion")
+        override val additionalInfo = listOf(
+            "Only fires for minions. Use it in a minion type's effects or an upgrade's effects.",
+            "The expression is worked out again on every check, so it can use placeholders."
+        )
+        override val parameterDescriptions = mapOf(
+            TriggerParameter.LOCATION to "The minion's location."
+        )
         override val parameters = setOf(TriggerParameter.LOCATION)
     }
 }

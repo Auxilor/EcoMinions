@@ -14,12 +14,16 @@ import com.willfp.libreforge.get
 object ConditionMinionIsType : Condition<NoCompileData>("minion_is_type") {
     override val description = "Passes when the minion is one of the given types."
     override val categories = setOf("minion")
+    override val additionalInfo = listOf(
+        "Only works on minions. Anywhere else it never passes.",
+        "This checks the minion's type, not its ID. Use minion types like miner, not minion IDs like coal."
+    )
 
     override val arguments = arguments {
         require(
             "types",
             "You must specify the minion types!",
-            description = "A list of minion types: ${MinionType.entries.joinToString(", ") { it.id }}.",
+            description = "The minion types to match: miner, woodcutter, farmer, slayer, fishing or collector.",
             type = ArgType.STRING_LIST
         )
     }

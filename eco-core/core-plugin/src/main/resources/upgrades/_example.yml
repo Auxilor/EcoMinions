@@ -1,37 +1,52 @@
-name: "&eExample Upgrade"
+# The ID of the upgrade is the name of the .yml file.
+# For example speed.yml has the ID of speed.
+# _example.yml is not loaded.
+#
+# A minion can only buy upgrades listed in its allowed-upgrades.
+
+name: "&eExample Upgrade" # The upgrade's name in the menu.
 
 display:
-  icon: redstone
+  icon: redstone # The upgrade's icon in the menu.
 
-# Effects are authored once and shared by every tier.
-# %tier_value% resolves to the `value` of whichever tier the minion owns,
-# and %tier% resolves to the tier number itself.
+# Effects are written once and shared by every tier. Only the owned tier is active.
+# %tier_value% is the value of the tier the minion owns, and %tier% is the tier number.
 effects:
-  # A minion-specific effect: makes the minion mine faster.
+  # A minion effect: makes the minion act more often. Permanent, so it needs no triggers.
   - id: minion_speed
     args:
       ticks_faster: "%tier_value%"
 
-  # Any stock libreforge effect works too, as long as you give it a trigger.
+  # Any stock libreforge effect works too, as long as it has a trigger.
   # - id: multiply_drops
   #   triggers:
   #     - minion_mine_block
   #   args:
   #     multiplier: "1 + %tier_value%"
 
+# (Optional) Conditions that must pass for the effects to be active.
+# conditions: []
+
 tiers:
-  # Every cost-options entry needs its own `display` string, or the upgrade
-  # menu has nothing to render for that price and throws when it tries.
+  # Tiers are bought in order. Every cost option needs its own display,
+  # or the upgrade menu breaks when it tries to show that price.
   1:
-    value: 5
-    stat-delta: "-5 ticks"
-    cost-options:
+    value: 5 # The number %tier_value% resolves to at this tier.
+    stat-delta: "-5 ticks" # Menu text describing this tier.
+    cost-options: # The ways a player can pay for this tier. They pick one.
       - value: 1000
         type: coins
         display: "&a$%value_commas%"
       - value: 32
         type: stone
         display: "&7%value_commas%x Stone"
+    # (Optional) Conditions that must pass to buy this tier.
+    # buy-conditions: []
+    # (Optional) Effects for this tier only. Replaces the upgrade's effects, not merged.
+    # effects:
+    #   - id: minion_speed
+    #     args:
+    #       ticks_faster: 8
 
   2:
     value: 10

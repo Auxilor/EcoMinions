@@ -1,40 +1,40 @@
 ---
 title: "Commands and Permissions"
-sidebar_position: 6
+sidebar_position: 7
 ---
 
-Every EcoMinions command and the permission node it requires.
+This page lists every EcoMinions command and permission, so you can hand out minions, reload configs, and control how many minions players can place. All commands run under `/minions`, `/minion`, or `/ecominions`.
 
 ## Commands
 
-| Command                         | Description                                                                                      | Permission                   |
-|---------------------------------|--------------------------------------------------------------------------------------------------|------------------------------|
-| `/minions`                      | Opens the minion browser GUI                                                                     | `ecominions.command.minions` |
-| `/minions open`                 | Opens the minion browser GUI                                                                     | `ecominions.command.open`    |
-| `/minions give <player> <type>` | Gives a player a minion item. Minions are always given at level one - there is no level argument | `ecominions.command.give`    |
-| `/minions reload`               | Reloads the plugin's configuration                                                               | `ecominions.command.reload`  |
-| `/minions remove <player>`      | Removes a player's loaded minions and resets their count; unloaded ones count again on load      | `ecominions.command.remove`  |
-| `/minions info`                 | Reports information about the minion the sender is looking at                                    | `ecominions.command.info`    |
+| Command | Description | Permission |
+| --- | --- | --- |
+| `/minions` | Opens the minion browser | `ecominions.command.minions` |
+| `/minions open` | Opens the minion browser | `ecominions.command.open` |
+| `/minions give <player> <minion>` | Gives a player a level 1 minion item | `ecominions.command.give` |
+| `/minions remove <player>` | Removes a player's loaded minions and resets their count | `ecominions.command.remove` |
+| `/minions info` | Shows information about the minion you are looking at | `ecominions.command.info` |
+| `/minions reload` | Reloads the plugin | `ecominions.command.reload` |
 
-**Aliases:** `/minions` can also be run as `/minion` or `/ecominions`.
+`/minions give` takes a minion ID, which is the file name in `/minions/`. `/minions remove` only reaches minions in loaded chunks; minions in unloaded chunks count towards the limit again when they load.
 
-## Permissions
+## Additional permissions
 
-| Permission                   | Description                                                                   |
-|------------------------------|-------------------------------------------------------------------------------|
-| `ecominions.*`               | Everything below. Granted to operators by default.                            |
-| `ecominions.command.*`       | Parent node granting every command below. Granted to operators by default.    |
-| `ecominions.command.minions` | Required for `/minions`. Granted by default.                                  |
-| `ecominions.command.open`    | Required for `/minions open`. Granted by default.                             |
-| `ecominions.command.give`    | Required for `/minions give`. Granted to operators by default.                |
-| `ecominions.command.reload`  | Required for `/minions reload`. Granted to operators by default.              |
-| `ecominions.command.remove`  | Required for `/minions remove`. Granted to operators by default.              |
-| `ecominions.command.info`    | Required for `/minions info`. Granted to operators by default.                |
-| `ecominions.admin`           | Bypasses minion limits and ownership checks. Granted to operators by default. |
+| Permission | Description |
+| --- | --- |
+| `ecominions.limit.<number>` | Raises a player's minion limit to `<number>`, e.g. `ecominions.limit.10`. The highest one a player has wins. Needs `limits.per-player.permission-overrides: true` |
+| `ecominions.admin` | No minion limit, and can pick up other players' minions |
+| `ecominions.command.*` | Permission to use every command |
+| `ecominions.*` | Every permission above |
+
+:::info
+`/minions` and `/minions open` are given to everyone by default. Every other command, `ecominions.admin`, and the parent nodes are given to operators by default.
+:::
 
 <hr/>
 
 ## Where to go next
 
-- **Build a minion:** [How to Make a Minion](how-to-make-a-minion) to create minions to give with `/minions give`.
-- **Plugin config:** [Plugin Config](plugin-config) for the plugin-wide settings.
+- **Minions:** make minions to hand out in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
+- **Limits:** the default limit and permission overrides live in [Plugin Config](plugin-config).
+- **Placeholders:** show a player's limit with [PlaceholderAPI](placeholderapi).

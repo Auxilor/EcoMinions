@@ -9,8 +9,11 @@ import com.willfp.libreforge.conditions.Condition
 import com.willfp.libreforge.get
 
 object ConditionMinionHasFuel : Condition<NoCompileData>("minion_has_fuel") {
-    override val description = "Passes while the minion is burning fuel."
+    override val description = "Passes when the minion is burning fuel."
     override val categories = setOf("minion")
+    override val additionalInfo = listOf(
+        "Only works on minions. Anywhere else it never passes."
+    )
 
     override fun isMet(
         dispatcher: Dispatcher<*>,

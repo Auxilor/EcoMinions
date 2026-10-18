@@ -13,8 +13,12 @@ import com.willfp.libreforge.triggers.TriggerParameter
 class EffectMinionCompact(
     private val compacting: MinionCompactService
 ) : Effect<NoCompileData>("minion_compact") {
-    override val description = "Compacts a minion's storage using its purchased compactor recipes."
+    override val description = "Compacts a minion's storage using the compactor recipes it owns."
     override val categories = setOf("minion", "inventory")
+    override val additionalInfo = listOf(
+        "Only works on minions: in a minion type's effects, an upgrade's effects, or level-up-effects. Anywhere else it does nothing.",
+        "Recipes whose conditions fail are skipped. Does nothing if the minion owns no recipes."
+    )
 
     override val parameters = setOf(TriggerParameter.LOCATION)
 
