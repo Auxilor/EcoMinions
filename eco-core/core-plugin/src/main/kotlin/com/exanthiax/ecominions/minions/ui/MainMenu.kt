@@ -125,9 +125,13 @@ class MainMenu(
                     return@onLeftClick
                 }
                 val collected = collector.collect(player, minion) ?: return@onLeftClick
-                player.sendMessage(
-                    messages.line("messages.collected", TemplateContext.of("count" to collected))
-                )
+                if (collected == 0 && minion.usedStorage > 0) {
+                    player.sendMessage(messages.line("messages.inventory-full"))
+                } else {
+                    player.sendMessage(
+                        messages.line("messages.collected", TemplateContext.of("count" to collected))
+                    )
+                }
                 menu.refresh(player)
             }
         }

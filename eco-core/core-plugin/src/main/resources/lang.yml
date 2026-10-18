@@ -17,7 +17,7 @@ messages:
   remove-success: "&aRemoved &e%count% &aminions for &e%player%&a."
   info-no-target: "&cYou are not looking at a minion."
   info-header: "&e%minion_name% &7(Lvl %level%) &8| &7Owner: &f%owner%"
-  inventory-full: "&cMinion inventory is full!"
+  inventory-full: "&cYour inventory is full!"
   collected: "&aCollected &e%count% &aitems."
   claimed-xp: "&aClaimed &e%amount% &aXP."
   no-stored-xp: "&cThis minion has no stored XP."
