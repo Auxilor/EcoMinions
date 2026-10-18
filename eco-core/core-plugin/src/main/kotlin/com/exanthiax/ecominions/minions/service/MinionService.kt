@@ -10,7 +10,9 @@ import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.willfp.libreforge.flushHolders
 import com.willfp.libreforge.forceRefreshHolders
+import com.willfp.libreforge.updateEffects
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.ArmorStand
@@ -149,9 +151,16 @@ class MinionService(
      *
      * Called explicitly because libreforge only polls players, entities and the
      * global dispatcher - a minion dispatcher is never swept automatically.
+     * Conditions are re-evaluated too, as unchanged holders keep their old
+     * results, and the change is applied now so a trigger fired straight
+     * after (such as minion_place) already sees the holders.
      */
     fun refreshEffects(minion: Minion) {
-        minion.toDispatcher().forceRefreshHolders()
+        minion.toDispatcher().apply {
+            forceRefreshHolders()
+            updateEffects()
+            flushHolders()
+        }
     }
 
     /**
