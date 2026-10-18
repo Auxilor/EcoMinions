@@ -48,7 +48,7 @@ tree-pattern: oak # Optional. Which built-in tree shape to grow.
 # === Mining: how minions treat it ===
 mineable: true # Optional. Set false so no minion can target it. Defaults to true.
 stacked-column: false # Optional. Whether it grows upward in a column, like sugar cane. Defaults to false.
-promotes-to: "" # Optional. What targeting this block really means, e.g. seeds promote to the grown crop.
+promotes-to: "" # Optional. The block a minion really works when it targets this one, e.g. BAMBOO_SAPLING promotes to BAMBOO.
 
 # === Rewards: drops and XP ===
 drops: [] # Optional. The items one break gives, for custom blocks.
@@ -90,7 +90,7 @@ Whether minions can target the block, and how they cut it.
 ```yaml
 mineable: true # Optional. Set false so no minion can target it. Defaults to true.
 stacked-column: false # Optional. Whether it grows upward in a column, like sugar cane. Defaults to false.
-promotes-to: "" # Optional. What targeting this block really means, e.g. seeds promote to the grown crop.
+promotes-to: "" # Optional. The block a minion really works when it targets this one, e.g. BAMBOO_SAPLING promotes to BAMBOO.
 ```
 
 Set `mineable: false` for blocks that break badly, such as amethyst buds, dripstone or vines. A minion targeting one is reported at startup. A `stacked-column` block is only ever cut at its base, taking the whole column in one action.
@@ -115,7 +115,7 @@ Forces one behaviour for this block, whatever the minion's `type` is. Almost nev
 restore: tree # Optional. One of regen, replant or tree, beating the minion's type.
 ```
 
-`regen` puts the block back exactly as it was, `replant` plants it again as a young plant, and `tree` fells it and plants a sapling. An override the definition cannot do, such as `tree` with no `leaves`, is reported and ignored.
+`regen` puts the block back exactly as it was, `replant` plants it again as a young plant, and `tree` fells it and plants a sapling. `regen` suits blocks that are already in place: on a crop it stops a farmer from planting anything. An override the definition cannot do, such as `tree` with no `leaves`, is reported and ignored.
 
 :::tip Troubleshooting
 - **Definition not used?** `block` must match the id in the minion's `target-blocks`, not the file name.

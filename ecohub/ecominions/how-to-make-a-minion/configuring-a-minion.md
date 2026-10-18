@@ -265,7 +265,7 @@ Every equipment slot is optional. Set a slot to `""` to leave it bare on purpose
 The `blocked` box is sized from `radius` and `height`, and only the owner sees it. Keep its `offset` at `0.0` so the outline is drawn exactly on the box.
 
 :::warning
-`equipment` replaced the old `armor` section. A config that still uses `armor` is ignored, and the minion wears the defaults above.
+`equipment` replaced the old `armor` section. A config that still uses `armor` is ignored, and the minion wears no armour: only the spawn item on its head and an iron pickaxe in its hand.
 :::
 
 ### Levelling
@@ -309,7 +309,7 @@ placement:
 
 ### Stored XP
 
-Every minion keeps the XP it earns until its owner claims it from the stored XP button in its menu. The button is set under `gui.main.stored-xp` in `lang.yml`, and removing that section hides it. Set `minion.xp.mode: orb` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config) to drop XP as orbs instead.
+Every minion keeps the XP it earns until its owner claims it from the stored XP button in its menu. The button is set under `gui.main.stored-xp` in `lang.yml`. Set `gui.main.show-stored-xp: false` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config) to hide it. Set `minion.xp.mode: orb` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config) to drop XP as orbs instead.
 
 ## Internal placeholders
 

@@ -50,14 +50,14 @@ drops: # Replaces the vanilla catch. Leave this out to use vanilla fishing loot.
 
 ### Water
 
-The minion fishes from still water source blocks in its work area, by default the ring one block below it. Flowing water does not count. While it is short of water it checks every cycle; once it has enough, it rechecks every 20 cycles. With `placement.self-seed: true`, it lays one water source per cycle on solid ground until the layer is full.
+The minion fishes from still water source blocks in its work area, by default the ring one block below it. Flowing water does not count. While it is short of water it checks every cycle; once it has enough, it rechecks every 20 cycles. With `placement.self-seed: true`, it turns one air or flowing water block on solid ground into a water source each cycle, until the layer is full. Like a miner, it needs a pit: on flat ground its layer is solid, so there is nowhere to lay water.
 
 ### Catch
 
 Each catch comes from the minion's own `drops` list first, then EcoItems `fishing` loot while the owner is online, then vanilla fishing loot. `drops` takes the same fields as a slayer's. Each catch is worth 1 to 6 XP, or the `xp` of a `drops` entry. Offline cycles roll `drops` or the vanilla catch; EcoItems loot needs the owner online.
 
 :::tip Troubleshooting
-- **Hologram says "No Water"?** The work area has fewer still water sources than `min-water`.
+- **Hologram says "No Water"?** The work area has fewer still water sources than `min-water`. A self-seeding minion on flat ground needs the ring below it dug out first.
 - **Catch is always vanilla?** EcoItems fishing loot only applies while the owner is online.
 :::
 

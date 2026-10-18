@@ -37,7 +37,8 @@ minion:
   hologram-offset: 1.6
   # How often (in ticks) to refresh the hologram contents
   hologram-refresh-ticks: 20
-  # Glow / outline armor stand body? Future use.
+  # Sets the invulnerable flag on the minion's armour stand. Minions always
+  # ignore damage, whatever this is set to.
   invulnerable: true
 
   # Block regen visual: replace block with cobblestone briefly during regen?
@@ -74,6 +75,8 @@ gui:
     storage-display: lore
     # Max item types shown in the storage area; highest count first
     storage-slots: 9
+    # Whether the stored XP button is shown.
+    show-stored-xp: true
   upgrade:
     title: "&8Upgrade: &f%upgrade_name%"
     rows: 6
