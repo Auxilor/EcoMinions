@@ -19,7 +19,7 @@ A **farmer** harvests its target crops when they are ripe and replants them at a
 
 ## Naming and IDs
 
-The file name without `.yml` is the minion ID, as for every type. Everything not on this page is shared by every type and covered in [Configuring a Minion](configuring-a-minion).
+The file name without `.yml` is the minion ID, as for every type. Everything not on this page is shared by every type and covered in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
 
 :::warning ID rules
 IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). No spaces, capitals, or hyphens, or the minion will not load.
@@ -51,7 +51,7 @@ placement:
 
 ### Targets
 
-The minion harvests a crop once it is ripe and replants it. It is paced by how fast the crop ripens, not by `regen-delay-ticks`. A target with no `plant` regenerates instead of being left as a hole. Offline cycles roll each target's real drop table. Crops are worth no XP unless their [block definition](configuring-a-block) sets `xp`.
+The minion harvests a crop once it is ripe and replants it. It is paced by how fast the crop ripens, not by `regen-delay-ticks`. A target with no `plant` regenerates instead of being left as a hole. Offline cycles roll each target's real drop table. Crops are worth no XP unless their [block definition](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block) sets `xp`.
 
 ### Work area
 
@@ -70,6 +70,6 @@ With `placement.self-seed: true`, the minion plants its own crops on valid soil 
 
 ## Where to go next
 
-- **Shared config:** [Configuring a Minion](configuring-a-minion) for stats, item, upgrades and placement.
-- **Blocks:** [Configuring a Block](configuring-a-block) for custom blocks and per-block overrides.
+- **Shared config:** [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion) for stats, item, upgrades and placement.
+- **Blocks:** [Configuring a Block](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block) for custom blocks and per-block overrides.
 - **Defaults:** the shipped minions live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/minions).

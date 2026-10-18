@@ -19,7 +19,7 @@ A **miner** breaks its target blocks and puts each one back exactly as it was af
 
 ## Naming and IDs
 
-The file name without `.yml` is the minion ID, as for every type. Everything not on this page is shared by every type and covered in [Configuring a Minion](configuring-a-minion).
+The file name without `.yml` is the minion ID, as for every type. Everything not on this page is shared by every type and covered in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
 
 :::warning ID rules
 IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). No spaces, capitals, or hyphens, or the minion will not load.
@@ -51,7 +51,7 @@ placement:
 
 ### Targets
 
-The minion mines any block in its work area that matches `target-blocks`. Offline cycles roll each target block's real drop table; a custom block whose drops cannot be read offline needs `drops` in its [block definition](configuring-a-block). Vanilla ores are worth their vanilla XP, and any block can set its own with `xp` in its block definition.
+The minion mines any block in its work area that matches `target-blocks`. Offline cycles roll each target block's real drop table; a custom block whose drops cannot be read offline needs `drops` in its [block definition](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block). Vanilla ores are worth their vanilla XP, and any block can set its own with `xp` in its block definition.
 
 ### Work area
 
@@ -70,6 +70,6 @@ With `placement.self-seed: true`, the minion places its own target blocks into a
 
 ## Where to go next
 
-- **Shared config:** [Configuring a Minion](configuring-a-minion) for stats, item, upgrades and placement.
-- **Blocks:** [Configuring a Block](configuring-a-block) for custom blocks and per-block overrides.
+- **Shared config:** [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion) for stats, item, upgrades and placement.
+- **Blocks:** [Configuring a Block](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block) for custom blocks and per-block overrides.
 - **Defaults:** the shipped minions live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/minions).

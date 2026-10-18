@@ -94,7 +94,7 @@ gui:
 
 ### Limits
 
-`limits.per-player` caps how many minions one player can have placed. `default` is the cap for everyone. With `permission-overrides: true`, a player with `ecominions.limit.<number>` gets that cap instead when it is higher, e.g. `ecominions.limit.10`. Players with `ecominions.admin` have no cap. See [Commands and Permissions](commands-and-permissions).
+`limits.per-player` caps how many minions one player can have placed. `default` is the cap for everyone. With `permission-overrides: true`, a player with `ecominions.limit.<number>` gets that cap instead when it is higher, e.g. `ecominions.limit.10`. Players with `ecominions.admin` have no cap. See [Commands and Permissions](https://hub.auxilor.io/wiki/ecominions/commands-and-permissions).
 
 ### Offline catch-up
 
@@ -115,7 +115,7 @@ A minion's own `sell-prices` always win, and are never scaled. For items with no
 `xp.mode` decides where a minion's XP goes, from ores, kills, catches, effects, or EcoItems loot. With `store` it is kept on the minion and claimed from its menu. With `orb` it drops as an orb at the minion. A collector always stores the orbs it picks up.
 
 :::info
-There is no plugin-wide auto sell interval. Set it with the trigger on the auto sell upgrade's effect, see [How to Make an Upgrade](how-to-make-an-upgrade#effects).
+There is no plugin-wide auto sell interval. Set it with the trigger on the auto sell upgrade's effect, see [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade#effects).
 :::
 
 ### Menus
@@ -126,6 +126,6 @@ The title and rows of each menu: `main` is a minion's menu, `upgrade-list` its u
 
 ## Where to go next
 
-- **Minions:** the per-minion config is in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
-- **Permissions:** the limit and admin nodes are in [Commands and Permissions](commands-and-permissions).
-- **Placeholders:** use minion counts and limits elsewhere with [PlaceholderAPI](placeholderapi).
+- **Minions:** the per-minion config is in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Permissions:** the limit and admin nodes are in [Commands and Permissions](https://hub.auxilor.io/wiki/ecominions/commands-and-permissions).
+- **Placeholders:** use minion counts and limits elsewhere with [PlaceholderAPI](https://hub.auxilor.io/wiki/ecominions/placeholderapi).
