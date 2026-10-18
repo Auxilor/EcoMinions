@@ -86,7 +86,7 @@ class MainMenu(
             setSlot(rows, 5, pickupSlot(player, minion))
             setSlot(rows, 7, upgradesSlot(player, minion))
             setSlot(rows, 8, infoSlot(minion))
-            if (messages.has("gui.main.stored-xp.name")) {
+            if (current.showStoredXp && messages.has("gui.main.stored-xp.name")) {
                 setSlot(rows, 6, storedExperienceSlot(player, minion))
             }
 

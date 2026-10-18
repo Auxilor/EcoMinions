@@ -54,6 +54,7 @@ gui:
     rows: 6
     storage-display: lore # How stored item counts are shown: title, lore or both.
     storage-slots: 9 # The most item types shown in the storage area, highest count first.
+    show-stored-xp: true # If the stored XP button is shown.
   upgrade: # One upgrade's tiers.
     title: "&8Upgrade: &f%upgrade_name%"
     rows: 6
