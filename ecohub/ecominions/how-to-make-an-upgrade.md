@@ -3,34 +3,62 @@ title: "How to Make an Upgrade"
 sidebar_position: 3
 ---
 
-## Upgrades
+An **upgrade** is something players buy for a placed minion, one **tier** at a time. Each upgrade is a set of **effects**, a ladder of **tiers** with their own costs, and the **display** shown in the upgrade menu. This page covers making one from scratch.
 
-Each upgrade is a YAML file in `upgrades/`. The file name (without `.yml`) is the upgrade ID, and is what
-a minion's `allowed-upgrades` list refers to. An `_example.yml` is provided in the folder to copy from.
+## Quick start
 
-## Common Config
+1. Open the `/plugins/EcoMinions/upgrades/` folder and copy `_example.yml` to a new file, e.g. `speed.yml`. The file name is the upgrade ID.
+2. Set `name` and `display.icon`.
+3. Add the `effects` the upgrade gives, using `%tier_value%` for the number that changes per tier.
+4. Add each tier under `tiers`, with its `value`, `stat-delta` and `cost-options`.
+5. Add the upgrade ID to a minion's `allowed-upgrades`, run `/minions reload`, open that minion's upgrades menu, and confirm it appears.
+
+:::tip
+`_example.yml` is included as a reference and is **never loaded**, so copy or rename it to make a real upgrade. You can also organise upgrades into subfolders inside `upgrades/`, and they'll still load.
+:::
+
+## Naming and IDs
+
+The file name without `.yml` is the upgrade ID. This is what a minion's `allowed-upgrades` list and the `minion_has_upgrade` condition reference. `display.icon` uses the [Item Lookup System](https://hub.auxilor.io/wiki/eco/the-item-lookup-system-the-item-lookup-system), and `cost-options` use the [Price Lookup System](https://hub.auxilor.io/wiki/eco/the-price-lookup-system).
+
+:::warning ID rules
+IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). No spaces, capitals, or hyphens, or the upgrade will not load.
+:::
+
+## The structure of an upgrade
+
+| Part | What it controls |
+| --- | --- |
+| **Display** | The upgrade's name and icon in the upgrade menu |
+| **Effects** | What the upgrade does, shared by every tier |
+| **Tiers** | Each tier's value, menu text, costs and buy conditions |
 
 ```yaml
-name: "&bSpeed"
+# === Display: how it shows in the upgrade menu ===
+name: "&bSpeed" # The upgrade's name in the menu.
 display:
-  icon: sugar
+  icon: sugar # The upgrade's icon in the menu.
 
-effects:
+# === Effects: what the upgrade does ===
+effects: # Effects shared by every tier. %tier_value% is the owned tier's value.
   - id: minion_speed
     args:
       ticks_faster: "%tier_value%"
+conditions: [] # Optional. Conditions that must pass for the effects to be active.
 
+# === Tiers: the ladder players buy up ===
 tiers:
   1:
-    value: 5
-    stat-delta: "-5 ticks"
-    cost-options:
+    value: 5 # The number %tier_value% resolves to at this tier.
+    stat-delta: "-5 ticks" # Menu text describing this tier.
+    cost-options: # The ways a player can pay for this tier. They pick one.
       - value: 5000
         type: coins
         display: "&a$%value_commas%"
       - value: 64
         type: stone
         display: "&7%value_commas%x Stone"
+    buy-conditions: [] # Optional. Conditions that must pass to buy this tier.
   2:
     value: 10
     stat-delta: "-10 ticks"
@@ -38,102 +66,118 @@ tiers:
       - value: 12000
         type: coins
         display: "&a$%value_commas%"
-      - value: 64
-        type: coal
-        display: "&8%value_commas%x Coal"
 ```
 
-- `name` - the upgrade's display name, shown in the upgrade menu.
-- `display.icon` - an eco item lookup used as the upgrade's icon in the menu.
-- `effects` - a list of libreforge effects, authored **once** for the whole upgrade and shared by every tier.
-  There is no separate `effect:` key and no closed list of stat names - an upgrade is just a holder of these
-  effects, enabled at whatever tier the owning minion currently has purchased.
-- `tiers` - a map of tier level to that tier's data. Levels must be whole numbers and are purchased in order.
-  - `value` - the tier's raw number. It has **no fixed meaning** of its own; it only matters because
-    `%tier_value%` resolves to it inside `effects`. What it represents - a tick count, a percentage, a flag -
-    is entirely up to how the effect args use it.
-  - `stat-delta` - display-only text describing the tier's effect, shown in the upgrade menu (e.g. `"-5 ticks"`,
-    `"+10% drops"`, `"Enabled"`).
-  - `cost-options` - one or more ways a player can pay for this tier; the player picks one at purchase time.
-    Each entry has:
-    - `value` (amount) and `type` - `type` can be `coins` for economy money, a material name to charge
-      an item, or another registered currency id (e.g. a custom currency plugin's `gems`).
-    - `display` (**required**) - the text shown for this price option in the upgrade menu, e.g. `"&a$%value_commas%"`.
-      `%value%` and `%value_commas%` (comma-grouped) are available inside it. Omitting `display` isn't just
-      cosmetic - eco has no fallback for it, so the menu throws trying to render that cost option.
-  - `buy-conditions` (optional) - a list of libreforge conditions that must pass for a player to buy this tier,
-    checked before affordability. Absent or empty means anyone who can afford it can buy it (today's behavior
-    for every upgrade). See [Libreforge Components](libreforge-components) for the available conditions.
+### Display
 
-Write each cost option as its own list item across multiple lines (`- value: ...` / `type: ...` /
-`display: ...`), not the inline `{ value: ..., type: ... }` flow-map form - it's harder to scan and easy to
-mistype once a `display` line is added.
-
-### effects and placeholders
-
-Every entry under `effects` is a libreforge effect block: an `id`, optional `args`, and (for anything that
-isn't permanent) a `triggers` list telling it when to fire.
-
-Inside `args`, two placeholders are available everywhere:
-
-- `%tier_value%` - the `value` of whichever tier the minion currently owns.
-- `%tier%` - the tier number itself.
-
-**Permanent effects** - ones that just hold a stat open, like `minion_speed` - need no `triggers`. They enable
-when the tier is purchased and disable if the upgrade is removed:
+How the upgrade shows in the minion's upgrade menu.
 
 ```yaml
-effects:
+name: "&bSpeed" # The upgrade's name in the menu.
+display:
+  icon: sugar # The upgrade's icon in the menu.
+```
+
+### Effects
+
+The effects the upgrade gives. They are written once and shared by every tier, and only the owned tier is ever active. Buying the next tier swaps the old tier out for the new one.
+
+```yaml
+effects: # Effects shared by every tier. %tier_value% is the owned tier's value.
   - id: minion_speed
     args:
       ticks_faster: "%tier_value%"
+conditions: [] # Optional. Conditions that must pass for the effects to be active.
 ```
 
-**Triggered effects** need a `triggers` list, because without one there is nothing telling libreforge when to
-run them. This applies to almost every stock libreforge effect, since most of them are one-shot actions rather
-than permanent stat holders. `multiply_drops` (used for a fortune-style upgrade) only makes sense reacting to
-a mine event:
+Two placeholders work inside the effects:
+
+| Placeholder | Value |
+| --- | --- |
+| `%tier_value%` | The `value` of the tier the minion owns. |
+| `%tier%` | The tier number the minion owns. |
+
+Permanent effects such as `minion_speed` need no `triggers`: they are active while the tier is owned. Triggered effects, which is almost every stock libreforge effect, need a `triggers` list:
 
 ```yaml
 effects:
   - id: multiply_drops
     triggers:
-      - minion_mine_block
+      - minion_mine_block # Runs each time the minion breaks a block.
     args:
       multiplier: "1 + %tier_value%"
 ```
 
-### Interval behaviour
-
-Use `minion_static_<n>` instead of `minion_tick` for anything that should fire every `n` ticks rather than
-every single tick - it skips dispatch entirely on the ticks it doesn't fire, unlike `minion_tick` + `every:`,
-which dispatches every tick and discards most of it at the effect layer. The auto-sell upgrade uses this to
-sell the minion's storage roughly every 200 ticks:
+For something that should run on a timer, use `minion_static_<ticks>` rather than `minion_tick` with `every`, as it only runs on the ticks it is due. The shipped auto sell upgrade sells every 200 ticks:
 
 ```yaml
 effects:
   - id: minion_sell_storage
     triggers:
-      - minion_static_200
+      - minion_static_200 # Runs every 200 ticks.
 ```
 
-`n` can also be an expression (e.g. a placeholder), re-evaluated on every check.
+:::info
+A tier can have its own `effects` block. It replaces the upgrade's `effects` for that tier only, it is not merged with them.
+:::
 
-On/off upgrades such as `auto_smelt` and `auto_sell` typically only need a single tier, since the effect is
-either present or not. Numeric upgrades such as `speed`, `efficiency`, `radius`, `height`, `fortune`, `capacity`, and
-`experience` are usually laddered across several tiers, each with its own cost and its own `%tier_value%`.
+:::tip
+EcoMinions adds its own triggers, effects, conditions and mutators, such as `minion_mine_block`, `minion_speed` and `minion_owner_online`. They are listed with the rest on the [EcoMinions wiki](https://hub.auxilor.io/wiki/ecominions), and only work on minions. Any stock libreforge effect also works with a minion trigger, see [Configuring an Effect](https://hub.auxilor.io/wiki/libreforge/configuring-an-effect).
+:::
 
-Compacting is not authored as a hand-written upgrade file at all - each compactor recipe generates its own
-single-tier purchasable from the `compactor-recipes/` catalog. See
-[How to Make a Compactor Recipe](how-to-make-a-compactor-recipe).
+### Tiers
 
-See [Libreforge Components](libreforge-components) for the full list of minion-specific triggers, effects,
-conditions, and mutators available inside `effects`, plus the stock libreforge components that also work here.
+The ladder players buy up, in order. Tier keys must be whole numbers.
+
+```yaml
+tiers:
+  1:
+    value: 5 # The number %tier_value% resolves to at this tier.
+    stat-delta: "-5 ticks" # Menu text describing this tier.
+    cost-options: # The ways a player can pay for this tier. They pick one.
+      - value: 5000
+        type: coins
+        display: "&a$%value_commas%"
+      - value: 64
+        type: stone
+        display: "&7%value_commas%x Stone"
+    buy-conditions: [] # Optional. Conditions that must pass to buy this tier.
+```
+
+`value` has no meaning of its own. It is what `%tier_value%` resolves to, so it is a tick count, a multiplier or a flag depending on how the effects use it.
+
+Each entry in `cost-options` is a price, so `type` can be `coins`, an item, or any other price type. When there is more than one, the player picks which to pay with. `display` is **required** on every entry, and `%value%` and `%value_commas%` work inside it.
+
+`buy-conditions` are checked before the price. Use them to lock a tier behind a minion level, another upgrade, or anything else a condition can check.
+
+:::warning
+A cost option with no `display` breaks the upgrade menu when it tries to show that price.
+:::
+
+## Internal placeholders
+
+These work in the upgrade menus in `lang.yml`.
+
+| Placeholder | Value |
+| --- | --- |
+| `%upgrade_name%` | The upgrade's `name`. |
+| `%tier%` | The tier the minion owns. |
+| `%max_tier%` | The highest tier. |
+| `%delta%` | The `stat-delta` of the tier being shown. |
+| `%value%` | A cost option's amount. |
+| `%value_commas%` | A cost option's amount, with commas. |
+
+:::tip Troubleshooting
+- **Upgrade not in the menu?** Add its ID to the minion's `allowed-upgrades`.
+- **Upgrade bought but doing nothing?** A triggered effect needs a `triggers` list, and a minion-only effect needs a minion trigger.
+- **Upgrade menu not opening?** Check every cost option has a `display`.
+:::
 
 <hr/>
 
 ## Where to go next
 
-- **Build a minion:** [Configuring a Minion](how-to-make-a-minion/configuring-a-minion) for the `allowed-upgrades` list that exposes
-  an upgrade to a minion.
-- **Build a fuel:** [How to Make a Fuel](how-to-make-a-fuel) to keep minions active.
+- **Minions:** expose the upgrade with `allowed-upgrades` in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
+- **Compacting:** compactor recipes make their own upgrades, see [How to Make a Compactor Recipe](how-to-make-a-compactor-recipe).
+- **Levelling:** lock tiers behind minion levels with [How to Level a Minion](how-to-level-a-minion).
+- **Defaults:** the shipped upgrades live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/upgrades).

@@ -63,9 +63,7 @@ By default the work area runs from the minion's own level up four blocks (`heigh
 
 ## Tree shapes
 
-A woodcutter grows its tree from a built-in shape. Which one comes from the block definition's
-`tree-pattern`, or - if that is not set - from the definition's own file name. A name that matches nothing
-grows the generic shape, so a custom log in `blocks/ebony.yml` gets the generic tree unless it names one.
+A woodcutter grows its tree from a built-in shape. The shape comes from the block definition's `tree-pattern`, or from the definition's file name when that is not set. A name that matches no shape grows the generic tree, so a custom log in `blocks/ebony.yml` needs `tree-pattern` set to get a real shape.
 
 | Shape | Canopy | Looks like |
 | --- | --- | --- |
@@ -80,21 +78,13 @@ grows the generic shape, so a custom log in `blocks/ebony.yml` gets the generic 
 | `cherry` | round, radius 3, 2 layers | Same build as dark oak. |
 | *(unrecognised)* | round, radius 1, 1 layer | A small, plain tree. |
 
-Four of the nine deliberately share the oak build - vanilla does not give those species a distinct enough
-silhouette to be worth a separate shape, and inventing one would only make them wrong in a different way.
-
 ### Trunk height and the minion's reach
 
-**Every shape has a four-log trunk, and that is not arbitrary.** A woodcutter fells its tree by *mining the
-logs*, so every log has to fall inside the minion's search box. That box reaches `height - 1` blocks above
-the minion, and a sapling can be planted one block above it - so with `height: 5` the highest reachable log
-is exactly four above the sapling.
+Every shape has a four-log trunk. A woodcutter fells its tree by mining the logs, so every log has to be inside its work area. The work area reaches `height - 1` blocks above the minion, and a sapling is planted at most one block above it, so with the default `height: 5` the highest log it can reach is four above the sapling.
 
-A five-log trunk would leave its top log standing forever and the minion would never clear the tree. If you
-ever want taller trees, `height` has to rise with them.
-
-Shapes live in `TreeShape.SPECIES` in the plugin rather than in a config file, so adding a tenth needs a
-build. Ask if you want them exposed as config - it is a small change.
+:::info
+The tree shapes are built into the plugin and cannot be changed in config.
+:::
 
 :::tip Troubleshooting
 - **Top logs left standing?** The trunk is taller than the work area; raise `height`.

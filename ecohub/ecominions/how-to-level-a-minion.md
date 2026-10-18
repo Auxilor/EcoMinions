@@ -3,170 +3,159 @@ title: "How to Level a Minion"
 sidebar_position: 5
 ---
 
-## Levelling
+**Levelling** lets a minion earn XP and level up as it works. It is an optional `levelling` block in a minion's config that sets the **level curve**, what **earns XP**, and what happens on **level up**. Without it, a minion's level is the number of upgrade tiers it owns, plus one. This page covers setting it up from scratch.
 
-Levelling is an opt-in `levelling:` block nested inside a minion's YAML file (see
-[Configuring a Minion](how-to-make-a-minion/configuring-a-minion)). With the block absent, or `enabled: false`, a minion's level is
-just the sum of its purchased upgrade tiers plus one - the original, non-levelling behaviour. With levelling
-turned on, a minion instead earns XP toward explicit levels, independently of any upgrades it owns.
+## Quick start
 
-## Common Config
+1. Open a minion's config in `/plugins/EcoMinions/minions/`.
+2. Add a `levelling` block with `enabled: true`.
+3. Set the curve with `xp-formula` or `xp-requirements`, and optionally `max-level`.
+4. Add at least one entry to `xp-gain-methods`, e.g. `minion_mine_block`.
+5. Run `/minions reload`, place the minion, and confirm `%xp%` rises in its menu as it works.
+
+:::tip
+The shipped `minions/_example.yml` has a commented `levelling` block to copy from. Stats in `base-stats` can use `%level%`, so a levelling minion can get faster or bigger as it levels.
+:::
+
+## Naming and IDs
+
+Levelling has no file or ID of its own. It belongs to the minion whose config it is in, and every minion type can have its own curve. `xp-gain-methods` use trigger IDs, and `conditions` and `level-up-effects` use the [libreforge](https://hub.auxilor.io/wiki/libreforge/configuring-an-effect) format.
+
+:::warning
+A `levelling` block with `enabled: true` but no `xp-formula` or `xp-requirements` is reported at startup and treated as disabled. The rest of the minion still loads.
+:::
+
+## The structure of levelling
+
+| Part | What it controls |
+| --- | --- |
+| **Curve** | How much XP each level costs, and the highest level |
+| **XP gain** | Which triggers give XP, and how much |
+| **Level up** | Effects that run when the minion levels up |
 
 ```yaml
 levelling:
-  enabled: true
-  xp-formula: "100 * %level% ^ 1.5"
-  # or an explicit ladder - the first entry is the cost of reaching level 2:
-  # xp-requirements: [100, 250, 500]
-  max-level: 50
-  xp-gain-methods:
+  # === Curve: XP per level ===
+  enabled: true # Whether this minion levels with XP.
+  xp-formula: "100 * %level% ^ 1.5" # The XP to reach %level%. Use this or xp-requirements.
+  xp-requirements: [] # The XP to reach each level, starting at level 2. Use this or xp-formula.
+  max-level: 50 # The highest level.
+
+  # === XP gain: what earns XP ===
+  xp-gain-methods: # Each entry gives XP when its trigger fires.
     - trigger: minion_mine_block
       multiplier: 1
     - trigger: minion_sell
       multiplier: 0.05
-  conditions:
-    - id: minion_owner_online
-  level-up-effects:
+  conditions: [] # Optional. Conditions that must pass for the minion to gain any XP.
+
+  # === Level up: what happens on level up ===
+  level-up-effects: # Effects run each time the minion gains a level.
     - id: send_message
-      conditions: [{ id: minion_owner_online }]
+      conditions:
+        - id: minion_owner_online
       args:
         message: "&aYour minion reached level %level%!"
 ```
 
-- `enabled` - whether this minion levels via XP at all.
-- `xp-formula` / `xp-requirements` - the level curve.
-- `max-level` - the highest level the curve can reach.
-- `xp-gain-methods` - what grants XP, and how much.
-- `conditions` - a spec-level gate on whether XP can be gained at all.
-- `level-up-effects` - libreforge effects run the moment a minion gains a level.
+### Curve
 
-## enabled
-
-If `enabled` is missing or `false`, the whole `levelling:` block is ignored and the minion falls back to the
-original behaviour: level is the sum of purchased upgrade tiers, plus one. This also happens automatically if
-`enabled: true` is set but neither `xp-formula` nor `xp-requirements` is configured - a levelling block that
-could never grant a level is treated as broken and degraded to disabled, rather than rejecting the whole minion
-type file. A minion typo in `levelling:` never deletes a working minion.
-
-## xp-formula vs xp-requirements
-
-These are two different ways to describe the level curve, and only one takes effect - if both are set,
-`xp-formula` wins.
-
-- `xp-formula` - an expression evaluated once per level-up, in terms of `%level%`. `%level%` is **the level
-  being reached**, not the minion's current level, so `"100 * %level% ^ 1.5"` is the cost of going from level
-  `%level% - 1` to `%level%`. With a formula, `max-level` is unbounded unless you set it explicitly - a minion
-  can keep levelling forever.
-- `xp-requirements` - an explicit list of XP costs, one per level transition. The **first entry is the cost of
-  reaching level 2** (minions start at level 1, not 0), the second is the cost of reaching level 3, and so on.
-  Running off the end of the list ends progression at that level, unless `max-level` says otherwise - see below.
+How much XP each level costs, and the highest level.
 
 ```yaml
-xp-requirements: [100, 250, 500]
+enabled: true # Whether this minion levels with XP.
+xp-formula: "100 * %level% ^ 1.5" # The XP to reach %level%. Use this or xp-requirements.
+xp-requirements: [] # The XP to reach each level, starting at level 2. Use this or xp-formula.
+max-level: 50 # The highest level.
 ```
 
-reaches level 2 at 100 XP, level 3 at 250 more XP, and level 4 at 500 more XP after that.
+Minions start at level 1. Set one of the two curves; if both are set, `xp-formula` is used.
 
-## max-level
+- `xp-formula`: an expression for the XP needed to reach a level, where `%level%` is the level being reached. With a formula, there is no maximum unless `max-level` is set.
+- `xp-requirements`: a list of XP costs. The first entry is the cost of reaching level 2, so `[100, 250, 500]` reaches level 4 at most. `max-level` defaults to the end of the list, and a higher value is lowered to it and reported.
 
-`max-level` caps the highest level a minion of this type can reach.
+### XP gain
 
-- With `xp-requirements`, it defaults to the length of the list plus one (i.e. the level reachable by the last
-  entry). Setting it lower stops progression early; setting it higher than the list allows is clamped back down
-  to that natural ceiling and reported as a config violation, since XP would otherwise keep banking with no way
-  to ever reach the configured cap.
-- With `xp-formula`, it defaults to unbounded - omit it and a minion can level indefinitely, evaluating the
-  formula for however high `%level%` climbs.
-
-## xp-gain-methods
-
-Each entry in `xp-gain-methods` is a rule for granting XP in response to a libreforge trigger:
+Which triggers give XP, and how much. Any trigger works, and the [EcoMinions wiki](https://hub.auxilor.io/wiki/ecominions) lists the minion triggers.
 
 ```yaml
 xp-gain-methods:
-  - trigger: minion_mine_block
-    multiplier: 1
+  - trigger: minion_mine_block # The trigger that gives XP. Required.
+    multiplier: 1 # Optional. XP is the trigger's value times this.
   - trigger: minion_sell
-    value: 5
-    filters:
-      blocks: [DIAMOND_ORE]
-    conditions:
+    value: 5 # Optional. A fixed amount of XP, ignoring the trigger's value.
+    filters: # Optional. Only count trigger firings that match.
+      blocks:
+        - diamond_ore
+    conditions: # Optional. Only give XP while these pass.
       - id: minion_level_above
         args:
           level: 5
-    args:
-      amount: 1
+conditions: [] # Optional. Conditions that must pass for the minion to gain any XP.
 ```
 
-- `trigger` - the id of a libreforge/EcoMinions trigger (e.g. `minion_mine_block`, `minion_sell`,
-  `minion_tick`). See [Libreforge Components](libreforge-components) for the full list. Required - a method
-  with no trigger is dropped and logged as a config violation.
-- `multiplier` - an expression multiplying the trigger's own `value` (e.g. blocks broken, money earned) to get
-  the XP granted. Cannot be combined with `value`.
-- `value` - an expression giving the XP granted directly, ignoring the trigger's own `value`. Cannot be combined
-  with `multiplier`. Omitting both grants the trigger's raw `value` unmodified.
-- `filters` - the same filter block stock libreforge effects accept (`blocks`, `items`, `entities`, and so on),
-  restricting which trigger firings this method reacts to.
-- `conditions` - a libreforge condition list; the method only grants XP when these pass.
-- `args` - arbitrary libreforge effect arguments, evaluated the same way an effect's `args` are (including
-  argument-level conditions such as `if-condition`).
+With neither `multiplier` nor `value`, the trigger's own value is given as XP, such as the blocks broken or the money earned. `multiplier` and `value` cannot be used together. `filters` work the same as on an effect.
 
-## conditions
+The top-level `conditions` apply to every method: when they fail, the minion gains no XP at all.
 
-The spec-level `conditions` block gates XP gain for the entire minion, independent of any per-method
-`conditions`. It's compiled the same way any libreforge condition list is - if it fails, none of the minion's
-`xp-gain-methods` grant XP, regardless of what they individually allow.
+:::tip
+To give XP from anything else, such as a fuel or an upgrade, use the `give_minion_xp` effect.
+:::
 
-## level-up-effects
+### Level up
 
-`level-up-effects` is a libreforge effect chain that runs once, immediately, whenever the minion crosses into a
-new level. It uses the same effect blocks as a minion's `effects:` or an upgrade's `effects:` (see
-[How to Make an Upgrade](how-to-make-an-upgrade)), and can additionally react to the `minion_level_up` trigger
-(see [Libreforge Components](libreforge-components)) if you want an effect elsewhere in `effects:` to also fire
-on level-up. A single XP grant large enough to cross several levels runs the chain once per level crossed, not
-once for the whole grant.
+Effects that run each time the minion gains a level. If one XP gain crosses several levels, they run once per level.
 
-These placeholders are available inside the chain. Note that they are scoped to the chain and describe the
-level-up that just happened - they are not the same as the general minion placeholders listed further down,
-which describe a minion's current state anywhere placeholders work.
+```yaml
+level-up-effects: # Effects run each time the minion gains a level.
+  - id: send_message
+    conditions:
+      - id: minion_owner_online
+    args:
+      message: "&aYour minion reached level %level%!"
+```
 
-| Placeholder | Resolves to |
+These placeholders describe the level up that just happened:
+
+| Placeholder | Value |
 | --- | --- |
 | `%level%` | The level just reached. |
-| `%level_numeral%` | The level just reached, as a Roman numeral. |
-| `%previous_level%` | The level before this one, i.e. `%level%` minus 1. |
-| `%previous_level_numeral%` | The previous level, as a Roman numeral. |
+| `%level_numeral%` | The level just reached, in Roman numerals. |
+| `%previous_level%` | The level before. |
+| `%previous_level_numeral%` | The level before, in Roman numerals. |
 
-**Owner caveat:** a minion can level up while its owner is completely offline - XP gain from `minion_tick` or
-from an idle minion's simulated mining doesn't wait for a player to be online. Because of that, any
-`level-up-effects` entry that targets the trigger's player - `send_message`, `give_money`, and similar - will
-silently do nothing on an offline level-up, since there is no player to act on. Gate these with the
-`minion_owner_online` condition, as in the example above, or use the `minion_owner_as_dispatcher` mutator to
-retarget the chain explicitly.
+:::warning Offline owners
+A minion can level up while its owner is offline. Effects that act on the player, like `send_message` or `give_money`, do nothing then, as there is no player. Guard them with the `minion_owner_online` condition, as above, or move the chain onto the owner with the `minion_owner_as_dispatcher` mutator.
+:::
 
-**Built-in notification:** independent of `level-up-effects`, EcoMinions sends the owner (if online, same
-offline no-op as above) the `messages.level-up` lang string on every level gained, with `%minion_name%` and
-`%level%` resolved. Edit that key in `lang.yml` to change or silence it; it isn't something you configure per
-minion.
+:::info
+EcoMinions also sends the owner the `messages.level-up` message from `lang.yml` on every level up, if they are online. Edit or empty it there.
+:::
 
-## Placeholders
+## Internal placeholders
 
-These placeholders resolve anywhere minion placeholders already work - holograms, the menu title, spawn-item
-lore - for any minion, levelling or not (non-levelling minions read as if they have no levelling data).
+These work anywhere minion placeholders work, such as holograms, menus and the spawn item. A minion without levelling reads as having no levelling data.
 
-| Placeholder | Resolves to |
+| Placeholder | Value |
 | --- | --- |
 | `%xp%` | The minion's current XP, as a whole number. |
-| `%xp_required%` | XP needed to reach the next level, or an "infinity" placeholder text if there is no next level (max level reached, or levelling not enabled/configured). |
-| `%progress%` | Progress toward the next level as a percentage (0-100), or `100` if there is no next level. |
-| `%max_level%` | The minion's configured max level. |
-| `%level_numeral%` | The minion's current level, rendered as a Roman numeral. |
+| `%xp_required%` | The XP needed for the next level, or `infinity` from `lang.yml` at the max level or without levelling. |
+| `%progress%` | Progress to the next level, from 0 to 100. `100` at the max level. |
+| `%max_level%` | The highest level. |
+| `%level_numeral%` | The minion's level, in Roman numerals. |
+| `%level_<offset>%` | The minion's level plus an offset, e.g. `%level_1%` for the next level or `%level_-1%` for the last. |
+| `%level_<offset>_numeral%` | The same, in Roman numerals. |
+
+:::tip Troubleshooting
+- **Minion not gaining XP?** Check `enabled: true`, a curve is set, and the top-level `conditions` pass.
+- **Level-up message not arriving?** The owner was offline. Add a `minion_owner_online` condition so this is clear in the config.
+- **Stuck below `max-level`?** With `xp-requirements`, the list ends before it. Add more entries.
+:::
 
 <hr/>
 
 ## Where to go next
 
-- **Build a minion:** [Configuring a Minion](how-to-make-a-minion/configuring-a-minion) for the `levelling:` block's place in a
-  minion file, and for `base-stats` expressions that read `%level%`.
-- **Effects, triggers, and conditions:** [Libreforge Components](libreforge-components) for `minion_level_up`,
-  `give_minion_xp`, and everything else available inside `xp-gain-methods` and `level-up-effects`.
+- **Minions:** scale `base-stats` with `%level%` in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
+- **Upgrades:** lock tiers behind levels with `buy-conditions` in [How to Make an Upgrade](how-to-make-an-upgrade).
+- **Defaults:** the shipped minions live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/minions).

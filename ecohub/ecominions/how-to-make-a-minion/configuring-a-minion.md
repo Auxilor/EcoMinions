@@ -58,7 +58,6 @@ base-stats:
 
 # === Item: the placeable minion ===
 spawn-item:
-  mode: item # Either item or head.
   item: "COAL_BLOCK" # The item it is placed from.
   display-name: "&8Coal Minion &7(Lvl %level%)" # The item name.
   lore:
@@ -78,7 +77,11 @@ compactor-recipes:
   - coal_block
 
 # === Effects: always active ===
-effects: []
+effects:
+  - id: minion_compact
+    triggers:
+      - minion_mine_block
+conditions: [] # Optional. Conditions that must pass for the effects to be active.
 
 # === Appearance: armour and particles ===
 equipment:
@@ -129,44 +132,21 @@ Every value may be a plain number or an expression in `%level%`: `"60 - %level%"
 
 ### Item
 
-```yaml
-spawn-item:
-  mode: item
-  item: "COAL_BLOCK"
-  display-name: "&8Coal Minion &7(Lvl %level%)"
-  lore:
-    - "&8Mines coal ore"
-    - "&8Level: &7%level%"
-```
-
-`mode` controls how the placeable item looks:
-
-- `mode: item` - the item is a plain material. Set `item` to the material name (e.g. `"COAL_BLOCK"`).
-- `mode: head` - the item is a player head with a custom skin texture. Set `texture` to a base64 skin texture
-  string instead of `item`.
-
-`display-name` and `lore` support `%level%` and other minion placeholders.
-
-The minion item itself is also registered with eco's item lookup system as `ecominions:<id>` (e.g.
-`ecominions:coal`), always resolving to a level-one item of that type. Any plugin or config that consumes eco
-item lookups - shops, crates, custom recipes - can reference or hand out a minion this way.
-
-`crafting` nests under `spawn-item`, alongside `mode`/`item`/`display-name`/`lore`:
+The item players place the minion from, and its optional crafting recipe.
 
 ```yaml
 spawn-item:
-  mode: item
-  item: "COAL_BLOCK"
-  display-name: "&8Coal Minion &7(Lvl %level%)"
-  lore:
+  item: "COAL_BLOCK" # The item it is placed from.
+  display-name: "&8Coal Minion &7(Lvl %level%)" # The item name.
+  lore: # The item lore.
     - "&8Mines coal ore"
     - "&8Level: &7%level%"
   crafting:
-    enabled: true
-    give-amount: 1
-    permission: ""
-    shapeless: false
-    recipe:
+    enabled: true # Whether it has a recipe.
+    give-amount: 1 # How many minions the recipe makes. Defaults to 1.
+    permission: "" # Optional. The permission needed to craft it. Blank allows everyone.
+    shapeless: false # If true, slot positions don't matter. Defaults to false.
+    recipe: # The 3x3 recipe ingredients, use "" for empty slots.
       - "COAL_BLOCK"
       - "STONE"
       - "COAL_BLOCK"
@@ -178,35 +158,32 @@ spawn-item:
       - "COAL_BLOCK"
 ```
 
-- `enabled` - whether this minion has a crafting recipe at all.
-- `give-amount` - how many minion items the recipe yields. Defaults to `1`.
-- `permission` - the permission node required to craft this recipe. Defaults to `""`, meaning no permission is
-  required.
-- `shapeless` - when `true`, ingredient position in the grid doesn't matter. Defaults to `false`.
-- `recipe` - nine entries, read left-to-right, top-to-bottom as a 3x3 crafting grid. Each entry is an eco item
-  lookup with an optional amount - a material name (`"STONE"`), a material with a count (`"STONE:4"`), a custom
-  item id such as `"ecominions:coal"`, or `""` for an empty slot.
+`item` is any item lookup, so a custom item, a `#tag`, or a player head with `player_head texture:<base64>` all work. `display-name` and `lore` support `%level%` and the other internal placeholders below.
 
-Minions are craftable at a crafting table only. Recipes are registered and replaced through eco's recipe system.
+Every minion is also an item lookup, `ecominions:<id>`, always at level 1, so shops, crates and other plugins can sell or hand out minions directly.
+
+:::tip
+Recipes support both shaped and shapeless layouts. See [Recipes](https://hub.auxilor.io/wiki/eco/the-item-lookup-system-the-item-lookup-system/recipes).
+:::
 
 ### Selling
+
+What each stored item sells for, keyed by **item ID**: what the block drops, not the block.
 
 ```yaml
 sell-prices:
   COAL: 5.0
-  "itemsadder:ruby": 100.0
+  "itemsadder:ruby": 100.0 # Custom items can be priced too.
 ```
 
-The price paid per item when a minion's storage is sold, keyed by **item ID** - what the block drops, not the
-block itself. Custom item IDs work here too, which is the only way to price a drop from ItemsAdder, Oraxen,
-Nexo or CraftEngine. A minion's own `sell-prices` entries always win over any EcoShop-sourced price and are
-never scaled by `sell-pricing.sell-price-multiplier` (see [Plugin Config](../plugin-config)). Items with no entry
-here fall back to EcoShop pricing if `sell-pricing.auto-from-ecoshop` is enabled.
+Prices here always win over EcoShop prices and are never scaled. Items with no price here use EcoShop's sell price if `sell-pricing.auto-from-ecoshop` is on in [Plugin Config](../plugin-config). The auto sell upgrade only pays for items that have a price one way or the other.
 
 ### Upgrades
 
+Which upgrades and compactor recipes this minion can buy.
+
 ```yaml
-allowed-upgrades:
+allowed-upgrades: # Upgrade IDs this minion can buy, from upgrades/.
   - speed
   - efficiency
   - fortune
@@ -215,158 +192,147 @@ allowed-upgrades:
   - auto_smelt
   - auto_sell
   - experience
-```
-
-The list of upgrade IDs (matching file names under `upgrades/`) this minion can have purchased on it.
-Omitting an upgrade from this list hides it from this type's upgrade menu entirely. Compacting is not listed
-here - see `compactor-recipes` below.
-
-```yaml
-compactor-recipes:
+compactor-recipes: # Optional. Compactor recipe IDs this minion can buy, in menu order.
   - coal_block
   - iron_block
-
-effects:
-  - id: minion_compact
-    triggers:
-      - minion_mine_block
 ```
 
-A list of `compactor-recipes/` catalog ids this minion allows - the order shown is just the order they're
-listed in the upgrade menu. Each one is bought and gated independently (its own price, its own
-`buy-conditions`); there is no shared "compactor" upgrade or tier ladder. Omitting this key (or leaving it
-empty) means the type has no compactor recipes at all. Each resolved upgrade's id is
-`compactor_<recipe id>`, and it is automatically added to the type's allowed upgrades.
-
-This key alone does not make compacting run - the type also needs `minion_compact` in its own top-level
-`effects:` block, as shown above. See [How to Make a Compactor Recipe](../how-to-make-a-compactor-recipe) for the
-recipe file format.
+An upgrade not in `allowed-upgrades` does not show in this minion's upgrade menu. Each compactor recipe is bought on its own and needs no entry in `allowed-upgrades`. Owned recipes only run with a `minion_compact` effect, see below and [How to Make a Compactor Recipe](../how-to-make-a-compactor-recipe).
 
 ### Effects
+
+libreforge effects that are always active on every minion of this type, with no upgrade needed.
 
 ```yaml
 effects:
   - id: minion_radius
     args:
-      blocks: 1
+      blocks: 1 # Adds 1 to the radius, on top of any radius upgrade.
+  - id: minion_compact
+    triggers:
+      - minion_mine_block # Runs the minion's owned compactor recipes.
+conditions: [] # Optional. Conditions that must pass for the effects to be active.
 ```
 
-`effects` is a list of libreforge effects that are **always active** on every minion of this type, at every
-level - no upgrade purchase is needed to enable them. It uses the same effect blocks as an upgrade's `effects`
-(see [How to Make an Upgrade](../how-to-make-an-upgrade)), except there's no tier and no `%tier_value%` to bind to,
-so args are just plain values.
+They work the same as an upgrade's effects (see [How to Make an Upgrade](../how-to-make-an-upgrade#effects)), without `%tier_value%`. They add to upgrade effects on the same stat, so the example's `+1` radius stacks with the radius upgrade.
 
-A type-level effect stacks with any upgrade effects touching the same stat - the example above adds a flat
-`+1` to `radius` on top of whatever the `radius` upgrade contributes, since both are just contributions to the
-same stat accumulator.
+:::tip
+EcoMinions' own triggers, effects, conditions and mutators are listed on the [EcoMinions wiki](https://hub.auxilor.io/wiki/ecominions), and only work on minions. Stock libreforge effects that change drops, like `multiply_drops` and `autosmelt`, work with `minion_mine_block`, `minion_kill_mob` and `minion_catch_fish`.
+:::
 
-See [Libreforge Components](../libreforge-components) for the full list of minion-specific effects, triggers,
-conditions, and mutators, plus the stock libreforge components that also work here.
+:::warning Offline owners
+A minion keeps working on triggers like `minion_mine_block` without its owner, and catches up their offline time when they return. Effects that act on the player, like `send_message` or `give_money`, do nothing while the owner is offline. Guard them with the `minion_owner_online` condition, or move the chain onto the owner with the `minion_owner_as_dispatcher` mutator.
+:::
 
 ### Appearance
 
+What the minion wears, and the particles it shows.
+
 ```yaml
-equipment:
+equipment: # Optional. Each slot is an item lookup.
+  helmet: "" # Leave out to wear the spawn item on its head.
   chestplate: "LEATHER_CHESTPLATE"
   leggings: "LEATHER_LEGGINGS"
   boots: "LEATHER_BOOTS"
-```
+  hand: "" # Leave out to hold an iron pickaxe.
 
-Optional. Dresses the minion's armor stand. Each of `helmet`, `chestplate`, `leggings`, `boots` and `hand` is
-an eco item lookup string - the same syntax as `spawn-item.item` - so custom items, `#tags` and player heads
-all work, and a dyed leather piece is written the way eco writes any other dyed item rather than through a
-separate `color` block.
-
-Every slot is optional, and two have defaults: an omitted `helmet` uses this type's own `spawn-item.item` as
-its head, and an omitted `hand` becomes an iron pickaxe. Set a slot to `""` to leave it deliberately bare.
-
-> Renamed from `armor` in an earlier version, where each piece was a `material` plus an optional `r`/`g`/`b`
-> `color`. There is no fallback to the old key, so a config still using `armor:` is ignored entirely and the
-> minion falls back to the defaults above.
-
-```yaml
 particles:
-  full:
+  full: # Shown while its storage is full.
     enabled: true
-    particle: "angry_villager"
+    particle: "angry_villager" # An eco particle, e.g. flame or dust:ff5050.
+    interval-ticks: 20 # How often a burst is shown.
+    count: 4 # Particles per burst.
+    offset: 0.4 # How far the particles spread, in blocks.
+    nearby-player-radius: 16 # Only shown when a player is this close.
+  idle: # Shown while the minion is idle, instead of full.
+    enabled: false
+    particle: "smoke"
     interval-ticks: 20
-    count: 4
-    offset: 0.4
+    count: 2
+    offset: 0.3
+    nearby-player-radius: 16
+  blocked: # A box around the work area while there is nothing to work on.
+    enabled: true
+    particle: "dust:ff5050"
+    interval-ticks: 20
+    count: 1
+    offset: 0.0
     nearby-player-radius: 16
 ```
 
-`full` is emitted while the minion's storage is full and a player is within `nearby-player-radius` blocks.
-`particle` is an eco particle string, so anything eco knows works - a particle name like `flame`, or a
-factory form like `dust:ff5050` or `dust_transition:ff0000:0000ff`. `interval-ticks` is how often it emits,
-`count` how many particles per burst, and `offset` how far, in blocks, they're scattered from the emit point.
+Every equipment slot is optional. Set a slot to `""` to leave it bare on purpose. A dyed leather piece is written the way any dyed item is in the item lookup.
 
-Two more layers use the same fields:
+The `blocked` box is sized from `radius` and `height`, and only the owner sees it. Keep its `offset` at `0.0` so the outline is drawn exactly on the box.
 
-- `idle` - shown only while the minion is idle (owner offline or chunk unloaded) and a player is nearby.
-  Disabled by default.
-- `blocked` - a wireframe box traced around the minion's work area while it has nothing to work on, so
-  the area is visible. Sized from `radius` and `height`. Unlike the other two, it's shown
-  to the minion's owner alone - a stalled farm would otherwise blanket every passer-by in outlines. Give it
-  `offset: 0.0` so the outline lands exactly on its points rather than near them.
+:::warning
+`equipment` replaced the old `armor` section. A config that still uses `armor` is ignored, and the minion wears the defaults above.
+:::
 
 ### Levelling
 
+Optional XP-based levels, instead of a level made from the upgrade tiers it owns.
+
 ```yaml
 levelling:
-  enabled: true
-  xp-formula: "100 * %level% ^ 1.5"
-  max-level: 50
-  xp-gain-methods:
+  enabled: true # Whether this minion levels with XP.
+  xp-formula: "100 * %level% ^ 1.5" # The XP to reach %level%.
+  max-level: 50 # The highest level.
+  xp-gain-methods: # What gives XP.
     - trigger: minion_mine_block
       multiplier: 1
 ```
 
-Optional. Lets a minion earn XP toward explicit levels instead of levelling purely from purchased upgrade
-tiers. See [How to Level a Minion](../how-to-level-a-minion) for the full block, including `xp-requirements`,
-`conditions`, and `level-up-effects`.
+See [How to Level a Minion](../how-to-level-a-minion) for the full block.
 
 ### Placement
+
+Where the work area starts, and how the minion makes its own work.
+
+```yaml
+placement:
+  self-seed: false # Whether the minion makes its own work.
+  floor-offset: -1 # The first layer of the work area, relative to the minion.
+  seed-block: "" # What self-seeding places. Blank seeds the target's plant, or the target itself.
+  spacing: 0 # Empty blocks kept between self-seeded plants.
+  lift-regen: false # Whether a regenerating block gets surface-block put back under it.
+  surface-block: "" # The block needed under a spot. Required when lift-regen is on.
+```
 
 | Key | Used by | Meaning |
 | --- | --- | --- |
 | `self-seed` | every type except `collector` | The minion makes its own work: places blocks, spawns mobs or lays water, as its type page describes. Defaults to `true` for `woodcutter` and `slayer`, `false` for the rest. |
 | `floor-offset` | every type | The first layer of the work area, relative to the minion: `-1` is the layer one block below it, `0` its own level. Defaults by type (see the table above). |
-| `lift-regen` | `miner`, `farmer`, `woodcutter` | When `true`, a mined block regenerates one block higher than where it was broken. |
-| `surface-block` | `miner`, `farmer`, `woodcutter` | The block required beneath a spot to place a block there. Leave blank to allow any surface. |
-| `seed-block` | `miner`, `farmer`, `woodcutter` | What `self-seed` places. Leave blank to seed the target's `plant`, falling back to the mined block itself. |
-| `spacing` | `miner`, `farmer`, `woodcutter` | Empty blocks `self-seed` keeps between plants along each straight direction. `0` packs them side by side. |
+| `seed-block` | `miner`, `farmer`, `woodcutter` | What `self-seed` places. Leave blank to seed each target's `plant`, falling back to the target block itself. |
+| `spacing` | `miner`, `farmer`, `woodcutter` | Empty blocks `self-seed` keeps between plants, along each straight direction. `0` packs them side by side. |
+| `lift-regen` | `miner`, `farmer`, `woodcutter` | When a block regenerates, `surface-block` is placed under it first if it is missing, e.g. farmland under wheat. Left out, it is on when a target has a `surface` in its [block definition](configuring-a-block), as crops and trees do. |
+| `surface-block` | `miner`, `farmer`, `woodcutter` | The block placed under a regenerating block when `lift-regen` is on. |
 
 ### Stored XP
 
-Every minion keeps the XP it earns in a counter until its owner claims it. The main menu shows a stored XP
-button with the amount; clicking it gives the XP to the player and empties the counter. The button is set
-under `gui.main.stored-xp` in `lang.yml`, and removing that section hides it. Set `minion.xp.mode: orb` in
-[Plugin Config](../plugin-config) to drop XP as orbs instead.
+Every minion keeps the XP it earns until its owner claims it from the stored XP button in its menu. The button is set under `gui.main.stored-xp` in `lang.yml`, and removing that section hides it. Set `minion.xp.mode: orb` in [Plugin Config](../plugin-config) to drop XP as orbs instead.
 
 ## Internal placeholders
 
-These resolve anywhere minion placeholders work - holograms, `lang.yml`, menu titles and item names,
-`spawn-item.lore`, and the `args` of any effect on the minion.
+These work in holograms, `lang.yml`, menu titles and item names, `spawn-item.lore`, and the `args` of any effect on the minion.
 
-| Placeholder | Resolves to |
+| Placeholder | Value |
 | --- | --- |
-| `%minion_name%` | The minion's display `name`, colour codes included. |
-| `%type%` | The minion's ID, i.e. its filename without `.yml`. |
+| `%minion_name%` | The minion's `name`, colour codes included. |
+| `%type%` | The minion's ID, i.e. its file name without `.yml`. |
 | `%kind%` | The minion's `type`, capitalised, e.g. `Miner` or `Fishing`. |
 | `%level%` | The minion's current level. |
 | `%owner%` | The owner's name, or `Unowned` if it has none. |
-| `%used%` | Stack slots currently filled in the minion's storage. |
-| `%total%` | Stack slots the minion's storage currently holds. |
-| `%capacity%` | Slots its capacity stat allows, after upgrades and the type's `max-storage-slots`. Matches `%total%` in normal operation. |
-| `%radius%` | How far the minion reaches horizontally, in blocks. |
-| `%diameter%` | The full width of the work box, i.e. `radius * 2 + 1`. |
-| `%height%` | The vertical span of the work box, in blocks. |
-| `%speed%` | Ticks between actions, after upgrades and any active fuel. |
-| `%efficiency%` | Ticks each action itself takes. |
-| `%stored_experience%` | XP the minion has stored and its owner has not claimed yet. |
+| `%used%` | Stack slots filled in the minion's storage. |
+| `%total%` | Stack slots in the minion's storage. |
+| `%capacity%` | Slots its capacity stat allows, after upgrades and `max-storage-slots`. The same as `%total%` in normal use. |
+| `%radius%` | How far the work area reaches sideways, in blocks. |
+| `%diameter%` | The full width of the work area, i.e. `radius * 2 + 1`. |
+| `%height%` | How tall the work area is, in blocks. |
+| `%speed%` | Ticks between actions, after upgrades and any burning fuel. |
+| `%efficiency%` | Ticks each action takes. |
+| `%stored_experience%` | XP the minion has stored that its owner has not claimed. |
 
-Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%` and `%level_numeral%` - see
-[How to Level a Minion](../how-to-level-a-minion#placeholders).
+Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%`, `%level_numeral%` and `%level_<offset>%`, see [How to Level a Minion](../how-to-level-a-minion#internal-placeholders).
 
 :::tip Troubleshooting
 - **Minion not loading?** Check the file name is lowercase letters, numbers, and underscores only, and that `type` is one of the six above.
