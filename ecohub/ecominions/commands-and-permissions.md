@@ -35,6 +35,6 @@ This page lists every EcoMinions command and permission, so you can hand out min
 
 ## Where to go next
 
-- **Minions:** make minions to hand out in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
-- **Limits:** the default limit and permission overrides live in [Plugin Config](plugin-config).
-- **Placeholders:** show a player's limit with [PlaceholderAPI](placeholderapi).
+- **Minions:** make minions to hand out in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Limits:** the default limit and permission overrides live in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config).
+- **Placeholders:** show a player's limit with [PlaceholderAPI](https://hub.auxilor.io/wiki/ecominions/placeholderapi).

@@ -19,7 +19,7 @@ A **woodcutter** fells its target trees by mining their logs, plants a sapling, 
 
 ## Naming and IDs
 
-The file name without `.yml` is the minion ID, as for every type. Everything not on this page is shared by every type and covered in [Configuring a Minion](configuring-a-minion).
+The file name without `.yml` is the minion ID, as for every type. Everything not on this page is shared by every type and covered in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
 
 :::warning ID rules
 IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). No spaces, capitals, or hyphens, or the minion will not load.
@@ -51,7 +51,7 @@ placement:
 
 ### Targets
 
-Every target must be a tree, meaning it has a `plant` and `leaves`: built in for vanilla logs, set in a [block definition](configuring-a-block) for a custom one. Anything else is rejected at startup, because a woodcutter clears what it breaks. Offline cycles roll each log's real drop table. Logs are worth no XP unless their block definition sets `xp`.
+Every target must be a tree, meaning it has a `plant` and `leaves`: built in for vanilla logs, set in a [block definition](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block) for a custom one. Anything else is rejected at startup, because a woodcutter clears what it breaks. Offline cycles roll each log's real drop table. Logs are worth no XP unless their block definition sets `xp`.
 
 ### Work area
 
@@ -95,6 +95,6 @@ The tree shapes are built into the plugin and cannot be changed in config.
 
 ## Where to go next
 
-- **Shared config:** [Configuring a Minion](configuring-a-minion) for stats, item, upgrades and placement.
-- **Blocks:** [Configuring a Block](configuring-a-block) for custom blocks and per-block overrides.
+- **Shared config:** [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion) for stats, item, upgrades and placement.
+- **Blocks:** [Configuring a Block](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block) for custom blocks and per-block overrides.
 - **Defaults:** the shipped minions live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/minions).

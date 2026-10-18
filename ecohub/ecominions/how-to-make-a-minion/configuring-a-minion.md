@@ -106,16 +106,16 @@ placement:
 
 | Type | What it does | Page |
 | --- | --- | --- |
-| `miner` | Breaks blocks and puts them back after `regen-delay-ticks`. | [Configuring a Miner](configuring-a-miner) |
-| `farmer` | Harvests ripe crops and replants them. | [Configuring a Farmer](configuring-a-farmer) |
-| `woodcutter` | Fells trees and plants saplings to grow new ones. | [Configuring a Woodcutter](configuring-a-woodcutter) |
-| `slayer` | Kills mobs, and can spawn its own to kill. | [Configuring a Slayer](configuring-a-slayer) |
-| `fishing` | Catches fish from water in its area. | [Configuring a Fishing Minion](configuring-a-fishing-minion) |
-| `collector` | Picks up dropped items and XP orbs in its area. | [Configuring a Collector](configuring-a-collector) |
+| `miner` | Breaks blocks and puts them back after `regen-delay-ticks`. | [Configuring a Miner](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-miner) |
+| `farmer` | Harvests ripe crops and replants them. | [Configuring a Farmer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-farmer) |
+| `woodcutter` | Fells trees and plants saplings to grow new ones. | [Configuring a Woodcutter](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-woodcutter) |
+| `slayer` | Kills mobs, and can spawn its own to kill. | [Configuring a Slayer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-slayer) |
+| `fishing` | Catches fish from water in its area. | [Configuring a Fishing Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-fishing-minion) |
+| `collector` | Picks up dropped items and XP orbs in its area. | [Configuring a Collector](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-collector) |
 
 ### Stats
 
-Level-one values before any upgrade. `storage-slots` and `max-storage-slots` are both capped by `minion.hard-slot-cap` in [Plugin Config](../plugin-config). `regen-delay-ticks` only matters to types that break blocks.
+Level-one values before any upgrade. `storage-slots` and `max-storage-slots` are both capped by `minion.hard-slot-cap` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config). `regen-delay-ticks` only matters to types that break blocks.
 
 Every value may be a plain number or an expression in `%level%`: `"60 - %level%"` makes `speed-ticks` fall by one per level. A non-levelling minion is always evaluated at level 1.
 
@@ -176,7 +176,7 @@ sell-prices:
   "itemsadder:ruby": 100.0 # Custom items can be priced too.
 ```
 
-Prices here always win over EcoShop prices and are never scaled. Items with no price here use EcoShop's sell price if `sell-pricing.auto-from-ecoshop` is on in [Plugin Config](../plugin-config). The auto sell upgrade only pays for items that have a price one way or the other.
+Prices here always win over EcoShop prices and are never scaled. Items with no price here use EcoShop's sell price if `sell-pricing.auto-from-ecoshop` is on in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config). The auto sell upgrade only pays for items that have a price one way or the other.
 
 ### Upgrades
 
@@ -197,7 +197,7 @@ compactor-recipes: # Optional. Compactor recipe IDs this minion can buy, in menu
   - iron_block
 ```
 
-An upgrade not in `allowed-upgrades` does not show in this minion's upgrade menu. Each compactor recipe is bought on its own and needs no entry in `allowed-upgrades`. Owned recipes only run with a `minion_compact` effect, see below and [How to Make a Compactor Recipe](../how-to-make-a-compactor-recipe).
+An upgrade not in `allowed-upgrades` does not show in this minion's upgrade menu. Each compactor recipe is bought on its own and needs no entry in `allowed-upgrades`. Owned recipes only run with a `minion_compact` effect, see below and [How to Make a Compactor Recipe](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-compactor-recipe).
 
 ### Effects
 
@@ -214,7 +214,7 @@ effects:
 conditions: [] # Optional. Conditions that must pass for the effects to be active.
 ```
 
-They work the same as an upgrade's effects (see [How to Make an Upgrade](../how-to-make-an-upgrade#effects)), without `%tier_value%`. They add to upgrade effects on the same stat, so the example's `+1` radius stacks with the radius upgrade.
+They work the same as an upgrade's effects (see [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade#effects)), without `%tier_value%`. They add to upgrade effects on the same stat, so the example's `+1` radius stacks with the radius upgrade.
 
 :::tip
 EcoMinions' own triggers, effects, conditions and mutators are listed on the [EcoMinions wiki](https://hub.auxilor.io/wiki/ecominions), and only work on minions. Stock libreforge effects that change drops, like `multiply_drops` and `autosmelt`, work with `minion_mine_block`, `minion_kill_mob` and `minion_catch_fish`.
@@ -282,7 +282,7 @@ levelling:
       multiplier: 1
 ```
 
-See [How to Level a Minion](../how-to-level-a-minion) for the full block.
+See [How to Level a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-level-a-minion) for the full block.
 
 ### Placement
 
@@ -304,12 +304,12 @@ placement:
 | `floor-offset` | every type | The first layer of the work area, relative to the minion: `-1` is the layer one block below it, `0` its own level. Defaults by type (see the table above). |
 | `seed-block` | `miner`, `farmer`, `woodcutter` | What `self-seed` places. Leave blank to seed each target's `plant`, falling back to the target block itself. |
 | `spacing` | `miner`, `farmer`, `woodcutter` | Empty blocks `self-seed` keeps between plants, along each straight direction. `0` packs them side by side. |
-| `lift-regen` | `miner`, `farmer`, `woodcutter` | When a block regenerates, `surface-block` is placed under it first if it is missing, e.g. farmland under wheat. Left out, it is on when a target has a `surface` in its [block definition](configuring-a-block), as crops and trees do. |
+| `lift-regen` | `miner`, `farmer`, `woodcutter` | When a block regenerates, `surface-block` is placed under it first if it is missing, e.g. farmland under wheat. Left out, it is on when a target has a `surface` in its [block definition](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block), as crops and trees do. |
 | `surface-block` | `miner`, `farmer`, `woodcutter` | The block placed under a regenerating block when `lift-regen` is on. |
 
 ### Stored XP
 
-Every minion keeps the XP it earns until its owner claims it from the stored XP button in its menu. The button is set under `gui.main.stored-xp` in `lang.yml`, and removing that section hides it. Set `minion.xp.mode: orb` in [Plugin Config](../plugin-config) to drop XP as orbs instead.
+Every minion keeps the XP it earns until its owner claims it from the stored XP button in its menu. The button is set under `gui.main.stored-xp` in `lang.yml`, and removing that section hides it. Set `minion.xp.mode: orb` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config) to drop XP as orbs instead.
 
 ## Internal placeholders
 
@@ -332,7 +332,7 @@ These work in holograms, `lang.yml`, menu titles and item names, `spawn-item.lor
 | `%efficiency%` | Ticks each action takes. |
 | `%stored_experience%` | XP the minion has stored that its owner has not claimed. |
 
-Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%`, `%level_numeral%` and `%level_<offset>%`, see [How to Level a Minion](../how-to-level-a-minion#internal-placeholders).
+Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%`, `%level_numeral%` and `%level_<offset>%`, see [How to Level a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-level-a-minion#internal-placeholders).
 
 :::tip Troubleshooting
 - **Minion not loading?** Check the file name is lowercase letters, numbers, and underscores only, and that `type` is one of the six above.
@@ -344,8 +344,8 @@ Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%`, `%level_num
 
 ## Where to go next
 
-- **Types:** [Miner](configuring-a-miner), [Farmer](configuring-a-farmer), [Woodcutter](configuring-a-woodcutter), [Slayer](configuring-a-slayer), [Fishing](configuring-a-fishing-minion) and [Collector](configuring-a-collector).
-- **Blocks:** [Configuring a Block](configuring-a-block) for custom blocks and per-block overrides.
-- **Upgrades:** [How to Make an Upgrade](../how-to-make-an-upgrade) for the `allowed-upgrades` list.
-- **Levelling:** [How to Level a Minion](../how-to-level-a-minion) for the `levelling:` block.
+- **Types:** [Miner](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-miner), [Farmer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-farmer), [Woodcutter](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-woodcutter), [Slayer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-slayer), [Fishing](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-fishing-minion) and [Collector](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-collector).
+- **Blocks:** [Configuring a Block](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block) for custom blocks and per-block overrides.
+- **Upgrades:** [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade) for the `allowed-upgrades` list.
+- **Levelling:** [How to Level a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-level-a-minion) for the `levelling:` block.
 - **Defaults:** the shipped minions live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/minions).

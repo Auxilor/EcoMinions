@@ -156,6 +156,6 @@ These work anywhere minion placeholders work, such as holograms, menus and the s
 
 ## Where to go next
 
-- **Minions:** scale `base-stats` with `%level%` in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
-- **Upgrades:** lock tiers behind levels with `buy-conditions` in [How to Make an Upgrade](how-to-make-an-upgrade).
+- **Minions:** scale `base-stats` with `%level%` in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Upgrades:** lock tiers behind levels with `buy-conditions` in [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade).
 - **Defaults:** the shipped minions live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/minions).

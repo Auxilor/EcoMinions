@@ -85,7 +85,7 @@ output-amount: 1 # How many are made each time.
 
 ### Price
 
-What the recipe costs. It is bought once, with no tiers, and uses the same `cost-options` as an upgrade tier. See [How to Make an Upgrade](how-to-make-an-upgrade#tiers).
+What the recipe costs. It is bought once, with no tiers, and uses the same `cost-options` as an upgrade tier. See [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade#tiers).
 
 ```yaml
 cost-options: # The ways a player can pay for the recipe. They pick one.
@@ -139,6 +139,6 @@ Listing a recipe also allows its upgrade, so it does not need to be in `allowed-
 
 ## Where to go next
 
-- **Minions:** list recipes with `compactor-recipes` in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
-- **Upgrades:** the shared `cost-options` format is in [How to Make an Upgrade](how-to-make-an-upgrade).
+- **Minions:** list recipes with `compactor-recipes` in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Upgrades:** the shared `cost-options` format is in [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade).
 - **Defaults:** the shipped recipes live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/compactor-recipes).

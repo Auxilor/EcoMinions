@@ -22,9 +22,9 @@ Minions are configured entirely in files, so you can make any minion you like, f
 
 ## Where to go next
 
-- **Make a minion:** start with [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
-- **Make an upgrade:** define what players buy in [How to Make an Upgrade](how-to-make-an-upgrade).
-- **Make a fuel:** speed minions up in [How to Make a Fuel](how-to-make-a-fuel).
-- **Make a compactor recipe:** compact storage in [How to Make a Compactor Recipe](how-to-make-a-compactor-recipe).
-- **Add levelling:** let minions level up in [How to Level a Minion](how-to-level-a-minion).
-- **Server config:** tune global settings in [Plugin Config](plugin-config).
+- **Make a minion:** start with [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Make an upgrade:** define what players buy in [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade).
+- **Make a fuel:** speed minions up in [How to Make a Fuel](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-fuel).
+- **Make a compactor recipe:** compact storage in [How to Make a Compactor Recipe](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-compactor-recipe).
+- **Add levelling:** let minions level up in [How to Level a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-level-a-minion).
+- **Server config:** tune global settings in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config).

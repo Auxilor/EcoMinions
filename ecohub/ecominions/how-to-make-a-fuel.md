@@ -82,6 +82,6 @@ Fuel only burns while the minion is working. An idle minion (its owner offline, 
 
 ## Where to go next
 
-- **Minions:** set the base `speed-ticks` a fuel speeds up in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
-- **Upgrades:** make permanent speed upgrades in [How to Make an Upgrade](how-to-make-an-upgrade).
+- **Minions:** set the base `speed-ticks` a fuel speeds up in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Upgrades:** make permanent speed upgrades in [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade).
 - **Defaults:** the shipped fuels live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/fuels).
