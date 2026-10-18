@@ -8,7 +8,9 @@ data class MenuSettings(
     /** How many item types the storage area shows, highest count first. */
     val storageSlots: Int,
     val typeSelectRows: Int,
-    val typeSelectTitle: String
+    val typeSelectTitle: String,
+    /** If the main menu shows the stored XP button. */
+    val showStoredXp: Boolean = true
 ) {
     /** Where a collected item's count is shown. */
     enum class StorageDisplay {
