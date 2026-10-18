@@ -78,6 +78,14 @@ class CompactorRecipeLoader : ConfigLoader<CompactorRecipeDefinition> {
             return null
         }
 
+        if (output.equals(input, ignoreCase = true) || outputAmount >= inputAmount) {
+            context.violation(
+                "output",
+                "output must differ from input and input-amount must be more than output-amount, or the recipe loops"
+            )
+            return null
+        }
+
         return CompactorRecipe(
             id = id,
             inputLookup = input,
