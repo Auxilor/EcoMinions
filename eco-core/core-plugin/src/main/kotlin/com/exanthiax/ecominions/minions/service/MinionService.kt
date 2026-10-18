@@ -76,8 +76,11 @@ class MinionService(
         unregister(minion)
     }
 
-    /** Forgets every minion [owner] placed; any still in the world record themselves again when they load. */
-    fun forgetPlaced(owner: UUID) = placed.clear(owner)
+    /**
+     * Forgets every minion [owner] placed except [keep]; any still in the world
+     * record themselves again when they load.
+     */
+    fun forgetPlaced(owner: UUID, keep: Set<UUID> = emptySet()) = placed.clear(owner, keep)
 
     fun unregister(minion: Minion) {
         byUuid.remove(minion.uuid)

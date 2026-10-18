@@ -37,10 +37,13 @@ class PlacedMinionRegistry(
         }
     }
 
-    /** Forgets every minion [owner] placed; those still in the world record themselves again when they load. */
+    /**
+     * Forgets every minion [owner] placed except [keep]; those still in the world
+     * record themselves again when they load.
+     */
     @Synchronized
-    fun clear(owner: UUID) {
-        write(owner, emptyList())
+    fun clear(owner: UUID, keep: Set<UUID> = emptySet()) {
+        write(owner, read(owner).filter { entry -> keep.any { entry.startsWith("$it$SEPARATOR") } })
     }
 
     private companion object {
