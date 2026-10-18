@@ -73,7 +73,7 @@ By default a minion works only while its owner is online. Set `islands.active-wh
 | Plugin | Support |
 | --- | --- |
 | EcoShop | Minions use EcoShop sell prices for items with no price of their own, see `sell-pricing` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config#sell-pricing) |
-| EcoItems | Fishing minions use EcoItems `fishing` loot while the owner is online, and EcoItems items work as item lookups in minion configs |
+| EcoItems | Fishing minions use EcoItems `fishing` loot while the owner is online, slayers apply EcoItems `mob` loot, and mining uses EcoItems block drops. EcoItems items also work as item lookups in minion configs. |
 | PlaceholderAPI | Minion counts and limits as placeholders, see [PlaceholderAPI](https://hub.auxilor.io/wiki/ecominions/placeholderapi) |
 
 <hr/>
