@@ -1,4 +1,11 @@
-name: "&7Example Fuel"
-item: COAL
-duration-ticks: 12000
-speed-multiplier: 1.25
+# The ID of the fuel is the name of the .yml file.
+# For example coal.yml has the ID of coal.
+# _example.yml is not loaded.
+#
+# Players feed fuel to a minion from its menu. While it burns, the minion
+# works faster. Fuel is optional: a minion works without it.
+
+name: "&7Example Fuel" # The name shown in the minion's fuel button.
+item: COAL # The item burned as fuel.
+duration-ticks: 12000 # How long one item burns for, in ticks. Defaults to 12000.
+speed-multiplier: 1.25 # How much faster the minion works while it burns. Defaults to 1.25.

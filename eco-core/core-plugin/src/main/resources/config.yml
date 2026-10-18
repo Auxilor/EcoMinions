@@ -1,78 +1,68 @@
-# EcoMinions main config
+#
+# EcoMinions
+# by Auxilor
+#
 
-# Worlds that EcoMinions should be disabled in
+# Worlds that EcoMinions should be disabled in.
 disabled-in-worlds: []
 
 limits:
   per-player:
-    enabled: true
-    default: 5
-    permission-overrides: true
+    enabled: true # If players have a cap on placed minions.
+    default: 5 # The cap for every player.
+    permission-overrides: true # If ecominions.limit.<number> can raise a player's cap.
 
+# A minion is idle while its owner is offline or its chunk is unloaded.
+# When it wakes up, the idle time is simulated and paid out in one go.
 unloaded-calculation:
-  enabled: true
-  # Multiplier applied to offline drops relative to live mining.
-  # 1.0 = full parity, 0.75 = 75% of live rate while offline.
-  offline-efficiency: 1.0
+  enabled: true # If idle time is paid out at all.
+  offline-efficiency: 1.0 # Multiplier on simulated drops. 1.0 is the live rate, 0.75 is 75% of it.
 
 sell-pricing:
-  # Pull sell prices from EcoShop for any material with no explicit price in a
-  # minion's sell-prices section. Requires EcoShop to be installed.
-  auto-from-ecoshop: true
-  # Scales EcoShop-sourced prices only. Explicit sell-prices are never scaled.
-  sell-price-multiplier: 1.0
+  auto-from-ecoshop: true # If items with no sell-prices entry use the EcoShop sell price. Needs EcoShop.
+  sell-price-multiplier: 1.0 # Scales EcoShop prices only. A minion's own sell-prices are never scaled.
 
 minion:
-  # Hologram offset above the minion (Y axis blocks)
-  hologram-offset: 1.6
-  # How often (in ticks) to refresh the hologram contents
-  hologram-refresh-ticks: 20
-  # Glow / outline armor stand body? Future use.
-  invulnerable: true
+  hologram-offset: 1.6 # How far above the minion the hologram floats, in blocks.
+  hologram-refresh-ticks: 20 # How often the hologram updates, in ticks.
+  invulnerable: true # If the minion's armour stand cannot be damaged.
 
-  # Block regen visual: replace block with cobblestone briefly during regen?
-  # If false, block disappears entirely until regen tick.
-  show-regen-marker: true
-  # Block to place when a minion is picked up and regen markers haven't fired yet.
-  # Replaces any cobblestone regen markers left behind. Use AIR to simply remove them.
-  regen-marker-fallback-block: AIR
+  show-regen-marker: true # If a block waiting to regenerate shows as cobblestone. If false, it is air until it regenerates.
+  regen-marker-fallback-block: AIR # Replaces any cobblestone markers left when a minion is picked up.
 
   # What happens to the blocks a minion placed (seeded ores and crops, saplings,
-  # grown trees and the water it laid) when it is picked up or removed:
-  #   mine  - they stay in the world for players to mine
-  #   clear - they are removed, unless a player has since replaced them
+  # grown trees and the water it laid) when it is picked up or removed.
+  # mine: they stay in the world for players to mine.
+  # clear: they are removed, unless a player has since replaced them.
   seeded-blocks-on-pickup: mine
 
-  # Upper bound on any minion type's storage-slots and max-storage-slots.
-  # Minion storage is virtual and is never opened as a chest, so this is a
-  # sanity guard against typos, not a Minecraft limit. Raise it if your types
-  # need more.
+  # The most storage-slots and max-storage-slots any minion can have.
+  # Minion storage is never opened as a chest, so this only guards against
+  # typos. Raise it if your minions need more.
   hard-slot-cap: 54
 
   xp:
     # Where the XP a minion earns goes.
-    # store - kept on the minion and claimed from its menu.
-    # orb - dropped as an orb at the minion.
+    # store: kept on the minion and claimed from its menu.
+    # orb: dropped as an orb at the minion.
     mode: store
 
-
+# The title and rows of each menu. Buttons are set in lang.yml.
 gui:
-  main:
+  main: # A minion's own menu.
     title: "&8%minion_name% &8(&7Lvl %level%&8)"
     rows: 6
-    # How collected item counts are shown: title | lore | both
-    storage-display: lore
-    # Max item types shown in the storage area; highest count first
-    storage-slots: 9
-  upgrade:
+    storage-display: lore # How stored item counts are shown: title, lore or both.
+    storage-slots: 9 # The most item types shown in the storage area, highest count first.
+  upgrade: # One upgrade's tiers.
     title: "&8Upgrade: &f%upgrade_name%"
     rows: 6
-  type-select:
+  type-select: # The minion browser opened by /minions.
     title: "&8Choose a Minion"
     rows: 6
-  upgrade-list:
+  upgrade-list: # A minion's upgrades.
     title: "&8Upgrades: &f%minion_name%"
     rows: 6
-  cost-select:
+  cost-select: # The payment chooser.
     title: "&8Choose Payment"
     rows: 3

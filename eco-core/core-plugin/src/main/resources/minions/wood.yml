@@ -7,8 +7,8 @@ base-stats:
   speed-ticks: 60
   efficiency-ticks: 10
   radius: 3
-  # Vertical span of the mining box, from one block below the minion upward.
-  # 6 reaches the top log of a full tree, and is the woodcutter default.
+  # How tall the work area is, counted up from the minion's own level.
+  # 5 reaches the top log of every tree shape, and is the woodcutter default.
   height: 5
   storage-slots: 27
   max-storage-slots: 54

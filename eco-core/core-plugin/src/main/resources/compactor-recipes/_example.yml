@@ -1,24 +1,34 @@
-# Referenced by a minion type's compactor-recipes: list. Bought independently,
-# with its own price. output must differ from input and shrink the stack, or
-# the compact loop churns/destroys items.
-name: "&eExample Compactor Recipe"
+# The ID of the compactor recipe is the name of the .yml file.
+# For example coal_block.yml has the ID of coal_block.
+# _example.yml is not loaded.
+#
+# A minion can only buy recipes listed in its compactor-recipes, and needs a
+# minion_compact effect in its effects to run them. Each recipe is bought as
+# its own upgrade, with the ID compactor_<recipe id>.
+
+name: "&eExample Compactor Recipe" # The recipe's name in the menu.
 display:
-  icon: furnace
+  icon: furnace # The recipe's icon in the menu.
 
-input: COBBLESTONE
-input-amount: 9
-output: STONE
-output-amount: 1
+# The output must be a different item to the input, and input-amount must be
+# more than output-amount, or the recipe loops and can destroy items.
+input: COBBLESTONE # The item used up.
+input-amount: 9 # How many are used up each time.
+output: STONE # The item made.
+output-amount: 1 # How many are made each time.
 
-cost-options:
+cost-options: # The ways a player can pay for the recipe. They pick one.
   - value: 100000
     type: coins
     display: "&a$%value_commas%"
 
-# buy-conditions: []   # (optional) gates the purchase itself
-# conditions: []       # (optional) gates whether it currently compacts
+# (Optional) Conditions that must pass to buy the recipe.
+# buy-conditions: []
 
-# (optional) ordering hint for a chained recipe - e.g. an enchanted_coal recipe
-# consuming COAL_BLOCK sets higher-level-of: coal_block, so coal -> coal_block
-# runs before coal_block -> enchanted_coal. Doesn't gate purchase on its own.
+# (Optional) Conditions that must pass each time the minion compacts.
+# conditions: []
+
+# (Optional) The recipe whose output this one uses up, so it runs after it.
+# For example, a recipe that uses up coal blocks sets higher-level-of: coal_block,
+# so coal becomes coal blocks first. It does not lock the purchase.
 # higher-level-of: coal_block
