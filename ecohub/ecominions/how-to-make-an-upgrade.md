@@ -106,7 +106,10 @@ effects:
       - minion_mine_block # Runs each time the minion breaks a block.
     args:
       multiplier: "1 + %tier_value%"
+      fractional: true # A multiplier like 1.1 gives an extra item 10% of the time instead of rounding down.
 ```
+
+Without `fractional: true`, `multiply_drops` rounds the multiplier down to a whole number, so tiers below 2 do nothing. The shipped Fortune upgrade sets it. Minion drops are never skipped by libreforge's `prevent-duplication`, so blocks like stone and logs are multiplied too.
 
 For something that should run on a timer, use `minion_static_<ticks>` rather than `minion_tick` with `every`, as it only runs on the ticks it is due. The shipped auto sell upgrade sells every 200 ticks:
 
