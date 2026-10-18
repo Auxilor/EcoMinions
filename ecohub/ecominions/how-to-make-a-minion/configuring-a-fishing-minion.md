@@ -19,7 +19,7 @@ A **fishing minion** catches fish from water source blocks in its work area and 
 
 ## Naming and IDs
 
-The file name without `.yml` is the minion ID, as for every type. Everything not on this page is shared by every type and covered in [Configuring a Minion](configuring-a-minion).
+The file name without `.yml` is the minion ID, as for every type. Everything not on this page is shared by every type and covered in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
 
 :::warning ID rules
 IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). No spaces, capitals, or hyphens, or the minion will not load.
@@ -65,5 +65,5 @@ Each catch comes from the minion's own `drops` list first, then EcoItems `fishin
 
 ## Where to go next
 
-- **Shared config:** [Configuring a Minion](configuring-a-minion) for stats, item, upgrades and placement.
+- **Shared config:** [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion) for stats, item, upgrades and placement.
 - **Defaults:** the shipped minions live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/minions).

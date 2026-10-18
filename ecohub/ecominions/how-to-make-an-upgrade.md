@@ -177,7 +177,7 @@ These work in the upgrade menus in `lang.yml`.
 
 ## Where to go next
 
-- **Minions:** expose the upgrade with `allowed-upgrades` in [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
-- **Compacting:** compactor recipes make their own upgrades, see [How to Make a Compactor Recipe](how-to-make-a-compactor-recipe).
-- **Levelling:** lock tiers behind minion levels with [How to Level a Minion](how-to-level-a-minion).
+- **Minions:** expose the upgrade with `allowed-upgrades` in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Compacting:** compactor recipes make their own upgrades, see [How to Make a Compactor Recipe](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-compactor-recipe).
+- **Levelling:** lock tiers behind minion levels with [How to Level a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-level-a-minion).
 - **Defaults:** the shipped upgrades live [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/upgrades).

@@ -81,7 +81,7 @@ surface: GRASS_BLOCK # Optional. What must be underneath to plant here.
 tree-pattern: oak # Optional. Which built-in tree shape to grow.
 ```
 
-`surface` also turns on `lift-regen` for minions targeting this block, which is how a crop gets its farmland back with no extra config. `tree-pattern` defaults to the definition's ID, see [Tree shapes](configuring-a-woodcutter#tree-shapes).
+`surface` also turns on `lift-regen` for minions targeting this block, which is how a crop gets its farmland back with no extra config. `tree-pattern` defaults to the definition's ID, see [Tree shapes](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-woodcutter#tree-shapes).
 
 ### Mining
 
@@ -105,7 +105,7 @@ drops: # Optional. The items one break gives, for custom blocks.
 xp: 2-5 # Optional. The XP one break is worth, as a number or a range.
 ```
 
-Live mining already uses the drops of vanilla and EcoItems blocks. Set `drops` for other plugins' custom blocks, or to override them. Offline catch-up always needs `drops` for a custom block, as its drops cannot be rolled while nobody is online, so without it the block gives nothing offline. Vanilla ores already have their vanilla XP. Where XP goes is set by `minion.xp.mode` in [Plugin Config](../plugin-config).
+Live mining already uses the drops of vanilla and EcoItems blocks. Set `drops` for other plugins' custom blocks, or to override them. Offline catch-up always needs `drops` for a custom block, as its drops cannot be rolled while nobody is online, so without it the block gives nothing offline. Vanilla ores already have their vanilla XP. Where XP goes is set by `minion.xp.mode` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config).
 
 ### Override
 
@@ -126,6 +126,6 @@ restore: tree # Optional. One of regen, replant or tree, beating the minion's ty
 
 ## Where to go next
 
-- **Types that use blocks:** [Miner](configuring-a-miner), [Farmer](configuring-a-farmer) and [Woodcutter](configuring-a-woodcutter).
-- **Shared config:** [Configuring a Minion](configuring-a-minion).
+- **Types that use blocks:** [Miner](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-miner), [Farmer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-farmer) and [Woodcutter](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-woodcutter).
+- **Shared config:** [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
 - **Defaults:** the example definition lives [here](https://github.com/Auxilor/EcoMinions/tree/master/eco-core/core-plugin/src/main/resources/blocks).

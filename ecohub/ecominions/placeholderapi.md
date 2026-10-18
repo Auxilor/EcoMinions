@@ -15,12 +15,12 @@ EcoMinions exposes placeholders you can use anywhere PlaceholderAPI is read, e.g
 | `%ecominions_limit%` | The most minions a player can place, or `infinity` from `lang.yml` with no limit |
 
 :::info
-The placeholders inside a minion's own holograms, menus and spawn item, such as `%level%` and `%used%`, are a separate, non-PlaceholderAPI mechanism. See [Configuring a Minion](how-to-make-a-minion/configuring-a-minion#internal-placeholders) for those.
+The placeholders inside a minion's own holograms, menus and spawn item, such as `%level%` and `%used%`, are a separate, non-PlaceholderAPI mechanism. See [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion#internal-placeholders) for those.
 :::
 
 <hr/>
 
 ## Where to go next
 
-- **Minion IDs:** minion IDs are file names, see [Configuring a Minion](how-to-make-a-minion/configuring-a-minion).
-- **Limits:** set the limit `%ecominions_limit%` shows in [Plugin Config](plugin-config).
+- **Minion IDs:** minion IDs are file names, see [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Limits:** set the limit `%ecominions_limit%` shows in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config).
