@@ -3,6 +3,17 @@ version = rootProject.version
 
 val ecoVersion = rootProject.findProperty("eco-version")
 
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven("https://repo.codemc.org/repository/maven-public/") {
+                metadataSources { artifact() }
+            }
+        }
+        filter { includeModule("world.bentobox", "bentobox") }
+    }
+}
+
 dependencies {
     implementation(project(":eco-core:core-api"))
 
@@ -11,6 +22,7 @@ dependencies {
     compileOnly("com.willfp:EcoShop:2026.41.1")
     compileOnly("com.willfp:EcoItems:2026.41.1")
     compileOnly("com.bgsoftware:SuperiorSkyblockAPI:2026.3")
+    compileOnly("world.bentobox:bentobox:2.7.0")
 
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     testImplementation("com.willfp:eco:$ecoVersion")

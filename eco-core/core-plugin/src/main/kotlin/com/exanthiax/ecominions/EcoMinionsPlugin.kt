@@ -36,6 +36,7 @@ import com.exanthiax.ecominions.islands.IslandMemberListener
 import com.exanthiax.ecominions.islands.IslandMinionIndex
 import com.exanthiax.ecominions.islands.IslandRegistry
 import com.exanthiax.ecominions.islands.MinionAccess
+import com.exanthiax.ecominions.islands.providers.BentoBoxIslandProvider
 import com.exanthiax.ecominions.islands.providers.SuperiorSkyblockIslandProvider
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
@@ -397,6 +398,11 @@ class EcoMinionsPlugin : LibreforgePlugin() {
                 SuperiorSkyblockIslandProvider.listenForNewIslands(this)
             }.onFailure { logger.warning("SuperiorSkyblock2 support disabled: ${it.message}") }
         }
+        if (Bukkit.getPluginManager().isPluginEnabled(BENTO_BOX)) {
+            runCatching {
+                islandRegistry.register(BentoBoxIslandProvider(logger::warning).also(BentoBoxIslandProvider::register))
+            }.onFailure { logger.warning("BentoBox support disabled: ${it.message}") }
+        }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)
         shopIntegration.init()
         ecoItemsIntegration.init()
@@ -531,5 +537,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private companion object {
         const val XP_MERGE_RADIUS = 1.5
         const val SUPERIOR_SKYBLOCK = "SuperiorSkyblock2"
+        const val BENTO_BOX = "BentoBox"
     }
 }

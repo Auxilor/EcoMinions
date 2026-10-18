@@ -10,6 +10,7 @@ softdepend:
   - EcoItems
   - EcoShop
   - SuperiorSkyblock2
+  - BentoBox
 commands:
   minions:
     aliases: [minion, ecominions]
