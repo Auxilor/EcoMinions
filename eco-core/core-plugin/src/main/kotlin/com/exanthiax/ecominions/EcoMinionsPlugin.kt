@@ -406,7 +406,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private fun wireMenuNavigation() {
         upgradeListMenu.onBack = { player, minion -> mainMenu.open(player, minion) }
         upgradeMenu.onBack = { player, minion -> upgradeListMenu.open(player, minion) }
-        costSelectMenu.onPurchased = { player, minion, upgrade -> upgradeMenu.open(player, minion, upgrade) }
+        costSelectMenu.onResult = upgradeMenu::finishPurchase
     }
 
     private fun registerPlaceholders() {
