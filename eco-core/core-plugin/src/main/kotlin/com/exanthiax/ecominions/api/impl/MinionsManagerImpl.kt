@@ -130,8 +130,12 @@ class MinionsManagerImpl(
 
     override fun destroy(minion: ApiMinion, cause: DestroyCause): Boolean = destroy(minion, cause, false)
 
-    override fun destroy(minion: ApiMinion, cause: DestroyCause, dropItem: Boolean): Boolean =
-        placement.destroy(owned(minion), cause, dropItem)
+    override fun destroy(minion: ApiMinion, cause: DestroyCause, dropItem: Boolean): Boolean {
+        if (minions.getByUuid(minion.uuid) == null) {
+            return false
+        }
+        return placement.destroy(owned(minion), cause, dropItem)
+    }
 
     override fun destroyAllOwnedBy(player: OfflinePlayer): Int = destroyAllOwnedBy(player, DestroyCause.API)
 

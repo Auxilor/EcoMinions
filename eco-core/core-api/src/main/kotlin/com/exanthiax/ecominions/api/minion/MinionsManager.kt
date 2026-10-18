@@ -126,14 +126,18 @@ interface MinionsManager {
      */
     fun pickUp(player: Player, minion: Minion): PickUpResult
 
-    /** Removes [minion] from the world, deleting its storage. Fires `MinionDestroyEvent`. */
+    /**
+     * Removes [minion] from the world, deleting its storage. Fires `MinionDestroyEvent`.
+     *
+     * @return Whether it was removed: false if it is no longer loaded or the event was cancelled.
+     */
     fun destroy(minion: Minion, cause: DestroyCause): Boolean
 
     /**
      * Removes [minion] from the world. Fires `MinionDestroyEvent`.
      *
      * @param dropItem Whether to drop the minion's item, storage included, where it stood.
-     * @return Whether it was removed.
+     * @return Whether it was removed: false if it is no longer loaded or the event was cancelled.
      */
     fun destroy(minion: Minion, cause: DestroyCause, dropItem: Boolean): Boolean
 
