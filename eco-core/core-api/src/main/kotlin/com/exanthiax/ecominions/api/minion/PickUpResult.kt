@@ -8,7 +8,14 @@ data class PickUpResult(
     /** The item given to the player, or null unless [status] is [Status.PICKED_UP]. */
     val item: ItemStack?
 ) {
-    enum class Status { PICKED_UP, NOT_OWNER, CANCELLED }
+    enum class Status {
+        PICKED_UP,
+        NOT_OWNER,
+
+        /** The player lacks the island privilege to pick the minion up. */
+        NO_ISLAND_PERMISSION,
+        CANCELLED
+    }
 
     val isSuccess: Boolean
         get() = status == Status.PICKED_UP

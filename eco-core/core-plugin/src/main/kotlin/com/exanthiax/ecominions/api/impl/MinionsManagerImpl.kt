@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.api.impl
 
 import com.exanthiax.ecominions.api.event.MinionOwnerChangeEvent
+import com.exanthiax.ecominions.api.island.MinionIsland
 import com.exanthiax.ecominions.api.minion.DestroyCause
 import com.exanthiax.ecominions.api.minion.MinionStorage
 import com.exanthiax.ecominions.api.minion.MinionsManager
@@ -53,6 +54,12 @@ class MinionsManagerImpl(
 ) : MinionsManager {
 
     override fun all(): Collection<ApiMinion> = minions.all()
+
+    override fun islandLimit(island: MinionIsland): Int = Int.MAX_VALUE
+
+    override fun canUse(player: Player, minion: ApiMinion): Boolean = false
+
+    override fun canPickUp(player: Player, minion: ApiMinion): Boolean = false
 
     override fun getByUuid(uuid: UUID): ApiMinion? = minions.getByUuid(uuid)
 
