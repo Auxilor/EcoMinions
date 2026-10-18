@@ -32,6 +32,7 @@ dependencies {
     compileOnly("com.bgsoftware:SuperiorSkyblockAPI:2026.3")
     compileOnly("world.bentobox:bentobox:2.7.0")
     compileOnly("com.iridium:IridiumSkyblock:4.1.5")
+    compileOnly("com.github.angeschossen:LandsAPI:7.25.4") { isTransitive = false }
 
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     testImplementation("com.willfp:eco:$ecoVersion")

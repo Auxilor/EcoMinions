@@ -12,6 +12,7 @@ softdepend:
   - SuperiorSkyblock2
   - BentoBox
   - IridiumSkyblock
+  - Lands
 commands:
   minions:
     aliases: [minion, ecominions]
