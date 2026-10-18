@@ -30,6 +30,7 @@ import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.islands.IslandRegistry
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
 import com.exanthiax.ecominions.levelling.service.MinionXpService
@@ -313,6 +314,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
 
     // API
+    private val islandRegistry = IslandRegistry(logger::warning)
     private val api = EcoMinionsApiImpl(
         MinionsManagerImpl(
             minionService, placementService, itemFactory, minionItems, collector,
@@ -320,7 +322,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         ) { Bukkit.getOfflinePlayer(it) },
         UpgradesManagerImpl(upgradeService, purchases, minionService),
         FuelsManagerImpl(fuelService, minionFuelService, minionService),
-        MenusManagerImpl(mainMenu, upgradeListMenu, typeSelectMenu, minionService, regions)
+        MenusManagerImpl(mainMenu, upgradeListMenu, typeSelectMenu, minionService, regions),
+        islandRegistry
     )
 
     // Lifecycle
