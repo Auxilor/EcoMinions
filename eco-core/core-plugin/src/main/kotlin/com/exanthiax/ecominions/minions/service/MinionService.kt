@@ -33,7 +33,9 @@ class MinionService(
     private val settings: SettingsHolder<MinionSettings>,
     private val events: EventDispatcher,
     private val regions: Regions,
-    private val placed: PlacedMinionRegistry
+    private val placed: PlacedMinionRegistry,
+    private val onRegister: (Minion) -> Unit = {},
+    private val onRetire: (Minion) -> Unit = {}
 ) {
 
     private val byUuid: MutableMap<UUID, Minion> = ConcurrentHashMap()
@@ -67,12 +69,14 @@ class MinionService(
             byOwner.computeIfAbsent(owner) { ConcurrentHashMap.newKeySet() }.add(minion.uuid)
             placed.add(owner, minion.uuid, minion.state.definition.id)
         }
+        onRegister(minion)
         return minion
     }
 
     /** Unregisters a minion that is leaving the world for good, so its owner no longer counts it. */
     fun retire(minion: Minion) {
         minion.state.owner?.let { placed.remove(it, minion.uuid) }
+        onRetire(minion)
         unregister(minion)
     }
 

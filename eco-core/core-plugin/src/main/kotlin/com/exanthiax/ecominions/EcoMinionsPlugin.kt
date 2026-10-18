@@ -30,6 +30,7 @@ import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.islands.IslandMinionIndex
 import com.exanthiax.ecominions.islands.IslandRegistry
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
@@ -116,6 +117,7 @@ import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeMenu
 import com.willfp.eco.core.command.impl.PluginCommand
 import com.willfp.eco.core.data.PlayerProfile
+import com.willfp.eco.core.data.ServerProfile
 import com.willfp.eco.core.data.keys.PersistentDataKey
 import com.willfp.eco.core.data.keys.PersistentDataKeyType
 import com.willfp.eco.core.integrations.antigrief.AntigriefManager
@@ -284,9 +286,28 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         read = { PlayerProfile.load(it).read(placedMinionsKey) },
         write = { owner, entries -> PlayerProfile.load(owner).write(placedMinionsKey, entries) }
     )
+    private val islandMinionsKey = PersistentDataKey(
+        namespacedKeyFactory.create("island_minions"),
+        PersistentDataKeyType.STRING_LIST,
+        emptyList()
+    )
+    private val islandLimitsKey = PersistentDataKey(
+        namespacedKeyFactory.create("island_limits"),
+        PersistentDataKeyType.STRING_LIST,
+        emptyList()
+    )
+    private val islandIndex = IslandMinionIndex(
+        readMinions = { ServerProfile.load().read(islandMinionsKey) },
+        writeMinions = { ServerProfile.load().write(islandMinionsKey, it) },
+        readLimits = { ServerProfile.load().read(islandLimitsKey) },
+        writeLimits = { ServerProfile.load().write(islandLimitsKey, it) }
+    )
+    private val islandRegistry = IslandRegistry(logger::warning)
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
-        limits, activityService, minionSettings, events, regions, placedMinions
+        limits, activityService, minionSettings, events, regions, placedMinions,
+        onRegister = { minion -> islandRegistry.islandAt(minion.location)?.let { islandIndex.record(it, minion.uuid) } },
+        onRetire = { islandIndex.remove(it.uuid) }
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
@@ -314,7 +335,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
 
     // API
-    private val islandRegistry = IslandRegistry(logger::warning)
     private val api = EcoMinionsApiImpl(
         MinionsManagerImpl(
             minionService, placementService, itemFactory, minionItems, collector,

@@ -20,7 +20,14 @@ data class MinionSettings(
     val defaultLimit: Int,
     val permissionOverrides: Boolean,
     val sellPricing: SellPricingSettings,
-    val experienceMode: ExperienceMode = ExperienceMode.STORE
+    val experienceMode: ExperienceMode = ExperienceMode.STORE,
+    /** Whether island ranks decide who may place, use and pick up minions. */
+    val islandPrivileges: Boolean = true,
+    /** Whether a minion on an island keeps working while any island member is online. */
+    val activeWhileMemberOnline: Boolean = false,
+    val islandLimitsEnabled: Boolean = false,
+    val defaultIslandLimit: Int = 10,
+    val islandPermissionOverrides: Boolean = true
 )
 
 /** Where the XP a minion earns goes. */
