@@ -31,6 +31,7 @@ import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.islands.IslandLimits
+import com.exanthiax.ecominions.islands.IslandMemberCache
 import com.exanthiax.ecominions.islands.IslandMemberListener
 import com.exanthiax.ecominions.islands.IslandMinionIndex
 import com.exanthiax.ecominions.islands.IslandRegistry
@@ -280,7 +281,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings,
         { Bukkit.getPlayer(it) != null },
-        { islandRegistry.islandAt(it.location)?.members().orEmpty() }
+        { islandMemberCache.membersOf(it) }
     )
     private val placedMinionsKey = PersistentDataKey(
         namespacedKeyFactory.create("placed_minions"),
@@ -308,11 +309,15 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         writeLimits = { ServerProfile.load().write(islandLimitsKey, it) }
     )
     private val islandRegistry = IslandRegistry(logger::warning)
+    private val islandMemberCache = IslandMemberCache(islandRegistry)
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
         onRegister = { minion -> islandRegistry.islandAt(minion.location)?.let { islandIndex.record(it, minion.uuid) } },
-        onRetire = { islandIndex.remove(it.uuid) }
+        onRetire = {
+            islandIndex.remove(it.uuid)
+            islandMemberCache.forget(it.uuid)
+        }
     )
     private val minionAccess = MinionAccess(islandRegistry, minionSettings)
     private val islandLimits = IslandLimits(minionSettings, islandIndex) { Bukkit.getPlayer(it) }
