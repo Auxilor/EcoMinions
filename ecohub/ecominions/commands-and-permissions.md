@@ -23,7 +23,8 @@ This page lists every EcoMinions command and permission, so you can hand out min
 | Permission | Description |
 | --- | --- |
 | `ecominions.limit.<number>` | Raises a player's minion limit to `<number>`, e.g. `ecominions.limit.10`. The highest one a player has wins. Needs `limits.per-player.permission-overrides: true` |
-| `ecominions.admin` | No minion limit, and can pick up other players' minions |
+| `ecominions.island-limit.<number>` | Raises the minion limit of every island the holder owns to `<number>`, e.g. `ecominions.island-limit.20`. The highest one wins. Needs `limits.per-island.permission-overrides: true` |
+| `ecominions.admin` | No minion limit, and can pick up other players' minions. Skips every island check and both limits |
 | `ecominions.command.*` | Permission to use every command |
 | `ecominions.*` | Every permission above |
 
@@ -36,5 +37,6 @@ This page lists every EcoMinions command and permission, so you can hand out min
 ## Where to go next
 
 - **Minions:** make minions to hand out in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Islands:** island ranks and limits are in [Supported Plugins](https://hub.auxilor.io/wiki/ecominions/supported-plugins).
 - **Limits:** the default limit and permission overrides live in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config).
 - **Placeholders:** show a player's limit with [PlaceholderAPI](https://hub.auxilor.io/wiki/ecominions/placeholderapi).
