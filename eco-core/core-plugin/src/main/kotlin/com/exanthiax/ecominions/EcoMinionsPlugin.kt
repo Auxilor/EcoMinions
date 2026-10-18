@@ -32,6 +32,7 @@ import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.islands.IslandMinionIndex
 import com.exanthiax.ecominions.islands.IslandRegistry
+import com.exanthiax.ecominions.islands.MinionAccess
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
 import com.exanthiax.ecominions.levelling.service.MinionXpService
@@ -309,9 +310,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         onRegister = { minion -> islandRegistry.islandAt(minion.location)?.let { islandIndex.record(it, minion.uuid) } },
         onRetire = { islandIndex.remove(it.uuid) }
     )
+    private val minionAccess = MinionAccess(islandRegistry, minionSettings)
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
-        triggerDispatch, events, AntigriefManager::canPlaceBlock
+        triggerDispatch, events, minionAccess, AntigriefManager::canPlaceBlock
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
@@ -338,7 +340,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val api = EcoMinionsApiImpl(
         MinionsManagerImpl(
             minionService, placementService, itemFactory, minionItems, collector,
-            sellService, repository, activityService, xpService, compactService, events, regions
+            sellService, repository, activityService, xpService, compactService, events, regions, minionAccess
         ) { Bukkit.getOfflinePlayer(it) },
         UpgradesManagerImpl(upgradeService, purchases, minionService),
         FuelsManagerImpl(fuelService, minionFuelService, minionService),
@@ -347,7 +349,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
 
     // Lifecycle
-    private val placementListener = MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages)
+    private val placementListener = MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages, minionAccess)
     private val customItems = MinionCustomItems(this, minionService, itemFactory)
     private val recipes = MinionRecipes(this, minionService, itemFactory)
     private val lifecycle = LifecycleManager(

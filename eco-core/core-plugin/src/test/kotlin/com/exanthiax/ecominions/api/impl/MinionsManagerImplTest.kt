@@ -45,7 +45,7 @@ class MinionsManagerImplTest {
     private fun manager(events: RecordingEventDispatcher = RecordingEventDispatcher()) = MinionsManagerImpl(
         minions, placement, itemFactory, mockk(relaxed = true), mockk(relaxed = true),
         mockk(relaxed = true), mockk(relaxed = true), activity, mockk(relaxed = true), mockk(relaxed = true), events,
-        mockk(relaxed = true)
+        mockk(relaxed = true), mockk(relaxed = true)
     ) { id -> mockk<OfflinePlayer> { every { uniqueId } returns id } }
 
     @Test
@@ -67,6 +67,7 @@ class MinionsManagerImplTest {
             PlacementService.PlaceResult.WorldDisabled to PlaceResult.Status.WORLD_DISABLED,
             PlacementService.PlaceResult.LimitReached(3) to PlaceResult.Status.LIMIT_REACHED,
             PlacementService.PlaceResult.Protected to PlaceResult.Status.PROTECTED,
+            PlacementService.PlaceResult.NoIslandPermission to PlaceResult.Status.NO_ISLAND_PERMISSION,
             PlacementService.PlaceResult.Cancelled to PlaceResult.Status.CANCELLED
         )
 
@@ -74,6 +75,16 @@ class MinionsManagerImplTest {
             every { placement.place(player, any(), location) } returns internal
             assertEquals(expected, manager().place(player, type, 1, location).status)
         }
+    }
+
+    @Test
+    fun `the api reports no island permission`() {
+        val player = mockk<Player>(relaxed = true)
+        every { placement.place(any(), any(), any()) } returns PlacementService.PlaceResult.NoIslandPermission
+        every { placement.pickUp(player, minion) } returns PlacementService.PickUpResult.NoIslandPermission
+
+        assertEquals(PlaceResult.Status.NO_ISLAND_PERMISSION, manager().place(player, type, 1, mockk()).status)
+        assertEquals(PickUpResult.Status.NO_ISLAND_PERMISSION, manager().pickUp(player, minion).status)
     }
 
     @Test

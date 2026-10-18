@@ -262,6 +262,10 @@ class MainMenu(
                         player.sendMessage(messages.line("messages.not-owner"))
                         return@onLeftClick
                     }
+                    PlacementService.PickUpResult.NoIslandPermission -> {
+                        player.sendMessage(messages.line("messages.no-island-permission"))
+                        return@onLeftClick
+                    }
                     PlacementService.PickUpResult.Cancelled -> return@onLeftClick
                 }
                 player.inventory.addItem(picked).values.forEach { leftover ->
