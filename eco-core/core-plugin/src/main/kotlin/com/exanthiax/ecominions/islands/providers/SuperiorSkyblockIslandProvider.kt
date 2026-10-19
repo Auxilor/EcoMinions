@@ -40,7 +40,7 @@ class SuperiorSkyblockIslandProvider(private val warn: (String) -> Unit) : Islan
 
         override fun isAllowed(player: Player, privilege: IslandPrivilege): Boolean {
             val name = privilegeName(privilege)
-            val superiorPrivilege = SuperiorPrivilege.getByName(name)
+            val superiorPrivilege = findPrivilege(name)
             if (superiorPrivilege == null) {
                 if (reportedMissing.add(name)) {
                     warn("SuperiorSkyblock2 privilege $name is not registered, denying it")
@@ -70,12 +70,15 @@ class SuperiorSkyblockIslandProvider(private val warn: (String) -> Unit) : Islan
         private val defaultsApplied = ConcurrentHashMap.newKeySet<UUID>()
         private val reportedMissing = ConcurrentHashMap.newKeySet<String>()
 
+        private fun findPrivilege(name: String): SuperiorPrivilege? =
+            SuperiorPrivilege.values().firstOrNull { it.name.equals(name, ignoreCase = true) }
+
         private fun privilegeName(privilege: IslandPrivilege) = "ECOMINIONS_${privilege.name}"
 
         /** Registers the three EcoMinions privileges with SuperiorSkyblock2 unless already registered. */
         fun registerPrivileges() {
             IslandPrivilege.entries.map(::privilegeName).forEach { name ->
-                if (SuperiorPrivilege.getByName(name) == null) {
+                if (findPrivilege(name) == null) {
                     SuperiorPrivilege.register(name)
                 }
             }
@@ -110,7 +113,7 @@ class SuperiorSkyblockIslandProvider(private val warn: (String) -> Unit) : Islan
         private fun applyDefaults(island: Island) {
             val memberRole = SuperiorSkyblockAPI.getRoles().defaultRole
             listOf(IslandPrivilege.PLACE, IslandPrivilege.USE).forEach { privilege ->
-                SuperiorPrivilege.getByName(privilegeName(privilege))?.takeIf { superiorPrivilege ->
+                findPrivilege(privilegeName(privilege))?.takeIf { superiorPrivilege ->
                     !island.rolePermissions.containsKey(superiorPrivilege) &&
                         island.getRequiredPlayerRole(superiorPrivilege).isLastRole
                 }?.let { island.setPermission(memberRole, it) }
