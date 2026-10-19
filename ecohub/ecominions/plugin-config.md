@@ -80,6 +80,7 @@ minion:
 # A location is a row and a column, counted from the top left corner, which is row 1, column 1.
 # An area is the rectangle from its top-left slot to its bottom-right slot.
 # If you change rows, move the locations and areas so they still fit in the menu.
+# A mask pattern needs exactly one line for each row, or the menu will not open.
 gui:
   main: # A minion's own menu.
     title: "&8%minion_name% &8(&7Lvl %level%&8)"
@@ -291,7 +292,7 @@ Each menu has a `title` and `rows`: `main` is a minion's menu, `upgrade-list` it
 | Key | Menus | What it controls |
 |---|---|---|
 | `mask` | all | The background. `items` is a list of items, and each digit in `pattern` places the item at that position in the list. `0` leaves the slot empty. `type-select` ships with an empty background. |
-| `custom-slots` | all | Extra items placed in the menu, each with an `item`, a `location` and optional click actions. A custom slot replaces any built-in item in the same slot. |
+| `custom-slots` | all | Extra items placed in the menu, each with an `item`, a `location` and optional click actions. A custom slot replaces a built-in item in the same slot, except the page buttons in `type-select`, which stay on top. |
 | `title-item` | `main`, `upgrade` | The item at the top. In `upgrade` only its location can be changed, because it shows the upgrade's own icon. |
 | `storage-area` | `main` | Where the minion's stored items are shown. Empty slots show `gui.filler.material` from `lang.yml`. |
 | `collect-all`, `fuel`, `pickup`, `stored-xp`, `upgrades`, `info` | `main` | The minion's buttons. While fuel burns, the fuel button shows that fuel's item. |
@@ -307,7 +308,7 @@ A button has an `item` and a `location` with a `row` and a `column`, counted fro
 An area is the rectangle from its `top-left` slot to its `bottom-right` slot.
 
 :::warning
-The shipped locations and areas fit the shipped `rows`. If you change `rows`, move them too, or the menu will not open.
+The shipped locations and areas fit the shipped `rows`. If you change `rows`, move them too, and give `mask.pattern` exactly one line for each row, or the menu will not open.
 :::
 
 <hr/>
