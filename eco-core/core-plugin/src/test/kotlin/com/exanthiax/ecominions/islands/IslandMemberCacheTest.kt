@@ -1,71 +1,72 @@
 package com.exanthiax.ecominions.islands
 
-import com.exanthiax.ecominions.api.island.IslandProvider
-import com.exanthiax.ecominions.minions.MinionDefinitionFixture
-import com.exanthiax.ecominions.minions.model.MinionState
-import com.exanthiax.ecominions.minions.model.MinionStats
-import com.exanthiax.ecominions.minions.model.MinionStorage
-import com.exanthiax.ecominions.minions.service.Minion
-import com.exanthiax.ecominions.testsupport.FakeIsland
+import com.exanthiax.ecominions.api.island.MinionIsland
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.bukkit.Location
-import org.bukkit.entity.ArmorStand
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
 class IslandMemberCacheTest {
-    private val owner = UUID.randomUUID()
-    private val island = FakeIsland("BentoBox", "island-one", owner)
-    private val standLocation = Location(null, 4.0, 64.0, 9.0)
-    private val provider = mockk<IslandProvider>().also {
-        every { it.id } returns "BentoBox"
-        every { it.islandAt(any()) } returns island
-    }
-    private val registry = IslandRegistry { }.apply { register(provider) }
+    private val ownerId: UUID = UUID.randomUUID()
+    private val island = mockk<MinionIsland> { every { members() } returns listOf(ownerId) }
     private var now = 0L
-    private val cache = IslandMemberCache(registry) { now }
-    private val minion = definitionMinion()
+    private val cache = IslandMemberCache { now }
+    private val minion: UUID = UUID.randomUUID()
 
-    private fun definitionMinion(): Minion {
-        val definition = MinionDefinitionFixture.build()
-        val stats = MinionStats(definition.baseStats, level = 1)
-        val stand = mockk<ArmorStand>(relaxed = true)
-        every { stand.location } returns standLocation
-        return Minion(
-            state = MinionState(definition = definition),
-            entity = stand,
-            storage = MinionStorage(stats.storageSize),
-            stats = stats
-        )
+    @Test
+    fun `members come from the island remembered for the minion`() {
+        cache.remember(minion, island)
+
+        assertEquals(listOf(ownerId), cache.membersOf(minion))
     }
 
     @Test
     fun `members are looked up once within the window`() {
-        assertEquals(setOf(owner), cache.membersOf(minion).toSet())
+        cache.remember(minion, island)
+        cache.membersOf(minion)
         now = 5000L
         cache.membersOf(minion)
 
-        verify(exactly = 1) { provider.islandAt(any()) }
+        verify(exactly = 1) { island.members() }
     }
 
     @Test
     fun `members refresh after the window`() {
+        cache.remember(minion, island)
         cache.membersOf(minion)
         now = 5001L
         cache.membersOf(minion)
 
-        verify(exactly = 2) { provider.islandAt(any()) }
+        verify(exactly = 2) { island.members() }
     }
 
     @Test
-    fun `a forgotten minion is looked up again`() {
-        cache.membersOf(minion)
-        cache.forget(minion.uuid)
-        cache.membersOf(minion)
+    fun `a minion with no island has no members`() {
+        cache.remember(minion, null)
 
-        verify(exactly = 2) { provider.islandAt(any()) }
+        assertTrue(cache.membersOf(minion).isEmpty())
+        assertTrue(cache.membersOf(UUID.randomUUID()).isEmpty())
+    }
+
+    @Test
+    fun `a forgotten minion has no members`() {
+        cache.remember(minion, island)
+        cache.membersOf(minion)
+        cache.forget(minion)
+
+        assertTrue(cache.membersOf(minion).isEmpty())
+    }
+
+    @Test
+    fun `remembering a new island drops the cached members`() {
+        val other: UUID = UUID.randomUUID()
+        cache.remember(minion, island)
+        cache.membersOf(minion)
+        cache.remember(minion, mockk { every { members() } returns listOf(other) })
+
+        assertEquals(listOf(other), cache.membersOf(minion))
     }
 }

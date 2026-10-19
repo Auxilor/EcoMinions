@@ -285,7 +285,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings,
         { Bukkit.getPlayer(it) != null },
-        { islandMemberCache.membersOf(it) }
+        { islandMemberCache.membersOf(it.uuid) }
     )
     private val placedMinionsKey = PersistentDataKey(
         namespacedKeyFactory.create("placed_minions"),
@@ -313,11 +313,15 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         writeLimits = { ServerProfile.load().write(islandLimitsKey, it) }
     )
     private val islandRegistry = IslandRegistry(logger::warning)
-    private val islandMemberCache = IslandMemberCache(islandRegistry)
+    private val islandMemberCache = IslandMemberCache()
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
-        onRegister = { minion -> islandRegistry.islandAt(minion.location)?.let { islandIndex.record(it, minion.uuid) } },
+        onRegister = { minion ->
+            val island = islandRegistry.islandAt(minion.location)
+            island?.let { islandIndex.record(it, minion.uuid) }
+            islandMemberCache.remember(minion.uuid, island)
+        },
         onRetire = {
             islandIndex.remove(it.uuid)
             islandMemberCache.forget(it.uuid)
