@@ -11,6 +11,8 @@ import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
 import com.exanthiax.ecominions.minions.ui.MenuChrome
+import com.exanthiax.ecominions.minions.ui.SlotListArea
+import com.exanthiax.ecominions.minions.ui.addPagedAreaIfNotEmpty
 import com.exanthiax.ecominions.minions.ui.setSlots
 import com.exanthiax.ecominions.upgrades.integration.UpgradePlaceholders
 import com.exanthiax.ecominions.upgrades.model.Upgrade
@@ -53,6 +55,7 @@ class UpgradeMenu(
         val current = settings.value
         val rows = current.upgradeRows
         val owned = upgrades.tierOf(minion, upgrade)
+        val tierArea = chrome.area(current.upgradeSection, "tier-area", rows)
         val context = TemplateContext.of(
             UpgradePlaceholders.UPGRADE to upgrade,
             "tier" to owned
@@ -70,13 +73,12 @@ class UpgradeMenu(
                 slot(titleItem(upgrade, context))
             )
 
-            for ((index, tier) in upgrade.orderedTiers().withIndex()) {
-                val row = FIRST_ROW + (index / COLUMNS)
-                if (row >= rows) {
-                    break
-                }
-                setSlot(row, FIRST_COLUMN + (index % COLUMNS), tierSlot(player, minion, upgrade, tier, owned))
-            }
+            addPagedAreaIfNotEmpty(
+                SlotListArea(
+                    tierArea,
+                    upgrade.orderedTiers().take(tierArea.size).map { tierSlot(player, minion, upgrade, it, owned) }
+                )
+            )
 
             addComponent(chrome.backButton(current.upgradeSection, rows) { onBack?.invoke(player, minion) })
         }.open(player)
@@ -215,9 +217,6 @@ class UpgradeMenu(
 
     private companion object {
         const val TITLE_COLUMN = 5
-        const val FIRST_ROW = 2
-        const val FIRST_COLUMN = 2
-        const val COLUMNS = 7
         const val MENU_ACTION = "Buying a minion upgrade"
     }
 }

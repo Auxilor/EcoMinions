@@ -19,6 +19,7 @@ import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.gui.SlotLocation
 import com.willfp.eco.core.gui.addCustomSlots
+import com.willfp.eco.core.gui.component.PagedAreaComponent
 import com.willfp.eco.core.gui.getSlotLocations
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.menu.Menu
@@ -66,7 +67,7 @@ class MainMenu(
 
         val current = settings.value
         val rows = current.mainRows
-        val positions = storagePositions(rows)
+        val storageArea = chrome.area(current.mainSection, "storage-area", rows)
 
         // Built once per render and then read by each storage slot, so the
         // aggregation runs once for the whole area instead of once per slot.
@@ -78,16 +79,20 @@ class MainMenu(
             addCustomSlots(current.mainSection, "")
 
             onRender { _, _ ->
-                contents = storageView.itemsFor(minion, settings.value, positions.size)
+                contents = storageView.itemsFor(minion, settings.value, storageArea.size)
             }
 
             setButton(current.mainSection, "title-item", 1, TITLE_COLUMN) { section ->
                 slot({ _, _ -> titleItem(minion, section) })
             }
 
-            positions.forEachIndexed { index, (row, column) ->
-                setSlot(row, column, slot({ _, _ -> contents.getOrNull(index) ?: chrome.fillerItem() }))
-            }
+            addPagedAreaIfNotEmpty(object : PagedAreaComponent<ItemStack>(storageArea) {
+                override fun getEntries(player: Player, menu: Menu): List<ItemStack> = contents
+
+                override fun getEntrySlot(player: Player, menu: Menu, entry: ItemStack): Slot = slot(entry)
+
+                override fun getEmptySlot(player: Player, menu: Menu): Slot = slot(chrome.fillerItem())
+            })
 
             setButton(current.mainSection, "collect-all", rows, 2) { section -> collectAllSlot(player, minion, section) }
             setButton(current.mainSection, "fuel", rows, 4) { section -> fuelSlot(player, minion, section) }
@@ -112,10 +117,6 @@ class MainMenu(
     /** Set the slot [button] builds from the [key] section of [section], at its locations or at [row], [column]. */
     private fun MenuBuilder.setButton(section: Config, key: String, row: Int, column: Int, button: (Config) -> Slot) =
         setSlots(section.getSlotLocations(key, listOf(SlotLocation(row, column))), button(section.getSubsection(key)))
-
-    /** The storage area is everything between the title row and the button row. */
-    private fun storagePositions(rows: Int): List<Pair<Int, Int>> =
-        (2 until rows).flatMap { row -> (2..8).map { column -> row to column } }
 
     private fun context(minion: Minion): TemplateContext =
         TemplateContext.of(MinionPlaceholders.MINION to minion)

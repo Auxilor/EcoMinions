@@ -2,15 +2,21 @@ package com.exanthiax.ecominions.minions.ui
 
 import com.exanthiax.ecominions.core.text.Messages
 import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.core.gui.SlotArea
 import com.willfp.eco.core.gui.SlotLocation
 import com.willfp.eco.core.gui.component.ConfigButton
+import com.willfp.eco.core.gui.component.PagedAreaComponent
+import com.willfp.eco.core.gui.component.addPagedArea
 import com.willfp.eco.core.gui.getFillerMask
+import com.willfp.eco.core.gui.getSlotArea
+import com.willfp.eco.core.gui.menu.Menu
 import com.willfp.eco.core.gui.menu.MenuBuilder
 import com.willfp.eco.core.gui.slot.FillerMask
 import com.willfp.eco.core.gui.slot.MaskItems
 import com.willfp.eco.core.gui.slot.Slot
 import com.willfp.eco.core.items.Items
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 /** The shared furniture every menu in the plugin uses. */
@@ -29,6 +35,14 @@ class MenuChrome(
      * and so have to draw their own background when they have nothing to show.
      */
     fun fillerItem(): ItemStack = ItemStack(fillerMaterial())
+
+    /** The area set by the [path] section of [section], or everything between the title row and the button row. */
+    fun area(section: Config, path: String, rows: Int): SlotArea =
+        if (section.has(path)) {
+            section.getSlotArea(path)
+        } else {
+            SlotArea(AREA_ROW, AREA_COLUMN, (rows - AREA_ROW).coerceAtLeast(0), AREA_COLUMNS)
+        }
 
     /** The back button set by the `back` section of [section], in the bottom left corner by default. */
     fun backButton(section: Config, rows: Int, action: () -> Unit): ConfigButton =
@@ -64,6 +78,9 @@ class MenuChrome(
 
     private companion object {
         const val FULL_ROW = "111111111"
+        const val AREA_ROW = 2
+        const val AREA_COLUMN = 2
+        const val AREA_COLUMNS = 7
     }
 }
 
@@ -74,4 +91,18 @@ fun MenuBuilder.setSlots(locations: List<SlotLocation>, slot: Slot): MenuBuilder
     }
 
     return this
+}
+
+/** Add [component] unless its area is empty, so a menu too short for its area still opens. */
+fun MenuBuilder.addPagedAreaIfNotEmpty(component: PagedAreaComponent<*>): MenuBuilder =
+    if (component.area.size > 0) addPagedArea(component) else this
+
+/** An area showing [slots] in order, row by row. */
+class SlotListArea(
+    area: SlotArea,
+    private val slots: List<Slot>
+) : PagedAreaComponent<Slot>(area) {
+    override fun getEntries(player: Player, menu: Menu): List<Slot> = slots
+
+    override fun getEntrySlot(player: Player, menu: Menu, entry: Slot): Slot = entry
 }

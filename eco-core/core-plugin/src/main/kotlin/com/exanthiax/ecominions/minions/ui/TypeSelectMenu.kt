@@ -36,8 +36,10 @@ class TypeSelectMenu(
     fun open(player: Player) {
         val current = settings.value
         val rows = current.typeSelectRows
+        val typeArea = chrome.area(current.typeSelectSection, "type-area", rows)
+        val columns = typeArea.columns.coerceAtLeast(1)
         val pages = minions.types()
-            .chunked(((rows - FIRST_ROW) * COLUMNS).coerceAtLeast(COLUMNS))
+            .chunked(typeArea.size.coerceAtLeast(columns))
             .ifEmpty { listOf(emptyList()) }
 
         menu(rows) {
@@ -56,8 +58,8 @@ class TypeSelectMenu(
                     addCustomSlots(current.typeSelectSection, "")
                     for ((position, type) in types.withIndex()) {
                         setSlot(
-                            FIRST_ROW + (position / COLUMNS),
-                            FIRST_COLUMN + (position % COLUMNS),
+                            typeArea.row + (position / columns),
+                            typeArea.column + (position % columns),
                             typeSlot(player, type)
                         )
                     }
@@ -112,9 +114,6 @@ class TypeSelectMenu(
     }
 
     private companion object {
-        const val FIRST_ROW = 2
-        const val FIRST_COLUMN = 2
-        const val COLUMNS = 7
         const val GIVE_PERMISSION = "ecominions.command.give"
     }
 }
