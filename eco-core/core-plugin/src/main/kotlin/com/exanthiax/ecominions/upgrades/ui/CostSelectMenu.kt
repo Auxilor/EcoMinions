@@ -56,7 +56,11 @@ class CostSelectMenu(
                 if (column > LAST_COLUMN) {
                     break
                 }
-                setSlot(OPTION_ROW, column, optionSlot(player, minion, upgrade, tier, cost))
+                setSlot(
+                    current.costSelectSection.getIntOrNull("option-row") ?: OPTION_ROW,
+                    column,
+                    optionSlot(player, minion, upgrade, tier, cost)
+                )
             }
         }.open(player)
     }

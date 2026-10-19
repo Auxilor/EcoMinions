@@ -11,12 +11,16 @@ import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
 import com.exanthiax.ecominions.minions.ui.MenuChrome
+import com.exanthiax.ecominions.minions.ui.setSlots
 import com.exanthiax.ecominions.upgrades.integration.UpgradePlaceholders
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
 import com.exanthiax.ecominions.upgrades.service.UpgradeService
+import com.willfp.eco.core.gui.SlotLocation
 import com.willfp.eco.core.gui.addCustomSlots
+import com.willfp.eco.core.gui.component.addComponent
+import com.willfp.eco.core.gui.getSlotLocations
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.slot
@@ -61,7 +65,10 @@ class UpgradeMenu(
             onClose { event, _ ->
                 events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.UPGRADE))
             }
-            setSlot(1, TITLE_COLUMN, slot(titleItem(upgrade, context)))
+            setSlots(
+                current.upgradeSection.getSlotLocations("title-item", listOf(SlotLocation(1, TITLE_COLUMN))),
+                slot(titleItem(upgrade, context))
+            )
 
             for ((index, tier) in upgrade.orderedTiers().withIndex()) {
                 val row = FIRST_ROW + (index / COLUMNS)
@@ -71,9 +78,7 @@ class UpgradeMenu(
                 setSlot(row, FIRST_COLUMN + (index % COLUMNS), tierSlot(player, minion, upgrade, tier, owned))
             }
 
-            setSlot(rows, 1, slot(chrome.backButton()) {
-                onLeftClick { _, _ -> onBack?.invoke(player, minion) }
-            })
+            addComponent(chrome.backButton(current.upgradeSection, rows) { onBack?.invoke(player, minion) })
         }.open(player)
     }
 

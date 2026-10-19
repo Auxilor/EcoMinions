@@ -2,9 +2,14 @@ package com.exanthiax.ecominions.minions.ui
 
 import com.exanthiax.ecominions.core.text.Messages
 import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.core.gui.SlotLocation
+import com.willfp.eco.core.gui.component.ConfigButton
 import com.willfp.eco.core.gui.getFillerMask
+import com.willfp.eco.core.gui.menu.MenuBuilder
 import com.willfp.eco.core.gui.slot.FillerMask
 import com.willfp.eco.core.gui.slot.MaskItems
+import com.willfp.eco.core.gui.slot.Slot
+import com.willfp.eco.core.items.Items
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -25,10 +30,25 @@ class MenuChrome(
      */
     fun fillerItem(): ItemStack = ItemStack(fillerMaterial())
 
-    fun backButton(): ItemStack = named(Material.ARROW, messages.line("gui.upgrade.back.name"))
+    /** The back button set by the `back` section of [section], in the bottom left corner by default. */
+    fun backButton(section: Config, rows: Int, action: () -> Unit): ConfigButton =
+        ConfigButton(
+            section.getSubsection("back"),
+            defaultItem = "arrow",
+            name = messages.line("gui.upgrade.back.name"),
+            defaultLocations = listOf(SlotLocation(rows, 1))
+        ) { _, _, _, _ -> action() }
 
-    fun named(material: Material, name: String, lore: List<String> = emptyList()): ItemStack {
-        val item = ItemStack(material)
+    /** The item named by the `item` or `material` key of [section], or [default] when it names none. */
+    fun buttonItem(section: Config, default: Material): ItemStack =
+        (section.getStringOrNull("item") ?: section.getStringOrNull("material"))
+            ?.let { Items.lookup(it).item }
+            ?: ItemStack(default)
+
+    fun named(material: Material, name: String, lore: List<String> = emptyList()): ItemStack =
+        named(ItemStack(material), name, lore)
+
+    fun named(item: ItemStack, name: String, lore: List<String> = emptyList()): ItemStack {
         val meta = item.itemMeta ?: return item
         meta.setDisplayName(name)
         if (lore.isNotEmpty()) {
@@ -45,4 +65,13 @@ class MenuChrome(
     private companion object {
         const val FULL_ROW = "111111111"
     }
+}
+
+/** Set [slot] at every one of [locations]. */
+fun MenuBuilder.setSlots(locations: List<SlotLocation>, slot: Slot): MenuBuilder {
+    for ((row, column) in locations) {
+        setSlot(row, column, slot)
+    }
+
+    return this
 }

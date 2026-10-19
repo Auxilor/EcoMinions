@@ -15,6 +15,7 @@ import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.service.UpgradeService
 import com.willfp.eco.core.gui.addCustomSlots
+import com.willfp.eco.core.gui.component.addComponent
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.slot
@@ -60,9 +61,7 @@ class UpgradeListMenu(
                 setSlot(row, FIRST_COLUMN + (index % COLUMNS), upgradeSlot(player, minion, upgrade))
             }
 
-            setSlot(rows, 1, slot(chrome.backButton()) {
-                onLeftClick { _, _ -> onBack?.invoke(player, minion) }
-            })
+            addComponent(chrome.backButton(current.upgradeListSection, rows) { onBack?.invoke(player, minion) })
         }.open(player)
     }
 
