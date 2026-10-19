@@ -10,6 +10,7 @@ import me.angeschossen.lands.api.flags.enums.RoleFlagCategory
 import me.angeschossen.lands.api.flags.type.RoleFlag
 import me.angeschossen.lands.api.land.Area
 import me.angeschossen.lands.api.land.Land
+import me.angeschossen.lands.api.role.Role
 import me.angeschossen.lands.api.role.enums.RoleType
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -43,7 +44,7 @@ class LandsIslandProvider private constructor(
 
     /** Seeds the EcoMinions flags on lands created after startup. Call once Lands is enabled. */
     fun listenForNewLands(plugin: Plugin) {
-        Bukkit.getPluginManager().registerEvents(NewLandListener(flags), plugin)
+        Bukkit.getPluginManager().registerEvents(NewLandListener(flags, { message -> warnOnce(warn, message) }), plugin)
     }
 
     private fun landsOf(uuid: UUID): Collection<Land> =
@@ -78,16 +79,23 @@ class LandsIslandProvider private constructor(
         override fun members(): Collection<UUID> = (land.trustedPlayers + listOfNotNull(owner)).distinct()
     }
 
-    private class NewLandListener(private val flags: Map<IslandPrivilege, RoleFlag>) : Listener {
+    private class NewLandListener(
+        private val flags: Map<IslandPrivilege, RoleFlag>,
+        private val warnOnce: (String) -> Unit
+    ) : Listener {
         @EventHandler
         fun onLandCreate(event: LandPostCreateEvent) {
-            event.land.defaultArea.roles.forEach { role ->
-                flags.forEach { (privilege, flag) ->
-                    if (spec(privilege).enabledForRole(role.type) && !role.hasFlag(flag)) {
-                        role.toggleFlag(flag)
-                    }
+            runCatching {
+                event.land.defaultArea.roles.filterNotNull().forEach { role ->
+                    runCatching {
+                        flags.forEach { (privilege, flag) ->
+                            if (spec(privilege).enabledForRole(role.type) && !role.hasFlag(flag)) {
+                                role.toggleFlag(flag)
+                            }
+                        }
+                    }.onFailure { warnOnce("Lands role setup failed: ${it.message}") }
                 }
-            }
+            }.onFailure { warnOnce("Lands land setup failed: ${it.message}") }
         }
     }
 
@@ -102,6 +110,12 @@ class LandsIslandProvider private constructor(
         const val PLUGIN_NAME = "Lands"
 
         private val reportedMissing = ConcurrentHashMap.newKeySet<String>()
+
+        private fun warnOnce(warn: (String) -> Unit, message: String) {
+            if (reportedMissing.add(message)) {
+                warn(message)
+            }
+        }
 
         private fun flagName(privilege: IslandPrivilege) = "ecominions_${privilege.name.lowercase()}"
 
@@ -137,7 +151,11 @@ class LandsIslandProvider private constructor(
                     .setIcon(ItemStack(spec.icon))
                     .setDisplayName(spec.displayName)
                     .setDescription(spec.description)
-                    .setUpdatePredicate { role -> spec.enabledForRole(role.type) }
+                    .setUpdatePredicate { role: Role? ->
+                        runCatching { role != null && spec.enabledForRole(role.type) }
+                            .onFailure { warnOnce(warn, "Lands role setup failed: ${it.message}") }
+                            .getOrDefault(false)
+                    }
             }
             return LandsIslandProvider(integration, flags, warn)
         }
