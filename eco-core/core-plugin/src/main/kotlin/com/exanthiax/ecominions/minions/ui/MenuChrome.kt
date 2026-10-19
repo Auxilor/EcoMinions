@@ -1,6 +1,8 @@
 package com.exanthiax.ecominions.minions.ui
 
 import com.exanthiax.ecominions.core.text.Messages
+import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.core.gui.getFillerMask
 import com.willfp.eco.core.gui.slot.FillerMask
 import com.willfp.eco.core.gui.slot.MaskItems
 import org.bukkit.Material
@@ -12,6 +14,10 @@ class MenuChrome(
 ) {
     fun fillerMask(rows: Int): FillerMask =
         FillerMask(MaskItems(fillerMaterial()), *Array(rows) { FULL_ROW })
+
+    /** The mask set by the `mask` keys of [section], or [fillerMask] when it sets none. */
+    fun mask(section: Config, rows: Int): FillerMask =
+        if (section.has("mask")) section.getFillerMask() else fillerMask(rows)
 
     /**
      * The same item [fillerMask] paints, for slots that are set on every render

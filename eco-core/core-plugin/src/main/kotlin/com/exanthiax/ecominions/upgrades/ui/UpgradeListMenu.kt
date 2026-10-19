@@ -45,7 +45,7 @@ class UpgradeListMenu(
 
         menu(rows) {
             setTitle(messages.render(current.listTitle, context))
-            setMask(chrome.fillerMask(rows))
+            setMask(chrome.mask(current.upgradeListSection, rows))
             onClose { event, _ ->
                 events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.UPGRADE_LIST))
             }

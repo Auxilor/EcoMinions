@@ -69,7 +69,7 @@ class MainMenu(
 
         menu(rows) {
             setTitle(messages.render(current.mainTitle, context(minion)))
-            setMask(chrome.fillerMask(rows))
+            setMask(chrome.mask(current.mainSection, rows))
 
             onRender { _, _ ->
                 contents = storageView.itemsFor(minion, settings.value, positions.size)

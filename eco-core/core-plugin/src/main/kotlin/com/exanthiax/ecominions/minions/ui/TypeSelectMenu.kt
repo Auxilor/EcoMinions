@@ -13,6 +13,7 @@ import com.willfp.eco.core.gui.addPage
 import com.willfp.eco.core.gui.addPageChanger
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.page.PageChanger
+import com.willfp.eco.core.gui.setMask
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
 import org.bukkit.Material
@@ -58,6 +59,9 @@ class TypeSelectMenu(
 
             pages.forEachIndexed { index, types ->
                 addPage(index + 1) {
+                    if (current.typeSelectSection.has("mask")) {
+                        setMask(current.typeSelectSection)
+                    }
                     for ((position, type) in types.withIndex()) {
                         setSlot(
                             FIRST_ROW + (position / COLUMNS),

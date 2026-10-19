@@ -44,7 +44,7 @@ class CostSelectMenu(
 
         menu(rows) {
             setTitle(messages.render(current.costSelectTitle))
-            setMask(chrome.fillerMask(rows))
+            setMask(chrome.mask(current.costSelectSection, rows))
             onClose { event, _ ->
                 events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.COST_SELECT))
             }
