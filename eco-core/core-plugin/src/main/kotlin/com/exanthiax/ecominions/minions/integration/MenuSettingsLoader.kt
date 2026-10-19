@@ -14,6 +14,8 @@ class MenuSettingsLoader(
         storageSlots = config.getInt("gui.main.storage-slots").coerceAtLeast(0),
         typeSelectRows = config.getInt("gui.type-select.rows").coerceIn(1, MAX_ROWS),
         typeSelectTitle = config.getString("gui.type-select.title"),
+        mainSection = config.getSubsection("gui.main"),
+        typeSelectSection = config.getSubsection("gui.type-select"),
         showStoredXp = !config.has("gui.main.show-stored-xp") || config.getBool("gui.main.show-stored-xp")
     )
 
