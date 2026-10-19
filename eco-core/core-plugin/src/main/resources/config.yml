@@ -60,6 +60,7 @@ minion:
 # A location is a row and a column, counted from the top left corner, which is row 1, column 1.
 # An area is the rectangle from its top-left slot to its bottom-right slot.
 # If you change rows, move the locations and areas so they still fit in the menu.
+# A mask pattern needs exactly one line for each row, or the menu will not open.
 gui:
   main: # A minion's own menu.
     title: "&8%minion_name% &8(&7Lvl %level%&8)"
