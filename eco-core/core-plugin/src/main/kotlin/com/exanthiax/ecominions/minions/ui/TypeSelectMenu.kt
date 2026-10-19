@@ -9,6 +9,7 @@ import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionService
+import com.willfp.eco.core.gui.addCustomSlots
 import com.willfp.eco.core.gui.addPage
 import com.willfp.eco.core.gui.addPageChanger
 import com.willfp.eco.core.gui.menu
@@ -62,6 +63,7 @@ class TypeSelectMenu(
                     if (current.typeSelectSection.has("mask")) {
                         setMask(current.typeSelectSection)
                     }
+                    addCustomSlots(current.typeSelectSection, "")
                     for ((position, type) in types.withIndex()) {
                         setSlot(
                             FIRST_ROW + (position / COLUMNS),

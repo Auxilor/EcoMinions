@@ -16,6 +16,7 @@ import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
 import com.exanthiax.ecominions.upgrades.service.UpgradeService
+import com.willfp.eco.core.gui.addCustomSlots
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.slot
@@ -56,6 +57,7 @@ class UpgradeMenu(
         menu(rows) {
             setTitle(messages.render(current.upgradeTitle, context))
             setMask(chrome.mask(current.upgradeSection, rows))
+            addCustomSlots(current.upgradeSection, "")
             onClose { event, _ ->
                 events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.UPGRADE))
             }

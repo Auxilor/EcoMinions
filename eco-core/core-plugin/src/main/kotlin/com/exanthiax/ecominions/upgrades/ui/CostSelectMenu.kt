@@ -15,6 +15,7 @@ import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
+import com.willfp.eco.core.gui.addCustomSlots
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.slot
@@ -45,6 +46,7 @@ class CostSelectMenu(
         menu(rows) {
             setTitle(messages.render(current.costSelectTitle))
             setMask(chrome.mask(current.costSelectSection, rows))
+            addCustomSlots(current.costSelectSection, "")
             onClose { event, _ ->
                 events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.COST_SELECT))
             }

@@ -16,6 +16,7 @@ import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
+import com.willfp.eco.core.gui.addCustomSlots
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.menu.Menu
 import com.willfp.eco.core.gui.onClose
@@ -70,6 +71,7 @@ class MainMenu(
         menu(rows) {
             setTitle(messages.render(current.mainTitle, context(minion)))
             setMask(chrome.mask(current.mainSection, rows))
+            addCustomSlots(current.mainSection, "")
 
             onRender { _, _ ->
                 contents = storageView.itemsFor(minion, settings.value, positions.size)
