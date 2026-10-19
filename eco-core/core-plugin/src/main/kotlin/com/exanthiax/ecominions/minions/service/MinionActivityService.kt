@@ -47,16 +47,22 @@ class MinionActivityService(
      * Island membership can change with no join or quit (an invite, kick or leave), and settings
      * can change on reload, so this runs on the minion's region every tick rather than on events.
      *
+     * An unowned minion is left as it is: stamping it would pay a later owner for time it had none.
+     *
      * @return Whether [minion] is active.
      */
-    fun reconcile(minion: Minion, now: Long = System.currentTimeMillis()): Boolean =
-        isActive(minion).also { active ->
+    fun reconcile(minion: Minion, now: Long = System.currentTimeMillis()): Boolean {
+        if (minion.state.owner == null) {
+            return false
+        }
+        return isActive(minion).also { active ->
             if (active) {
                 resume(minion, now)
             } else {
                 markIdle(minion, now)
             }
         }
+    }
 
     /**
      * Stamps [minion] as idle, if it is not already.

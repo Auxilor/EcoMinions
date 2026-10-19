@@ -13,8 +13,8 @@ import org.bukkit.Bukkit
  * is measured against the same clock.
  *
  * On its region each minion is first reconciled, so a minion whose activity changed
- * without an event is resumed or stamped idle before it mines. Only a minion that is
- * idle and already stamped is skipped without a hop.
+ * without an event is resumed or stamped idle before it mines. Only an unowned minion,
+ * or one that is idle and already stamped, is skipped without a hop.
  */
 class MinionMiningLoop(
     private val minions: MinionService,
@@ -28,7 +28,7 @@ class MinionMiningLoop(
     override fun tick() {
         val now = Bukkit.getCurrentTick().toLong()
         for (minion in minions.all()) {
-            if (minion.state.shutdownTimestamp != null && !activity.isActive(minion)) {
+            if (minion.state.owner == null || minion.state.shutdownTimestamp != null && !activity.isActive(minion)) {
                 continue
             }
             regions.on(minion.entity) {

@@ -279,4 +279,15 @@ class MinionActivityServiceTest {
         verify(exactly = 0) { repository.markShutdown(any(), any()) }
         verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
     }
+
+    @Test
+    fun `an unowned minion is not stamped by the reconcile`() {
+        val repository = mockk<MinionStateRepository>(relaxed = true)
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = null))
+
+        assertFalse(service(repository = repository).reconcile(subject, now = 2_000L))
+
+        assertNull(subject.state.shutdownTimestamp)
+        verify(exactly = 0) { repository.markShutdown(any(), any()) }
+    }
 }
