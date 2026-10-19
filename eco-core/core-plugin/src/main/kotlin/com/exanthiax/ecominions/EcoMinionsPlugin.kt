@@ -449,7 +449,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         customItems.registerAll()
         recipes.registerAll()
         minionService.refreshAll()
-        minionService.refreshActivity()
         minionService.hydrateLoadedWorlds()
         lifecycle.restart()
 

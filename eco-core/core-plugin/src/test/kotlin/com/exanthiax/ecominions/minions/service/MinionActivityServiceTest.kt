@@ -232,4 +232,51 @@ class MinionActivityServiceTest {
 
         assertFalse(service(online = setOf(owner), members = listOf(owner)).isActiveWithout(subject, owner))
     }
+
+    @Test
+    fun `reconciling resumes a stamped minion that became active`() = withToggle(true) {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = minion(
+            MinionState(definition = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
+        )
+        val subjectService = service(
+            online = setOf(member), offlineProgress = offlineProgress, members = listOf(owner, member)
+        )
+
+        assertTrue(subjectService.reconcile(subject, now = 3_000L))
+
+        verify(exactly = 1) { offlineProgress.apply(subject, 1_000L, 3_000L) }
+        assertNull(subject.state.shutdownTimestamp)
+    }
+
+    @Test
+    fun `reconciling stamps a running minion that became inactive`() = withToggle(true) {
+        val repository = mockk<MinionStateRepository>(relaxed = true)
+        val subject = ownedMinion()
+        val subjectService = service(online = emptySet(), repository = repository, members = listOf(owner, member))
+
+        assertFalse(subjectService.reconcile(subject, now = 2_000L))
+
+        assertEquals(2_000L, subject.state.shutdownTimestamp)
+        verify(exactly = 1) { repository.markShutdown(subject, 2_000L) }
+    }
+
+    @Test
+    fun `reconciling a minion already in step changes nothing`() = withToggle(true) {
+        val repository = mockk<MinionStateRepository>(relaxed = true)
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val idle = minion(
+            MinionState(definition = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
+        )
+        val running = ownedMinion()
+
+        service(online = emptySet(), repository = repository, offlineProgress = offlineProgress)
+            .reconcile(idle, now = 2_000L)
+        service(repository = repository, offlineProgress = offlineProgress).reconcile(running, now = 2_000L)
+
+        assertEquals(1_000L, idle.state.shutdownTimestamp)
+        assertNull(running.state.shutdownTimestamp)
+        verify(exactly = 0) { repository.markShutdown(any(), any()) }
+        verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
+    }
 }

@@ -41,6 +41,24 @@ class MinionActivityService(
     }
 
     /**
+     * Brings [minion]'s idle stamp in step with [isActive]: an active minion is resumed and an
+     * inactive one is stamped idle, each only if it is not already.
+     *
+     * Island membership can change with no join or quit (an invite, kick or leave), and settings
+     * can change on reload, so this runs on the minion's region every tick rather than on events.
+     *
+     * @return Whether [minion] is active.
+     */
+    fun reconcile(minion: Minion, now: Long = System.currentTimeMillis()): Boolean =
+        isActive(minion).also { active ->
+            if (active) {
+                resume(minion, now)
+            } else {
+                markIdle(minion, now)
+            }
+        }
+
+    /**
      * Stamps [minion] as idle, if it is not already.
      *
      * The guard matters because logging out and then unloading the chunk would

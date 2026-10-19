@@ -143,19 +143,6 @@ class MinionService(
         }
     }
 
-    /** Re-applies the running rule to every live minion after settings change, on each minion's region. */
-    fun refreshActivity(now: Long = System.currentTimeMillis()) {
-        for (minion in byUuid.values) {
-            regions.on(minion.entity) {
-                if (activity.isActive(minion)) {
-                    activity.resume(minion, now)
-                } else {
-                    activity.markIdle(minion, now)
-                }
-            }
-        }
-    }
-
     private fun refresh(minion: Minion) {
         val reloaded = types.find(minion.state.definition.id)
         if (reloaded != null && reloaded !== minion.state.definition) {
