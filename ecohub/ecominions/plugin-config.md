@@ -105,6 +105,7 @@ gui:
       location:
         row: 1
         column: 5
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     storage-area: # Where the stored items are shown. Empty slots show the filler item from lang.yml.
       top-left:
         row: 2
@@ -117,31 +118,37 @@ gui:
       location:
         row: 6
         column: 2
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     fuel: # Adds fuel. While fuel burns, it shows that fuel's item instead.
       item: coal
       location:
         row: 6
         column: 4
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     pickup: # Picks the minion up.
       item: barrier
       location:
         row: 6
         column: 5
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     stored-xp: # Claims the stored XP.
       item: experience_bottle
       location:
         row: 6
         column: 6
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     upgrades: # Opens the minion's upgrades.
       item: anvil
       location:
         row: 6
         column: 7
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     info: # Shows the minion's stats.
       item: book
       location:
         row: 6
         column: 8
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
   upgrade: # One upgrade's tiers.
     title: "&8Upgrade: &f%upgrade_name%"
     rows: 6
@@ -161,6 +168,7 @@ gui:
       location:
         row: 1
         column: 5
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     tier-area: # Where the tiers are shown, lowest first. Tiers that do not fit are not shown.
       top-left:
         row: 2
@@ -173,6 +181,7 @@ gui:
       location:
         row: 6
         column: 1
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
   type-select: # The minion browser opened by /minions.
     title: "&8Choose a Minion"
     rows: 6
@@ -200,11 +209,13 @@ gui:
       location:
         row: 6
         column: 1
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     next-page: # Goes to the next page. Hidden on the last page.
       item: arrow
       location:
         row: 6
         column: 9
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
   upgrade-list: # A minion's upgrades.
     title: "&8Upgrades: &f%minion_name%"
     rows: 6
@@ -232,6 +243,7 @@ gui:
       location:
         row: 6
         column: 1
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
   cost-select: # The payment chooser.
     title: "&8Choose Payment"
     rows: 3
@@ -304,6 +316,8 @@ Each menu has a `title` and `rows`: `main` is a minion's menu, `upgrade-list` it
 | `option-row` | `cost-select` | The row the payment options are shown in, from column 2 to column 8. |
 
 A button has an `item` and a `location` with a `row` and a `column`, counted from the top left slot, which is row 1, column 1.
+
+A button can also have `locations`, a list of `row` and `column` pairs. When it is not empty, the button is shown in each of them instead of `location`.
 
 An area is the rectangle from its `top-left` slot to its `bottom-right` slot.
 
