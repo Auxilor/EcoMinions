@@ -15,6 +15,8 @@ import com.exanthiax.ecominions.testsupport.FakeIsland
 import com.exanthiax.ecominions.testsupport.FakeIslandProvider
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -29,9 +31,8 @@ class PlacementServiceTest {
     private val ownerId = UUID.randomUUID()
     private val memberId = UUID.randomUUID()
     private val island = FakeIsland("fake", "island", ownerId, mutableSetOf(memberId))
-    private val registry = IslandRegistry { }.apply {
-        register(FakeIslandProvider("fake").apply { claim(island, location) })
-    }
+    private val provider = spyk(FakeIslandProvider("fake").apply { claim(island, location) })
+    private val registry = IslandRegistry { }.apply { register(provider) }
     private val settings = SettingsHolder(
         MinionSettings(
             hologramOffset = 1.6,
@@ -116,6 +117,27 @@ class PlacementServiceTest {
         every { minionService.countOwnedBy(member) } returns 5
 
         assertEquals(PlacementService.PlaceResult.NoIslandPermission, placement.place(member, state, location))
+    }
+
+    @Test
+    fun `placing looks the island up once`() {
+        val member = placeAllowed()
+        every { minionService.countOwnedBy(member) } returns 0
+
+        placement.place(member, state, location)
+
+        verify(exactly = 1) { provider.islandAt(any()) }
+    }
+
+    @Test
+    fun `placing with privileges and island limits off never looks the island up`() {
+        settings.update(settings.value.copy(islandPrivileges = false, islandLimitsEnabled = false))
+        val member = player(memberId)
+        every { minionService.countOwnedBy(member) } returns 0
+        fillIsland(10)
+
+        assertEquals(PlacementService.PlaceResult.Cancelled, placement.place(member, state, location))
+        verify(exactly = 0) { provider.islandAt(any()) }
     }
 
     @Test

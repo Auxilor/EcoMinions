@@ -18,8 +18,15 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege as SuperiorPrivilege
 
-/** Island provider backed by SuperiorSkyblock2. */
-class SuperiorSkyblockIslandProvider(private val warn: (String) -> Unit) : IslandProvider {
+/**
+ * Island provider backed by SuperiorSkyblock2.
+ *
+ * Default privileges are only written while [privilegesEnabled] says island privileges are on.
+ */
+class SuperiorSkyblockIslandProvider(
+    private val warn: (String) -> Unit,
+    private val privilegesEnabled: () -> Boolean
+) : IslandProvider {
     override val id = PLUGIN_NAME
 
     override fun islandAt(location: Location): MinionIsland? =
@@ -29,7 +36,18 @@ class SuperiorSkyblockIslandProvider(private val warn: (String) -> Unit) : Islan
         SuperiorSkyblockAPI.getPlayer(uuid)?.island?.let { listOf(wrap(it)) }.orEmpty()
 
     private fun wrap(island: Island): MinionIsland {
-        applyDefaultsOnce(island)
+        if (privilegesEnabled()) {
+            try {
+                applyDefaultsOnce(island)
+            } catch (exception: Exception) {
+                if (reportedDefaultFailures.add(island.uniqueId)) {
+                    warn(
+                        "SuperiorSkyblock2 default privileges could not be set on island ${island.uniqueId}: " +
+                            (exception.message ?: exception.javaClass.name)
+                    )
+                }
+            }
+        }
         return SuperiorSkyblockMinionIsland(island, warn)
     }
 
@@ -57,10 +75,12 @@ class SuperiorSkyblockIslandProvider(private val warn: (String) -> Unit) : Islan
             island.getIslandMembers(true).map(SuperiorPlayer::getUniqueId)
     }
 
-    private class IslandCreateListener : Listener {
+    private class IslandCreateListener(private val privilegesEnabled: () -> Boolean) : Listener {
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
         fun onIslandCreate(event: IslandCreateEvent) {
-            applyDefaultsOnce(event.island)
+            if (privilegesEnabled()) {
+                applyDefaultsOnce(event.island)
+            }
         }
     }
 
@@ -69,6 +89,7 @@ class SuperiorSkyblockIslandProvider(private val warn: (String) -> Unit) : Islan
 
         private val defaultsApplied = ConcurrentHashMap.newKeySet<UUID>()
         private val reportedMissing = ConcurrentHashMap.newKeySet<String>()
+        private val reportedDefaultFailures = ConcurrentHashMap.newKeySet<UUID>()
 
         private fun findPrivilege(name: String): SuperiorPrivilege? =
             SuperiorPrivilege.values().firstOrNull { it.name.equals(name, ignoreCase = true) }
@@ -84,9 +105,12 @@ class SuperiorSkyblockIslandProvider(private val warn: (String) -> Unit) : Islan
             }
         }
 
-        /** Listens for new islands so they get their default privileges. Call after [registerPrivileges]. */
-        fun listenForNewIslands(plugin: Plugin) {
-            Bukkit.getPluginManager().registerEvents(IslandCreateListener(), plugin)
+        /**
+         * Listens for new islands so they get their default privileges while [privilegesEnabled].
+         * Call after [registerPrivileges].
+         */
+        fun listenForNewIslands(plugin: Plugin, privilegesEnabled: () -> Boolean) {
+            Bukkit.getPluginManager().registerEvents(IslandCreateListener(privilegesEnabled), plugin)
         }
 
         private fun applyDefaultsOnce(island: Island) {

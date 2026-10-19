@@ -59,8 +59,10 @@ interface MinionsManager {
     fun getType(id: String): MinionDefinition?
 
     /**
-     * @return Whether [minion] is working. A minion only works while its owner
-     *         is online; an idle one is credited when they come back.
+     * @return Whether [minion] is working. A minion works while its owner is
+     *         online or, with `islands.active-while-member-online` on, while any
+     *         member of the island it stands on is; an idle one is credited when
+     *         it starts working again.
      */
     fun isActive(minion: Minion): Boolean
 

@@ -68,15 +68,16 @@ class PlacementService(
         if (!state.definition.bypassAntigrief && !canPlace(player, location.block)) {
             return PlaceResult.Protected
         }
-        if (!access.canPlace(player, location)) {
+        val island by lazy { islands.islandAt(location) }
+        if (!access.canPlace(player) { island }) {
             return PlaceResult.NoIslandPermission
         }
         val limit = limits.limitFor(player)
         if (minions.countOwnedBy(player) >= limit) {
             return PlaceResult.LimitReached(limit)
         }
-        if (!player.hasPermission(ADMIN_PERMISSION)) {
-            islands.islandAt(location)?.takeIf { islandLimits.isFull(it) }?.let {
+        if (settings.value.islandLimitsEnabled && !player.hasPermission(ADMIN_PERMISSION)) {
+            island?.takeIf { islandLimits.isFull(it) }?.let {
                 return PlaceResult.IslandLimitReached(islandLimits.limitFor(it))
             }
         }

@@ -3,7 +3,7 @@ title: "Supported Plugins"
 sidebar_position: 9
 ---
 
-EcoMinions works with island and land plugins, so island owners decide who can place, use and pick up minions on their island. It also integrates with a few other plugins. Install the supported plugin alongside EcoMinions and it works with no extra setup, apart from the one SuperiorSkyblock2 step below.
+EcoMinions works with island and land plugins, so island owners decide who can place, use and pick up minions on their island. It also integrates with a few other plugins. Install the supported plugin alongside EcoMinions and it works straight away. SuperiorSkyblock2 and Lands need a few setup steps for their menus and defaults, see below.
 
 :::tip Don't see your plugin?
 If a plugin isn't listed here, it doesn't necessarily mean it's incompatible, it just means there isn't a direct integration yet. Feel free to **request support** on the [Discord](https://hub.auxilor.io/discord)!
@@ -53,7 +53,7 @@ Owners can change these defaults in the menus above, except for Lands, see [Land
 
 ### SuperiorSkyblock2 setup
 
-SuperiorSkyblock2 only shows privileges that are listed in its `menus/permissions.yml`. Add an entry for each of `ECOMINIONS_PLACE`, `ECOMINIONS_USE` and `ECOMINIONS_PICKUP` to that file for them to appear in `/is permissions`. Islands where a privilege is not set yet get the defaults above, with place and use written to the member role.
+SuperiorSkyblock2 only shows privileges that are listed in its `menus/permissions.yml`. Add an entry for each of `ECOMINIONS_PLACE`, `ECOMINIONS_USE` and `ECOMINIONS_PICKUP` to that file for them to appear in `/is permissions`. While island privileges are on, islands where a privilege is not set yet get the defaults above, with place and use written to the member role.
 
 ### Lands setup
 
@@ -69,6 +69,7 @@ Lands has no way for a plugin to set per-role defaults. The first time Lands see
 
 - Give the island owner `ecominions.island-limit.<number>` to raise that island's cap, e.g. `ecominions.island-limit.20`. See [Commands and Permissions](https://hub.auxilor.io/wiki/ecominions/commands-and-permissions).
 - With both limits on, a minion must fit under both. Turn off `limits.per-player` for an island-only cap.
+- The cap is read from the owner's permissions while they are online. When the owner is offline, the island uses the last cap EcoMinions worked out while they were online, or the default if there is none yet. An offline owner never means no cap.
 
 ### Working while members are online
 

@@ -26,13 +26,17 @@ class IslandMinionIndex(
             runCatching { UUID.fromString(it.substringAfterLast(SEPARATOR)) }.getOrNull()
         }
 
-    /** Records [minion] on [island]; a minion already recorded there is left as it is. */
+    /**
+     * Records [minion] on [island], replacing any entry for it on another island, as when a
+     * claim is unclaimed and reclaimed. A minion already recorded only there is left as it is.
+     */
     @Synchronized
     fun record(island: MinionIsland, minion: UUID) {
         val entries = readMinions()
         val entry = "${prefix(island)}$minion"
-        if (entry !in entries) {
-            writeMinions(entries + entry)
+        val (current, others) = entries.partition { it.endsWith("$SEPARATOR$minion") }
+        if (current != listOf(entry)) {
+            writeMinions(others + entry)
         }
     }
 

@@ -41,10 +41,19 @@ class IslandRegistry(private val warn: (String) -> Unit) : IslandsManager {
 
     override fun providers(): List<IslandProvider> = registered.toList()
 
-    override fun islandAt(location: Location): MinionIsland? =
-        registered.firstNotNullOfOrNull { provider ->
-            guarded(provider.id) { provider.islandAt(location)?.let { GuardedIsland(it, provider.id) } }
+    override fun islandAt(location: Location): MinionIsland? = (lookup(location) as? IslandLookup.Found)?.island
+
+    /** As [islandAt], telling "no provider claims [location]" apart from "a provider failed". */
+    fun lookup(location: Location): IslandLookup {
+        var failed = false
+        for (provider in registered) {
+            attempt(provider.id) { provider.islandAt(location)?.let { GuardedIsland(it, provider.id) } }
+                .onFailure { failed = true }
+                .getOrNull()
+                ?.let { return IslandLookup.Found(it) }
         }
+        return if (failed) IslandLookup.Failed else IslandLookup.None
+    }
 
     /** @return Every island [uuid] owns or belongs to, across all providers. */
     fun islandsOf(uuid: UUID): Collection<MinionIsland> =
@@ -55,15 +64,17 @@ class IslandRegistry(private val warn: (String) -> Unit) : IslandsManager {
     /** @return Whether no provider is registered. */
     fun isEmpty(): Boolean = registered.isEmpty()
 
-    private fun <T> guarded(providerId: String, query: () -> T): T? =
+    private fun <T> guarded(providerId: String, query: () -> T): T? = attempt(providerId, query).getOrNull()
+
+    private fun <T> attempt(providerId: String, query: () -> T): Result<T> =
         try {
-            query()
+            Result.success(query())
         } catch (exception: Exception) {
             reportFailure(providerId, exception)
-            null
+            Result.failure(exception)
         } catch (error: LinkageError) {
             reportFailure(providerId, error)
-            null
+            Result.failure(error)
         }
 
     private fun reportFailure(providerId: String, failure: Throwable) {
@@ -85,4 +96,15 @@ class IslandRegistry(private val warn: (String) -> Unit) : IslandsManager {
 
         override fun members(): Collection<UUID> = guarded(providerId) { island.members() }.orEmpty()
     }
+}
+
+/** The outcome of [IslandRegistry.lookup]. */
+sealed interface IslandLookup {
+    data class Found(val island: MinionIsland) : IslandLookup
+
+    /** Every provider answered and none claims the location. */
+    data object None : IslandLookup
+
+    /** No provider claims the location, and at least one failed, so the answer is unknown. */
+    data object Failed : IslandLookup
 }

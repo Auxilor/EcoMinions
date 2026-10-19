@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.islands
 
 import com.exanthiax.ecominions.api.island.IslandPrivilege
+import com.exanthiax.ecominions.api.island.MinionIsland
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.Minion
@@ -16,11 +17,14 @@ class MinionAccess(
     private val islands: IslandRegistry,
     private val settings: SettingsHolder<MinionSettings>
 ) {
-    fun canPlace(player: Player, location: Location): Boolean {
+    fun canPlace(player: Player, location: Location): Boolean = canPlace(player) { islands.islandAt(location) }
+
+    /** As [canPlace], asking [island] for the island at the spot only when the answer depends on it. */
+    fun canPlace(player: Player, island: () -> MinionIsland?): Boolean {
         if (isAdmin(player) || !settings.value.islandPrivileges) {
             return true
         }
-        return islands.islandAt(location)?.isAllowed(player, IslandPrivilege.PLACE) ?: true
+        return island()?.isAllowed(player, IslandPrivilege.PLACE) ?: true
     }
 
     fun canUse(player: Player, minion: Minion): Boolean = canAccess(player, minion, IslandPrivilege.USE)

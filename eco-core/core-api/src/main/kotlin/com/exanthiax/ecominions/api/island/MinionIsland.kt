@@ -18,7 +18,7 @@ interface MinionIsland {
     fun isAllowed(player: Player, privilege: IslandPrivilege): Boolean
 
     /** @return Whether [uuid] is the owner or a member of this island. */
-    fun isMember(uuid: UUID): Boolean
+    fun isMember(uuid: UUID): Boolean = uuid in members()
 
     /** @return Everyone on this island, the owner included. */
     fun members(): Collection<UUID>

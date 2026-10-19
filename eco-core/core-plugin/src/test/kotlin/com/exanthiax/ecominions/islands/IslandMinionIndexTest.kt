@@ -1,17 +1,6 @@
 package com.exanthiax.ecominions.islands
 
-import com.exanthiax.ecominions.minions.MinionDefinitionFixture
-import com.exanthiax.ecominions.minions.model.MinionState
-import com.exanthiax.ecominions.minions.model.MinionStats
-import com.exanthiax.ecominions.minions.model.MinionStorage
-import com.exanthiax.ecominions.minions.service.Minion
-import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.testsupport.FakeIsland
-import com.exanthiax.ecominions.testsupport.FakeIslandProvider
-import io.mockk.every
-import io.mockk.mockk
-import org.bukkit.Location
-import org.bukkit.entity.ArmorStand
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -74,31 +63,15 @@ class IslandMinionIndexTest {
     }
 
     @Test
-    fun `registering a minion records it on the island it stands on`() {
-        val provider = FakeIslandProvider("BentoBox")
-        val standLocation = Location(null, 4.0, 64.0, 9.0)
-        provider.claim(island, standLocation)
-        val registry = IslandRegistry { }.apply { register(provider) }
-        val service = MinionService(
-            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
-            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
-            mockk(relaxed = true),
-            onRegister = { minion -> registry.islandAt(minion.location)?.let { index.record(it, minion.uuid) } }
-        )
-        val definition = MinionDefinitionFixture.build()
-        val stats = MinionStats(definition.baseStats, level = 1)
-        val stand = mockk<ArmorStand>(relaxed = true)
-        every { stand.location } returns standLocation
-        val minion = Minion(
-            state = MinionState(definition = definition),
-            entity = stand,
-            storage = MinionStorage(stats.storageSize) { a, b -> a.type == b.type },
-            stats = stats
-        )
+    fun `recording a minion on another island moves it there`() {
+        val minion = UUID.randomUUID()
+        val other = FakeIsland("BentoBox", "island-two", UUID.randomUUID())
 
-        service.register(minion)
+        index.record(island, minion)
+        index.record(other, minion)
 
-        assertEquals(1, index.count(island))
+        assertEquals(0, index.count(island))
+        assertEquals(listOf(minion), index.minionsOn(other))
     }
 
     @Test

@@ -6,8 +6,13 @@ import java.util.UUID
 /**
  * A source of islands, backed by one island plugin.
  *
- * [MinionIsland.members] on an island this returns may be called from any thread, including
- * the global region, as activity checks reuse an island resolved earlier.
+ * Calls come from region threads, so a provider and the islands it returns must be thread-safe.
+ * [MinionIsland.members] may be called from any thread, including the global region, as
+ * activity checks reuse an island resolved earlier.
+ *
+ * Register the provider in your plugin's `onEnable` and unregister it on disable. Minions in
+ * chunks that are already loaded are indexed on their island when they next register, which
+ * is when their chunk next loads.
  */
 interface IslandProvider {
     /** The provider's id, unique among registered providers. */

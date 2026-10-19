@@ -34,7 +34,7 @@ class BentoBoxIslandProvider(private val warn: (String) -> Unit) : IslandProvide
     }
 
     override fun islandAt(location: Location): MinionIsland? =
-        BentoBox.getInstance().islands.getIslandAt(location).map(::wrap).orElse(null)
+        BentoBox.getInstance().islands.getProtectedIslandAt(location).map(::wrap).orElse(null)
 
     override fun islandsOf(uuid: UUID): Collection<MinionIsland> =
         BentoBox.getInstance().islands.getIslands(uuid).map(::wrap)

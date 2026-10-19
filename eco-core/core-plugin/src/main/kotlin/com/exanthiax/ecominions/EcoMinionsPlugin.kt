@@ -34,6 +34,7 @@ import com.exanthiax.ecominions.islands.IslandLimits
 import com.exanthiax.ecominions.islands.IslandMemberCache
 import com.exanthiax.ecominions.islands.IslandMemberListener
 import com.exanthiax.ecominions.islands.IslandMinionIndex
+import com.exanthiax.ecominions.islands.IslandMinionTracker
 import com.exanthiax.ecominions.islands.IslandRegistry
 import com.exanthiax.ecominions.islands.MinionAccess
 import com.exanthiax.ecominions.islands.providers.BentoBoxIslandProvider
@@ -316,18 +317,12 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val islandRegistry = IslandRegistry(logger::warning)
     private val islandMemberCache = IslandMemberCache()
+    private val islandTracker = IslandMinionTracker(islandRegistry, islandIndex, islandMemberCache)
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
-        onRegister = { minion ->
-            val island = islandRegistry.islandAt(minion.location)
-            island?.let { islandIndex.record(it, minion.uuid) }
-            islandMemberCache.remember(minion.uuid, island)
-        },
-        onRetire = {
-            islandIndex.remove(it.uuid)
-            islandMemberCache.forget(it.uuid)
-        }
+        onRegister = islandTracker::register,
+        onRetire = islandTracker::retire
     )
     private val minionAccess = MinionAccess(islandRegistry, minionSettings)
     private val islandLimits = IslandLimits(minionSettings, islandIndex) { Bukkit.getPlayer(it) }
@@ -407,8 +402,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     override fun handleEnable() {
         if (superiorSkyblockPrivilegesRegistered && Bukkit.getPluginManager().isPluginEnabled(SUPERIOR_SKYBLOCK)) {
             runCatching {
-                islandRegistry.register(SuperiorSkyblockIslandProvider(logger::warning))
-                SuperiorSkyblockIslandProvider.listenForNewIslands(this)
+                val privilegesEnabled = { minionSettings.value.islandPrivileges }
+                islandRegistry.register(SuperiorSkyblockIslandProvider(logger::warning, privilegesEnabled))
+                SuperiorSkyblockIslandProvider.listenForNewIslands(this, privilegesEnabled)
             }.onFailure { logger.warning("SuperiorSkyblock2 support disabled: ${it.message}") }
         }
         if (Bukkit.getPluginManager().isPluginEnabled(BENTO_BOX)) {
