@@ -1,13 +1,17 @@
 package com.exanthiax.ecominions.islands
 
+import com.exanthiax.ecominions.api.island.IslandPrivilege
 import com.exanthiax.ecominions.api.island.IslandProvider
+import com.exanthiax.ecominions.api.island.MinionIsland
 import com.exanthiax.ecominions.testsupport.FakeIsland
 import com.exanthiax.ecominions.testsupport.FakeIslandProvider
 import io.mockk.every
 import io.mockk.mockk
 import org.bukkit.Location
 import org.bukkit.World
+import org.bukkit.entity.Player
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -90,5 +94,39 @@ class IslandRegistryTest {
         registry.unregister("gone")
 
         assertTrue(registry.isEmpty())
+    }
+
+    @Test
+    fun `a provider that throws a linkage error counts as no island`() {
+        val failing = mockk<IslandProvider> {
+            every { id } returns "failing"
+            every { islandAt(any()) } throws NoClassDefFoundError()
+        }
+        registry.register(failing)
+
+        assertNull(registry.islandAt(location))
+        assertTrue("NoClassDefFoundError" in warnings.single())
+    }
+
+    @Test
+    fun `an island that throws denies and has no members`() {
+        val broken = mockk<MinionIsland> {
+            every { provider } returns "broken"
+            every { id } returns "a"
+            every { owner } returns null
+            every { isAllowed(any(), any()) } throws NoSuchMethodError("isAllowed")
+            every { isMember(any()) } throws NoSuchMethodError("isMember")
+            every { members() } throws NoSuchMethodError("members")
+        }
+        registry.register(mockk<IslandProvider> {
+            every { id } returns "broken"
+            every { islandAt(any()) } returns broken
+        })
+        val island = registry.islandAt(location)
+
+        assertFalse(island!!.isAllowed(mockk<Player>(), IslandPrivilege.USE))
+        assertTrue(island.members().isEmpty())
+        assertFalse(island.isMember(owner))
+        assertEquals(1, warnings.size)
     }
 }
