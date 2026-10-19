@@ -299,12 +299,14 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val islandMinionsKey = PersistentDataKey(
         namespacedKeyFactory.create("island_minions"),
         PersistentDataKeyType.STRING_LIST,
-        emptyList()
+        emptyList(),
+        true
     )
     private val islandLimitsKey = PersistentDataKey(
         namespacedKeyFactory.create("island_limits"),
         PersistentDataKeyType.STRING_LIST,
-        emptyList()
+        emptyList(),
+        true
     )
     private val islandIndex = IslandMinionIndex(
         readMinions = { ServerProfile.load().read(islandMinionsKey) },
