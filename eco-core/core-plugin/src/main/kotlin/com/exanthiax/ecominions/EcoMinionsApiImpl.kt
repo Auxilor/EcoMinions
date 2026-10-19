@@ -2,6 +2,7 @@ package com.exanthiax.ecominions
 
 import com.exanthiax.ecominions.api.EcoMinionsApi
 import com.exanthiax.ecominions.api.fuel.FuelsManager
+import com.exanthiax.ecominions.api.island.IslandsManager
 import com.exanthiax.ecominions.api.menu.MenusManager
 import com.exanthiax.ecominions.api.minion.MinionsManager
 import com.exanthiax.ecominions.api.upgrade.UpgradesManager
@@ -16,7 +17,8 @@ class EcoMinionsApiImpl(
     private val minions: MinionsManager,
     private val upgrades: UpgradesManager,
     private val fuels: FuelsManager,
-    private val menus: MenusManager
+    private val menus: MenusManager,
+    private val islands: IslandsManager
 ) : EcoMinionsApi {
 
     override fun minions(): MinionsManager = minions
@@ -26,4 +28,6 @@ class EcoMinionsApiImpl(
     override fun fuels(): FuelsManager = fuels
 
     override fun menus(): MenusManager = menus
+
+    override fun islands(): IslandsManager = islands
 }

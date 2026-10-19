@@ -11,6 +11,14 @@ limits:
     enabled: true # If players have a cap on placed minions.
     default: 5 # The cap for every player.
     permission-overrides: true # If ecominions.limit.<number> can raise a player's cap.
+  per-island:
+    enabled: false # If islands have a cap on placed minions. Needs an island plugin.
+    default: 10 # The cap for every island.
+    permission-overrides: true # If ecominions.island-limit.<number> on the island owner can raise the island's cap.
+
+islands:
+  privileges: true # If island ranks decide who may place, use and pick up minions. Needs an island plugin.
+  active-while-member-online: false # If a minion on an island keeps working while any island member is online, not only its owner.
 
 # A minion is idle while its owner is offline or its chunk is unloaded.
 # When it wakes up, the idle time is simulated and paid out in one go.

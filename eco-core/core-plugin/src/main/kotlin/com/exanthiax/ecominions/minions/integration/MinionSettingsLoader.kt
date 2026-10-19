@@ -32,6 +32,11 @@ class MinionSettingsLoader(
         ),
         experienceMode = ExperienceMode.entries.firstOrNull {
             it.name.equals(config.getStringOrNull("minion.xp.mode")?.trim(), ignoreCase = true)
-        } ?: ExperienceMode.STORE
+        } ?: ExperienceMode.STORE,
+        islandPrivileges = config.getBoolOrNull("islands.privileges") ?: true,
+        activeWhileMemberOnline = config.getBoolOrNull("islands.active-while-member-online") ?: false,
+        islandLimitsEnabled = config.getBoolOrNull("limits.per-island.enabled") ?: false,
+        defaultIslandLimit = config.getIntOrNull("limits.per-island.default") ?: 10,
+        islandPermissionOverrides = config.getBoolOrNull("limits.per-island.permission-overrides") ?: true
     )
 }

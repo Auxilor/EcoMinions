@@ -11,6 +11,10 @@ import org.bukkit.Bukkit
  * The loop itself runs on the global region; each minion's mining is handed to
  * the region that owns its stand, and the tick is read once here so every minion
  * is measured against the same clock.
+ *
+ * On its region each minion is first reconciled, so a minion whose activity changed
+ * without an event is resumed or stamped idle before it mines. Only an unowned minion,
+ * or one that is idle and already stamped, is skipped without a hop.
  */
 class MinionMiningLoop(
     private val minions: MinionService,
@@ -24,10 +28,14 @@ class MinionMiningLoop(
     override fun tick() {
         val now = Bukkit.getCurrentTick().toLong()
         for (minion in minions.all()) {
-            if (!activity.isActive(minion)) {
+            if (minion.state.owner == null || minion.state.shutdownTimestamp != null && !activity.isActive(minion)) {
                 continue
             }
-            regions.on(minion.entity) { ticker.tick(minion, now) }
+            regions.on(minion.entity) {
+                if (activity.reconcile(minion)) {
+                    ticker.tick(minion, now)
+                }
+            }
         }
     }
 }

@@ -65,13 +65,28 @@ class MinionActivityServiceTest {
     private fun service(
         online: Set<UUID> = setOf(owner),
         repository: MinionStateRepository = mockk(relaxed = true),
-        offlineProgress: OfflineProgressService = mockk(relaxed = true)
+        offlineProgress: OfflineProgressService = mockk(relaxed = true),
+        members: Collection<UUID> = emptyList()
     ) = MinionActivityService(
         repository = repository,
         offlineProgress = offlineProgress,
         settings = settings,
-        isOnline = { it in online }
+        isOnline = { it in online },
+        islandMembers = { members }
     )
+
+    private val member = UUID.randomUUID()
+
+    private fun ownedMinion() = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = owner))
+
+    private fun withToggle(enabled: Boolean, block: () -> Unit) {
+        settings.update(settings.value.copy(activeWhileMemberOnline = enabled))
+        try {
+            block()
+        } finally {
+            settings.update(settings.value.copy(activeWhileMemberOnline = false))
+        }
+    }
 
     @Test
     fun `a minion with an online owner is active`() {
@@ -164,5 +179,115 @@ class MinionActivityServiceTest {
         verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
         assertNull(subject.state.shutdownTimestamp)
         settings.update(settings.value.copy(offlineEnabled = true))
+    }
+
+    @Test
+    fun `toggle off keeps owner only activity`() = withToggle(false) {
+        val subject = ownedMinion()
+
+        assertFalse(service(online = setOf(member), members = listOf(owner, member)).isActive(subject))
+    }
+
+    @Test
+    fun `toggle on runs while a member is online`() = withToggle(true) {
+        val subject = ownedMinion()
+
+        assertTrue(service(online = setOf(member), members = listOf(owner, member)).isActive(subject))
+        assertFalse(service(online = emptySet(), members = listOf(owner, member)).isActive(subject))
+    }
+
+    @Test
+    fun `toggle on never activates an unowned minion`() = withToggle(true) {
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = null))
+
+        assertFalse(service(online = setOf(member), members = listOf(member)).isActive(subject))
+    }
+
+    @Test
+    fun `leaving with the toggle off is inactive even for the owner`() = withToggle(false) {
+        val subject = ownedMinion()
+
+        assertFalse(service(online = setOf(owner, member), members = listOf(owner, member)).isActiveWithout(subject, owner))
+    }
+
+    @Test
+    fun `the owner leaving keeps a minion running while members are on`() = withToggle(true) {
+        val subject = ownedMinion()
+        val subjectService = service(online = setOf(owner, member), members = listOf(owner, member))
+
+        assertTrue(subjectService.isActiveWithout(subject, owner))
+    }
+
+    @Test
+    fun `the last member leaving makes a minion inactive`() = withToggle(true) {
+        val subject = ownedMinion()
+        val subjectService = service(online = setOf(member), members = listOf(owner, member))
+
+        assertFalse(subjectService.isActiveWithout(subject, member))
+    }
+
+    @Test
+    fun `leaving does not count the leaver as online`() = withToggle(true) {
+        val subject = ownedMinion()
+
+        assertFalse(service(online = setOf(owner), members = listOf(owner)).isActiveWithout(subject, owner))
+    }
+
+    @Test
+    fun `reconciling resumes a stamped minion that became active`() = withToggle(true) {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = minion(
+            MinionState(definition = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
+        )
+        val subjectService = service(
+            online = setOf(member), offlineProgress = offlineProgress, members = listOf(owner, member)
+        )
+
+        assertTrue(subjectService.reconcile(subject, now = 3_000L))
+
+        verify(exactly = 1) { offlineProgress.apply(subject, 1_000L, 3_000L) }
+        assertNull(subject.state.shutdownTimestamp)
+    }
+
+    @Test
+    fun `reconciling stamps a running minion that became inactive`() = withToggle(true) {
+        val repository = mockk<MinionStateRepository>(relaxed = true)
+        val subject = ownedMinion()
+        val subjectService = service(online = emptySet(), repository = repository, members = listOf(owner, member))
+
+        assertFalse(subjectService.reconcile(subject, now = 2_000L))
+
+        assertEquals(2_000L, subject.state.shutdownTimestamp)
+        verify(exactly = 1) { repository.markShutdown(subject, 2_000L) }
+    }
+
+    @Test
+    fun `reconciling a minion already in step changes nothing`() = withToggle(true) {
+        val repository = mockk<MinionStateRepository>(relaxed = true)
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val idle = minion(
+            MinionState(definition = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
+        )
+        val running = ownedMinion()
+
+        service(online = emptySet(), repository = repository, offlineProgress = offlineProgress)
+            .reconcile(idle, now = 2_000L)
+        service(repository = repository, offlineProgress = offlineProgress).reconcile(running, now = 2_000L)
+
+        assertEquals(1_000L, idle.state.shutdownTimestamp)
+        assertNull(running.state.shutdownTimestamp)
+        verify(exactly = 0) { repository.markShutdown(any(), any()) }
+        verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
+    }
+
+    @Test
+    fun `an unowned minion is not stamped by the reconcile`() {
+        val repository = mockk<MinionStateRepository>(relaxed = true)
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = null))
+
+        assertFalse(service(repository = repository).reconcile(subject, now = 2_000L))
+
+        assertNull(subject.state.shutdownTimestamp)
+        verify(exactly = 0) { repository.markShutdown(any(), any()) }
     }
 }

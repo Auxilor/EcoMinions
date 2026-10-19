@@ -17,22 +17,7 @@ class PlacementLimits(
         if (!current.permissionOverrides || player !is Player) {
             return current.defaultLimit
         }
-        return highestPermissionLimit(player, current.defaultLimit)
-    }
-
-    /** Permission overrides raise the limit; the most generous one wins. */
-    private fun highestPermissionLimit(player: Player, default: Int): Int {
-        var best = default
-        for (info in player.effectivePermissions) {
-            if (!info.value || !info.permission.startsWith(LIMIT_PREFIX)) {
-                continue
-            }
-            val limit = info.permission.removePrefix(LIMIT_PREFIX).toIntOrNull() ?: continue
-            if (limit > best) {
-                best = limit
-            }
-        }
-        return best
+        return highestPermissionLimit(player, LIMIT_PREFIX, current.defaultLimit)
     }
 
     companion object {

@@ -18,6 +18,14 @@ limits:
     enabled: true
     default: 5
     permission-overrides: true
+  per-island:
+    enabled: false # If islands have a cap on placed minions. Needs an island plugin.
+    default: 10 # The cap for every island.
+    permission-overrides: true # If ecominions.island-limit.<number> on the island owner can raise the island's cap.
+
+islands:
+  privileges: true # If island ranks decide who may place, use and pick up minions. Needs an island plugin.
+  active-while-member-online: false # If a minion on an island keeps working while any island member is online, not only its owner.
 
 unloaded-calculation:
   enabled: true
@@ -99,6 +107,14 @@ gui:
 
 `limits.per-player` caps how many minions one player can have placed. `default` is the cap for everyone. With `permission-overrides: true`, a player with `ecominions.limit.<number>` gets that cap instead when it is higher, e.g. `ecominions.limit.10`. Players with `ecominions.admin` have no cap. See [Commands and Permissions](https://hub.auxilor.io/wiki/ecominions/commands-and-permissions).
 
+`limits.per-island` caps how many minions one island can hold, whoever placed them. It is off by default and needs an island plugin, see [Supported Plugins](https://hub.auxilor.io/wiki/ecominions/supported-plugins). `default` is the cap for every island. With `permission-overrides: true`, an island whose owner has `ecominions.island-limit.<number>` gets that cap instead when it is higher. Players with `ecominions.admin` skip this cap too. When both limits are on, both apply. Turn `per-player` off for an island-only cap. A Lands land counts as an island.
+
+### Islands
+
+`islands.privileges` lets island ranks decide who may place, use and pick up minions on an island. It is on by default and does nothing without an island plugin.
+
+`islands.active-while-member-online` is off by default, so a minion works only while its owner is online. With `true`, a minion on an island works while its owner or any member of that island is online, and idles only when none of them are. Offline payout counts the time nobody from the island was online.
+
 ### Offline catch-up
 
 A minion is idle while its owner is offline or its chunk is unloaded. When it wakes up, the idle time is paid out in one go: work is simulated for the time that passed, scaled by `offline-efficiency`, and the drops go through the minion's own effects, so upgrades like fortune still apply. Fuel is used for the simulated time only. With `enabled: false`, a minion picks up where it left off and gets nothing for the idle time.
@@ -130,5 +146,6 @@ The title and rows of each menu: `main` is a minion's menu, `upgrade-list` its u
 ## Where to go next
 
 - **Minions:** the per-minion config is in [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion).
+- **Island plugins:** ranks, privileges and the island limit are in [Supported Plugins](https://hub.auxilor.io/wiki/ecominions/supported-plugins).
 - **Permissions:** the limit and admin nodes are in [Commands and Permissions](https://hub.auxilor.io/wiki/ecominions/commands-and-permissions).
 - **Placeholders:** use minion counts and limits elsewhere with [PlaceholderAPI](https://hub.auxilor.io/wiki/ecominions/placeholderapi).

@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.api.minion
 
+import com.exanthiax.ecominions.api.island.MinionIsland
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Entity
@@ -35,13 +36,33 @@ interface MinionsManager {
     /** @return How many minions [player] may place, or [Int.MAX_VALUE] if unlimited. */
     fun placementLimit(player: OfflinePlayer): Int
 
+    /**
+     * @return How many minions [island] may hold, or [Int.MAX_VALUE] if island
+     *         limits are off.
+     */
+    fun islandLimit(island: MinionIsland): Int
+
+    /**
+     * @return Whether [player] may open [minion]'s menu. Its owner always may;
+     *         anyone else needs the island privilege where it stands.
+     */
+    fun canUse(player: Player, minion: Minion): Boolean
+
+    /**
+     * @return Whether [player] may pick [minion] up. Its owner always may;
+     *         anyone else needs the island privilege where it stands.
+     */
+    fun canPickUp(player: Player, minion: Minion): Boolean
+
     fun types(): Collection<MinionDefinition>
 
     fun getType(id: String): MinionDefinition?
 
     /**
-     * @return Whether [minion] is working. A minion only works while its owner
-     *         is online; an idle one is credited when they come back.
+     * @return Whether [minion] is working. A minion works while its owner is
+     *         online or, with `islands.active-while-member-online` on, while any
+     *         member of the island it stands on is; an idle one is credited when
+     *         it starts working again.
      */
     fun isActive(minion: Minion): Boolean
 

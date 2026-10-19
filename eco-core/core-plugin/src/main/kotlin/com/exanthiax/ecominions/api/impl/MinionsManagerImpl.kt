@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.api.impl
 
 import com.exanthiax.ecominions.api.event.MinionOwnerChangeEvent
+import com.exanthiax.ecominions.api.island.MinionIsland
 import com.exanthiax.ecominions.api.minion.DestroyCause
 import com.exanthiax.ecominions.api.minion.MinionStorage
 import com.exanthiax.ecominions.api.minion.MinionsManager
@@ -8,6 +9,8 @@ import com.exanthiax.ecominions.api.minion.PickUpResult
 import com.exanthiax.ecominions.api.minion.PlaceResult
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.scheduling.Regions
+import com.exanthiax.ecominions.islands.IslandLimits
+import com.exanthiax.ecominions.islands.MinionAccess
 import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionState
@@ -49,10 +52,20 @@ class MinionsManagerImpl(
     private val compacting: MinionCompactService,
     private val events: EventDispatcher,
     private val regions: Regions,
+    private val access: MinionAccess,
+    private val islandLimits: IslandLimits,
     private val ownerOf: (UUID) -> OfflinePlayer
 ) : MinionsManager {
 
     override fun all(): Collection<ApiMinion> = minions.all()
+
+    override fun islandLimit(island: MinionIsland): Int = islandLimits.limitFor(island)
+
+    override fun canUse(player: Player, minion: ApiMinion): Boolean =
+        access.canUse(player, resolve(minion))
+
+    override fun canPickUp(player: Player, minion: ApiMinion): Boolean =
+        access.canPickUp(player, resolve(minion))
 
     override fun getByUuid(uuid: UUID): ApiMinion? = minions.getByUuid(uuid)
 
@@ -125,6 +138,8 @@ class MinionsManagerImpl(
             }
 
             PlacementService.PickUpResult.NotOwner -> PickUpResult(PickUpResult.Status.NOT_OWNER, null)
+            PlacementService.PickUpResult.NoIslandPermission ->
+                PickUpResult(PickUpResult.Status.NO_ISLAND_PERMISSION, null)
             PlacementService.PickUpResult.Cancelled -> PickUpResult(PickUpResult.Status.CANCELLED, null)
         }
 
@@ -181,7 +196,11 @@ class MinionsManagerImpl(
         is PlacementService.PlaceResult.Placed -> PlaceResult(PlaceResult.Status.PLACED, minion, 0)
         PlacementService.PlaceResult.WorldDisabled -> PlaceResult(PlaceResult.Status.WORLD_DISABLED, null, 0)
         is PlacementService.PlaceResult.LimitReached -> PlaceResult(PlaceResult.Status.LIMIT_REACHED, null, limit)
+        is PlacementService.PlaceResult.IslandLimitReached ->
+            PlaceResult(PlaceResult.Status.ISLAND_LIMIT_REACHED, null, limit)
         PlacementService.PlaceResult.Protected -> PlaceResult(PlaceResult.Status.PROTECTED, null, 0)
+        PlacementService.PlaceResult.NoIslandPermission ->
+            PlaceResult(PlaceResult.Status.NO_ISLAND_PERMISSION, null, 0)
         PlacementService.PlaceResult.Cancelled -> PlaceResult(PlaceResult.Status.CANCELLED, null, 0)
     }
 

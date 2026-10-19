@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.api
 
 import com.exanthiax.ecominions.api.fuel.FuelsManager
+import com.exanthiax.ecominions.api.island.IslandsManager
 import com.exanthiax.ecominions.api.menu.MenusManager
 import com.exanthiax.ecominions.api.minion.MinionsManager
 import com.exanthiax.ecominions.api.upgrade.UpgradesManager
@@ -21,6 +22,9 @@ interface EcoMinionsApi {
     fun fuels(): FuelsManager
 
     fun menus(): MenusManager
+
+    /** The island providers minions consult for island privileges and limits. */
+    fun islands(): IslandsManager
 
     companion object {
         /**

@@ -3,11 +3,15 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.api.event.MinionDestroyEvent
 import com.exanthiax.ecominions.api.event.MinionPickupEvent
 import com.exanthiax.ecominions.api.event.MinionPlaceEvent
+import com.exanthiax.ecominions.api.island.IslandPrivilege
 import com.exanthiax.ecominions.api.minion.DestroyCause
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.core.world.WorldSettings
+import com.exanthiax.ecominions.islands.IslandLimits
+import com.exanthiax.ecominions.islands.IslandRegistry
+import com.exanthiax.ecominions.islands.MinionAccess
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPickup
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPlace
@@ -35,19 +39,25 @@ class PlacementService(
     private val settings: SettingsHolder<MinionSettings>,
     private val triggers: MinionTriggerDispatch,
     private val events: EventDispatcher,
+    private val access: MinionAccess,
+    private val islands: IslandRegistry,
+    private val islandLimits: IslandLimits,
     private val canPlace: (Player, Block) -> Boolean
 ) {
     sealed interface PlaceResult {
         data class Placed(val minion: Minion) : PlaceResult
         data object WorldDisabled : PlaceResult
         data class LimitReached(val limit: Int) : PlaceResult
+        data class IslandLimitReached(val limit: Int) : PlaceResult
         data object Protected : PlaceResult
+        data object NoIslandPermission : PlaceResult
         data object Cancelled : PlaceResult
     }
 
     sealed interface PickUpResult {
         data class PickedUp(val item: ItemStack) : PickUpResult
         data object NotOwner : PickUpResult
+        data object NoIslandPermission : PickUpResult
         data object Cancelled : PickUpResult
     }
 
@@ -58,9 +68,18 @@ class PlacementService(
         if (!state.definition.bypassAntigrief && !canPlace(player, location.block)) {
             return PlaceResult.Protected
         }
+        val island by lazy { islands.islandAt(location) }
+        if (!access.canPlace(player) { island }) {
+            return PlaceResult.NoIslandPermission
+        }
         val limit = limits.limitFor(player)
         if (minions.countOwnedBy(player) >= limit) {
             return PlaceResult.LimitReached(limit)
+        }
+        if (settings.value.islandLimitsEnabled && !player.hasPermission(ADMIN_PERMISSION)) {
+            island?.takeIf { islandLimits.isFull(it) }?.let {
+                return PlaceResult.IslandLimitReached(islandLimits.limitFor(it))
+            }
         }
 
         val owner = state.owner?.takeIf { it != player.uniqueId }?.let { Bukkit.getOfflinePlayer(it) } ?: player
@@ -104,8 +123,12 @@ class PlacementService(
 
     /** Removes [minion] and hands back the item that carries its contents. */
     fun pickUp(player: Player, minion: Minion): PickUpResult {
-        if (!canPickUp(player, minion)) {
-            return PickUpResult.NotOwner
+        if (!access.canPickUp(player, minion)) {
+            return if (access.deniedByIsland(player, minion, IslandPrivilege.PICKUP)) {
+                PickUpResult.NoIslandPermission
+            } else {
+                PickUpResult.NotOwner
+            }
         }
 
         val event = MinionPickupEvent(player, minion, itemFor(minion))
@@ -162,11 +185,6 @@ class PlacementService(
         minions.retire(minion)
         minion.entity.remove()
     }
-
-    fun canPickUp(player: Player, minion: Minion): Boolean =
-        minion.state.owner == null ||
-            minion.state.owner == player.uniqueId ||
-            player.hasPermission(ADMIN_PERMISSION)
 
     /** Minions look back at whoever placed them, squared to the nearest cardinal direction. */
     private fun Location.facing(player: Player): Location = clone().apply {
