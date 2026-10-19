@@ -30,7 +30,7 @@ A Lands land counts as an island everywhere on this page.
 | --- | --- | --- |
 | Place | Placing a minion on the island | Members and up |
 | Use | Opening a minion's menu, which covers collecting, fuelling and upgrading, and the shift-right-click `click_minion` trigger | Members and up |
-| Pick up | Picking up a minion the player did not place | Island owner only |
+| Pick up | Picking up a minion the player did not place | Island owner only, except on lands created after install, see [Lands setup](#lands-setup) |
 
 Each plugin registers them under its own names:
 
@@ -41,7 +41,7 @@ Each plugin registers them under its own names:
 | IridiumSkyblock | `ecominionsPlace` | `ecominionsUse` | `ecominionsPickup` |
 | Lands | `ecominions_place` | `ecominions_use` | `ecominions_pickup` |
 
-Owners can change these defaults in the menus above. Placing also still has to pass your antigrief plugins.
+Owners can change these defaults in the menus above, except for Lands, see [Lands setup](#lands-setup). Placing also still has to pass your antigrief plugins.
 
 ### Rules
 
@@ -54,6 +54,14 @@ Owners can change these defaults in the menus above. Placing also still has to p
 ### SuperiorSkyblock2 setup
 
 SuperiorSkyblock2 only shows privileges that are listed in its `menus/permissions.yml`. Add an entry for each of `ECOMINIONS_PLACE`, `ECOMINIONS_USE` and `ECOMINIONS_PICKUP` to that file for them to appear in `/is permissions`. Islands where a privilege is not set yet get the defaults above, with place and use written to the member role.
+
+### Lands setup
+
+Lands has no way for a plugin to set per-role defaults. The first time Lands sees a new role flag, it adds the flag to the `default:` lists of the tenant, admin and member roles in `plugins/Lands/roles.yml`. So on lands created after EcoMinions is installed, members and tenants get `ecominions_place`, `ecominions_use` and `ecominions_pickup`, which includes picking up other players' minions.
+
+- To keep pickup owner only, or to limit tenants, remove `ecominions_pickup` and any other EcoMinions flag you do not want from those roles' `default:` lists in `roles.yml`. This only affects lands created after the change.
+- Lands that already exist when EcoMinions is first installed get place and use for the owner and members, and pickup for the owner only.
+- The EcoMinions flags are not in the role menu display list by default, so land owners cannot toggle them in game. To let them, add the flags to the "Which flags should be displayed in the role settings menu?" section of `roles.yml`.
 
 ### Island limit
 
