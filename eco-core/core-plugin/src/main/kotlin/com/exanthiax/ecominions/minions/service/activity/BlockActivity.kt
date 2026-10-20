@@ -36,12 +36,11 @@ class BlockActivity(
     }
 
     override fun act(minion: Minion, now: Long): ActivityResult {
-        val ready = if (minion.mining.seededLastCycle) targets.find(minion) else null
-        if (ready == null && behaviourOf(minion).onBeforeMine(minion, now)) {
+        if (behaviourOf(minion).onBeforeMine(minion, now)) {
             return ActivityResult.SEEDED
         }
 
-        val target = ready ?: targets.find(minion)
+        val target = targets.find(minion)
             ?: return if (behaviourOf(minion).onIdle(minion, now)) ActivityResult.BUSY else ActivityResult.BLOCKED
 
         minion.mining.pendingTarget = target
