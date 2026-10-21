@@ -288,7 +288,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings,
         { Bukkit.getPlayer(it) != null },
-        { islandMemberCache.membersOf(it.uuid) }
+        { islandMemberCache.membersOf(it.uuid) },
+        { minionLimits.breachOf(it) }
     )
     private val placedMinionsKey = PersistentDataKey(
         namespacedKeyFactory.create("placed_minions"),

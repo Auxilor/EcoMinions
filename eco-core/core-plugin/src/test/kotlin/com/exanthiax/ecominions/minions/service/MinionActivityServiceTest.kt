@@ -1,5 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.minion.LimitBreach
+import com.exanthiax.ecominions.api.minion.LimitScope
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionSettings
@@ -66,14 +68,18 @@ class MinionActivityServiceTest {
         online: Set<UUID> = setOf(owner),
         repository: MinionStateRepository = mockk(relaxed = true),
         offlineProgress: OfflineProgressService = mockk(relaxed = true),
-        members: Collection<UUID> = emptyList()
+        members: Collection<UUID> = emptyList(),
+        limitBreach: (Minion) -> LimitBreach? = { null }
     ) = MinionActivityService(
         repository = repository,
         offlineProgress = offlineProgress,
         settings = settings,
         isOnline = { it in online },
-        islandMembers = { members }
+        islandMembers = { members },
+        limitBreach = limitBreach
     )
+
+    private val breach = LimitBreach(LimitScope.MINION, 3, 2)
 
     private val member = UUID.randomUUID()
 
@@ -289,5 +295,78 @@ class MinionActivityServiceTest {
 
         assertNull(subject.state.shutdownTimestamp)
         verify(exactly = 0) { repository.markShutdown(any(), any()) }
+    }
+
+    @Test
+    fun `a limit-idle minion is not active even with its owner online`() {
+        assertFalse(service(limitBreach = { breach }).isActive(ownedMinion()))
+    }
+
+    @Test
+    fun `owner joining does not resume or pay a limit-idle minion`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        subject.state = subject.state.copy(shutdownTimestamp = 1_000L, limitedSince = 1_000L)
+
+        service(offlineProgress = offlineProgress).resume(subject, now = 9_000L)
+
+        verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
+        assertEquals(1_000L, subject.state.shutdownTimestamp)
+    }
+
+    @Test
+    fun `limit-idle time is never paid`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        var limited = true
+        val service = service(offlineProgress = offlineProgress, limitBreach = { breach.takeIf { limited } })
+
+        assertFalse(service.reconcile(subject, now = 1_000L))
+        limited = false
+        assertTrue(service.reconcile(subject, now = 5_000L))
+
+        verify(exactly = 0) { offlineProgress.apply(any(), 1_000L, any()) }
+        assertNull(subject.state.limitedSince)
+        assertNull(subject.state.shutdownTimestamp)
+    }
+
+    @Test
+    fun `offline window before becoming limited is paid when seen allowed`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        var limited = false
+        val service = service(online = emptySet(), offlineProgress = offlineProgress, limitBreach = { breach.takeIf { limited } })
+
+        service.reconcile(subject, now = 1_000L)
+        limited = true
+        service.reconcile(subject, now = 3_000L)
+
+        verify(exactly = 1) { offlineProgress.apply(subject, 1_000L, 3_000L) }
+        assertEquals(3_000L, subject.state.limitedSince)
+    }
+
+    @Test
+    fun `unloaded window is not paid when limited at wake`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        subject.state = subject.state.copy(shutdownTimestamp = 1_000L)
+
+        service(offlineProgress = offlineProgress, limitBreach = { breach }).reconcile(subject, now = 3_000L)
+
+        verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
+        assertEquals(3_000L, subject.state.limitedSince)
+    }
+
+    @Test
+    fun `needsReconcile only when limit status changed`() {
+        val subject = ownedMinion()
+        var limited = false
+        val service = service(limitBreach = { breach.takeIf { limited } })
+
+        assertFalse(service.needsReconcile(subject))
+        limited = true
+        assertTrue(service.needsReconcile(subject))
+        service.reconcile(subject, now = 1_000L)
+        assertFalse(service.needsReconcile(subject))
     }
 }

@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.minion.LimitBreach
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import java.util.UUID
@@ -20,7 +21,8 @@ class MinionActivityService(
     private val offlineProgress: OfflineProgressService,
     private val settings: SettingsHolder<MinionSettings>,
     private val isOnline: (UUID) -> Boolean,
-    private val islandMembers: (Minion) -> Collection<UUID>
+    private val islandMembers: (Minion) -> Collection<UUID>,
+    private val limitBreach: (Minion) -> LimitBreach? = { null }
 ) {
     /** An unowned minion is never active: there is nobody to gate on or pay. */
     fun isActive(minion: Minion): Boolean = isActiveWhere(minion) { isOnline(it) }
@@ -32,8 +34,17 @@ class MinionActivityService(
     fun isActiveWithout(minion: Minion, leaving: UUID): Boolean =
         isActiveWhere(minion) { it != leaving && isOnline(it) }
 
+    /** Whether a limit is holding [minion] back. */
+    fun isLimited(minion: Minion): Boolean = minion.state.limitedSince != null
+
+    /** Whether [minion]'s limit status changed since it was last reconciled. */
+    fun needsReconcile(minion: Minion): Boolean = (limitBreach(minion) != null) != isLimited(minion)
+
     private fun isActiveWhere(minion: Minion, online: (UUID) -> Boolean): Boolean {
         val owner = minion.state.owner ?: return false
+        if (limitBreach(minion) != null) {
+            return false
+        }
         if (online(owner)) {
             return true
         }
@@ -55,6 +66,16 @@ class MinionActivityService(
         if (minion.state.owner == null) {
             return false
         }
+        if (limitBreach(minion) != null) {
+            markLimited(minion, now)
+            return false
+        }
+        if (isLimited(minion)) {
+            minion.state = minion.state.copy(limitedSince = null, shutdownTimestamp = now)
+            repository.clearLimited(minion)
+            repository.markShutdown(minion, now)
+        }
+        minion.seenAllowed = true
         return isActive(minion).also { active ->
             if (active) {
                 resume(minion, now)
@@ -79,8 +100,33 @@ class MinionActivityService(
         repository.markShutdown(minion, now)
     }
 
-    /** Credits the idle window, then puts [minion] back to work. */
+    /**
+     * Stamps [minion] as held back by a limit, if it is not already. An idle window that ran
+     * while it was within its limits is paid up to [now]; nothing after it ever is.
+     */
+    private fun markLimited(minion: Minion, now: Long) {
+        if (isLimited(minion)) {
+            return
+        }
+        val idleSince = minion.state.shutdownTimestamp
+        if (idleSince == null) {
+            markIdle(minion, now)
+        } else {
+            if (minion.seenAllowed && settings.value.offlineEnabled) {
+                offlineProgress.apply(minion, idleSince, now)
+            }
+            minion.state = minion.state.copy(shutdownTimestamp = now)
+            repository.markShutdown(minion, now)
+        }
+        minion.state = minion.state.copy(limitedSince = now)
+        repository.markLimited(minion, now)
+    }
+
+    /** Credits the idle window, then puts [minion] back to work. A minion held back by a limit stays idle. */
     fun resume(minion: Minion, now: Long = System.currentTimeMillis()) {
+        if (isLimited(minion)) {
+            return
+        }
         val idleSince = minion.state.shutdownTimestamp ?: return
 
         if (settings.value.offlineEnabled) {
