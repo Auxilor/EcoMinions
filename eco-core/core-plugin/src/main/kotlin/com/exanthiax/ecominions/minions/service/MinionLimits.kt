@@ -77,12 +77,11 @@ class MinionLimits(
      */
     fun checkPlacement(placer: Player, owner: UUID, definition: MinionDefinition, island: () -> MinionIsland?): LimitBreach? {
         val caps = capsFor(owner)
-        val current = settings.value
         val placedCount = countOf(owner, LimitScope.PLAYER, definition)
         if (placedCount >= caps.total) {
             return LimitBreach(LimitScope.PLAYER, placedCount + 1, caps.total)
         }
-        if (current.islandLimitsEnabled && !placer.hasPermission(ADMIN_PERMISSION)) {
+        if (settings.value.islandLimitsEnabled && !placer.hasPermission(ADMIN_PERMISSION)) {
             island()?.takeIf { islandLimits.isFull(it) }?.let {
                 return LimitBreach(LimitScope.ISLAND, islandIndex.count(it) + 1, islandLimits.limitFor(it))
             }
