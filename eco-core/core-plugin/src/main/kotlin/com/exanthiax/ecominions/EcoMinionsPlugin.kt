@@ -355,7 +355,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val menuViewers = MenuViewers { menu, player -> regions.on(player) { menu.refresh(player) } }
     private val mainMenu = MainMenu(
         menuSettings, messages, chrome, MinionStorageView(messages), placementService,
-        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions
+        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions, minionLimits
     )
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
 
@@ -364,7 +364,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionsManagerImpl(
             minionService, placementService, itemFactory, minionItems, collector,
             sellService, repository, activityService, xpService, compactService, events, regions, minionAccess,
-            islandLimits
+            islandLimits, minionLimits
         ) { Bukkit.getOfflinePlayer(it) },
         UpgradesManagerImpl(upgradeService, purchases, minionService),
         FuelsManagerImpl(fuelService, minionFuelService, minionService),
@@ -512,7 +512,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private fun registerPlaceholders() {
         placeholderRegistrar.registerAll(
             listOf(
-                MinionPlaceholders(minionService, fuelService),
+                MinionPlaceholders(minionService, fuelService, minionLimits, messages),
                 UpgradePlaceholders(),
                 levellingPlaceholders
             )

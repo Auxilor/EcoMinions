@@ -64,9 +64,11 @@ class MinionLimits(
     fun countOf(owner: UUID, scope: LimitScope, definition: MinionDefinition): Int = when (scope) {
         LimitScope.PLAYER -> placed.count(owner)
         LimitScope.ISLAND -> 0
-        LimitScope.TYPE -> placed.entries(owner).count { types(it.typeId)?.type == definition.type }
+        LimitScope.TYPE -> countOfType(owner, definition.type)
         LimitScope.MINION -> placed.count(owner, definition.id)
     }
+
+    fun countOfType(owner: UUID, type: MinionType): Int = placed.entries(owner).count { types(it.typeId)?.type == type }
 
     /**
      * The first limit placing one more [definition] for [owner] would pass, in the order player, island, type, minion.

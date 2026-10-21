@@ -3,7 +3,9 @@ package com.exanthiax.ecominions.api.impl
 import com.exanthiax.ecominions.api.event.MinionOwnerChangeEvent
 import com.exanthiax.ecominions.api.island.MinionIsland
 import com.exanthiax.ecominions.api.minion.DestroyCause
+import com.exanthiax.ecominions.api.minion.LimitBreach
 import com.exanthiax.ecominions.api.minion.MinionStorage
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.api.minion.MinionsManager
 import com.exanthiax.ecominions.api.minion.PickUpResult
 import com.exanthiax.ecominions.api.minion.PlaceResult
@@ -20,6 +22,7 @@ import com.exanthiax.ecominions.minions.service.MinionCompactService
 import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
+import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.MinionStateRepository
 import com.exanthiax.ecominions.minions.service.PlacementService
@@ -54,12 +57,20 @@ class MinionsManagerImpl(
     private val regions: Regions,
     private val access: MinionAccess,
     private val islandLimits: IslandLimits,
+    private val limits: MinionLimits,
     private val ownerOf: (UUID) -> OfflinePlayer
 ) : MinionsManager {
 
     override fun all(): Collection<ApiMinion> = minions.all()
 
     override fun islandLimit(island: MinionIsland): Int = islandLimits.limitFor(island)
+
+    override fun typeLimit(player: OfflinePlayer, type: MinionType): Int = limits.capsFor(player.uniqueId).typeCap(type)
+
+    override fun minionLimit(player: OfflinePlayer, type: ApiMinionDefinition): Int =
+        limits.capsFor(player.uniqueId).minionCap(type.id)
+
+    override fun limitBreach(minion: ApiMinion): LimitBreach? = limits.breachOf(resolve(minion))
 
     override fun canUse(player: Player, minion: ApiMinion): Boolean =
         access.canUse(player, resolve(minion))
