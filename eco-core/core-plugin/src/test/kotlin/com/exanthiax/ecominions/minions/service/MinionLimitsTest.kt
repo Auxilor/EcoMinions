@@ -24,6 +24,7 @@ import org.bukkit.entity.Player
 import org.bukkit.permissions.PermissionAttachmentInfo
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -73,11 +74,14 @@ class MinionLimitsTest {
         typeLimits = typeLimits
     )
 
+    private val capsData = mutableMapOf<UUID, List<String>>()
+
     private fun limits(settings: MinionSettings = settings()): MinionLimits {
         val holder = SettingsHolder(settings)
         return MinionLimits(
-            holder, PlacementLimits(holder), registry, { definitions[it] }, { definitions.values },
-            index, IslandLimits(holder, index) { online[it] }, { islandHere }, { online[it] }
+            holder, registry, { definitions[it] }, { definitions.values },
+            index, IslandLimits(holder, index) { online[it] }, { islandHere }, { online[it] },
+            { capsData[it].orEmpty() }, { id, entries -> capsData[id] = entries }
         )
     }
 
@@ -116,6 +120,11 @@ class MinionLimitsTest {
             }
         }.toSet()
     }.also { online[id] = it }
+
+    @BeforeEach
+    fun seeOwner() {
+        capsData[owner] = listOf("seen")
+    }
 
     @Test
     fun `newest placed is the one over the minion limit`() {
@@ -203,14 +212,33 @@ class MinionLimitsTest {
     }
 
     @Test
-    fun `offline owner uses last seen caps then defaults`() {
-        val limits = limits()
-        player(owner, "ecominions.minion-limit.coal.4")
-        limits.refreshCaps(online.getValue(owner))
+    fun `offline owner keeps last seen permission caps across a restart`() {
+        player(owner, "ecominions.minion-limit.coal.4", "ecominions.limit.20")
+        limits().refreshCaps(online.getValue(owner))
         online.remove(owner)
 
-        assertEquals(4, limits.capsFor(owner).minionCap("coal"))
-        assertEquals(2, limits().capsFor(owner).minionCap("coal"))
+        val restarted = limits()
+        assertEquals(4, restarted.capsFor(owner).minionCap("coal"))
+        assertEquals(20, restarted.capsFor(owner).total)
+    }
+
+    @Test
+    fun `offline owner caps follow config changes`() {
+        player(owner)
+        limits().refreshCaps(online.getValue(owner))
+        online.remove(owner)
+
+        assertEquals(8, limits(settings(defaultLimit = 8)).capsFor(owner).total)
+    }
+
+    @Test
+    fun `an owner never seen online is not held back by owner limits`() {
+        capsData.remove(owner)
+        val limits = limits(settings(defaultLimit = 1))
+        place(iron)
+        val second = place(iron)
+
+        assertNull(limits.breachOf(second))
     }
 
     @Test

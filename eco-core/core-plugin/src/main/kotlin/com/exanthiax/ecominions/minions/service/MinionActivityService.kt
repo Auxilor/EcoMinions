@@ -37,6 +37,13 @@ class MinionActivityService(
     /** Whether a limit is holding [minion] back. */
     fun isLimited(minion: Minion): Boolean = minion.state.limitedSince != null
 
+    /** Records that [minion] was loaded within its limits, so the idle window it carries is paid if a limit later holds it back. */
+    fun noteLoaded(minion: Minion) {
+        if (!isLimited(minion) && limitBreach(minion) == null) {
+            minion.seenAllowed = true
+        }
+    }
+
     /** Whether [minion]'s limit status changed since it was last reconciled. */
     fun needsReconcile(minion: Minion): Boolean = (limitBreach(minion) != null) != isLimited(minion)
 
@@ -125,6 +132,10 @@ class MinionActivityService(
     /** Credits the idle window, then puts [minion] back to work. A minion held back by a limit stays idle. */
     fun resume(minion: Minion, now: Long = System.currentTimeMillis()) {
         if (isLimited(minion)) {
+            return
+        }
+        if (limitBreach(minion) != null) {
+            markLimited(minion, now)
             return
         }
         val idleSince = minion.state.shutdownTimestamp ?: return

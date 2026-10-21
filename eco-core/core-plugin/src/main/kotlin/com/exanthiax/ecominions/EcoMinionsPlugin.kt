@@ -324,16 +324,26 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
-        onRegister = islandTracker::register,
+        onRegister = {
+            islandTracker.register(it)
+            activityService.noteLoaded(it)
+        },
         onRetire = islandTracker::retire,
         onPlacedChanged = { minionLimits.invalidate(it) }
     )
     private val minionAccess = MinionAccess(islandRegistry, minionSettings)
     private val islandLimits = IslandLimits(minionSettings, islandIndex) { Bukkit.getPlayer(it) }
+    private val limitCapsKey = PersistentDataKey(
+        namespacedKeyFactory.create("limit_caps"),
+        PersistentDataKeyType.STRING_LIST,
+        emptyList()
+    )
     private val minionLimits = MinionLimits(
-        minionSettings, limits, placedMinions, minionTypes::find, minionTypes::all,
-        islandIndex, islandLimits, islandRegistry::islandAt
-    ) { Bukkit.getPlayer(it) }
+        minionSettings, placedMinions, minionTypes::find, minionTypes::all,
+        islandIndex, islandLimits, islandRegistry::islandAt, { Bukkit.getPlayer(it) },
+        readCaps = { PlayerProfile.load(it).read(limitCapsKey) },
+        writeCaps = { owner, entries -> PlayerProfile.load(owner).write(limitCapsKey, entries) }
+    )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, minionLimits, worlds, minionSettings,
         triggerDispatch, events, minionAccess, islandRegistry, AntigriefManager::canPlaceBlock

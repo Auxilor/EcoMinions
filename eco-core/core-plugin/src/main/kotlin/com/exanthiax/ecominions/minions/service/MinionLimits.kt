@@ -16,8 +16,18 @@ import org.bukkit.entity.Player
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-/** The caps one owner places under. [PlacementLimits.UNLIMITED] means no cap. */
-data class OwnerCaps(val total: Int, val types: Map<MinionType, Int>, val minions: Map<String, Int>) {
+/**
+ * The caps one owner places under. [PlacementLimits.UNLIMITED] means no cap.
+ *
+ * @property known Whether the owner's permissions have ever been read. Owner limits never hold back
+ *           the minions of an owner who has not been seen online since, as their caps could be higher.
+ */
+data class OwnerCaps(
+    val total: Int,
+    val types: Map<MinionType, Int>,
+    val minions: Map<String, Int>,
+    val known: Boolean = true
+) {
     fun typeCap(type: MinionType): Int = types[type] ?: PlacementLimits.UNLIMITED
 
     fun minionCap(id: String): Int = minions[id] ?: PlacementLimits.UNLIMITED
@@ -30,35 +40,39 @@ data class OwnerCaps(val total: Int, val types: Map<MinionType, Int>, val minion
  * saved data so nothing needs loading. A minion over a cap does not use up room under any
  * other owner cap. Islands are ranked on their own, as island entries carry no owner.
  *
- * Permission caps can only be read while the owner is online, so the last ones seen are kept.
+ * Permission caps can only be read while the owner is online, so the last ones seen are saved in the
+ * owner's data. Only the permission numbers are saved; the config defaults are applied on every read.
  */
 class MinionLimits(
     private val settings: SettingsHolder<MinionSettings>,
-    private val placementLimits: PlacementLimits,
     private val placed: PlacedMinionRegistry,
     private val types: (String) -> MinionDefinition?,
     private val allTypes: () -> Collection<MinionDefinition>,
     private val islandIndex: IslandMinionIndex,
     private val islandLimits: IslandLimits,
     private val islandAt: (Location) -> MinionIsland?,
-    private val onlinePlayer: (UUID) -> Player?
+    private val onlinePlayer: (UUID) -> Player?,
+    private val readCaps: (UUID) -> List<String>,
+    private val writeCaps: (UUID, List<String>) -> Unit
 ) : Tickable {
     override val tickInterval = 100L
 
-    private val knownCaps = ConcurrentHashMap<UUID, OwnerCaps>()
+    private val knownPermissions = ConcurrentHashMap<UUID, PermissionCaps>()
     private val ownerRanks = ConcurrentHashMap<UUID, Map<UUID, LimitBreach>>()
     private val islandRanks = ConcurrentHashMap<String, Map<UUID, LimitBreach>>()
     private val minionIslands = ConcurrentHashMap<UUID, List<MinionIsland>>()
 
     override fun tick() = invalidateAll()
 
-    fun capsFor(owner: UUID): OwnerCaps =
-        onlinePlayer(owner)?.let { player -> capsOf(player).also { knownCaps[owner] = it } }
-            ?: knownCaps[owner]
-            ?: defaultCaps()
+    fun capsFor(owner: UUID): OwnerCaps {
+        val permissions = onlinePlayer(owner)?.let(::refreshPermissions)
+            ?: knownPermissions[owner]
+            ?: PermissionCaps.decode(readCaps(owner))?.also { knownPermissions[owner] = it }
+        return capsFrom(permissions)
+    }
 
     fun refreshCaps(player: Player) {
-        knownCaps[player.uniqueId] = capsOf(player)
+        refreshPermissions(player)
     }
 
     fun countOf(owner: UUID, scope: LimitScope, definition: MinionDefinition): Int = when (scope) {
@@ -151,6 +165,9 @@ class MinionLimits(
 
     private fun rankOwner(owner: UUID): Map<UUID, LimitBreach> {
         val caps = capsFor(owner)
+        if (!caps.known) {
+            return emptyMap()
+        }
         val entries = placed.entries(owner)
         val typeCounts = entries.groupingBy { types(it.typeId)?.type }.eachCount()
         val minionCounts = entries.groupingBy { it.typeId }.eachCount()
@@ -183,35 +200,98 @@ class MinionLimits(
         return breaches
     }
 
-    private fun capsOf(player: Player): OwnerCaps {
-        if (player.hasPermission(ADMIN_PERMISSION)) {
+    private fun refreshPermissions(player: Player): PermissionCaps {
+        val permissions = PermissionCaps.of(player)
+        if (knownPermissions.put(player.uniqueId, permissions) != permissions) {
+            writeCaps(player.uniqueId, permissions.encode())
+        }
+        return permissions
+    }
+
+    private fun capsFrom(permissions: PermissionCaps?): OwnerCaps {
+        if (permissions?.admin == true) {
             return OwnerCaps(PlacementLimits.UNLIMITED, emptyMap(), emptyMap())
         }
         val current = settings.value
+        val total = if (current.limitsEnabled) {
+            maxOf(current.defaultLimit, permissions?.total?.takeIf { current.permissionOverrides } ?: 0)
+        } else {
+            PlacementLimits.UNLIMITED
+        }
         val typeCaps = if (current.typeLimitsEnabled) {
             current.typeLimits.mapValues { (type, cap) ->
-                if (current.typeLimitOverrides) highestPermissionLimit(player, "$TYPE_LIMIT_PREFIX${type.id}.", cap) else cap
+                maxOf(cap, permissions?.types?.get(type)?.takeIf { current.typeLimitOverrides } ?: 0)
             }
         } else {
             emptyMap()
         }
         val minionCaps = allTypes().mapNotNull { definition ->
-            definition.limit?.let { definition.id to highestPermissionLimit(player, "$MINION_LIMIT_PREFIX${definition.id}.", it) }
+            definition.limit?.let { definition.id to maxOf(it, permissions?.minions?.get(definition.id) ?: 0) }
         }.toMap()
-        return OwnerCaps(placementLimits.limitFor(player), typeCaps, minionCaps)
+        return OwnerCaps(total, typeCaps, minionCaps, known = permissions != null)
     }
 
-    private fun defaultCaps(): OwnerCaps {
-        val current = settings.value
-        return OwnerCaps(
-            total = if (current.limitsEnabled) current.defaultLimit else PlacementLimits.UNLIMITED,
-            types = if (current.typeLimitsEnabled) current.typeLimits else emptyMap(),
-            minions = allTypes().mapNotNull { definition -> definition.limit?.let { definition.id to it } }.toMap()
-        )
+    /** The limit numbers an owner's permissions grant, without any config default applied. */
+    private data class PermissionCaps(
+        val admin: Boolean,
+        val total: Int?,
+        val types: Map<MinionType, Int>,
+        val minions: Map<String, Int>
+    ) {
+        fun encode(): List<String> = listOf(SEEN) +
+            listOfNotNull(ADMIN.takeIf { admin }, total?.let { "$TOTAL$it" }) +
+            types.map { (type, cap) -> "$TYPE${type.id}:$cap" } +
+            minions.map { (id, cap) -> "$MINION$id:$cap" }
+
+        companion object {
+            private const val SEEN = "seen"
+            private const val ADMIN = "admin"
+            private const val TOTAL = "total:"
+            private const val TYPE = "type:"
+            private const val MINION = "minion:"
+
+            fun of(player: Player): PermissionCaps {
+                var total: Int? = null
+                val types = HashMap<MinionType, Int>()
+                val minions = HashMap<String, Int>()
+                for (info in player.effectivePermissions) {
+                    if (!info.value) {
+                        continue
+                    }
+                    val permission = info.permission
+                    when {
+                        permission.startsWith(LIMIT_PREFIX) ->
+                            permission.removePrefix(LIMIT_PREFIX).toIntOrNull()?.let { total = maxOf(total ?: 0, it) }
+                        permission.startsWith(TYPE_LIMIT_PREFIX) -> permission.removePrefix(TYPE_LIMIT_PREFIX).splitCap()
+                            ?.let { (id, cap) -> MinionType.entries.firstOrNull { it.id == id }?.let { types.merge(it, cap, ::maxOf) } }
+                        permission.startsWith(MINION_LIMIT_PREFIX) -> permission.removePrefix(MINION_LIMIT_PREFIX).splitCap()
+                            ?.let { (id, cap) -> minions.merge(id, cap, ::maxOf) }
+                    }
+                }
+                return PermissionCaps(player.hasPermission(ADMIN_PERMISSION), total, types, minions)
+            }
+
+            fun decode(entries: List<String>): PermissionCaps? {
+                if (SEEN !in entries) {
+                    return null
+                }
+                return PermissionCaps(
+                    admin = ADMIN in entries,
+                    total = entries.firstOrNull { it.startsWith(TOTAL) }?.removePrefix(TOTAL)?.toIntOrNull(),
+                    types = entries.filter { it.startsWith(TYPE) }.mapNotNull { it.removePrefix(TYPE).splitCap(":") }
+                        .mapNotNull { (id, cap) -> MinionType.entries.firstOrNull { it.id == id }?.let { it to cap } }.toMap(),
+                    minions = entries.filter { it.startsWith(MINION) }.mapNotNull { it.removePrefix(MINION).splitCap(":") }.toMap()
+                )
+            }
+
+            private fun String.splitCap(separator: String = "."): Pair<String, Int>? =
+                substringAfterLast(separator).toIntOrNull()?.let { substringBeforeLast(separator) to it }
+        }
     }
 
     private companion object {
         const val ADMIN_PERMISSION = "ecominions.admin"
+        const val LIMIT_PREFIX = "ecominions.limit."
         const val TYPE_LIMIT_PREFIX = "ecominions.type-limit."
         const val MINION_LIMIT_PREFIX = "ecominions.minion-limit."
     }

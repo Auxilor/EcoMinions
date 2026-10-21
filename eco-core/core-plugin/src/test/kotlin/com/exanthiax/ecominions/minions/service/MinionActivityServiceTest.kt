@@ -369,4 +369,31 @@ class MinionActivityServiceTest {
         service.reconcile(subject, now = 1_000L)
         assertFalse(service.needsReconcile(subject))
     }
+
+    @Test
+    fun `a minion loaded within its limits pays its window when it becomes limited`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        subject.state = subject.state.copy(shutdownTimestamp = 1_000L)
+        var limited = false
+        val service = service(online = emptySet(), offlineProgress = offlineProgress, limitBreach = { breach.takeIf { limited } })
+
+        service.noteLoaded(subject)
+        limited = true
+        service.reconcile(subject, now = 3_000L)
+
+        verify(exactly = 1) { offlineProgress.apply(subject, 1_000L, 3_000L) }
+    }
+
+    @Test
+    fun `resuming a minion over a limit pays nothing and marks it limited`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        subject.state = subject.state.copy(shutdownTimestamp = 1_000L)
+
+        service(offlineProgress = offlineProgress, limitBreach = { breach }).resume(subject, now = 9_000L)
+
+        verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
+        assertEquals(9_000L, subject.state.limitedSince)
+    }
 }

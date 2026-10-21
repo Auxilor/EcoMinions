@@ -67,9 +67,8 @@ class PlacementServiceTest {
     private val coal = MinionDefinitionFixture.build(id = "coal", limit = 2)
     private val definitions = listOf(MinionDefinitionFixture.build(), coal).associateBy { it.id }
     private val limits = MinionLimits(
-        settings, mockk<PlacementLimits> { every { limitFor(any()) } returns 5 }, placed,
-        { definitions[it] }, { definitions.values }, index, IslandLimits(settings, index) { null },
-        { null }, { null }
+        settings, placed, { definitions[it] }, { definitions.values }, index, IslandLimits(settings, index) { null },
+        { null }, { null }, { emptyList() }, { _, _ -> }
     )
     private val placement = PlacementService(
         minionService, mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
