@@ -52,6 +52,7 @@ import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCustomItems
 import com.exanthiax.ecominions.minions.integration.MinionDefinitionLoader
+import com.exanthiax.ecominions.minions.integration.MinionLimitsListener
 import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
 import com.exanthiax.ecominions.minions.integration.MinionPickListener
 import com.exanthiax.ecominions.minions.integration.MinionPistonListener
@@ -83,6 +84,7 @@ import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
+import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
 import com.exanthiax.ecominions.minions.service.MinionProtection
 import com.exanthiax.ecominions.minions.service.MinionService
@@ -322,10 +324,15 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
         onRegister = islandTracker::register,
-        onRetire = islandTracker::retire
+        onRetire = islandTracker::retire,
+        onPlacedChanged = { minionLimits.invalidate(it) }
     )
     private val minionAccess = MinionAccess(islandRegistry, minionSettings)
     private val islandLimits = IslandLimits(minionSettings, islandIndex) { Bukkit.getPlayer(it) }
+    private val minionLimits = MinionLimits(
+        minionSettings, limits, placedMinions, minionTypes::find, minionTypes::all,
+        islandIndex, islandLimits, islandRegistry::islandAt
+    ) { Bukkit.getPlayer(it) }
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
         triggerDispatch, events, minionAccess, islandRegistry, islandLimits, AntigriefManager::canPlaceBlock
@@ -377,7 +384,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
                 MinionHologram(messages, minionSettings, activityService),
                 ParticleEmitter(), minionSettings, activityService, regions
             ),
-            menuViewers
+            menuViewers,
+            minionLimits
         )
     )
 
@@ -446,6 +454,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
         customItems.registerAll()
         recipes.registerAll()
+        minionLimits.invalidateAll()
         minionService.refreshAll()
         minionService.hydrateLoadedWorlds()
         lifecycle.restart()
@@ -474,6 +483,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionSlayerListener(slayerActivity, minionService),
         MinionPistonListener(minionService),
         MinionOwnerListener(minionService, activityService, regions),
+        MinionLimitsListener(minionLimits),
         IslandMemberListener(minionService, activityService, islandRegistry, islandIndex, minionSettings, regions)
     )
 

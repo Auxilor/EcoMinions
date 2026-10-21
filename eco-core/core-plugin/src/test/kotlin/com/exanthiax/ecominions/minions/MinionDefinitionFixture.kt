@@ -46,10 +46,12 @@ object MinionDefinitionFixture {
         collection: CollectionSettings? = null,
         slayer: SlayerSettings? = null,
         fishing: FishingSettings? = null,
-        bypassAntigrief: Boolean = false
+        bypassAntigrief: Boolean = false,
+        limit: Int? = null,
+        name: String = "Stone Minion"
     ) = MinionDefinition(
         id = id,
-        name = "Stone Minion",
+        name = name,
         targetBlocks = targetBlocks,
         allowedUpgradeIds = allowedUpgradeIds,
         type = type,
@@ -77,6 +79,7 @@ object MinionDefinitionFixture {
         collection = collection,
         slayer = slayer,
         fishing = fishing,
-        bypassAntigrief = bypassAntigrief
+        bypassAntigrief = bypassAntigrief,
+        limit = limit
     )
 }
