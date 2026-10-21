@@ -46,6 +46,7 @@ type: miner # One of miner, farmer, woodcutter, slayer, fishing or collector.
 target-blocks: # Type keys go here; see the type's page.
   - COAL_ORE
 bypass-antigrief: false # If true, it is placed and works where its owner cannot build.
+limit: 2 # Optional. The most of this minion each player can place.
 
 # === Stats: level-one values before upgrades ===
 base-stats:
@@ -320,6 +321,14 @@ bypass-antigrief: false # If true, it is placed and works where its owner cannot
 A type with `bypass-antigrief: true` ignores land protection completely, so its owner can use it to grief claims. Give it only to admins.
 :::
 
+### Limit
+
+```yaml
+limit: 2 # Optional. The most of this minion each player can place.
+```
+
+Leave `limit` out for no cap. A player with `ecominions.minion-limit.<minion>.<number>` gets that cap instead when it is higher, e.g. `ecominions.minion-limit.coal.4`. What happens at the cap is set by `limits.over-limit` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config#limits).
+
 ### Stored XP
 
 Every minion keeps the XP it earns until its owner claims it from the stored XP button in its menu. The button is set under `gui.main.stored-xp` in `lang.yml`. Set `gui.main.show-stored-xp: false` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config) to hide it. Set `minion.xp.mode: orb` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config) to drop XP as orbs instead.
@@ -344,6 +353,12 @@ These work in holograms, `lang.yml`, menu titles and item names, `spawn-item.lor
 | `%speed%` | Ticks between actions, after upgrades and any burning fuel. |
 | `%efficiency%` | Ticks each action takes. |
 | `%stored_experience%` | XP the minion has stored that its owner has not claimed. |
+| `%limit_status%` | `gui.main.limit.status-active` or `status-limited` from `lang.yml`. |
+| `%limit_name%` | The limit holding the minion back: its name, its type, `total` or `island`. Empty when none does. |
+| `%limit_count%`, `%limit_max%` | Minions placed under that limit, and its cap. Empty when no limit holds it back. |
+| `%minion_count%`, `%minion_limit%` | The owner's minions of this ID, and their cap. |
+| `%type_count%`, `%type_limit%` | The owner's minions of this type, and their cap. |
+| `%player_count%`, `%player_limit%` | The owner's minions in total, and their cap. |
 
 Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%`, `%level_numeral%` and `%level_<offset>%`, see [How to Level a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-level-a-minion#internal-placeholders).
 
