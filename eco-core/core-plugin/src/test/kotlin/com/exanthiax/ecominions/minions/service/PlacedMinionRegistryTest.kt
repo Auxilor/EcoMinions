@@ -50,4 +50,14 @@ class PlacedMinionRegistryTest {
 
         assertEquals(0, registry.count(owner))
     }
+
+    @Test
+    fun `entries keep placement order`() {
+        val first = UUID.randomUUID()
+        val second = UUID.randomUUID()
+        registry.add(owner, first, "coal")
+        registry.add(owner, second, "stone")
+
+        assertEquals(listOf(PlacedEntry(first, "coal"), PlacedEntry(second, "stone")), registry.entries(owner))
+    }
 }

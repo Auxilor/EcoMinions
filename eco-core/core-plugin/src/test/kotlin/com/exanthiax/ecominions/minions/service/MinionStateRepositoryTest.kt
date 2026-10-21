@@ -27,6 +27,7 @@ class MinionStateRepositoryTest {
         every { fuelRemaining } returns NamespacedKey("ecominions", "fuel_remaining")
         every { storedExperience } returns NamespacedKey("ecominions", "stored_experience")
         every { killSample } returns NamespacedKey("ecominions", "kill_sample")
+        every { limitedSince } returns NamespacedKey("ecominions", "limited_ts")
     }
     private val repository = MinionStateRepository(keys) { id -> definition.takeIf { it.id == id } }
 
@@ -54,5 +55,14 @@ class MinionStateRepositoryTest {
         repository.write(container, MinionState(definition))
 
         assertTrue(repository.read(container)!!.killSample.isEmpty())
+    }
+
+    @Test
+    fun `limitedSince survives a write and read`() {
+        val container = FakePersistentDataContainer.create()
+
+        repository.write(container, MinionState(definition, limitedSince = 1_234L))
+
+        assertEquals(1_234L, repository.read(container)!!.limitedSince)
     }
 }

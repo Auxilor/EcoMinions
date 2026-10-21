@@ -42,6 +42,15 @@ interface MinionsManager {
      */
     fun islandLimit(island: MinionIsland): Int
 
+    /** @return How many minions of [type] [player] may place, or [Int.MAX_VALUE] if unlimited. */
+    fun typeLimit(player: OfflinePlayer, type: MinionType): Int
+
+    /** @return How many of [type] [player] may place, or [Int.MAX_VALUE] if unlimited. */
+    fun minionLimit(player: OfflinePlayer, type: MinionDefinition): Int
+
+    /** @return The limit holding [minion] back, or null when none does. Only ever set with `limits.over-limit: inactive`. */
+    fun limitBreach(minion: Minion): LimitBreach?
+
     /**
      * @return Whether [player] may open [minion]'s menu. Its owner always may;
      *         anyone else needs the island privilege where it stands.
@@ -62,7 +71,8 @@ interface MinionsManager {
      * @return Whether [minion] is working. A minion works while its owner is
      *         online or, with `islands.active-while-member-online` on, while any
      *         member of the island it stands on is; an idle one is credited when
-     *         it starts working again.
+     *         it starts working again. A minion held back by a limit is never
+     *         active, and is never credited for that time.
      */
     fun isActive(minion: Minion): Boolean
 

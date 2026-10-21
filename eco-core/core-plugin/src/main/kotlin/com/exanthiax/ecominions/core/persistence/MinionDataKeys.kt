@@ -19,6 +19,7 @@ class MinionDataKeys(plugin: EcoPlugin) {
     val inventory: NamespacedKey = NamespacedKey(plugin, "inventory")
     val minionUuid: NamespacedKey = NamespacedKey(plugin, "uuid")
     val shutdownTimestamp: NamespacedKey = NamespacedKey(plugin, "shutdown_ts")
+    val limitedSince: NamespacedKey = NamespacedKey(plugin, "limited_ts")
     val fuelId: NamespacedKey = NamespacedKey(plugin, "fuel_id")
     val fuelRemaining: NamespacedKey = NamespacedKey(plugin, "fuel_remaining")
     val seeded: NamespacedKey = NamespacedKey(plugin, "seeded")

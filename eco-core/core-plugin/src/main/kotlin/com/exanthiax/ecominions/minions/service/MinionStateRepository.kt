@@ -40,6 +40,7 @@ class MinionStateRepository(
             inventoryBytes = container.get(keys.inventory, MinionDataKeys.BYTES),
             uuid = container.get(keys.minionUuid, MinionDataKeys.STRING)?.toUuidOrNull(),
             shutdownTimestamp = container.get(keys.shutdownTimestamp, MinionDataKeys.LONG),
+            limitedSince = container.get(keys.limitedSince, MinionDataKeys.LONG),
             fuel = readStoredFuel(container),
             storedExperience = container.get(keys.storedExperience, MinionDataKeys.INT) ?: 0,
             killSample = container.get(keys.killSample, MinionDataKeys.BYTES)
@@ -59,6 +60,7 @@ class MinionStateRepository(
         state.uuid?.let { container.set(keys.minionUuid, MinionDataKeys.STRING, it.toString()) }
         state.inventoryBytes?.let { container.set(keys.inventory, MinionDataKeys.BYTES, it) }
         state.shutdownTimestamp?.let { container.set(keys.shutdownTimestamp, MinionDataKeys.LONG, it) }
+        state.limitedSince?.let { container.set(keys.limitedSince, MinionDataKeys.LONG, it) } ?: container.remove(keys.limitedSince)
 
         val fuel = state.fuel
         if (fuel != null && fuel.remainingMillis > 0L) {
@@ -128,6 +130,14 @@ class MinionStateRepository(
 
     fun clearShutdown(minion: Minion) {
         minion.entity.persistentDataContainer.remove(keys.shutdownTimestamp)
+    }
+
+    fun markLimited(minion: Minion, timestamp: Long) {
+        minion.entity.persistentDataContainer.set(keys.limitedSince, MinionDataKeys.LONG, timestamp)
+    }
+
+    fun clearLimited(minion: Minion) {
+        minion.entity.persistentDataContainer.remove(keys.limitedSince)
     }
 
     /** Marks a freshly spawned stand before its state has been written. */

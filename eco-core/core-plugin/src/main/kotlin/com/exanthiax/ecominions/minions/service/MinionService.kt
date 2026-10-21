@@ -35,7 +35,8 @@ class MinionService(
     private val regions: Regions,
     private val placed: PlacedMinionRegistry,
     private val onRegister: (Minion) -> Unit = {},
-    private val onRetire: (Minion) -> Unit = {}
+    private val onRetire: (Minion) -> Unit = {},
+    private val onPlacedChanged: (UUID) -> Unit = {}
 ) {
 
     private val byUuid: MutableMap<UUID, Minion> = ConcurrentHashMap()
@@ -68,6 +69,7 @@ class MinionService(
         minion.state.owner?.let { owner ->
             byOwner.computeIfAbsent(owner) { ConcurrentHashMap.newKeySet() }.add(minion.uuid)
             placed.add(owner, minion.uuid, minion.state.definition.id)
+            onPlacedChanged(owner)
         }
         onRegister(minion)
         return minion
@@ -75,7 +77,10 @@ class MinionService(
 
     /** Unregisters a minion that is leaving the world for good, so its owner no longer counts it. */
     fun retire(minion: Minion) {
-        minion.state.owner?.let { placed.remove(it, minion.uuid) }
+        minion.state.owner?.let {
+            placed.remove(it, minion.uuid)
+            onPlacedChanged(it)
+        }
         onRetire(minion)
         unregister(minion)
     }
@@ -84,7 +89,10 @@ class MinionService(
      * Forgets every minion [owner] placed except [keep]; any still in the world
      * record themselves again when they load.
      */
-    fun forgetPlaced(owner: UUID, keep: Set<UUID> = emptySet()) = placed.clear(owner, keep)
+    fun forgetPlaced(owner: UUID, keep: Set<UUID> = emptySet()) {
+        placed.clear(owner, keep)
+        onPlacedChanged(owner)
+    }
 
     fun unregister(minion: Minion) {
         byUuid.remove(minion.uuid)
@@ -98,10 +106,12 @@ class MinionService(
         minion.state.owner?.let {
             byOwner[it]?.remove(minion.uuid)
             placed.remove(it, minion.uuid)
+            onPlacedChanged(it)
         }
         owner?.let {
             byOwner.computeIfAbsent(it) { ConcurrentHashMap.newKeySet() }.add(minion.uuid)
             placed.add(it, minion.uuid, minion.state.definition.id)
+            onPlacedChanged(it)
         }
         updateState(minion, minion.state.copy(owner = owner))
 

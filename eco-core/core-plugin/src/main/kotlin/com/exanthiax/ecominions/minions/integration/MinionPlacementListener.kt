@@ -10,6 +10,8 @@ import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.ui.MainMenu
+import com.exanthiax.ecominions.minions.ui.displayName
+import com.exanthiax.ecominions.minions.ui.limitName
 import com.willfp.eco.util.asAudience
 import com.willfp.libreforge.toDispatcher
 import com.willfp.libreforge.triggers.TriggerData
@@ -72,10 +74,34 @@ class MinionPlacementListener(
                     messages.line("messages.limit-reached-island", TemplateContext.of("limit" to result.limit))
                 )
 
+            is PlacementService.PlaceResult.TypeLimitReached ->
+                player.sendMessage(
+                    messages.line(
+                        "messages.limit-reached-type",
+                        TemplateContext.of("type" to result.type.displayName(), "limit" to result.limit)
+                    )
+                )
+
+            is PlacementService.PlaceResult.MinionLimitReached ->
+                player.sendMessage(
+                    messages.line(
+                        "messages.limit-reached-minion",
+                        TemplateContext.of("minion_name" to result.definition.name, "limit" to result.limit)
+                    )
+                )
+
             is PlacementService.PlaceResult.Placed -> {
                 item.amount -= 1
                 celebrate(result.minion)
                 player.sendMessage(messages.line("messages.placed"))
+                result.limited?.let { breach ->
+                    player.sendMessage(
+                        messages.line(
+                            "messages.placed-inactive",
+                            TemplateContext.of("limit_name" to messages.limitName(breach.scope, state.definition))
+                        )
+                    )
+                }
             }
 
             is PlacementService.PlaceResult.Cancelled -> Unit

@@ -52,6 +52,7 @@ import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCustomItems
 import com.exanthiax.ecominions.minions.integration.MinionDefinitionLoader
+import com.exanthiax.ecominions.minions.integration.MinionLimitsListener
 import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
 import com.exanthiax.ecominions.minions.integration.MinionPickListener
 import com.exanthiax.ecominions.minions.integration.MinionPistonListener
@@ -83,6 +84,7 @@ import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
+import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
 import com.exanthiax.ecominions.minions.service.MinionProtection
 import com.exanthiax.ecominions.minions.service.MinionService
@@ -166,7 +168,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val regions = Regions(this)
 
     // Settings
-    private val minionSettingsLoader = MinionSettingsLoader(configYml)
+    private val minionSettingsLoader = MinionSettingsLoader(configYml, logger::warning)
     private val menuSettingsLoader = MenuSettingsLoader(configYml)
     private val upgradeMenuSettingsLoader = UpgradeMenuSettingsLoader(configYml)
     private val minionSettings = SettingsHolder(minionSettingsLoader.load())
@@ -286,7 +288,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val activityService = MinionActivityService(
         repository, offlineProgress, minionSettings,
         { Bukkit.getPlayer(it) != null },
-        { islandMemberCache.membersOf(it.uuid) }
+        { islandMemberCache.membersOf(it.uuid) },
+        { minionLimits.breachOf(it) }
     )
     private val placedMinionsKey = PersistentDataKey(
         namespacedKeyFactory.create("placed_minions"),
@@ -321,14 +324,29 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
-        onRegister = islandTracker::register,
-        onRetire = islandTracker::retire
+        onRegister = {
+            islandTracker.register(it)
+            activityService.noteLoaded(it)
+        },
+        onRetire = islandTracker::retire,
+        onPlacedChanged = { minionLimits.invalidate(it) }
     )
     private val minionAccess = MinionAccess(islandRegistry, minionSettings)
     private val islandLimits = IslandLimits(minionSettings, islandIndex) { Bukkit.getPlayer(it) }
+    private val limitCapsKey = PersistentDataKey(
+        namespacedKeyFactory.create("limit_caps"),
+        PersistentDataKeyType.STRING_LIST,
+        emptyList()
+    )
+    private val minionLimits = MinionLimits(
+        minionSettings, placedMinions, minionTypes::find, minionTypes::all,
+        islandIndex, islandLimits, islandRegistry::islandAt, { Bukkit.getPlayer(it) },
+        readCaps = { PlayerProfile.load(it).read(limitCapsKey) },
+        writeCaps = { owner, entries -> PlayerProfile.load(owner).write(limitCapsKey, entries) }
+    )
     private val placementService = PlacementService(
-        minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
-        triggerDispatch, events, minionAccess, islandRegistry, islandLimits, AntigriefManager::canPlaceBlock
+        minionService, minionFactory, itemFactory, repository, minionLimits, worlds, minionSettings,
+        triggerDispatch, events, minionAccess, islandRegistry, AntigriefManager::canPlaceBlock
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
@@ -347,7 +365,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val menuViewers = MenuViewers { menu, player -> regions.on(player) { menu.refresh(player) } }
     private val mainMenu = MainMenu(
         menuSettings, messages, chrome, MinionStorageView(messages), placementService,
-        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions
+        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions, minionLimits
     )
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
 
@@ -356,7 +374,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionsManagerImpl(
             minionService, placementService, itemFactory, minionItems, collector,
             sellService, repository, activityService, xpService, compactService, events, regions, minionAccess,
-            islandLimits
+            islandLimits, minionLimits
         ) { Bukkit.getOfflinePlayer(it) },
         UpgradesManagerImpl(upgradeService, purchases, minionService),
         FuelsManagerImpl(fuelService, minionFuelService, minionService),
@@ -377,7 +395,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
                 MinionHologram(messages, minionSettings, activityService),
                 ParticleEmitter(), minionSettings, activityService, regions
             ),
-            menuViewers
+            menuViewers,
+            minionLimits
         )
     )
 
@@ -446,6 +465,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
         customItems.registerAll()
         recipes.registerAll()
+        minionLimits.invalidateAll()
         minionService.refreshAll()
         minionService.hydrateLoadedWorlds()
         lifecycle.restart()
@@ -474,6 +494,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionSlayerListener(slayerActivity, minionService),
         MinionPistonListener(minionService),
         MinionOwnerListener(minionService, activityService, regions),
+        MinionLimitsListener(minionLimits),
         IslandMemberListener(minionService, activityService, islandRegistry, islandIndex, minionSettings, regions)
     )
 
@@ -501,7 +522,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private fun registerPlaceholders() {
         placeholderRegistrar.registerAll(
             listOf(
-                MinionPlaceholders(minionService, fuelService),
+                MinionPlaceholders(minionService, fuelService, minionLimits, messages),
                 UpgradePlaceholders(),
                 levellingPlaceholders
             )

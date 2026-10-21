@@ -111,6 +111,10 @@ class Minion(
     var hologram: TextDisplay? = null
         internal set
 
+    /** Whether a reconcile has found this minion within its limits since it was loaded. */
+    var seenAllowed: Boolean = false
+        internal set
+
     override var burningFuelId: String? = null
         internal set
 

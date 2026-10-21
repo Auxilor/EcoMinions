@@ -12,6 +12,7 @@ import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MenuSettings
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.PlacementService
@@ -52,7 +53,8 @@ class MainMenu(
     private val upgradeList: UpgradeListMenu,
     private val viewers: MenuViewers,
     private val events: EventDispatcher,
-    private val regions: Regions
+    private val regions: Regions,
+    private val limits: MinionLimits
 ) {
     fun open(player: Player, minion: Minion) {
         if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.MAIN))) {
@@ -86,6 +88,9 @@ class MainMenu(
             setSlot(rows, 5, pickupSlot(player, minion))
             setSlot(rows, 7, upgradesSlot(player, minion))
             setSlot(rows, 8, infoSlot(minion))
+            if (limits.inUse()) {
+                setSlot(rows, 3, limitSlot(minion))
+            }
             if (current.showStoredXp && messages.has("gui.main.stored-xp.name")) {
                 setSlot(rows, 6, storedExperienceSlot(player, minion))
             }
@@ -311,6 +316,16 @@ class MainMenu(
                 menu.refresh(player)
             }
         }
+
+    private fun limitSlot(minion: Minion): Slot =
+        slot({ _, _ ->
+            val limited = minion.state.limitedSince != null
+            chrome.named(
+                if (limited) Material.BARRIER else Material.PAPER,
+                messages.line("gui.main.limit.name", context(minion)),
+                messages.lines(if (limited) "gui.main.limit.limited-lore" else "gui.main.limit.active-lore", context(minion))
+            )
+        })
 
     private fun infoSlot(minion: Minion): Slot =
         slot({ _, _ ->

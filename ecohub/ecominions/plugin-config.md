@@ -14,6 +14,10 @@ This is the server-wide config for EcoMinions, `config.yml`, found at `/plugins/
 disabled-in-worlds: []
 
 limits:
+  # What happens when a placement would go past any limit below.
+  # prevent: the placement is refused.
+  # inactive: the minion is placed, and the newest-placed minions over the limit stay idle until there is room.
+  over-limit: prevent
   per-player:
     enabled: true
     default: 5
@@ -22,6 +26,12 @@ limits:
     enabled: false # If islands have a cap on placed minions. Needs an island plugin.
     default: 10 # The cap for every island.
     permission-overrides: true # If ecominions.island-limit.<number> on the island owner can raise the island's cap.
+  per-type:
+    enabled: false # If each player has a cap per minion type.
+    permission-overrides: true # If ecominions.type-limit.<type>.<number> can raise a player's cap for that type.
+    types: # The cap for each type. A type left out has no cap.
+      miner: 10
+      farmer: 10
 
 islands:
   privileges: true # If island ranks decide who may place, use and pick up minions. Needs an island plugin.
@@ -108,6 +118,17 @@ gui:
 `limits.per-player` caps how many minions one player can have placed. `default` is the cap for everyone. With `permission-overrides: true`, a player with `ecominions.limit.<number>` gets that cap instead when it is higher, e.g. `ecominions.limit.10`. Players with `ecominions.admin` have no cap. See [Commands and Permissions](https://hub.auxilor.io/wiki/ecominions/commands-and-permissions).
 
 `limits.per-island` caps how many minions one island can hold, whoever placed them. It is off by default and needs an island plugin, see [Supported Plugins](https://hub.auxilor.io/wiki/ecominions/supported-plugins). `default` is the cap for every island. With `permission-overrides: true`, an island whose owner has `ecominions.island-limit.<number>` gets that cap instead when it is higher. Players with `ecominions.admin` skip this cap too. When both limits are on, both apply. Turn `per-player` off for an island-only cap. A Lands land counts as an island.
+
+`limits.per-type` caps how many minions of each `type` one player can have placed, e.g. at most 10 miners of any kind. It is off by default. Each key under `types` is a type (`miner`, `farmer`, `woodcutter`, `slayer`, `fishing` or `collector`); a type left out has no cap. With `permission-overrides: true`, a player with `ecominions.type-limit.<type>.<number>` gets that cap instead when it is higher, e.g. `ecominions.type-limit.miner.15`. A single minion can have its own cap too, with `limit` in its config, see [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion#limit).
+
+Every limit counts the minions of the minion's owner, whoever places it. `limits.over-limit` decides what happens past any limit:
+
+| Value | What happens |
+| --- | --- |
+| `prevent` | The placement is refused with a message. Minions already placed keep working if a cap is lowered. |
+| `inactive` | The minion is placed, but the newest-placed minions over a limit stay idle and earn nothing until there is room. Picking one up lets the next one start. Lowering a cap idles the newest extra minions. |
+
+A minion idled by one limit does not use up room under the other player limits. Idle minions show `hologram.limited` in `lang.yml`, and their menu has a limits button that says which limit holds them back.
 
 ### Islands
 

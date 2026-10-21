@@ -70,6 +70,11 @@ class MinionHologram(
             .takeWhile { messages.has(it) }
             .forEach { lines += messages.line(it, context) }
 
+        if (activity.isLimited(minion)) {
+            lines += messages.line("hologram.limited", context)
+            return lines.joinToString("\n")
+        }
+
         if (!activity.isActive(minion)) {
             lines += messages.line("hologram.idle", context)
             return lines.joinToString("\n")
