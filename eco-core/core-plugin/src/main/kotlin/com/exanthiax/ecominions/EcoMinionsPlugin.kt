@@ -166,7 +166,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val regions = Regions(this)
 
     // Settings
-    private val minionSettingsLoader = MinionSettingsLoader(configYml)
+    private val minionSettingsLoader = MinionSettingsLoader(configYml, logger::warning)
     private val menuSettingsLoader = MenuSettingsLoader(configYml)
     private val upgradeMenuSettingsLoader = UpgradeMenuSettingsLoader(configYml)
     private val minionSettings = SettingsHolder(minionSettingsLoader.load())

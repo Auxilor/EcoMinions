@@ -42,7 +42,9 @@ class MinionDefinition(
     /** A fishing minion's water and catch table. Null for every other type. */
     val fishing: FishingSettings? = null,
     /** Whether this type is placed and works where its owner cannot build. */
-    val bypassAntigrief: Boolean = false
+    val bypassAntigrief: Boolean = false,
+    /** The most of this minion each player can place, or null for no cap. */
+    val limit: Int? = null
 ) : ApiMinionDefinition {
 
     /** Preview value shown before a minion's actual level is known, e.g. in the type-select menu. */
