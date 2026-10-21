@@ -6,9 +6,8 @@ data class PlaceResult(
     /** The placed minion, or null unless [status] is [Status.PLACED]. */
     val minion: Minion?,
     /**
-     * The limit that was hit, or 0 unless [status] is [Status.LIMIT_REACHED] or
-     * [Status.ISLAND_LIMIT_REACHED]. For the first it is the player's limit, for
-     * the second the island's.
+     * The limit that was hit, or 0 unless [status] is one of the `*_LIMIT_REACHED` statuses:
+     * the owner's limit, the island's, the owner's limit for the type, or for the minion.
      */
     val limit: Int
 ) {
@@ -19,6 +18,12 @@ data class PlaceResult(
 
         /** The island the minion would stand on holds as many minions as it may. */
         ISLAND_LIMIT_REACHED,
+
+        /** The owner has as many minions of this [MinionType] as they may. */
+        TYPE_LIMIT_REACHED,
+
+        /** The owner has as many of this minion as they may. */
+        MINION_LIMIT_REACHED,
 
         /** The player lacks the island privilege to place a minion there. */
         NO_ISLAND_PERMISSION,

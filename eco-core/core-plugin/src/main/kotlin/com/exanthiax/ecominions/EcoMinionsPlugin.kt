@@ -334,8 +334,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         islandIndex, islandLimits, islandRegistry::islandAt
     ) { Bukkit.getPlayer(it) }
     private val placementService = PlacementService(
-        minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
-        triggerDispatch, events, minionAccess, islandRegistry, islandLimits, AntigriefManager::canPlaceBlock
+        minionService, minionFactory, itemFactory, repository, minionLimits, worlds, minionSettings,
+        triggerDispatch, events, minionAccess, islandRegistry, AntigriefManager::canPlaceBlock
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)

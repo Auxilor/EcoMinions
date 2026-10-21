@@ -198,6 +198,9 @@ class MinionsManagerImpl(
         is PlacementService.PlaceResult.LimitReached -> PlaceResult(PlaceResult.Status.LIMIT_REACHED, null, limit)
         is PlacementService.PlaceResult.IslandLimitReached ->
             PlaceResult(PlaceResult.Status.ISLAND_LIMIT_REACHED, null, limit)
+        is PlacementService.PlaceResult.TypeLimitReached -> PlaceResult(PlaceResult.Status.TYPE_LIMIT_REACHED, null, limit)
+        is PlacementService.PlaceResult.MinionLimitReached ->
+            PlaceResult(PlaceResult.Status.MINION_LIMIT_REACHED, null, limit)
         PlacementService.PlaceResult.Protected -> PlaceResult(PlaceResult.Status.PROTECTED, null, 0)
         PlacementService.PlaceResult.NoIslandPermission ->
             PlaceResult(PlaceResult.Status.NO_ISLAND_PERMISSION, null, 0)

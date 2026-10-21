@@ -68,16 +68,22 @@ class MinionLimits(
         LimitScope.MINION -> placed.count(owner, definition.id)
     }
 
-    /** The first limit placing one more [definition] for [owner] would pass, in the order player, island, type, minion. */
-    fun checkPlacement(placer: Player, owner: UUID, definition: MinionDefinition, island: MinionIsland?): LimitBreach? {
+    /**
+     * The first limit placing one more [definition] for [owner] would pass, in the order player, island, type, minion.
+     *
+     * @param island Looked up only when island limits are on.
+     */
+    fun checkPlacement(placer: Player, owner: UUID, definition: MinionDefinition, island: () -> MinionIsland?): LimitBreach? {
         val caps = capsFor(owner)
         val current = settings.value
         val placedCount = countOf(owner, LimitScope.PLAYER, definition)
         if (placedCount >= caps.total) {
             return LimitBreach(LimitScope.PLAYER, placedCount + 1, caps.total)
         }
-        if (current.islandLimitsEnabled && island != null && !placer.hasPermission(ADMIN_PERMISSION) && islandLimits.isFull(island)) {
-            return LimitBreach(LimitScope.ISLAND, islandIndex.count(island) + 1, islandLimits.limitFor(island))
+        if (current.islandLimitsEnabled && !placer.hasPermission(ADMIN_PERMISSION)) {
+            island()?.takeIf { islandLimits.isFull(it) }?.let {
+                return LimitBreach(LimitScope.ISLAND, islandIndex.count(it) + 1, islandLimits.limitFor(it))
+            }
         }
         val typeCount = countOf(owner, LimitScope.TYPE, definition)
         if (typeCount >= caps.typeCap(definition.type)) {

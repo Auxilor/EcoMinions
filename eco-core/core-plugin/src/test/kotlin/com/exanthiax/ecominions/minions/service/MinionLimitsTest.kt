@@ -239,7 +239,7 @@ class MinionLimitsTest {
         place(coal)
         place(coal)
 
-        assertEquals(LimitBreach(LimitScope.PLAYER, 3, 2), limits.checkPlacement(placer, owner, coal, null))
+        assertEquals(LimitBreach(LimitScope.PLAYER, 3, 2), limits.checkPlacement(placer, owner, coal) { null })
     }
 
     @Test
@@ -249,8 +249,8 @@ class MinionLimitsTest {
         place(coal)
         place(coal)
 
-        assertEquals(LimitBreach(LimitScope.TYPE, 3, 2), limits.checkPlacement(placer, owner, coal, null))
-        assertNull(limits.checkPlacement(placer, owner, wheat, null))
+        assertEquals(LimitBreach(LimitScope.TYPE, 3, 2), limits.checkPlacement(placer, owner, coal) { null })
+        assertNull(limits.checkPlacement(placer, owner, wheat) { null })
     }
 
     @Test
@@ -260,8 +260,8 @@ class MinionLimitsTest {
         place(coal)
         place(coal)
 
-        assertEquals(LimitBreach(LimitScope.MINION, 3, 2), limits.checkPlacement(placer, owner, coal, null))
-        assertNull(limits.checkPlacement(placer, placer.uniqueId, coal, null))
+        assertEquals(LimitBreach(LimitScope.MINION, 3, 2), limits.checkPlacement(placer, owner, coal) { null })
+        assertNull(limits.checkPlacement(placer, placer.uniqueId, coal) { null })
     }
 
     @Test

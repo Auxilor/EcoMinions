@@ -9,6 +9,9 @@ messages:
   picked-up: "&7Minion picked up."
   limit-reached-player: "&cYou have reached your minion limit (&e%limit%&c)."
   limit-reached-island: "&cThis island has reached its minion limit (&e%limit%&c)."
+  limit-reached-type: "&cYou have reached your %type% minion limit (&e%limit%&c)."
+  limit-reached-minion: "&cYou have reached your %minion_name% limit (&e%limit%&c)."
+  placed-inactive: "&eThis minion is over your %limit_name% limit, so it will stay inactive until you have room."
   world-disabled: "&cMinions are disabled in this world."
   cannot-place-here: "&cYou can't place a minion here."
   not-owner: "&cYou are not the owner of this minion."
@@ -46,6 +49,10 @@ hologram:
   no-mobs: "&e&lNo Mobs in %diameter%x%height%x%diameter% Area"
   no-water: "&e&lNo Water in %diameter%x%height%x%diameter% Area"
   idle: "&7&lIDLE &8- &7Owner offline"
+
+limit-names:
+  player: "total"
+  island: "island"
 
 gui:
   main:
