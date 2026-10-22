@@ -129,6 +129,11 @@ gui:
         row: 6
         column: 2
       locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    limit: # Says which limit holds an idle minion back. Only shown when a limit is on. Its item is a barrier while idle and paper otherwise.
+      location:
+        row: 6
+        column: 3
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     fuel: # Adds fuel. While fuel burns, it shows that fuel's item instead.
       item: coal
       location:
@@ -328,7 +333,7 @@ Each menu has a `title` and `rows`: `main` is a minion's menu, `upgrade-list` it
 | `custom-slots` | all | Extra items placed in the menu, each with an `item`, a `location` and optional click actions. A custom slot replaces a built-in item in the same slot, except the page buttons in `type-select`, which stay on top. |
 | `title-item` | `main`, `upgrade` | The item at the top. In `upgrade` only its location can be changed, because it shows the upgrade's own icon. |
 | `storage-area` | `main` | Where the minion's stored items are shown. Empty slots show `gui.filler.material` from `lang.yml`. |
-| `collect-all`, `fuel`, `pickup`, `stored-xp`, `upgrades`, `info` | `main` | The minion's buttons. While fuel burns, the fuel button shows that fuel's item. |
+| `collect-all`, `limit`, `fuel`, `pickup`, `stored-xp`, `upgrades`, `info` | `main` | The minion's buttons. While fuel burns, the fuel button shows that fuel's item. `limit` only shows when a limit is on, and its item cannot be changed. |
 | `type-area` | `type-select` | Where the minions are shown. Minions that do not fit go on the next page. |
 | `previous-page`, `next-page` | `type-select` | The page buttons. Each one is hidden when there is no page in its direction. |
 | `upgrade-area` | `upgrade-list` | Where the upgrades are shown. Upgrades that do not fit are not shown. |
