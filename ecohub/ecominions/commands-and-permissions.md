@@ -24,7 +24,9 @@ This page lists every EcoMinions command and permission, so you can hand out min
 | --- | --- |
 | `ecominions.limit.<number>` | Raises a player's minion limit to `<number>`, e.g. `ecominions.limit.10`. The highest one a player has wins. Needs `limits.per-player.permission-overrides: true` |
 | `ecominions.island-limit.<number>` | Raises the minion limit of every island the holder owns to `<number>`, e.g. `ecominions.island-limit.20`. The highest one wins. Needs `limits.per-island.permission-overrides: true` |
-| `ecominions.admin` | No minion limit, and can pick up other players' minions. Skips every island check and both limits |
+| `ecominions.type-limit.<type>.<number>` | Raises a player's limit for one minion type to `<number>`, e.g. `ecominions.type-limit.miner.15`. The highest one wins. Needs `limits.per-type.permission-overrides: true` |
+| `ecominions.minion-limit.<minion>.<number>` | Raises a player's limit for one minion to `<number>`, e.g. `ecominions.minion-limit.coal.4`. The highest one wins. Only applies to a minion with `limit` in its config |
+| `ecominions.admin` | No minion limit, and can pick up other players' minions. Skips every island check and every limit |
 | `ecominions.command.*` | Permission to use every command |
 | `ecominions.*` | Every permission above |
 

@@ -28,7 +28,9 @@ class MinionMiningLoop(
     override fun tick() {
         val now = Bukkit.getCurrentTick().toLong()
         for (minion in minions.all()) {
-            if (minion.state.owner == null || minion.state.shutdownTimestamp != null && !activity.isActive(minion)) {
+            if (minion.state.owner == null ||
+                minion.state.shutdownTimestamp != null && !activity.isActive(minion) && !activity.needsReconcile(minion)
+            ) {
                 continue
             }
             regions.on(minion.entity) {

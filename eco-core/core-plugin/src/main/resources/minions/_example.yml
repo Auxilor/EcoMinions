@@ -21,6 +21,10 @@ type: miner
 # get this minion.
 bypass-antigrief: false
 
+# (Optional) The most of this minion each player can place. Leave it out for no cap.
+# The permission ecominions.minion-limit.<minion id>.<number> can raise it.
+# limit: 2
+
 # The blocks this minion works, for miners, farmers and woodcutters.
 # A woodcutter lists its log here. A farmer lists the crop block, e.g. WHEAT or
 # BEETROOTS, not the seed item.

@@ -13,6 +13,10 @@ EcoMinions exposes placeholders you can use anywhere PlaceholderAPI is read, e.g
 | `%ecominions_count_<minion>%` | The amount of a given minion a player has placed |
 | `%ecominions_total_levels%` | The levels of every minion a player has placed, added together |
 | `%ecominions_limit%` | The most minions a player can place, or `infinity` from `lang.yml` with no limit |
+| `%ecominions_limit_<minion>%` | The most of a given minion a player can place, or `infinity` |
+| `%ecominions_count_type_<type>%` | The amount of minions of a given type a player has placed, e.g. `%ecominions_count_type_miner%` |
+| `%ecominions_limit_type_<type>%` | The most minions of a given type a player can place, or `infinity` |
+| `%ecominions_inactive%` | The amount of a player's minions held back by a limit. Always `0` unless `limits.over-limit` is `inactive` |
 
 :::info
 The placeholders inside a minion's own holograms, menus and spawn item, such as `%level%` and `%used%`, are a separate, non-PlaceholderAPI mechanism. See [Configuring a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-minion#internal-placeholders) for those.

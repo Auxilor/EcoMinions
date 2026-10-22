@@ -12,6 +12,7 @@ import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MenuSettings
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.PlacementService
@@ -58,7 +59,8 @@ class MainMenu(
     private val upgradeList: UpgradeListMenu,
     private val viewers: MenuViewers,
     private val events: EventDispatcher,
-    private val regions: Regions
+    private val regions: Regions,
+    private val limits: MinionLimits
 ) {
     fun open(player: Player, minion: Minion) {
         if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.MAIN))) {
@@ -99,6 +101,9 @@ class MainMenu(
             setButton(current.mainSection, "pickup", rows, 5) { section -> pickupSlot(player, minion, section) }
             setButton(current.mainSection, "upgrades", rows, 7) { section -> upgradesSlot(player, minion, section) }
             setButton(current.mainSection, "info", rows, 8) { section -> infoSlot(minion, section) }
+            if (limits.inUse()) {
+                setButton(current.mainSection, "limit", rows, 3) { limitSlot(minion) }
+            }
             if (current.showStoredXp && messages.has("gui.main.stored-xp.name")) {
                 setButton(current.mainSection, "stored-xp", rows, 6) { section ->
                     storedExperienceSlot(player, minion, section)
@@ -327,6 +332,16 @@ class MainMenu(
                 menu.refresh(player)
             }
         }
+
+    private fun limitSlot(minion: Minion): Slot =
+        slot({ _, _ ->
+            val limited = minion.state.limitedSince != null
+            chrome.named(
+                if (limited) Material.BARRIER else Material.PAPER,
+                messages.line("gui.main.limit.name", context(minion)),
+                messages.lines(if (limited) "gui.main.limit.limited-lore" else "gui.main.limit.active-lore", context(minion))
+            )
+        })
 
     private fun infoSlot(minion: Minion, section: Config): Slot =
         slot({ _, _ ->
