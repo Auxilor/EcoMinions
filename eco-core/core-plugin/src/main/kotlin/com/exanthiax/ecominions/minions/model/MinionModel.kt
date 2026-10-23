@@ -8,8 +8,8 @@ data class MinionModel(
     val workingAnimation: String?,
     val fullAnimation: String?
 ) {
-    enum class Provider(val configName: String, val pluginName: String) {
-        MODEL_ENGINE("model-engine", "ModelEngine"),
-        BETTER_MODEL("better-model", "BetterModel")
+    enum class Provider(val configName: String) {
+        MODEL_ENGINE("model-engine"),
+        BETTER_MODEL("better-model")
     }
 }

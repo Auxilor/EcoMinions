@@ -33,9 +33,6 @@ dependencies {
     compileOnly("world.bentobox:bentobox:2.7.0")
     compileOnly("com.iridium:IridiumSkyblock:4.1.5")
     compileOnly("com.github.angeschossen:LandsAPI:7.25.4") { isTransitive = false }
-    compileOnly("io.github.toxicity188:bettermodel-bukkit-api:2.2.0") {
-        exclude("*", "kotlin-stdlib")
-    }
 
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     testImplementation("com.willfp:eco:$ecoVersion")

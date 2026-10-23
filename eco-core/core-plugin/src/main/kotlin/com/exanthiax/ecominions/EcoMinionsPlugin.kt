@@ -66,8 +66,7 @@ import com.exanthiax.ecominions.minions.integration.PaperMinionPickListener
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
 import com.exanthiax.ecominions.minions.integration.items.EcoItemsIntegrationService
-import com.exanthiax.ecominions.minions.integration.model.BetterModelModelProvider
-import com.exanthiax.ecominions.minions.integration.model.ModelEngineModelProvider
+import com.exanthiax.ecominions.minions.integration.model.EcoModelProvider
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
@@ -136,6 +135,7 @@ import com.willfp.eco.core.data.ServerProfile
 import com.willfp.eco.core.data.keys.PersistentDataKey
 import com.willfp.eco.core.data.keys.PersistentDataKeyType
 import com.willfp.eco.core.integrations.antigrief.AntigriefManager
+import com.willfp.eco.core.integrations.model.ModelManager
 import com.willfp.eco.core.items.Items
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
@@ -451,12 +451,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             }
                 .onFailure { logger.warning("Lands support disabled: ${it.message}") }
         }
-        if (Bukkit.getPluginManager().isPluginEnabled(MinionModel.Provider.MODEL_ENGINE.pluginName)) {
-            minionModels.register(ModelEngineModelProvider())
-        }
-        if (Bukkit.getPluginManager().isPluginEnabled(MinionModel.Provider.BETTER_MODEL.pluginName)) {
-            minionModels.register(BetterModelModelProvider())
-        }
+        MinionModel.Provider.entries
+            .filter { ModelManager.getIntegration(it.configName) != null }
+            .forEach { minionModels.register(EcoModelProvider(it)) }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)
         shopIntegration.init()
         ecoItemsIntegration.init()
