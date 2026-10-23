@@ -24,7 +24,7 @@ class ModelEngineModelProvider : MinionModelProvider {
             if (handler.isPlayingAnimation(animation)) {
                 continue
             }
-            handler.getAnimation(animation)?.let { handler.playAnimation(it, false) }
+            handler.getAnimation(animation)?.let { handler.playAnimation(it, false, true) }
         }
     }
 
