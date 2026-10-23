@@ -7,16 +7,15 @@ import org.bukkit.entity.ArmorStand
 class ModelEngineModelProvider : MinionModelProvider {
     override val provider = MinionModel.Provider.MODEL_ENGINE
 
-    override fun attach(stand: ArmorStand, id: String): Boolean {
-        if (ModelEngineManager.getModeledEntity(stand)?.models?.containsKey(id) == true) {
-            return true
-        }
+    override fun attach(stand: ArmorStand, id: String): Boolean =
+        ModelEngineManager.getModeledEntity(stand)?.models?.containsKey(id) == true || addModel(stand, id)
 
+    private fun addModel(stand: ArmorStand, id: String): Boolean {
         val model = ModelEngineManager.createActiveModel(id) ?: return false
-        val modeled = ModelEngineManager.createModeledEntity(stand) ?: return false
-        modeled.addModel(model)
-        modeled.isBaseEntityVisible = false
-        return true
+        return ModelEngineManager.createModeledEntity(stand)?.apply {
+            addModel(model)
+            isBaseEntityVisible = false
+        } != null
     }
 
     override fun play(stand: ArmorStand, animation: String) {

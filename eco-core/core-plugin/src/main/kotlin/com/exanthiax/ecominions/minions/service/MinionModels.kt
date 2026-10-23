@@ -19,9 +19,8 @@ class MinionModels {
 
     fun attach(minion: Minion) {
         val model = minion.state.definition.model ?: return
-        val provider = providers[model.provider] ?: return
         val stand = minion.entity
-        if (!provider.attach(stand, model.id)) {
+        if (providers[model.provider]?.attach(stand, model.id) != true) {
             return
         }
 
@@ -34,20 +33,18 @@ class MinionModels {
     /** @return If [minion] is drawn by a model rather than its stand. */
     fun animate(minion: Minion, state: Minion.AnimationState): Boolean {
         val model = minion.model ?: return false
-        val provider = providers[model.provider] ?: return false
 
         val next = when (state) {
             Minion.AnimationState.IDLE, Minion.AnimationState.BLOCKED -> model.idleAnimation
             Minion.AnimationState.MINING -> model.workingAnimation
             Minion.AnimationState.FULL -> model.fullAnimation
         }
-        if (next == minion.playingAnimation) {
-            return true
+        if (next != minion.playingAnimation) {
+            val provider = providers.getValue(model.provider)
+            minion.playingAnimation?.let { provider.stop(minion.entity, it) }
+            next?.let { provider.play(minion.entity, it) }
+            minion.playingAnimation = next
         }
-
-        minion.playingAnimation?.let { provider.stop(minion.entity, it) }
-        next?.let { provider.play(minion.entity, it) }
-        minion.playingAnimation = next
         return true
     }
 }

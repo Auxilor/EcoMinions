@@ -526,16 +526,19 @@ class MinionDefinitionLoader(
         internal fun model(section: Config?, context: LoadContext): MinionModel? {
             val id = section?.getStringOrNull("id")?.takeIf { it.isNotBlank() } ?: return null
             val pluginName = section.getString("plugin")
-            val provider = MinionModel.Provider.entries.firstOrNull { it.configName.equals(pluginName, ignoreCase = true) }
-                ?: return context.unknown("model.plugin", pluginName, MinionModel.Provider.entries.map { it.configName })
 
-            return MinionModel(
-                provider = provider,
-                id = id,
-                idleAnimation = section.getStringOrNull("animations.idle")?.takeIf { it.isNotBlank() },
-                workingAnimation = section.getStringOrNull("animations.working")?.takeIf { it.isNotBlank() },
-                fullAnimation = section.getStringOrNull("animations.full")?.takeIf { it.isNotBlank() }
-            )
+            return MinionModel.Provider.entries
+                .firstOrNull { it.configName.equals(pluginName, ignoreCase = true) }
+                ?.let { provider ->
+                    MinionModel(
+                        provider = provider,
+                        id = id,
+                        idleAnimation = section.getStringOrNull("animations.idle")?.takeIf { it.isNotBlank() },
+                        workingAnimation = section.getStringOrNull("animations.working")?.takeIf { it.isNotBlank() },
+                        fullAnimation = section.getStringOrNull("animations.full")?.takeIf { it.isNotBlank() }
+                    )
+                }
+                ?: context.unknown("model.plugin", pluginName, MinionModel.Provider.entries.map { it.configName })
         }
 
         internal fun floorOffset(raw: String?, type: MinionType, context: LoadContext): Int {
