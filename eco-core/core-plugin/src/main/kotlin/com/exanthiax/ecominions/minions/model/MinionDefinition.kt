@@ -44,7 +44,9 @@ class MinionDefinition(
     /** Whether this type is placed and works where its owner cannot build. */
     val bypassAntigrief: Boolean = false,
     /** The most of this minion each player can place, or null for no cap. */
-    val limit: Int? = null
+    val limit: Int? = null,
+    /** A ModelEngine or BetterModel model shown instead of the armour stand. Null keeps the stand. */
+    val model: MinionModel? = null
 ) : ApiMinionDefinition {
 
     /** Preview value shown before a minion's actual level is known, e.g. in the type-select menu. */

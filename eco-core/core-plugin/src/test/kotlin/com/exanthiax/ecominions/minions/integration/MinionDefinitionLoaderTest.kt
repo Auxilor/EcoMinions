@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.error.LoadReport
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.MinionBlock
+import com.exanthiax.ecominions.minions.model.MinionModel
 import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import com.exanthiax.ecominions.testsupport.FakeItemLookup
 import com.willfp.eco.core.config.interfaces.Config
@@ -205,6 +206,51 @@ class MinionDefinitionLoaderTest {
             messages += captured.captured.message
         }
         return LoadContext(violationContext, LoadReport())
+    }
+
+    @Test
+    fun `no model section or a blank id keeps the stand`() {
+        val violations = mutableListOf<String>()
+
+        assertNull(MinionDefinitionLoader.model(null, context(violations)))
+        assertNull(MinionDefinitionLoader.model(modelConfig(plugin = "model-engine", id = " "), context(violations)))
+        assertEquals(emptyList<String>(), violations)
+    }
+
+    @Test
+    fun `an unknown model plugin is reported and lists what would have worked`() {
+        val violations = mutableListOf<String>()
+        val messages = mutableListOf<String>()
+
+        assertNull(MinionDefinitionLoader.model(modelConfig(plugin = "blockbench", id = "robot"), context(violations, messages)))
+        assertEquals(listOf("model.plugin"), violations)
+        assertTrue(messages.single().contains("better-model"), "was: ${messages.single()}")
+    }
+
+    @Test
+    fun `a model reads its plugin, id and animations`() {
+        val model = MinionDefinitionLoader.model(
+            modelConfig(plugin = "Better-Model", id = "robot", idle = "idle", working = "mine", full = ""),
+            context()
+        )
+
+        assertEquals(MinionModel(MinionModel.Provider.BETTER_MODEL, "robot", "idle", "mine", null), model)
+    }
+
+    private fun modelConfig(
+        plugin: String,
+        id: String,
+        idle: String? = null,
+        working: String? = null,
+        full: String? = null
+    ): Config {
+        val config = mockk<Config>(relaxed = true)
+        every { config.getString("plugin") } returns plugin
+        every { config.getStringOrNull("id") } returns id
+        every { config.getStringOrNull("animations.idle") } returns idle
+        every { config.getStringOrNull("animations.working") } returns working
+        every { config.getStringOrNull("animations.full") } returns full
+        return config
     }
 
     @Test

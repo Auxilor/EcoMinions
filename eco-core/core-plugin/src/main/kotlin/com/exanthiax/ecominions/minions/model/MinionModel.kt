@@ -1,0 +1,15 @@
+package com.exanthiax.ecominions.minions.model
+
+/** A custom model shown in place of a minion's stand, with the animation to loop for each state. */
+data class MinionModel(
+    val provider: Provider,
+    val id: String,
+    val idleAnimation: String?,
+    val workingAnimation: String?,
+    val fullAnimation: String?
+) {
+    enum class Provider(val configName: String, val pluginName: String) {
+        MODEL_ENGINE("model-engine", "ModelEngine"),
+        BETTER_MODEL("better-model", "BetterModel")
+    }
+}

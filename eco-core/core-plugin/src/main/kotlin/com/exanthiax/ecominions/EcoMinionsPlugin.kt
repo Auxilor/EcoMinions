@@ -66,9 +66,12 @@ import com.exanthiax.ecominions.minions.integration.PaperMinionPickListener
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
 import com.exanthiax.ecominions.minions.integration.items.EcoItemsIntegrationService
+import com.exanthiax.ecominions.minions.integration.model.BetterModelModelProvider
+import com.exanthiax.ecominions.minions.integration.model.ModelEngineModelProvider
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.MinionModel
 import com.exanthiax.ecominions.minions.model.VanillaFishingTable
 import com.exanthiax.ecominions.minions.service.BukkitWorkAreaEntities
 import com.exanthiax.ecominions.minions.service.ExperienceSink
@@ -86,6 +89,7 @@ import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
+import com.exanthiax.ecominions.minions.service.MinionModels
 import com.exanthiax.ecominions.minions.service.MinionProtection
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.MinionStateRepository
@@ -236,6 +240,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val compactService = MinionCompactService(compactorService, events)
     private val repository = MinionStateRepository(dataKeys) { minionTypes.find(it) }
     private val minionFactory = MinionFactory()
+    private val minionModels = MinionModels()
     private val itemFactory = MinionItemFactory(repository, renderer)
     private val limits = PlacementLimits(minionSettings)
     private val shopIntegration = ShopIntegrationService(minionSettings)
@@ -325,6 +330,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
         onRegister = {
+            minionModels.attach(it)
             islandTracker.register(it)
             activityService.noteLoaded(it)
         },
@@ -391,7 +397,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         listOf(
             MinionMiningLoop(minionService, ticker, activityService, regions),
             MinionRenderLoop(
-                minionService, MinionAnimator(),
+                minionService, MinionAnimator(minionModels),
                 MinionHologram(messages, minionSettings, activityService),
                 ParticleEmitter(), minionSettings, activityService, regions
             ),
@@ -444,6 +450,12 @@ class EcoMinionsPlugin : LibreforgePlugin() {
                 provider.listenForNewLands(this)
             }
                 .onFailure { logger.warning("Lands support disabled: ${it.message}") }
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled(MinionModel.Provider.MODEL_ENGINE.pluginName)) {
+            minionModels.register(ModelEngineModelProvider())
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled(MinionModel.Provider.BETTER_MODEL.pluginName)) {
+            minionModels.register(BetterModelModelProvider())
         }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)
         shopIntegration.init()

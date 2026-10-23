@@ -14,6 +14,7 @@ import com.exanthiax.ecominions.minions.model.CraftingSpec
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionEquipment
+import com.exanthiax.ecominions.minions.model.MinionModel
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.PriceList
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
@@ -123,7 +124,8 @@ class MinionDefinitionLoader(
             slayer = slayer,
             fishing = if (type == MinionType.FISHING) fishingSettings.load(config, context) else null,
             bypassAntigrief = config.getBool("bypass-antigrief"),
-            limit = config.getIntOrNull("limit")?.coerceAtLeast(0)
+            limit = config.getIntOrNull("limit")?.coerceAtLeast(0),
+            model = model(config.getSubsection("model"), context)
         )
     }
 
@@ -519,6 +521,22 @@ class MinionDefinitionLoader(
 
         private val MinionType.selfSeedsByDefault: Boolean
             get() = this == MinionType.WOODCUTTER || this == MinionType.SLAYER
+
+        /** A blank or missing `id` means no model; an unknown `plugin` is reported and the stand is kept. */
+        internal fun model(section: Config?, context: LoadContext): MinionModel? {
+            val id = section?.getStringOrNull("id")?.takeIf { it.isNotBlank() } ?: return null
+            val pluginName = section.getString("plugin")
+            val provider = MinionModel.Provider.entries.firstOrNull { it.configName.equals(pluginName, ignoreCase = true) }
+                ?: return context.unknown("model.plugin", pluginName, MinionModel.Provider.entries.map { it.configName })
+
+            return MinionModel(
+                provider = provider,
+                id = id,
+                idleAnimation = section.getStringOrNull("animations.idle")?.takeIf { it.isNotBlank() },
+                workingAnimation = section.getStringOrNull("animations.working")?.takeIf { it.isNotBlank() },
+                fullAnimation = section.getStringOrNull("animations.full")?.takeIf { it.isNotBlank() }
+            )
+        }
 
         internal fun floorOffset(raw: String?, type: MinionType, context: LoadContext): Int {
             val trimmed = raw?.trim()?.takeIf { it.isNotEmpty() } ?: return MinionDefinition.defaultFloorOffset(type)

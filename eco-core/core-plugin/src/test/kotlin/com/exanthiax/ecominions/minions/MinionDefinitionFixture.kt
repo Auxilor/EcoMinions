@@ -7,6 +7,7 @@ import com.exanthiax.ecominions.minions.model.CollectionSettings
 import com.exanthiax.ecominions.minions.model.FishingSettings
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionEquipment
+import com.exanthiax.ecominions.minions.model.MinionModel
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.PriceList
@@ -48,7 +49,8 @@ object MinionDefinitionFixture {
         fishing: FishingSettings? = null,
         bypassAntigrief: Boolean = false,
         limit: Int? = null,
-        name: String = "Stone Minion"
+        name: String = "Stone Minion",
+        model: MinionModel? = null
     ) = MinionDefinition(
         id = id,
         name = name,
@@ -80,6 +82,7 @@ object MinionDefinitionFixture {
         slayer = slayer,
         fishing = fishing,
         bypassAntigrief = bypassAntigrief,
-        limit = limit
+        limit = limit,
+        model = model
     )
 }
