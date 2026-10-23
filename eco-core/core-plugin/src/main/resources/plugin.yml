@@ -13,8 +13,6 @@ softdepend:
   - BentoBox
   - IridiumSkyblock
   - Lands
-  - ModelEngine
-  - BetterModel
 commands:
   minions:
     aliases: [minion, ecominions]
