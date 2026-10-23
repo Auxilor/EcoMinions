@@ -80,6 +80,18 @@ class MinionModelsTest {
     }
 
     @Test
+    fun `a model that was not ready on register attaches when animated`() {
+        every { provider.attach(any(), "robot") } returns false
+        val minion = minion().also(models::attach)
+        every { provider.attach(any(), "robot") } returns true
+
+        assertTrue(models.animate(minion, Minion.AnimationState.IDLE))
+
+        assertEquals(model, minion.model)
+        verify(exactly = 1) { provider.play(minion.entity, "idle") }
+    }
+
+    @Test
     fun `an animation only restarts when the state changes`() {
         val minion = minion().also(models::attach)
 

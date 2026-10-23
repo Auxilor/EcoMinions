@@ -30,8 +30,16 @@ class MinionModels {
         minion.playingAnimation = null
     }
 
-    /** @return If [minion] is drawn by a model rather than its stand. */
+    /**
+     * Attaches again while the type has a model but none is attached yet, as
+     * minions loaded at startup register before the model plugin has its models.
+     *
+     * @return If [minion] is drawn by a model rather than its stand.
+     */
     fun animate(minion: Minion, state: Minion.AnimationState): Boolean {
+        if (minion.model == null) {
+            attach(minion)
+        }
         val model = minion.model ?: return false
 
         val next = when (state) {
