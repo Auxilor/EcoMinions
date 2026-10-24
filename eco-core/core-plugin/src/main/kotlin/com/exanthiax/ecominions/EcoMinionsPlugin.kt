@@ -279,7 +279,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         canWork = protection::allows
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
-    private val minionInput = MinionInput(fuelService, repository::save)
+    private val minionInput = MinionInput(fuelService, repository::save, events)
     private val feederActivity = FeederActivity(
         entities = workAreaEntities,
         fuels = fuelService,
@@ -290,12 +290,16 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         islandAt = { islandRegistry.islandAt(it) },
         islandPrivileges = { minionSettings.value.islandPrivileges },
         takesInput = minionInput::takesInput,
+        events = events,
+        dispatch = triggerDispatch,
         canWork = protection::allows
     )
     private val breederActivity = BreederActivity(
         entities = workAreaEntities,
         storageSaved = { repository.save(it) },
         spawnedByKey = dataKeys.spawnedBy,
+        events = events,
+        dispatch = triggerDispatch,
         canWork = protection::allows
     )
     private val ecoItemsIntegration = EcoItemsIntegrationService()

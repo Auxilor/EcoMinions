@@ -1,9 +1,12 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.event.MinionDepositEvent
+import com.exanthiax.ecominions.api.event.MinionExtractEvent
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.accepts
-import org.bukkit.inventory.Inventory
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -14,7 +17,8 @@ import org.bukkit.inventory.ItemStack
  */
 class MinionInput(
     private val fuels: FuelService,
-    private val save: (Minion) -> Unit
+    private val save: (Minion) -> Unit,
+    private val events: EventDispatcher
 ) {
     fun takesInput(definition: MinionDefinition): Boolean = definition.feeder != null || definition.breeder != null
 
@@ -23,11 +27,29 @@ class MinionInput(
         return feeds || definition.breeder?.accepts(item) == true
     }
 
-    /** @return How many items went in; the caller shrinks the cursor by this. */
-    fun deposit(minion: Minion, item: ItemStack): Int {
-        if (!accepts(minion.state.definition, item)) {
-            return 0
+    /** What became of a deposit. */
+    sealed interface Deposit {
+        /** [moved] went in; the caller shrinks the cursor by it. Zero means nothing fit. */
+        data class Accepted(val moved: Int) : Deposit
+
+        /** The minion does not take the item. */
+        data object Refused : Deposit
+
+        /** A listener cancelled [MinionDepositEvent]. */
+        data object Cancelled : Deposit
+    }
+
+    /** Fires [MinionDepositEvent] after the accepts check; a cancelled event moves nothing. */
+    fun deposit(player: Player, minion: Minion, item: ItemStack): Deposit {
+        val event = MinionDepositEvent(player, minion, item.clone())
+        return when {
+            !accepts(minion.state.definition, item) -> Deposit.Refused
+            !events.dispatch(event) -> Deposit.Cancelled
+            else -> Deposit.Accepted(store(minion, item))
         }
+    }
+
+    private fun store(minion: Minion, item: ItemStack): Int {
         val moved = item.amount - (minion.storage.add(item)?.amount ?: 0)
         if (moved > 0) {
             save(minion)
@@ -36,22 +58,37 @@ class MinionInput(
     }
 
     /**
-     * Moves up to one stack similar to [sample] into [inventory]; what does not fit stays in the minion.
+     * Moves up to one stack similar to [sample] into [player]'s inventory; what does not fit stays in the minion.
+     *
+     * Fires [MinionExtractEvent] with the stack about to be taken. Cancelling moves nothing, and only what
+     * the listener left in the event's items is taken.
      *
      * @return How many moved.
      */
-    fun withdraw(minion: Minion, sample: ItemStack, inventory: Inventory): Int {
-        val request = sample.clone().apply { amount = sample.type.maxStackSize }
-        val removed = minion.storage.remove(request)
-        if (removed <= 0) {
-            return 0
-        }
-
-        val leftover = inventory.addItem(sample.clone().apply { amount = removed }).values.sumOf { it.amount }
-        if (leftover > 0) {
-            minion.storage.add(sample.clone().apply { amount = leftover })
-        }
-        save(minion)
-        return removed - leftover
+    fun withdraw(player: Player, minion: Minion, sample: ItemStack): Int {
+        val amount = minOf(sample.type.maxStackSize, minion.storage.countSimilar(sample))
+        val event = MinionExtractEvent(player, minion, mutableListOf(sample.clone().apply { this.amount = amount }))
+        return if (amount > 0 && events.dispatch(event)) hand(player, minion, event.items) else 0
     }
+
+    private fun hand(player: Player, minion: Minion, items: List<ItemStack>): Int {
+        var moved = 0
+        var taken = 0
+        for (item in items) {
+            val removed = minion.storage.remove(item)
+            val leftover = if (removed > 0) giveBack(player, item, removed) else 0
+            if (leftover > 0) {
+                minion.storage.add(item.clone().apply { amount = leftover })
+            }
+            taken += removed
+            moved += removed - leftover
+        }
+        if (taken > 0) {
+            save(minion)
+        }
+        return moved
+    }
+
+    private fun giveBack(player: Player, item: ItemStack, removed: Int): Int =
+        player.inventory.addItem(item.clone().apply { amount = removed }).values.sumOf { it.amount }
 }

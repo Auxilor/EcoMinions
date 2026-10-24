@@ -1,9 +1,13 @@
 package com.exanthiax.ecominions.minions.service.activity
 
+import com.exanthiax.ecominions.api.event.MinionFeedEvent
 import com.exanthiax.ecominions.api.island.MinionIsland
 import com.exanthiax.ecominions.api.minion.MinionType
+import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFeed
 import com.exanthiax.ecominions.minions.model.FeederSettings
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.accepts
@@ -14,6 +18,7 @@ import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
+import org.bukkit.event.HandlerList
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -31,6 +36,9 @@ class FeederActivity(
     private val islandAt: (Location) -> MinionIsland?,
     private val islandPrivileges: () -> Boolean,
     private val takesInput: (MinionDefinition) -> Boolean,
+    private val events: EventDispatcher,
+    private val dispatch: MinionTriggerDispatch,
+    private val listening: (HandlerList) -> Boolean = { it.registeredListeners.isNotEmpty() },
     private val canWork: (Minion, Block) -> Boolean = { _, _ -> true }
 ) : MinionActivity {
 
@@ -91,14 +99,23 @@ class FeederActivity(
     }
 
     private fun consume(minion: Minion, target: Minion, stack: ItemStack, fuel: Fuel): Boolean {
+        val event = MinionFeedEvent(minion, target, fuel, fuelService.unitMillis(fuel))
+        val allowed = !listening(MinionFeedEvent.getHandlerList()) || events.dispatch(event)
+        return allowed && event.durationMillis > 0L && take(minion, target, stack, fuel, event.durationMillis)
+    }
+
+    private fun take(minion: Minion, target: Minion, stack: ItemStack, fuel: Fuel, durationMillis: Long): Boolean {
         val single = stack.clone().apply { amount = 1 }
         val removed = minion.storage.remove(single) > 0
-        val applied = removed && fuelService.applyDirect(target, fuel, fuelService.unitMillis(fuel))
+        val applied = removed && fuelService.applyDirect(target, fuel, durationMillis)
         if (removed && !applied) {
             minion.storage.add(single)
         }
         if (removed) {
             storageSaved(minion)
+        }
+        if (applied) {
+            dispatch.triggerAt(minion, TriggerMinionFeed, target.location, 1.0)
         }
         return applied
     }

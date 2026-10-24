@@ -1,9 +1,14 @@
 package com.exanthiax.ecominions.minions.service.activity
 
+import com.exanthiax.ecominions.api.event.MinionFeedEvent
 import com.exanthiax.ecominions.api.island.MinionIsland
 import com.exanthiax.ecominions.api.minion.MinionType
+import com.exanthiax.ecominions.core.event.EventDispatcher
+import com.exanthiax.ecominions.core.event.RecordingEventDispatcher
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFeed
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.FeederSettings
 import com.exanthiax.ecominions.minions.model.MinionDefinition
@@ -23,6 +28,7 @@ import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -102,7 +108,10 @@ class FeederActivityTest {
             }
         }
 
+    private val dispatch = mockk<MinionTriggerDispatch>(relaxed = true)
+
     private fun activity(
+        events: EventDispatcher = RecordingEventDispatcher(),
         islandAt: (Location) -> MinionIsland? = { null },
         islandPrivileges: () -> Boolean = { false },
         saved: (Minion) -> Unit = {},
@@ -117,6 +126,9 @@ class FeederActivityTest {
         islandAt = islandAt,
         islandPrivileges = islandPrivileges,
         takesInput = { it.feeder != null || it.breeder != null },
+        events = events,
+        dispatch = dispatch,
+        listening = { true },
         canWork = canWork
     )
 
@@ -226,6 +238,130 @@ class FeederActivityTest {
         assertEquals(3, coalIn(subject))
         assertEquals("nothing-to-feed", subject.blockedReason)
         assertEquals(1, saves)
+    }
+
+    @Test
+    fun `a cancelled feed event takes nothing and applies nothing`() {
+        val subject = feeder()
+        target()
+        var saves = 0
+
+        val result = activity(RecordingEventDispatcher(allow = false), saved = { saves++ }).act(subject, 0L)
+
+        assertEquals(ActivityResult.BUSY, result)
+        assertEquals(3, coalIn(subject))
+        assertEquals(0, saves)
+        verify(exactly = 0) { fuelService.applyDirect(any(), any(), any()) }
+        verify(exactly = 0) { dispatch.triggerAt(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `moves on to the next neighbour when the feed event for the first is cancelled`() {
+        val subject = feeder()
+        val first = target()
+        val second = target()
+        val events = RecordingEventDispatcher(edit = { event ->
+            if (event is MinionFeedEvent && event.target === first) event.isCancelled = true
+        })
+
+        assertEquals(ActivityResult.WORKED, activity(events).act(subject, 0L))
+
+        verify(exactly = 0) { fuelService.applyDirect(first, any(), any()) }
+        verify(exactly = 1) { fuelService.applyDirect(second, coal, 60000L) }
+        assertEquals(2, coalIn(subject))
+    }
+
+    @Test
+    fun `the feed event carries the feeder target fuel and duration`() {
+        val subject = feeder()
+        val hungry = target()
+        val events = RecordingEventDispatcher()
+
+        activity(events).act(subject, 0L)
+
+        val event = events.last<MinionFeedEvent>()
+        assertSame(subject, event.minion)
+        assertSame(hungry, event.target)
+        assertEquals("coal", event.fuel.id)
+        assertEquals(60000L, event.durationMillis)
+    }
+
+    @Test
+    fun `a listener that zeroes the duration cancels the feed`() {
+        val subject = feeder()
+        target()
+        val events = RecordingEventDispatcher(edit = { event ->
+            if (event is MinionFeedEvent) event.durationMillis = 0L
+        })
+
+        assertEquals(ActivityResult.BUSY, activity(events).act(subject, 0L))
+
+        assertEquals(3, coalIn(subject))
+        verify(exactly = 0) { fuelService.applyDirect(any(), any(), any()) }
+        verify(exactly = 0) { dispatch.triggerAt(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `applies the duration a listener changed`() {
+        val subject = feeder()
+        val hungry = target()
+        every { fuelService.applyDirect(hungry, coal, 5000L) } returns true
+        val events = RecordingEventDispatcher(edit = { event ->
+            if (event is MinionFeedEvent) event.durationMillis = 5000L
+        })
+
+        assertEquals(ActivityResult.WORKED, activity(events).act(subject, 0L))
+
+        verify(exactly = 1) { fuelService.applyDirect(hungry, coal, 5000L) }
+    }
+
+    @Test
+    fun `does not dispatch the feed event when nobody listens`() {
+        val subject = feeder()
+        target()
+        val events = RecordingEventDispatcher()
+        val silent = FeederActivity(
+            entities = entities,
+            fuels = fuels,
+            fuelService = fuelService,
+            storageSaved = {},
+            minionOf = { entity -> stands[entity] },
+            isActive = { true },
+            islandAt = { null },
+            islandPrivileges = { false },
+            takesInput = { false },
+            events = events,
+            dispatch = dispatch,
+            listening = { false }
+        )
+
+        assertEquals(ActivityResult.WORKED, silent.act(subject, 0L))
+
+        assertEquals(emptyList<Any>(), events.events)
+    }
+
+    @Test
+    fun `fires the feed trigger once at the target`() {
+        val subject = feeder()
+        val hungry = target()
+        target()
+
+        activity().act(subject, 0L)
+
+        val spot = hungry.location
+        verify(exactly = 1) { dispatch.triggerAt(subject, TriggerMinionFeed, spot, 1.0) }
+        verify(exactly = 1) { dispatch.triggerAt(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `fires no trigger when the fuel event cancels the burn`() {
+        val subject = feeder()
+        target()
+        every { fuelService.applyDirect(any(), any(), any()) } returns false
+
+        activity().act(subject, 0L)
+
+        verify(exactly = 0) { dispatch.triggerAt(any(), any(), any(), any()) }
     }
 
     @Test

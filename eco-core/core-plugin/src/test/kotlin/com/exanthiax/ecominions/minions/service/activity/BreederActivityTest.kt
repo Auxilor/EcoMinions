@@ -1,6 +1,11 @@
 package com.exanthiax.ecominions.minions.service.activity
 
+import com.exanthiax.ecominions.api.event.MinionBreedEvent
 import com.exanthiax.ecominions.api.minion.MinionType
+import com.exanthiax.ecominions.core.event.EventDispatcher
+import com.exanthiax.ecominions.core.event.RecordingEventDispatcher
+import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionBreed
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.BreederSettings
 import com.exanthiax.ecominions.minions.model.MinionDefinition
@@ -29,6 +34,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.random.Random
@@ -114,10 +120,14 @@ class BreederActivityTest {
         }
     }
 
+    private val dispatch = mockk<MinionTriggerDispatch>(relaxed = true)
+
     private fun activity(
         saved: (Minion) -> Unit = {},
+        events: EventDispatcher = RecordingEventDispatcher(),
+        listening: Boolean = true,
         canWork: (Minion, Block) -> Boolean = { _, _ -> true }
-    ) = BreederActivity(entities, saved, spawnedByKey, Random(1), canWork)
+    ) = BreederActivity(entities, saved, spawnedByKey, events, dispatch, Random(1), { listening }, canWork)
 
     private fun count(minion: Minion, material: Material) = minion.storage.count { it.type == material }
 
@@ -140,6 +150,63 @@ class BreederActivityTest {
         verify { second.loveModeTicks = 600 }
         assertEquals(3, count(subject, Material.WHEAT))
         assertEquals(1, saves)
+    }
+
+    @Test
+    fun `a cancelled breed event breeds nothing and keeps the food`() {
+        val subject = breeder(ItemStack(Material.WHEAT, 5))
+        val first = cow()
+        val second = cow()
+        var saves = 0
+
+        val result = activity(saved = { saves++ }, events = RecordingEventDispatcher(allow = false)).act(subject, 0L)
+
+        assertNothingToBreed(subject, result)
+        verify(exactly = 0) { first.loveModeTicks = any() }
+        verify(exactly = 0) { second.loveModeTicks = any() }
+        assertEquals(0, saves)
+        verify(exactly = 0) { dispatch.triggerAt(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `the breed event carries the pair and the food`() {
+        val subject = breeder(ItemStack(Material.WHEAT, 5))
+        val first = cow()
+        val second = cow()
+        val events = RecordingEventDispatcher()
+
+        activity(events = events).act(subject, 0L)
+
+        val event = events.last<MinionBreedEvent>()
+        assertSame(subject, event.minion)
+        assertEquals(setOf(first, second), setOf(event.first, event.second))
+        assertEquals(Material.WHEAT, event.food.type)
+    }
+
+    @Test
+    fun `does not dispatch the breed event when nobody listens`() {
+        val subject = breeder(ItemStack(Material.WHEAT, 5))
+        cow()
+        cow()
+        val events = RecordingEventDispatcher()
+
+        assertEquals(ActivityResult.WORKED, activity(events = events, listening = false).act(subject, 0L))
+
+        assertEquals(emptyList<Any>(), events.events)
+    }
+
+    @Test
+    fun `fires the breed trigger once at the first animal with the food used`() {
+        val subject = breeder(ItemStack(Material.WHEAT, 5))
+        cow()
+        cow()
+        val events = RecordingEventDispatcher()
+
+        activity(events = events).act(subject, 0L)
+
+        val spot = events.last<MinionBreedEvent>().first.location
+        verify(exactly = 1) { dispatch.triggerAt(subject, TriggerMinionBreed, spot, 2.0) }
+        verify(exactly = 1) { dispatch.triggerAt(any(), any(), any(), any()) }
     }
 
     @Test

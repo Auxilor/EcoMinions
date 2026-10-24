@@ -145,24 +145,30 @@ class MainMenu(
                 }
                 val cursor = event.cursor
                 if (cursor.type != Material.AIR) {
-                    val moved = input.deposit(minion, cursor)
-                    if (moved == 0) {
-                        val key = if (input.accepts(minion.state.definition, cursor)) {
-                            "messages.input-storage-full"
-                        } else {
-                            "messages.input-not-accepted"
-                        }
-                        player.sendMessage(messages.line(key))
-                    } else {
-                        val left = cursor.amount - moved
-                        player.setItemOnCursor(if (left <= 0) null else cursor.clone().apply { amount = left })
-                    }
+                    deposit(player, minion, cursor)
                 } else {
-                    sample()?.let { input.withdraw(minion, it, player.inventory) }
+                    sample()?.let { input.withdraw(player, minion, it) }
                 }
                 menu.refresh(player)
             }
         }
+
+    private fun deposit(player: Player, minion: Minion, cursor: ItemStack) {
+        when (val result = input.deposit(player, minion, cursor)) {
+            MinionInput.Deposit.Refused -> player.sendMessage(messages.line("messages.input-not-accepted"))
+            MinionInput.Deposit.Cancelled -> Unit
+            is MinionInput.Deposit.Accepted -> shrink(player, cursor, result.moved)
+        }
+    }
+
+    private fun shrink(player: Player, cursor: ItemStack, moved: Int) {
+        if (moved == 0) {
+            player.sendMessage(messages.line("messages.input-storage-full"))
+        } else {
+            val left = cursor.amount - moved
+            player.setItemOnCursor(if (left <= 0) null else cursor.clone().apply { amount = left })
+        }
+    }
 
     private fun collectAllSlot(player: Player, minion: Minion): Slot =
         slot({ _, _ -> collectAllItem(minion) }) {
