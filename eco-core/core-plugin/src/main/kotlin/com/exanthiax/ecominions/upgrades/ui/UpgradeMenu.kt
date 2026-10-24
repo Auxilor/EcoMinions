@@ -11,11 +11,18 @@ import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionUpgradeService
 import com.exanthiax.ecominions.minions.ui.MenuChrome
+import com.exanthiax.ecominions.minions.ui.SlotListArea
+import com.exanthiax.ecominions.minions.ui.addPagedAreaIfNotEmpty
+import com.exanthiax.ecominions.minions.ui.setSlots
 import com.exanthiax.ecominions.upgrades.integration.UpgradePlaceholders
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
 import com.exanthiax.ecominions.upgrades.service.UpgradeService
+import com.willfp.eco.core.gui.SlotLocation
+import com.willfp.eco.core.gui.addCustomSlots
+import com.willfp.eco.core.gui.component.addComponent
+import com.willfp.eco.core.gui.getSlotLocations
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.slot
@@ -48,6 +55,7 @@ class UpgradeMenu(
         val current = settings.value
         val rows = current.upgradeRows
         val owned = upgrades.tierOf(minion, upgrade)
+        val tierArea = chrome.area(current.upgradeSection, "tier-area", rows)
         val context = TemplateContext.of(
             UpgradePlaceholders.UPGRADE to upgrade,
             "tier" to owned
@@ -55,23 +63,27 @@ class UpgradeMenu(
 
         menu(rows) {
             setTitle(messages.render(current.upgradeTitle, context))
-            setMask(chrome.fillerMask(rows))
+            setMask(chrome.mask(current.upgradeSection, rows))
+            addCustomSlots(current.upgradeSection, "")
             onClose { event, _ ->
                 events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.UPGRADE))
             }
-            setSlot(1, TITLE_COLUMN, slot(titleItem(upgrade, context)))
+            setSlots(
+                current.upgradeSection.getSlotLocations(
+                    "title-item",
+                    listOf(SlotLocation(row = 1, column = TITLE_COLUMN))
+                ),
+                slot(titleItem(upgrade, context))
+            )
 
-            for ((index, tier) in upgrade.orderedTiers().withIndex()) {
-                val row = FIRST_ROW + (index / COLUMNS)
-                if (row >= rows) {
-                    break
-                }
-                setSlot(row, FIRST_COLUMN + (index % COLUMNS), tierSlot(player, minion, upgrade, tier, owned))
-            }
+            addPagedAreaIfNotEmpty(
+                SlotListArea(
+                    tierArea,
+                    upgrade.orderedTiers().take(tierArea.size).map { tierSlot(player, minion, upgrade, it, owned) }
+                )
+            )
 
-            setSlot(rows, 1, slot(chrome.backButton()) {
-                onLeftClick { _, _ -> onBack?.invoke(player, minion) }
-            })
+            addComponent(chrome.backButton(current.upgradeSection, rows) { onBack?.invoke(player, minion) })
         }.open(player)
     }
 
@@ -208,9 +220,6 @@ class UpgradeMenu(
 
     private companion object {
         const val TITLE_COLUMN = 5
-        const val FIRST_ROW = 2
-        const val FIRST_COLUMN = 2
-        const val COLUMNS = 7
         const val MENU_ACTION = "Buying a minion upgrade"
     }
 }

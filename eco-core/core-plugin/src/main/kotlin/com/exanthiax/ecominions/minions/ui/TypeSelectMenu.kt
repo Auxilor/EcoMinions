@@ -4,18 +4,20 @@ import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.model.MenuSettings
-import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionService
+import com.willfp.eco.core.gui.SlotLocation
+import com.willfp.eco.core.gui.addCustomSlots
 import com.willfp.eco.core.gui.addPage
 import com.willfp.eco.core.gui.addPageChanger
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.page.PageChanger
+import com.willfp.eco.core.gui.setMask
 import com.willfp.eco.core.gui.slot
 import com.willfp.eco.core.gui.slot.Slot
-import org.bukkit.Material
 import org.bukkit.entity.Player
 
 /** Browse and take one of every configured minion. */
@@ -30,8 +32,10 @@ class TypeSelectMenu(
     fun open(player: Player) {
         val current = settings.value
         val rows = current.typeSelectRows
+        val typeArea = chrome.area(current.typeSelectSection, "type-area", rows)
+        val columns = typeArea.columns.coerceAtLeast(1)
         val pages = minions.types()
-            .chunked(((rows - FIRST_ROW) * COLUMNS).coerceAtLeast(COLUMNS))
+            .chunked(typeArea.size.coerceAtLeast(columns))
             .ifEmpty { listOf(emptyList()) }
 
         menu(rows) {
@@ -40,28 +44,36 @@ class TypeSelectMenu(
             maxPages(pages.size)
 
             addPageChanger(
+                current.typeSelectSection,
+                "previous-page",
                 PageChanger.Direction.BACKWARDS,
-                chrome.named(Material.ARROW, messages.line("gui.type-select.previous-page.name")),
                 null,
-                null,
-                rows,
-                1
+                defaultItem = "arrow",
+                name = messages.line("gui.type-select.previous-page.name"),
+                defaultLocations = listOf(SlotLocation(row = rows, column = 1)),
+                hideInactive = true
             )
             addPageChanger(
+                current.typeSelectSection,
+                "next-page",
                 PageChanger.Direction.FORWARDS,
-                chrome.named(Material.ARROW, messages.line("gui.type-select.next-page.name")),
                 null,
-                null,
-                rows,
-                9
+                defaultItem = "arrow",
+                name = messages.line("gui.type-select.next-page.name"),
+                defaultLocations = listOf(SlotLocation(row = rows, column = 9)),
+                hideInactive = true
             )
 
             pages.forEachIndexed { index, types ->
                 addPage(index + 1) {
+                    if (current.typeSelectSection.has("mask")) {
+                        setMask(current.typeSelectSection)
+                    }
+                    addCustomSlots(current.typeSelectSection, "")
                     for ((position, type) in types.withIndex()) {
                         setSlot(
-                            FIRST_ROW + (position / COLUMNS),
-                            FIRST_COLUMN + (position % COLUMNS),
+                            typeArea.row + position / columns,
+                            typeArea.column + position % columns,
                             typeSlot(player, type)
                         )
                     }
@@ -99,9 +111,6 @@ class TypeSelectMenu(
     }
 
     private companion object {
-        const val FIRST_ROW = 2
-        const val FIRST_COLUMN = 2
-        const val COLUMNS = 7
         const val GIVE_PERMISSION = "ecominions.command.give"
     }
 }

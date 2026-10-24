@@ -10,10 +10,14 @@ import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.ui.MenuChrome
+import com.exanthiax.ecominions.minions.ui.SlotListArea
+import com.exanthiax.ecominions.minions.ui.addPagedAreaIfNotEmpty
 import com.exanthiax.ecominions.upgrades.integration.UpgradePlaceholders
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.service.UpgradeService
+import com.willfp.eco.core.gui.addCustomSlots
+import com.willfp.eco.core.gui.component.addComponent
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.slot
@@ -41,26 +45,22 @@ class UpgradeListMenu(
         val current = settings.value
         val rows = current.listRows
         val context = TemplateContext.of(MinionPlaceholders.MINION to minion)
+        val upgradeArea = chrome.area(current.upgradeListSection, "upgrade-area", rows)
         val allUpgrades = upgrades.allowedFor(minion) + minion.state.definition.compactorRecipes.map { it.upgrade }
 
         menu(rows) {
             setTitle(messages.render(current.listTitle, context))
-            setMask(chrome.fillerMask(rows))
+            setMask(chrome.mask(current.upgradeListSection, rows))
+            addCustomSlots(current.upgradeListSection, "")
             onClose { event, _ ->
                 events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.UPGRADE_LIST))
             }
 
-            for ((index, upgrade) in allUpgrades.withIndex()) {
-                val row = FIRST_ROW + (index / COLUMNS)
-                if (row >= rows) {
-                    break
-                }
-                setSlot(row, FIRST_COLUMN + (index % COLUMNS), upgradeSlot(player, minion, upgrade))
-            }
+            addPagedAreaIfNotEmpty(
+                SlotListArea(upgradeArea, allUpgrades.take(upgradeArea.size).map { upgradeSlot(player, minion, it) })
+            )
 
-            setSlot(rows, 1, slot(chrome.backButton()) {
-                onLeftClick { _, _ -> onBack?.invoke(player, minion) }
-            })
+            addComponent(chrome.backButton(current.upgradeListSection, rows) { onBack?.invoke(player, minion) })
         }.open(player)
     }
 
@@ -87,11 +87,5 @@ class UpgradeListMenu(
         return slot(item) {
             onLeftClick { _, _ -> upgradeMenu.open(player, minion, upgrade) }
         }
-    }
-
-    private companion object {
-        const val FIRST_ROW = 2
-        const val FIRST_COLUMN = 2
-        const val COLUMNS = 7
     }
 }
