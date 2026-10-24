@@ -42,7 +42,7 @@ IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). 
 ```yaml
 # === Type: what the minion does ===
 name: "&8Coal Minion" # The name shown on its hologram and item.
-type: miner # One of miner, farmer, woodcutter, slayer, fishing or collector.
+type: miner # One of miner, farmer, woodcutter, slayer, fishing, collector, feeder or breeder.
 target-blocks: # Type keys go here; see the type's page.
   - COAL_ORE
 bypass-antigrief: false # If true, it is placed and works where its owner cannot build.
@@ -114,6 +114,8 @@ placement:
 | `slayer` | Kills mobs, and can spawn its own to kill. | [Configuring a Slayer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-slayer) |
 | `fishing` | Catches fish from water in its area. | [Configuring a Fishing Minion](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-fishing-minion) |
 | `collector` | Picks up dropped items and XP orbs in its area. | [Configuring a Collector](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-collector) |
+| `feeder` | Refuels nearby minions from fuel in its storage. | [Configuring a Feeder](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-feeder) |
+| `breeder` | Breeds nearby animals with food in its storage. | [Configuring a Breeder](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-breeder) |
 
 ### Stats
 
@@ -131,6 +133,8 @@ Every value may be a plain number or an expression in `%level%`: `"60 - %level%"
 | `slayer` | 3 | 0 | 0 to +2 |
 | `fishing` | 1 | -1 | -1 |
 | `collector` | 3 | -1 | -1 to +1 |
+| `feeder` | 3 | -1 | -1 to +1 |
+| `breeder` | 3 | -1 | -1 to +1 |
 
 ### Item
 
@@ -302,7 +306,7 @@ placement:
 
 | Key | Used by | Meaning |
 | --- | --- | --- |
-| `self-seed` | every type except `collector` | The minion makes its own work: places blocks, spawns mobs or lays water, as its type page describes. Defaults to `true` for `woodcutter` and `slayer`, `false` for the rest. |
+| `self-seed` | every type except `collector`, `feeder` and `breeder` | The minion makes its own work: places blocks, spawns mobs or lays water, as its type page describes. Defaults to `true` for `woodcutter` and `slayer`, `false` for the rest. |
 | `floor-offset` | every type | The first layer of the work area, relative to the minion: `-1` is the layer one block below it, `0` its own level. Defaults by type (see the table above). |
 | `seed-block` | `miner`, `farmer`, `woodcutter` | What `self-seed` places. Leave blank to seed each target's `plant`, falling back to the target block itself. |
 | `spacing` | `miner`, `farmer`, `woodcutter` | Empty blocks `self-seed` keeps between plants, along each straight direction. `0` packs them side by side. |
@@ -363,7 +367,7 @@ These work in holograms, `lang.yml`, menu titles and item names, `spawn-item.lor
 Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%`, `%level_numeral%` and `%level_<offset>%`, see [How to Level a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-level-a-minion#internal-placeholders).
 
 :::tip Troubleshooting
-- **Minion not loading?** Check the file name is lowercase letters, numbers, and underscores only, and that `type` is one of the six above.
+- **Minion not loading?** Check the file name is lowercase letters, numbers, and underscores only, and that `type` is one of the eight above.
 - **Hologram says the area is empty?** The minion has nothing in range to work on; see its type page for what it needs.
 - **Storage full?** A full minion stops working until its storage is emptied or sold.
 :::
@@ -372,7 +376,7 @@ Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%`, `%level_num
 
 ## Where to go next
 
-- **Types:** [Miner](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-miner), [Farmer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-farmer), [Woodcutter](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-woodcutter), [Slayer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-slayer), [Fishing](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-fishing-minion) and [Collector](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-collector).
+- **Types:** [Miner](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-miner), [Farmer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-farmer), [Woodcutter](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-woodcutter), [Slayer](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-slayer), [Fishing](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-fishing-minion), [Collector](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-collector), [Feeder](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-feeder) and [Breeder](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-breeder).
 - **Blocks:** [Configuring a Block](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block) for custom blocks and per-block overrides.
 - **Upgrades:** [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade) for the `allowed-upgrades` list.
 - **Levelling:** [How to Level a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-level-a-minion) for the `levelling:` block.

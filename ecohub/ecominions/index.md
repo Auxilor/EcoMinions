@@ -10,7 +10,7 @@ EcoMinions is a minion plugin for Spigot and Paper servers. Players place a mini
 
 Minions are configured entirely in files, so you can make any minion you like, from any block, crop, tree, mob or custom item.
 
-- **Six minion types:** miners, farmers, woodcutters, slayers, fishing minions and collectors, each with their own page.
+- **Eight minion types:** miners, farmers, woodcutters, slayers, fishing minions, collectors, feeders and breeders, each with their own page.
 - **Upgrades with any effect:** each upgrade is a ladder of tiers bought one at a time, and can give any libreforge effect, not only the shipped speed, fortune, auto sell and the rest.
 - **Self-seeding:** minions can place their own ores, crops and saplings, spawn their own mobs, or lay their own water.
 - **Offline catch-up:** a minion is idle while its owner is offline, then pays out the time that passed in one go when they return, with upgrades still applied.
