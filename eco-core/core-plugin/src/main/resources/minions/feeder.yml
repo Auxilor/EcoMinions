@@ -1,0 +1,44 @@
+name: "&7Feeder Minion"
+type: feeder
+fuels: []
+
+base-stats:
+  speed-ticks: 60
+  efficiency-ticks: 10
+  radius: 3
+  storage-slots: 27
+  max-storage-slots: 54
+  regen-delay-ticks: 100
+
+spawn-item:
+  item: "FURNACE"
+  display-name: "&7Feeder Minion &8(Lvl %level%)"
+  lore:
+    - "&8Refuels nearby minions"
+    - "&8Level: &7%level%"
+  crafting:
+    enabled: true
+    give-amount: 1
+    permission: ""
+    shapeless: false
+    recipe:
+      - "FURNACE"
+      - "FURNACE"
+      - "FURNACE"
+      - "FURNACE"
+      - "ARMOR_STAND"
+      - "FURNACE"
+      - "FURNACE"
+      - "FURNACE"
+      - "FURNACE"
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - radius
+  - capacity
+
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS
