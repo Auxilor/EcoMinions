@@ -113,6 +113,16 @@ equipment:
   boots: "LEATHER_BOOTS"
   # hand: "" # Leave out to hold an iron pickaxe.
 
+# Optional. A ModelEngine or BetterModel model shown instead of the armour
+# stand. Leave the id blank to keep the armour stand.
+model:
+  plugin: "model-engine" # Either model-engine or better-model.
+  id: "" # The model id in that plugin.
+  animations: # Optional. Each animation loops while the minion is in that state.
+    idle: "" # While it is waiting or has nothing to work on.
+    working: "" # While it is working.
+    full: "" # While its storage is full.
+
 placement:
   # If true, surface-block is put back under a block when it regenerates, such
   # as farmland under wheat. Left out, it is on when a target block has a
