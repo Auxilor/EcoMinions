@@ -66,14 +66,18 @@ class MinionStorageView(
     private val messages: Messages
 ) {
     /**
-     * @return One display item per distinct stored item, highest count first.
+     * @return One raw stored sample and its total per distinct item, highest
+     *         count first, undecorated so it can be matched against storage.
      *
      * Called on every menu render rather than once at open, so the counts track
      * what the minion is mining while the player watches.
      */
-    fun itemsFor(minion: Minion, settings: MenuSettings, capacity: Int): List<ItemStack> =
+    fun entriesFor(minion: Minion, settings: MenuSettings, capacity: Int): List<Pair<ItemStack, Int>> =
         StorageContents.top(minion.storage, minOf(settings.storageSlots, capacity))
-            .map { (sample, count) -> buildItem(sample, count, settings.storageDisplay) }
+
+    /** @return The item shown for [sample], which must never be used to match or hand out stored items. */
+    fun displayItem(sample: ItemStack, count: Int, settings: MenuSettings): ItemStack =
+        buildItem(sample, count, settings.storageDisplay)
 
     /**
      * Builds the display item from the stored stack itself, so a compacted or

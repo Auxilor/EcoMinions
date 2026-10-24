@@ -15,6 +15,7 @@ import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionFuelService
+import com.exanthiax.ecominions.minions.service.MinionInput
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.willfp.eco.core.gui.menu
@@ -54,7 +55,8 @@ class MainMenu(
     private val viewers: MenuViewers,
     private val events: EventDispatcher,
     private val regions: Regions,
-    private val limits: MinionLimits
+    private val limits: MinionLimits,
+    private val input: MinionInput
 ) {
     fun open(player: Player, minion: Minion) {
         if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.MAIN))) {
@@ -67,6 +69,7 @@ class MainMenu(
 
         // Built once per render and then read by each storage slot, so the
         // aggregation runs once for the whole area instead of once per slot.
+        var samples: List<ItemStack> = emptyList()
         var contents: List<ItemStack> = emptyList()
 
         menu(rows) {
@@ -74,13 +77,19 @@ class MainMenu(
             setMask(chrome.fillerMask(rows))
 
             onRender { _, _ ->
-                contents = storageView.itemsFor(minion, settings.value, positions.size)
+                val entries = storageView.entriesFor(minion, settings.value, positions.size)
+                samples = entries.map { (sample, _) -> sample }
+                contents = entries.map { (sample, count) -> storageView.displayItem(sample, count, settings.value) }
             }
 
             setSlot(1, TITLE_COLUMN, slot({ _, _ -> titleItem(minion) }))
 
             positions.forEachIndexed { index, (row, column) ->
-                setSlot(row, column, slot({ _, _ -> contents.getOrNull(index) ?: chrome.fillerItem() }))
+                setSlot(
+                    row,
+                    column,
+                    storageSlot(player, minion, { contents.getOrNull(index) }) { samples.getOrNull(index) }
+                )
             }
 
             setSlot(rows, 2, collectAllSlot(player, minion))
@@ -120,6 +129,40 @@ class MainMenu(
         item.itemMeta = meta
         return item
     }
+
+    /**
+     * A feeder or breeder's storage slots are its input: the cursor stack goes
+     * in, and clicking an empty-handed slot takes its stack back out.
+     */
+    private fun storageSlot(player: Player, minion: Minion, shown: () -> ItemStack?, sample: () -> ItemStack?): Slot =
+        slot({ _, _ -> shown() ?: chrome.fillerItem() }) {
+            if (!input.takesInput(minion.state.definition)) {
+                return@slot
+            }
+            onLeftClick { event, _, menu ->
+                if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                    return@onLeftClick
+                }
+                val cursor = event.cursor
+                if (cursor.type != Material.AIR) {
+                    val moved = input.deposit(minion, cursor)
+                    if (moved == 0) {
+                        val key = if (input.accepts(minion.state.definition, cursor)) {
+                            "messages.input-storage-full"
+                        } else {
+                            "messages.input-not-accepted"
+                        }
+                        player.sendMessage(messages.line(key))
+                    } else {
+                        val left = cursor.amount - moved
+                        player.setItemOnCursor(if (left <= 0) null else cursor.clone().apply { amount = left })
+                    }
+                } else {
+                    sample()?.let { input.withdraw(minion, it, player.inventory) }
+                }
+                menu.refresh(player)
+            }
+        }
 
     private fun collectAllSlot(player: Player, minion: Minion): Slot =
         slot({ _, _ -> collectAllItem(minion) }) {

@@ -82,6 +82,7 @@ import com.exanthiax.ecominions.minions.service.MinionCompactService
 import com.exanthiax.ecominions.minions.service.MinionDropTables
 import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
+import com.exanthiax.ecominions.minions.service.MinionInput
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionLimits
@@ -278,6 +279,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         canWork = protection::allows
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
+    private val minionInput = MinionInput(fuelService, repository::save)
     private val feederActivity = FeederActivity(
         entities = workAreaEntities,
         fuels = fuelService,
@@ -287,6 +289,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         isActive = { activityService.isActive(it) },
         islandAt = { islandRegistry.islandAt(it) },
         islandPrivileges = { minionSettings.value.islandPrivileges },
+        takesInput = minionInput::takesInput,
         canWork = protection::allows
     )
     private val breederActivity = BreederActivity(
@@ -307,7 +310,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val offlineProgress = OfflineProgressService(
         minionSettings, fuelService, triggerDispatch, events, experienceSink, activities::get
     )
-    private val ticker = MinionTicker(worlds, fuelService, triggerDispatch, events, activities::get)
+    private val ticker = MinionTicker(
+        worlds, fuelService, triggerDispatch, events, activities::get, takesInput = minionInput::takesInput
+    )
     private val activityService: MinionActivityService = MinionActivityService(
         repository, offlineProgress, minionSettings,
         { Bukkit.getPlayer(it) != null },
@@ -387,7 +392,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val menuViewers = MenuViewers { menu, player -> regions.on(player) { menu.refresh(player) } }
     private val mainMenu = MainMenu(
         menuSettings, messages, chrome, MinionStorageView(messages), placementService,
-        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions, minionLimits
+        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions, minionLimits,
+        minionInput
     )
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
 
