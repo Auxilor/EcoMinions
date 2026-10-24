@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions
 import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
+import com.exanthiax.ecominions.minions.model.BreederSettings
 import com.exanthiax.ecominions.minions.model.CollectionSettings
 import com.exanthiax.ecominions.minions.model.FeederSettings
 import com.exanthiax.ecominions.minions.model.FishingSettings
@@ -47,6 +48,7 @@ object MinionDefinitionFixture {
         collection: CollectionSettings? = null,
         slayer: SlayerSettings? = null,
         feeder: FeederSettings? = null,
+        breeder: BreederSettings? = null,
         fishing: FishingSettings? = null,
         bypassAntigrief: Boolean = false,
         limit: Int? = null,
@@ -81,6 +83,7 @@ object MinionDefinitionFixture {
         collection = collection,
         slayer = slayer,
         feeder = feeder,
+        breeder = breeder,
         fishing = fishing,
         bypassAntigrief = bypassAntigrief,
         limit = limit

@@ -13,7 +13,8 @@ class MinionActivities(
     private val collection: CollectionActivity,
     private val slayer: SlayerActivity,
     private val fishing: FishingActivity,
-    private val feeder: FeederActivity
+    private val feeder: FeederActivity,
+    private val breeder: BreederActivity
 ) {
     operator fun get(type: MinionType): MinionActivity = when (type) {
         MinionType.MINER, MinionType.FARMER, MinionType.WOODCUTTER -> block
@@ -21,5 +22,6 @@ class MinionActivities(
         MinionType.FISHING -> fishing
         MinionType.COLLECTOR -> collection
         MinionType.FEEDER -> feeder
+        MinionType.BREEDER -> breeder
     }
 }

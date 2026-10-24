@@ -101,6 +101,7 @@ import com.exanthiax.ecominions.minions.service.SellPricingService
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.minions.service.activity.BlockActivity
+import com.exanthiax.ecominions.minions.service.activity.BreederActivity
 import com.exanthiax.ecominions.minions.service.activity.CollectionActivity
 import com.exanthiax.ecominions.minions.service.activity.FeederActivity
 import com.exanthiax.ecominions.minions.service.activity.FishingActivity
@@ -288,13 +289,21 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         islandPrivileges = { minionSettings.value.islandPrivileges },
         canWork = protection::allows
     )
+    private val breederActivity = BreederActivity(
+        entities = workAreaEntities,
+        storageSaved = { repository.save(it) },
+        spawnedByKey = dataKeys.spawnedBy,
+        canWork = protection::allows
+    )
     private val ecoItemsIntegration = EcoItemsIntegrationService()
     private val fishingActivity = FishingActivity(
         FishingLootRoller(ecoItemsIntegration, { location, owner -> vanillaFishingLoot(location, owner) }),
         triggerDispatch, events, experienceSink,
         canWork = protection::allows
     )
-    private val activities = MinionActivities(blockActivity, collectionActivity, slayerActivity, fishingActivity, feederActivity)
+    private val activities = MinionActivities(
+        blockActivity, collectionActivity, slayerActivity, fishingActivity, feederActivity, breederActivity
+    )
     private val offlineProgress = OfflineProgressService(
         minionSettings, fuelService, triggerDispatch, events, experienceSink, activities::get
     )

@@ -61,6 +61,7 @@ class MinionDefinitionLoader(
     private val entities: EntityLookup = EcoEntityLookup()
 ) : ConfigLoader<MinionDefinition> {
     private val collectionSettings = CollectionSettingsLoader(items)
+    private val breederSettings = BreederSettingsLoader(entities, items)
     private val feederSettings = FeederSettingsLoader(fuels)
     private val dropLists = MinionDropListLoader(items)
     private val slayerSettings = SlayerSettingsLoader(entities, dropLists)
@@ -125,6 +126,7 @@ class MinionDefinitionLoader(
             compactorRecipes = compactorRecipes,
             collection = if (type == MinionType.COLLECTOR) collectionSettings.load(config, context) else null,
             slayer = slayer,
+            breeder = if (type == MinionType.BREEDER) breederSettings.load(config, context) ?: return null else null,
             feeder = if (type == MinionType.FEEDER) feederSettings.load(config, context) else null,
             fishing = if (type == MinionType.FISHING) fishingSettings.load(config, context) else null,
             bypassAntigrief = config.getBool("bypass-antigrief"),
@@ -519,7 +521,8 @@ class MinionDefinitionLoader(
         private val MinionType.usesTargetBlocks: Boolean
             get() = when (this) {
                 MinionType.MINER, MinionType.FARMER, MinionType.WOODCUTTER -> true
-                MinionType.SLAYER, MinionType.FISHING, MinionType.COLLECTOR, MinionType.FEEDER -> false
+                MinionType.SLAYER, MinionType.FISHING, MinionType.COLLECTOR,
+                MinionType.FEEDER, MinionType.BREEDER -> false
             }
 
         private val MinionType.selfSeedsByDefault: Boolean

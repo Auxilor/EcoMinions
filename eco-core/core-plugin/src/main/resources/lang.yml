@@ -50,6 +50,9 @@ hologram:
   no-water: "&e&lNo Water in %diameter%x%height%x%diameter% Area"
   nothing-to-feed: "&e&lNothing to Feed in %diameter%x%height%x%diameter% Area"
   no-fuel-stored: "&e&lNo Fuel Stored"
+  nothing-to-breed: "&e&lNothing to Breed in %diameter%x%height%x%diameter% Area"
+  no-food-stored: "&e&lNo Food Stored"
+  pen-full: "&e&lPen Full"
   idle: "&7&lIDLE &8- &7Owner offline"
   limited: "&c&lINACTIVE &8- &7Over %limit_name% limit"
 
