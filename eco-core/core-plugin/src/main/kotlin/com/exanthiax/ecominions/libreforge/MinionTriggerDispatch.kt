@@ -69,7 +69,7 @@ class MinionTriggerDispatch(
             cause = cause,
             context = context,
             dropLocation = location
-        )
+        ).apply { duplicationSafe = true }
 
         dispatch(
             minion,

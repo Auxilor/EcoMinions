@@ -8,6 +8,7 @@ effects:
       - minion_mine_block
     args:
       multiplier: "1 + %tier_value%"
+      fractional: true # A multiplier like 1.1 gives an extra item 10% of the time instead of rounding down.
 
 tiers:
   1:
