@@ -39,6 +39,8 @@ class MinionDefinition(
     val collection: CollectionSettings? = null,
     /** What a slayer kills. Null for every other type. */
     val slayer: SlayerSettings? = null,
+    /** A feeder's fuel filter. Null for every other type. */
+    val feeder: FeederSettings? = null,
     /** A fishing minion's water and catch table. Null for every other type. */
     val fishing: FishingSettings? = null,
     /** Whether this type is placed and works where its owner cannot build. */
@@ -127,6 +129,7 @@ class MinionDefinition(
             MinionType.SLAYER -> "3"
             MinionType.FISHING -> "1"
             MinionType.COLLECTOR -> "3"
+            MinionType.FEEDER -> "3"
         }
 
         /** Where a type's work box starts when `placement.floor-offset` is not set. */
@@ -137,6 +140,7 @@ class MinionDefinition(
             MinionType.SLAYER -> 0
             MinionType.FISHING -> -1
             MinionType.COLLECTOR -> -1
+            MinionType.FEEDER -> -1
         }
     }
 }

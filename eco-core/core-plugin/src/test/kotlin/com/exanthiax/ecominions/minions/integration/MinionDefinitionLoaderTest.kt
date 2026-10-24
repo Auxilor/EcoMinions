@@ -165,7 +165,8 @@ class MinionDefinitionLoaderTest {
         hardSlotCap = { 54 },
         compactorRecipe = { null },
         compactorRecipeIds = { emptyList() },
-        upgradeIds = { emptyList() }
+        upgradeIds = { emptyList() },
+        fuels = mockk(relaxed = true)
     )
 
     @Test

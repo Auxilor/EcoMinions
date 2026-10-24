@@ -102,6 +102,7 @@ import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.minions.service.activity.BlockActivity
 import com.exanthiax.ecominions.minions.service.activity.CollectionActivity
+import com.exanthiax.ecominions.minions.service.activity.FeederActivity
 import com.exanthiax.ecominions.minions.service.activity.FishingActivity
 import com.exanthiax.ecominions.minions.service.activity.MinionActivities
 import com.exanthiax.ecominions.minions.service.activity.SlayerActivity
@@ -189,6 +190,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val vanillaBlocks = VanillaBlockDefaults(blockLookup)
     private val blockIndex = MinionBlockIndex({ blockDefinitions.all() }, vanillaBlocks)
+    private val fuels = ConfigDrivenRegistry<Fuel>(
+        "fuel", "fuels", "fuels", FuelLoader(), report
+    )
+    private val fuelService = FuelService(fuels)
     private val minionTypes = ConfigDrivenRegistry(
         "minion_type", "minions", "minion types",
         MinionDefinitionLoader(
@@ -201,15 +206,13 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             { minionSettings.value.hardSlotCap },
             compactorRecipes::find,
             compactorRecipes::ids,
-            { upgrades.ids() }
+            { upgrades.ids() },
+            fuelService
         ),
         report
     )
     private val upgrades = ConfigDrivenRegistry<Upgrade>(
         "upgrade", "upgrades", "upgrades", UpgradeLoader(), report
-    )
-    private val fuels = ConfigDrivenRegistry<Fuel>(
-        "fuel", "fuels", "fuels", FuelLoader(), report
     )
 
     // Services
@@ -231,7 +234,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val triggerDispatch = MinionTriggerDispatch(xpService)
     private val upgradeService = UpgradeService(upgrades)
-    private val fuelService = FuelService(fuels)
     private val compactorService = CompactorService()
     private val compactService = MinionCompactService(compactorService, events)
     private val repository = MinionStateRepository(dataKeys) { minionTypes.find(it) }
@@ -274,18 +276,30 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         spawnedByKey = dataKeys.spawnedBy,
         canWork = protection::allows
     )
+    private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
+    private val feederActivity = FeederActivity(
+        entities = workAreaEntities,
+        fuels = fuelService,
+        fuelService = minionFuelService,
+        storageSaved = { repository.save(it) },
+        minionOf = { minionService.getByEntity(it) },
+        isActive = { activityService.isActive(it) },
+        islandAt = { islandRegistry.islandAt(it) },
+        islandPrivileges = { minionSettings.value.islandPrivileges },
+        canWork = protection::allows
+    )
     private val ecoItemsIntegration = EcoItemsIntegrationService()
     private val fishingActivity = FishingActivity(
         FishingLootRoller(ecoItemsIntegration, { location, owner -> vanillaFishingLoot(location, owner) }),
         triggerDispatch, events, experienceSink,
         canWork = protection::allows
     )
-    private val activities = MinionActivities(blockActivity, collectionActivity, slayerActivity, fishingActivity)
+    private val activities = MinionActivities(blockActivity, collectionActivity, slayerActivity, fishingActivity, feederActivity)
     private val offlineProgress = OfflineProgressService(
         minionSettings, fuelService, triggerDispatch, events, experienceSink, activities::get
     )
     private val ticker = MinionTicker(worlds, fuelService, triggerDispatch, events, activities::get)
-    private val activityService = MinionActivityService(
+    private val activityService: MinionActivityService = MinionActivityService(
         repository, offlineProgress, minionSettings,
         { Bukkit.getPlayer(it) != null },
         { islandMemberCache.membersOf(it.uuid) },
@@ -321,7 +335,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val islandRegistry = IslandRegistry(logger::warning)
     private val islandMemberCache = IslandMemberCache()
     private val islandTracker = IslandMinionTracker(islandRegistry, islandIndex, islandMemberCache)
-    private val minionService = MinionService(
+    private val minionService: MinionService = MinionService(
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
         onRegister = {
@@ -348,7 +362,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         minionService, minionFactory, itemFactory, repository, minionLimits, worlds, minionSettings,
         triggerDispatch, events, minionAccess, islandRegistry, AntigriefManager::canPlaceBlock
     )
-    private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
     private val minionItems = MinionItemService(itemFactory, events)
     private val collector = MinionCollectService(repository, events)

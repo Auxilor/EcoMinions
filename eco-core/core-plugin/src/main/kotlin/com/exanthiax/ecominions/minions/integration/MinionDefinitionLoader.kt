@@ -9,6 +9,7 @@ import com.exanthiax.ecominions.core.world.BlockLookup
 import com.exanthiax.ecominions.core.world.EcoEntityLookup
 import com.exanthiax.ecominions.core.world.EntityLookup
 import com.exanthiax.ecominions.core.world.ItemLookup
+import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.minions.model.CraftingSpec
 import com.exanthiax.ecominions.minions.model.MinionBlock
@@ -55,9 +56,12 @@ class MinionDefinitionLoader(
     private val compactorRecipeIds: () -> Collection<String>,
     /** Every upgrade id, so `allowed-upgrades` can reject one that does not exist. */
     private val upgradeIds: () -> Collection<String>,
+    /** Resolves a feeder's `fuels:` ids. */
+    private val fuels: FuelService,
     private val entities: EntityLookup = EcoEntityLookup()
 ) : ConfigLoader<MinionDefinition> {
     private val collectionSettings = CollectionSettingsLoader(items)
+    private val feederSettings = FeederSettingsLoader(fuels)
     private val dropLists = MinionDropListLoader(items)
     private val slayerSettings = SlayerSettingsLoader(entities, dropLists)
     private val fishingSettings = FishingSettingsLoader(dropLists)
@@ -121,6 +125,7 @@ class MinionDefinitionLoader(
             compactorRecipes = compactorRecipes,
             collection = if (type == MinionType.COLLECTOR) collectionSettings.load(config, context) else null,
             slayer = slayer,
+            feeder = if (type == MinionType.FEEDER) feederSettings.load(config, context) else null,
             fishing = if (type == MinionType.FISHING) fishingSettings.load(config, context) else null,
             bypassAntigrief = config.getBool("bypass-antigrief"),
             limit = config.getIntOrNull("limit")?.coerceAtLeast(0)
@@ -514,7 +519,7 @@ class MinionDefinitionLoader(
         private val MinionType.usesTargetBlocks: Boolean
             get() = when (this) {
                 MinionType.MINER, MinionType.FARMER, MinionType.WOODCUTTER -> true
-                MinionType.SLAYER, MinionType.FISHING, MinionType.COLLECTOR -> false
+                MinionType.SLAYER, MinionType.FISHING, MinionType.COLLECTOR, MinionType.FEEDER -> false
             }
 
         private val MinionType.selfSeedsByDefault: Boolean
