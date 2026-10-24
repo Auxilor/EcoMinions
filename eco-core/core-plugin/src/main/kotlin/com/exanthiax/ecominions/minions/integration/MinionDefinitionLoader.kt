@@ -538,7 +538,11 @@ class MinionDefinitionLoader(
                         fullAnimation = section.getStringOrNull("animations.full")?.takeIf { it.isNotBlank() }
                     )
                 }
-                ?: context.unknown("model.plugin", pluginName, MinionModel.Provider.entries.map { it.configName })
+                ?: context.unknown(
+                    param = "model.plugin",
+                    value = pluginName,
+                    known = MinionModel.Provider.entries.map { it.configName }
+                )
         }
 
         internal fun floorOffset(raw: String?, type: MinionType, context: LoadContext): Int {

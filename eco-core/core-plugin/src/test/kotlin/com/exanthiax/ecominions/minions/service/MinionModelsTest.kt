@@ -17,7 +17,13 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class MinionModelsTest {
-    private val model = MinionModel(MinionModel.Provider.MODEL_ENGINE, "robot", "idle", "mine", null)
+    private val model = MinionModel(
+        provider = MinionModel.Provider.MODEL_ENGINE,
+        id = "robot",
+        idleAnimation = "idle",
+        workingAnimation = "mine",
+        fullAnimation = null
+    )
 
     private val provider = mockk<MinionModelProvider>(relaxed = true) {
         every { provider } returns MinionModel.Provider.MODEL_ENGINE
@@ -38,7 +44,7 @@ class MinionModelsTest {
     }
 
     @Test
-    fun `attaching hides the stand and its equipment`() {
+    fun `attach hides the stand`() {
         val minion = minion()
 
         models.attach(minion)
@@ -49,7 +55,7 @@ class MinionModelsTest {
     }
 
     @Test
-    fun `a type with no model keeps its stand`() {
+    fun `no model keeps the stand`() {
         val minion = minion(model = null)
 
         models.attach(minion)
@@ -60,7 +66,7 @@ class MinionModelsTest {
     }
 
     @Test
-    fun `a model plugin that is not installed keeps the stand`() {
+    fun `missing plugin keeps the stand`() {
         val minion = minion(model = model.copy(provider = MinionModel.Provider.BETTER_MODEL))
 
         models.attach(minion)
@@ -69,7 +75,7 @@ class MinionModelsTest {
     }
 
     @Test
-    fun `an unknown model id keeps the stand`() {
+    fun `unknown id keeps the stand`() {
         every { provider.attach(any(), "robot") } returns false
         val minion = minion()
 
@@ -80,7 +86,7 @@ class MinionModelsTest {
     }
 
     @Test
-    fun `a model that was not ready on register attaches when animated`() {
+    fun `late model attaches on animate`() {
         every { provider.attach(any(), "robot") } returns false
         val minion = minion().also(models::attach)
         every { provider.attach(any(), "robot") } returns true
@@ -92,7 +98,7 @@ class MinionModelsTest {
     }
 
     @Test
-    fun `an animation only restarts when the state changes`() {
+    fun `animation restarts on change`() {
         val minion = minion().also(models::attach)
 
         assertTrue(models.animate(minion, Minion.AnimationState.IDLE))
@@ -106,7 +112,7 @@ class MinionModelsTest {
     }
 
     @Test
-    fun `a state with no animation stops the last one`() {
+    fun `no animation stops the last`() {
         val minion = minion().also(models::attach)
 
         models.animate(minion, Minion.AnimationState.MINING)

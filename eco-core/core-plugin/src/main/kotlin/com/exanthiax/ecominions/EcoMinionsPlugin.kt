@@ -329,10 +329,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
-        onRegister = {
-            minionModels.attach(it)
-            islandTracker.register(it)
-            activityService.noteLoaded(it)
+        onRegister = { minion ->
+            minionModels.attach(minion)
+            islandTracker.register(minion)
+            activityService.noteLoaded(minion)
         },
         onRetire = islandTracker::retire,
         onPlacedChanged = { minionLimits.invalidate(it) }

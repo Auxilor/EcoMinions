@@ -209,7 +209,7 @@ class MinionDefinitionLoaderTest {
     }
 
     @Test
-    fun `no model section or a blank id keeps the stand`() {
+    fun `blank model keeps the stand`() {
         val violations = mutableListOf<String>()
 
         assertNull(MinionDefinitionLoader.model(null, context(violations)))
@@ -218,23 +218,37 @@ class MinionDefinitionLoaderTest {
     }
 
     @Test
-    fun `an unknown model plugin is reported and lists what would have worked`() {
+    fun `unknown model plugin reported`() {
         val violations = mutableListOf<String>()
         val messages = mutableListOf<String>()
 
-        assertNull(MinionDefinitionLoader.model(modelConfig(plugin = "blockbench", id = "robot"), context(violations, messages)))
+        assertNull(
+            MinionDefinitionLoader.model(
+                modelConfig(plugin = "blockbench", id = "robot"),
+                context(violations, messages)
+            )
+        )
         assertEquals(listOf("model.plugin"), violations)
         assertTrue(messages.single().contains("better-model"), "was: ${messages.single()}")
     }
 
     @Test
-    fun `a model reads its plugin, id and animations`() {
+    fun `model reads plugin and id`() {
         val model = MinionDefinitionLoader.model(
             modelConfig(plugin = "Better-Model", id = "robot", idle = "idle", working = "mine", full = ""),
             context()
         )
 
-        assertEquals(MinionModel(MinionModel.Provider.BETTER_MODEL, "robot", "idle", "mine", null), model)
+        assertEquals(
+            MinionModel(
+                provider = MinionModel.Provider.BETTER_MODEL,
+                id = "robot",
+                idleAnimation = "idle",
+                workingAnimation = "mine",
+                fullAnimation = null
+            ),
+            model
+        )
     }
 
     private fun modelConfig(

@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.minions.integration.model.MinionModelProvider
 import com.exanthiax.ecominions.minions.model.MinionModel
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Puts a type's custom model on its stand and loops the animation for what the
@@ -11,7 +12,7 @@ import com.exanthiax.ecominions.minions.model.MinionModel
  * plain armour stand look.
  */
 class MinionModels {
-    private val providers = mutableMapOf<MinionModel.Provider, MinionModelProvider>()
+    private val providers = ConcurrentHashMap<MinionModel.Provider, MinionModelProvider>()
 
     fun register(provider: MinionModelProvider) {
         providers[provider.provider] = provider
