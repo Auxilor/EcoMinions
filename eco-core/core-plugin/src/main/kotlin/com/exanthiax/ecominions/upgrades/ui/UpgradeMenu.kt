@@ -69,7 +69,10 @@ class UpgradeMenu(
                 events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.UPGRADE))
             }
             setSlots(
-                current.upgradeSection.getSlotLocations("title-item", listOf(SlotLocation(1, TITLE_COLUMN))),
+                current.upgradeSection.getSlotLocations(
+                    "title-item",
+                    listOf(SlotLocation(row = 1, column = TITLE_COLUMN))
+                ),
                 slot(titleItem(upgrade, context))
             )
 

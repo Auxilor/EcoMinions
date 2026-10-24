@@ -41,7 +41,12 @@ class MenuChrome(
         if (section.has(path)) {
             section.getSlotArea(path)
         } else {
-            SlotArea(AREA_ROW, AREA_COLUMN, (rows - AREA_ROW).coerceAtLeast(0), AREA_COLUMNS)
+            SlotArea(
+                row = AREA_ROW,
+                column = AREA_COLUMN,
+                rows = (rows - AREA_ROW).coerceAtLeast(0),
+                columns = AREA_COLUMNS
+            )
         }
 
     /** The back button set by the `back` section of [section], in the bottom left corner by default. */
@@ -50,7 +55,7 @@ class MenuChrome(
             section.getSubsection("back"),
             defaultItem = "arrow",
             name = messages.line("gui.upgrade.back.name"),
-            defaultLocations = listOf(SlotLocation(rows, 1))
+            defaultLocations = listOf(SlotLocation(row = rows, column = 1))
         ) { _, _, _, _ -> action() }
 
     /** The item named by the `item` or `material` key of [section], or [default] when it names none. */

@@ -84,7 +84,7 @@ class MainMenu(
                 contents = storageView.itemsFor(minion, settings.value, storageArea.size)
             }
 
-            setButton(current.mainSection, "title-item", 1, TITLE_COLUMN) { section ->
+            setButton(current.mainSection, key = "title-item", row = 1, column = TITLE_COLUMN) { section ->
                 slot({ _, _ -> titleItem(minion, section) })
             }
 
@@ -96,16 +96,26 @@ class MainMenu(
                 override fun getEmptySlot(player: Player, menu: Menu): Slot = slot(chrome.fillerItem())
             })
 
-            setButton(current.mainSection, "collect-all", rows, 2) { section -> collectAllSlot(player, minion, section) }
-            setButton(current.mainSection, "fuel", rows, 4) { section -> fuelSlot(player, minion, section) }
-            setButton(current.mainSection, "pickup", rows, 5) { section -> pickupSlot(player, minion, section) }
-            setButton(current.mainSection, "upgrades", rows, 7) { section -> upgradesSlot(player, minion, section) }
-            setButton(current.mainSection, "info", rows, 8) { section -> infoSlot(minion, section) }
+            setButton(current.mainSection, key = "collect-all", row = rows, column = 2) { section ->
+                collectAllSlot(player, minion, section)
+            }
+            setButton(current.mainSection, key = "fuel", row = rows, column = 4) { section ->
+                fuelSlot(player, minion, section)
+            }
+            setButton(current.mainSection, key = "pickup", row = rows, column = 5) { section ->
+                pickupSlot(player, minion, section)
+            }
+            setButton(current.mainSection, key = "upgrades", row = rows, column = 7) { section ->
+                upgradesSlot(player, minion, section)
+            }
+            setButton(current.mainSection, key = "info", row = rows, column = 8) { section ->
+                infoSlot(minion, section)
+            }
             if (limits.inUse()) {
-                setButton(current.mainSection, "limit", rows, 3) { limitSlot(minion) }
+                setButton(current.mainSection, key = "limit", row = rows, column = 3) { limitSlot(minion) }
             }
             if (current.showStoredXp && messages.has("gui.main.stored-xp.name")) {
-                setButton(current.mainSection, "stored-xp", rows, 6) { section ->
+                setButton(current.mainSection, key = "stored-xp", row = rows, column = 6) { section ->
                     storedExperienceSlot(player, minion, section)
                 }
             }
@@ -119,9 +129,11 @@ class MainMenu(
         }.open(player)
     }
 
-    /** Set the slot [button] builds from the [key] section of [section], at its locations or at [row], [column]. */
     private fun MenuBuilder.setButton(section: Config, key: String, row: Int, column: Int, button: (Config) -> Slot) =
-        setSlots(section.getSlotLocations(key, listOf(SlotLocation(row, column))), button(section.getSubsection(key)))
+        setSlots(
+            section.getSlotLocations(key, listOf(SlotLocation(row = row, column = column))),
+            button(section.getSubsection(key))
+        )
 
     private fun context(minion: Minion): TemplateContext =
         TemplateContext.of(MinionPlaceholders.MINION to minion)

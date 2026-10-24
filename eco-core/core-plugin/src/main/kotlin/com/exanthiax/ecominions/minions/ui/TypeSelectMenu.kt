@@ -50,7 +50,7 @@ class TypeSelectMenu(
                 null,
                 defaultItem = "arrow",
                 name = messages.line("gui.type-select.previous-page.name"),
-                defaultLocations = listOf(SlotLocation(rows, 1)),
+                defaultLocations = listOf(SlotLocation(row = rows, column = 1)),
                 hideInactive = true
             )
             addPageChanger(
@@ -60,7 +60,7 @@ class TypeSelectMenu(
                 null,
                 defaultItem = "arrow",
                 name = messages.line("gui.type-select.next-page.name"),
-                defaultLocations = listOf(SlotLocation(rows, 9)),
+                defaultLocations = listOf(SlotLocation(row = rows, column = 9)),
                 hideInactive = true
             )
 
@@ -72,8 +72,8 @@ class TypeSelectMenu(
                     addCustomSlots(current.typeSelectSection, "")
                     for ((position, type) in types.withIndex()) {
                         setSlot(
-                            typeArea.row + (position / columns),
-                            typeArea.column + (position % columns),
+                            typeArea.row + position / columns,
+                            typeArea.column + position % columns,
                             typeSlot(player, type)
                         )
                     }
