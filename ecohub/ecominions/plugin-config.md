@@ -3,7 +3,7 @@ title: "Plugin Config"
 sidebar_position: 8
 ---
 
-This is the server-wide config for EcoMinions, `config.yml`, found at `/plugins/EcoMinions/config.yml`. It holds disabled worlds, placement limits, offline catch-up, sell pricing, minion behaviour, and the menu titles. Apply changes with `/minions reload`.
+This is the server-wide config for EcoMinions, `config.yml`, found at `/plugins/EcoMinions/config.yml`. It holds disabled worlds, placement limits, offline catch-up, sell pricing, minion behaviour, and the menu layouts. Apply changes with `/minions reload`.
 
 ## Default config.yml
 
@@ -85,28 +85,193 @@ minion:
     mode: store
 
 
+# The layout of each menu.
+# A button's item and location are set here, and its name and lore in lang.yml.
+# A location is a row and a column, counted from the top left corner, which is row 1, column 1.
+# An area is the rectangle from its top-left slot to its bottom-right slot.
+# If you change rows, move the locations and areas so they still fit in the menu.
+# A mask pattern needs exactly one line for each row, or the menu will not open.
 gui:
-  main:
+  main: # A minion's own menu.
     title: "&8%minion_name% &8(&7Lvl %level%&8)"
     rows: 6
-    # How collected item counts are shown: title | lore | both
-    storage-display: lore
-    # Max item types shown in the storage area; highest count first
-    storage-slots: 9
-    # Whether the stored XP button is shown.
-    show-stored-xp: true
-  upgrade:
+    storage-display: lore # How stored item counts are shown: title, lore or both.
+    storage-slots: 9 # The most item types shown in the storage area, highest count first.
+    show-stored-xp: true # If the stored XP button is shown.
+    # The background. Each digit in pattern is the item at that position in items, and 0 is empty.
+    mask:
+      items:
+        - black_stained_glass_pane
+      pattern:
+        - "111111111"
+        - "111111111"
+        - "111111111"
+        - "111111111"
+        - "111111111"
+        - "111111111"
+    custom-slots: [] # Extra items placed in the menu, each with an item, a location and optional click actions.
+    title-item: # The minion itself, at the top.
+      item: player_head
+      location:
+        row: 1
+        column: 5
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    storage-area: # Where the stored items are shown. Empty slots show the filler item from lang.yml.
+      top-left:
+        row: 2
+        column: 2
+      bottom-right:
+        row: 5
+        column: 8
+    collect-all: # Moves every stored item into the player's inventory.
+      item: hopper
+      location:
+        row: 6
+        column: 2
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    limit: # Says which limit holds an idle minion back. Only shown when a limit is on. Its item is a barrier while idle and paper otherwise.
+      location:
+        row: 6
+        column: 3
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    fuel: # Adds fuel. While fuel burns, it shows that fuel's item instead.
+      item: coal
+      location:
+        row: 6
+        column: 4
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    pickup: # Picks the minion up.
+      item: barrier
+      location:
+        row: 6
+        column: 5
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    stored-xp: # Claims the stored XP.
+      item: experience_bottle
+      location:
+        row: 6
+        column: 6
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    upgrades: # Opens the minion's upgrades.
+      item: anvil
+      location:
+        row: 6
+        column: 7
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    info: # Shows the minion's stats.
+      item: book
+      location:
+        row: 6
+        column: 8
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+  upgrade: # One upgrade's tiers.
     title: "&8Upgrade: &f%upgrade_name%"
     rows: 6
-  type-select:
+    # The background. Each digit in pattern is the item at that position in items, and 0 is empty.
+    mask:
+      items:
+        - black_stained_glass_pane
+      pattern:
+        - "111111111"
+        - "111111111"
+        - "111111111"
+        - "111111111"
+        - "111111111"
+        - "111111111"
+    custom-slots: [] # Extra items placed in the menu, each with an item, a location and optional click actions.
+    title-item: # The upgrade's icon. Its item is the upgrade's own icon.
+      location:
+        row: 1
+        column: 5
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    tier-area: # Where the tiers are shown, lowest first. Tiers that do not fit are not shown.
+      top-left:
+        row: 2
+        column: 2
+      bottom-right:
+        row: 5
+        column: 8
+    back: # Goes back to the upgrade list.
+      item: arrow
+      location:
+        row: 6
+        column: 1
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+  type-select: # The minion browser opened by /minions.
     title: "&8Choose a Minion"
     rows: 6
-  upgrade-list:
+    # The background, set on every page. Each digit in pattern is the item at that position in items, and 0 is empty.
+    mask:
+      items:
+        - black_stained_glass_pane
+      pattern:
+        - "000000000"
+        - "000000000"
+        - "000000000"
+        - "000000000"
+        - "000000000"
+        - "000000000"
+    custom-slots: [] # Extra items placed in the menu, each with an item, a location and optional click actions.
+    type-area: # Where the minions are shown. Minions that do not fit go on the next page.
+      top-left:
+        row: 2
+        column: 2
+      bottom-right:
+        row: 5
+        column: 8
+    previous-page: # Goes to the previous page. Hidden on the first page.
+      item: arrow
+      location:
+        row: 6
+        column: 1
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    next-page: # Goes to the next page. Hidden on the last page.
+      item: arrow
+      location:
+        row: 6
+        column: 9
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+  upgrade-list: # A minion's upgrades.
     title: "&8Upgrades: &f%minion_name%"
     rows: 6
-  cost-select:
+    # The background. Each digit in pattern is the item at that position in items, and 0 is empty.
+    mask:
+      items:
+        - black_stained_glass_pane
+      pattern:
+        - "111111111"
+        - "111111111"
+        - "111111111"
+        - "111111111"
+        - "111111111"
+        - "111111111"
+    custom-slots: [] # Extra items placed in the menu, each with an item, a location and optional click actions.
+    upgrade-area: # Where the upgrades are shown. Upgrades that do not fit are not shown.
+      top-left:
+        row: 2
+        column: 2
+      bottom-right:
+        row: 5
+        column: 8
+    back: # Goes back to the minion's menu.
+      item: arrow
+      location:
+        row: 6
+        column: 1
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+  cost-select: # The payment chooser.
     title: "&8Choose Payment"
     rows: 3
+    # The background. Each digit in pattern is the item at that position in items, and 0 is empty.
+    mask:
+      items:
+        - black_stained_glass_pane
+      pattern:
+        - "111111111"
+        - "111111111"
+        - "111111111"
+    custom-slots: [] # Extra items placed in the menu, each with an item, a location and optional click actions.
+    option-row: 2 # The row the payment options are shown in, from column 2 to column 8.
 ```
 
 ### Disabled worlds
@@ -160,7 +325,31 @@ There is no plugin-wide auto sell interval. Set it with the trigger on the auto 
 
 ### Menus
 
-The title and rows of each menu: `main` is a minion's menu, `upgrade-list` its upgrades, `upgrade` one upgrade's tiers, `cost-select` the payment chooser, and `type-select` the minion browser opened by `/minions`. Buttons and their text live in `lang.yml`.
+Each menu has a `title` and `rows`: `main` is a minion's menu, `upgrade-list` its upgrades, `upgrade` one upgrade's tiers, `cost-select` the payment chooser, and `type-select` the minion browser opened by `/minions`. Button names and lore live in `lang.yml`. Everything else about the layout is set here.
+
+| Key | Menus | What it controls |
+|---|---|---|
+| `mask` | all | The background. `items` is a list of items, and each digit in `pattern` places the item at that position in the list. `0` leaves the slot empty. `type-select` ships with an empty background. |
+| `custom-slots` | all | Extra items placed in the menu, each with an `item`, a `location` and optional click actions. A custom slot replaces a built-in item in the same slot, except the page buttons in `type-select`, which stay on top. |
+| `title-item` | `main`, `upgrade` | The item at the top. In `upgrade` only its location can be changed, because it shows the upgrade's own icon. |
+| `storage-area` | `main` | Where the minion's stored items are shown. Empty slots show `gui.filler.material` from `lang.yml`. |
+| `collect-all`, `limit`, `fuel`, `pickup`, `stored-xp`, `upgrades`, `info` | `main` | The minion's buttons. While fuel burns, the fuel button shows that fuel's item. `limit` only shows when a limit is on, and its item cannot be changed. |
+| `type-area` | `type-select` | Where the minions are shown. Minions that do not fit go on the next page. |
+| `previous-page`, `next-page` | `type-select` | The page buttons. Each one is hidden when there is no page in its direction. |
+| `upgrade-area` | `upgrade-list` | Where the upgrades are shown. Upgrades that do not fit are not shown. |
+| `tier-area` | `upgrade` | Where the tiers are shown, lowest first. Tiers that do not fit are not shown. |
+| `back` | `upgrade-list`, `upgrade` | The back button. |
+| `option-row` | `cost-select` | The row the payment options are shown in, from column 2 to column 8. |
+
+A button has an `item` and a `location` with a `row` and a `column`, counted from the top left slot, which is row 1, column 1.
+
+A button can also have `locations`, a list of `row` and `column` pairs. When it is not empty, the button is shown in each of them instead of `location`.
+
+An area is the rectangle from its `top-left` slot to its `bottom-right` slot.
+
+:::warning
+The shipped locations and areas fit the shipped `rows`. If you change `rows`, move them too, and give `mask.pattern` exactly one line for each row, or the menu will not open.
+:::
 
 <hr/>
 

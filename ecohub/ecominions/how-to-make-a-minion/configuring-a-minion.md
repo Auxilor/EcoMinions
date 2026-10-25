@@ -35,7 +35,7 @@ IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). 
 | **Selling** | What its storage sells for |
 | **Upgrades** | Which upgrades and compactor recipes it can buy |
 | **Effects** | libreforge effects that are always active |
-| **Appearance** | Its equipment and particles |
+| **Appearance** | Its equipment, custom model and particles |
 | **Levelling** | Optional XP-based levels |
 | **Placement** | Where its work area starts and how it makes its own work |
 
@@ -232,7 +232,7 @@ A minion keeps working on triggers like `minion_mine_block` without its owner, a
 
 ### Appearance
 
-What the minion wears, and the particles it shows.
+What the minion wears or which custom model it uses, and the particles it shows.
 
 ```yaml
 equipment: # Optional. Each slot is an item lookup.
@@ -241,6 +241,14 @@ equipment: # Optional. Each slot is an item lookup.
   leggings: "LEATHER_LEGGINGS"
   boots: "LEATHER_BOOTS"
   hand: "" # Leave out to hold an iron pickaxe.
+
+model: # Optional. Shown instead of the armour stand.
+  plugin: "model-engine" # Either model-engine or better-model.
+  id: "" # The model id in that plugin. Leave blank to keep the armour stand.
+  animations: # Optional. Each animation loops while the minion is in that state.
+    idle: "" # While it is waiting or has nothing to work on.
+    working: "" # While it is working.
+    full: "" # While its storage is full.
 
 particles:
   full: # Shown while its storage is full.
@@ -267,6 +275,8 @@ particles:
 ```
 
 Every equipment slot is optional. Set a slot to `""` to leave it bare on purpose. A dyed leather piece is written the way any dyed item is in the item lookup.
+
+A `model` hides the armour stand and its equipment, and the model is shown in its place. If the model plugin is not installed or the id is not found, the minion keeps its armour stand. An animation left blank plays nothing in that state. A ModelEngine animation should be set to loop in its blueprint.
 
 The `blocked` box is sized from `radius` and `height`, and only the owner sees it. Keep its `offset` at `0.0` so the outline is drawn exactly on the box.
 

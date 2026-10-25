@@ -1,5 +1,7 @@
 package com.exanthiax.ecominions.minions.model
 
+import com.willfp.eco.core.config.interfaces.Config
+
 /** Layout of the minion menus, read from `config.yml`. */
 data class MenuSettings(
     val mainRows: Int,
@@ -9,6 +11,10 @@ data class MenuSettings(
     val storageSlots: Int,
     val typeSelectRows: Int,
     val typeSelectTitle: String,
+    /** The `gui.main` section, read for the main menu's optional layout keys. */
+    val mainSection: Config,
+    /** The `gui.type-select` section, read for the type select menu's optional layout keys. */
+    val typeSelectSection: Config,
     /** If the main menu shows the stored XP button. */
     val showStoredXp: Boolean = true
 ) {

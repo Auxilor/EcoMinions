@@ -1,14 +1,19 @@
 package com.exanthiax.ecominions.minions.ui
 
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.MinionModels
 import org.bukkit.util.EulerAngle
 
-/** Poses a minion's stand to match what it is doing. */
-class MinionAnimator {
+/** Poses a minion's stand, or animates its custom model, to match what it is doing. */
+class MinionAnimator(private val models: MinionModels) {
 
     fun apply(minion: Minion, now: Long) {
         val stand = minion.entity
         if (stand.isDead) {
+            return
+        }
+
+        if (models.animate(minion, minion.animation)) {
             return
         }
 
@@ -33,6 +38,11 @@ class MinionAnimator {
                 stand.rightArmPose = EulerAngle(Math.toRadians(ARMS_UP), 0.0, Math.toRadians(-ARMS_OUT))
             }
         }
+    }
+
+    /** An idle minion's stand stays still, but its model loops its idle animation. */
+    fun rest(minion: Minion) {
+        models.animate(minion, Minion.AnimationState.IDLE)
     }
 
     /** A four-step bob so an idle minion does not look frozen. */

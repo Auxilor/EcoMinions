@@ -13,7 +13,10 @@ class UpgradeMenuSettingsLoader(
         upgradeRows = config.getInt("gui.upgrade.rows").coerceIn(1, MAX_ROWS),
         upgradeTitle = config.getString("gui.upgrade.title"),
         costSelectRows = config.getInt("gui.cost-select.rows").coerceIn(1, MAX_ROWS),
-        costSelectTitle = config.getString("gui.cost-select.title")
+        costSelectTitle = config.getString("gui.cost-select.title"),
+        upgradeListSection = config.getSubsection("gui.upgrade-list"),
+        upgradeSection = config.getSubsection("gui.upgrade"),
+        costSelectSection = config.getSubsection("gui.cost-select")
     )
 
     private companion object {
