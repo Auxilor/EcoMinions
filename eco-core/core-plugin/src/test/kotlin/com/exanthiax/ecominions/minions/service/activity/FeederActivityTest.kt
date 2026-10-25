@@ -28,10 +28,12 @@ import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 class FeederActivityTest {
 
@@ -63,12 +65,12 @@ class FeederActivityTest {
         speedMultiplier = 3.0
     )
     private val owner = UUID.randomUUID()
-    private val stands = mutableMapOf<ArmorStand, Minion>()
-    private val inactive = mutableSetOf<Minion>()
+    private val stands = CopyOnWriteArrayList<Pair<ArmorStand, Minion>>()
+    private val inactive = ConcurrentHashMap.newKeySet<Minion>()
     private val entities = object : WorkAreaEntities {
         @Suppress("UNCHECKED_CAST")
         override fun <T : Entity> find(minion: Minion, type: Class<T>): List<T> =
-            if (type == ArmorStand::class.java) stands.keys.toList() as List<T> else emptyList()
+            if (type == ArmorStand::class.java) stands.map { (stand, _) -> stand } as List<T> else emptyList()
     }
     private val fuels = mockk<FuelService> {
         every { matching(any()) } answers {
@@ -107,7 +109,7 @@ class FeederActivityTest {
     )
 
     private fun target(minionOwner: UUID? = owner, type: MinionType = MinionType.MINER): Minion =
-        minion(type, minionOwner).also { stands[mockk<ArmorStand>(relaxed = true)] = it }
+        minion(type, minionOwner).also { stands += mockk<ArmorStand>(relaxed = true) to it }
 
     private fun feeder(coalCount: Int = 3, settings: FeederSettings = FeederSettings(emptyList())) =
         minion(settings = settings).also { feeder ->
@@ -128,7 +130,7 @@ class FeederActivityTest {
         targets = FeederTargets(
             entities = entities,
             fuels = fuels,
-            minionOf = { entity -> stands[entity] },
+            minionOf = { entity -> stands.firstOrNull { (stand, _) -> stand == entity }?.second },
             isActive = { minion -> minion !in inactive },
             islandAt = { location -> if (islandPrivileges()) islandAt(location) else null },
             takesInput = { definition -> definition.feeder != null || definition.breeder != null }
@@ -332,7 +334,7 @@ class FeederActivityTest {
             targets = FeederTargets(
                 entities = entities,
                 fuels = fuels,
-                minionOf = { entity -> stands[entity] },
+                minionOf = { entity -> stands.firstOrNull { (stand, _) -> stand == entity }?.second },
                 isActive = { true },
                 islandAt = { null },
                 takesInput = { false }

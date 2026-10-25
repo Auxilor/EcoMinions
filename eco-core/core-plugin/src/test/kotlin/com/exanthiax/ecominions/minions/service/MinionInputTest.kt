@@ -19,14 +19,15 @@ import io.mockk.verify
 import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
-import org.bukkit.inventory.PlayerInventory
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.PlayerInventory
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CopyOnWriteArrayList
 
 class MinionInputTest {
 
@@ -43,7 +44,7 @@ class MinionInputTest {
         level = 1
     )
 
-    private val saved = mutableListOf<Minion>()
+    private val saved = CopyOnWriteArrayList<Minion>()
 
     private val coal = Fuel(
         id = "coal",

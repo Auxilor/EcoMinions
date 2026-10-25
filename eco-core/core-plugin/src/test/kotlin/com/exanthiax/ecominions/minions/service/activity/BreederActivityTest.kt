@@ -37,12 +37,13 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.random.Random
 
 class BreederActivityTest {
 
     private val spawnedByKey = NamespacedKey("ecominions", "minion")
-    private val animals = mutableListOf<Animals>()
+    private val animals = CopyOnWriteArrayList<Animals>()
     private val entities = object : WorkAreaEntities {
         @Suppress("UNCHECKED_CAST")
         override fun <T : Entity> find(minion: Minion, type: Class<T>): List<T> =
