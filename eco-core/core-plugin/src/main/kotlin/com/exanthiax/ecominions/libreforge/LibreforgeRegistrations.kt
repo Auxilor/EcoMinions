@@ -25,8 +25,8 @@ import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTarge
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
 import com.exanthiax.ecominions.libreforge.triggers.TriggerClickMinion
 import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
-import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCatchFish
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionBreed
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCatchFish
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollectItem
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFeed

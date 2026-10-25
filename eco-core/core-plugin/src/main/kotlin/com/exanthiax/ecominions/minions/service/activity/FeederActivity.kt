@@ -50,7 +50,7 @@ class FeederActivity(
                 minion.blockedReason = NO_FUEL_STORED
                 ActivityResult.BLOCKED
             }
-            neighbours(minion).filter(::isHungry).any { feed(minion, it, settings) } -> ActivityResult.WORKED
+            feedFirst(minion, settings) -> ActivityResult.WORKED
             else -> {
                 minion.blockedReason = NOTHING_TO_FEED
                 ActivityResult.BUSY
@@ -61,6 +61,15 @@ class FeederActivity(
     override fun hasWork(minion: Minion): Boolean = true
 
     override fun offlineCycle(minion: Minion): OfflineYield? = null
+
+    private fun feedFirst(minion: Minion, settings: FeederSettings): Boolean {
+        for (target in neighbours(minion).filter(::isHungry)) {
+            if (feed(minion, target, settings)) {
+                return true
+            }
+        }
+        return false
+    }
 
     private fun neighbours(minion: Minion): List<Minion> =
         entities.find(minion, ArmorStand::class.java)

@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -26,7 +27,7 @@ class FeederSettingsLoaderTest {
     fun `empty fuels reads as every fuel`() {
         val config = mockk<Config>(relaxed = true) { every { getStrings("fuels") } returns emptyList() }
 
-        assertTrue(loader.load(config, context()).fuelIds.isEmpty())
+        assertTrue(loader.load(config, context())?.fuelIds?.isEmpty() == true)
     }
 
     @Test
@@ -36,8 +37,18 @@ class FeederSettingsLoaderTest {
 
         val settings = loader.load(config, context(violations))
 
-        assertEquals(listOf("coal"), settings.fuelIds)
+        assertEquals(listOf("coal"), settings?.fuelIds)
         assertEquals(listOf("fuels"), violations)
+    }
+
+    @Test
+    fun `every listed fuel invalid rejects the minion`() {
+        val violations = mutableListOf<String>()
+        val config = mockk<Config>(relaxed = true) { every { getStrings("fuels") } returns listOf("nope", "nada") }
+
+        assertNull(loader.load(config, context(violations)))
+
+        assertEquals(listOf("fuels", "fuels", "fuels"), violations)
     }
 
     private fun context(violations: MutableList<String> = mutableListOf()): LoadContext {

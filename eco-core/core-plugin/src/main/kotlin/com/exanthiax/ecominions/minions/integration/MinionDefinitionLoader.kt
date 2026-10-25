@@ -127,7 +127,7 @@ class MinionDefinitionLoader(
             collection = if (type == MinionType.COLLECTOR) collectionSettings.load(config, context) else null,
             slayer = slayer,
             breeder = if (type == MinionType.BREEDER) breederSettings.load(config, context) ?: return null else null,
-            feeder = if (type == MinionType.FEEDER) feederSettings.load(config, context) else null,
+            feeder = if (type == MinionType.FEEDER) feederSettings.load(config, context) ?: return null else null,
             fishing = if (type == MinionType.FISHING) fishingSettings.load(config, context) else null,
             bypassAntigrief = config.getBool("bypass-antigrief"),
             limit = config.getIntOrNull("limit")?.coerceAtLeast(0)

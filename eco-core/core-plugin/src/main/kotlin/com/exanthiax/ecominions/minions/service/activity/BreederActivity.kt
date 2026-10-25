@@ -83,7 +83,14 @@ class BreederActivity(
     }
 
     private fun foodFor(minion: Minion, settings: BreederSettings, pair: List<Animals>): ItemStack? =
-        if (pair.size < 2) null else storedFood(minion, settings).firstOrNull { pair.first().isBreedItem(it) }
+        if (pair.size < 2) {
+            null
+        } else {
+            storedFood(minion, settings)
+                .firstOrNull { minion.storage.countSimilar(it) >= FOOD_PER_BREEDING && pair.first().isBreedItem(it) }
+                ?.clone()
+                ?.apply { amount = FOOD_PER_BREEDING }
+        }
 
     private fun breed(minion: Minion, settings: BreederSettings, pair: List<Animals>): Boolean {
         val food = foodFor(minion, settings, pair)

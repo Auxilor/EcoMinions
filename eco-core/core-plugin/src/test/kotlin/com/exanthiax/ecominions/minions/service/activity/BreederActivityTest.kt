@@ -103,6 +103,19 @@ class BreederActivityTest {
         every { location } returns mockk<Location>(relaxed = true)
     }.also { animals += it }
 
+    private fun forager(): Cow = mockk<Cow>(relaxed = true) {
+        every { type } returns EntityType.COW
+        every { canBreed() } returns true
+        every { isAdult } returns true
+        every { isLoveMode } returns false
+        every { isBreedItem(any<ItemStack>()) } answers {
+            firstArg<ItemStack>().type.let { it == Material.WHEAT || it == Material.CARROT }
+        }
+        every { customName() } returns null
+        every { persistentDataContainer } returns tagContainer(false)
+        every { location } returns mockk<Location>(relaxed = true)
+    }.also { animals += it }
+
     private fun pig(): Pig = mockk<Pig>(relaxed = true) {
         every { type } returns EntityType.PIG
         every { canBreed() } returns true
@@ -246,8 +259,37 @@ class BreederActivityTest {
         cow()
         cow()
 
-        assertEquals(ActivityResult.BUSY, activity().act(subject, 0L))
+        val events = RecordingEventDispatcher()
+
+        assertEquals(ActivityResult.BUSY, activity(events = events).act(subject, 0L))
         assertEquals(1, count(subject, Material.WHEAT))
+        assertEquals(emptyList<Any>(), events.events)
+    }
+
+    @Test
+    fun `a single stray food does not hide a full stack`() {
+        val subject = breeder(ItemStack(Material.WHEAT, 1), ItemStack(Material.CARROT, 64))
+        val first = forager()
+        val second = forager()
+
+        assertEquals(ActivityResult.WORKED, activity().act(subject, 0L))
+
+        verify { first.loveModeTicks = 600 }
+        verify { second.loveModeTicks = 600 }
+        assertEquals(1, count(subject, Material.WHEAT))
+        assertEquals(62, count(subject, Material.CARROT))
+    }
+
+    @Test
+    fun `the breed event food amount is two`() {
+        val subject = breeder(ItemStack(Material.WHEAT, 5))
+        cow()
+        cow()
+        val events = RecordingEventDispatcher()
+
+        activity(events = events).act(subject, 0L)
+
+        assertEquals(2, events.last<MinionBreedEvent>().food.amount)
     }
 
     @Test

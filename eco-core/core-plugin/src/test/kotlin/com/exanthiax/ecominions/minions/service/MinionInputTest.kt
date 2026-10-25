@@ -151,6 +151,17 @@ class MinionInputTest {
 
         assertEquals(MinionInput.Deposit.Accepted(0), input.deposit(player, subject, ItemStack(Material.WHEAT, 10)))
         assertTrue(saved.isEmpty())
+        assertTrue(events.events.isEmpty())
+    }
+
+    @Test
+    fun `a partial fit fires the deposit event with the amount that fits`() {
+        val subject = breeder()
+        subject.storage.add(ItemStack(Material.WHEAT, 60))
+
+        input.deposit(player, subject, ItemStack(Material.WHEAT, 10))
+
+        assertEquals(4, events.last<MinionDepositEvent>().item.amount)
     }
 
     @Test

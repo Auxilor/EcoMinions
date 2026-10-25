@@ -39,11 +39,16 @@ class MinionInput(
         data object Cancelled : Deposit
     }
 
-    /** Fires [MinionDepositEvent] after the accepts check; a cancelled event moves nothing. */
+    /**
+     * Fires [MinionDepositEvent] after the accepts check, carrying only the amount that fits.
+     * A cancelled event moves nothing, and a full store fires no event.
+     */
     fun deposit(player: Player, minion: Minion, item: ItemStack): Deposit {
-        val event = MinionDepositEvent(player, minion, item.clone())
+        val fits = item.amount - (minion.storage.copy().add(item)?.amount ?: 0)
+        val event = MinionDepositEvent(player, minion, item.clone().apply { amount = fits })
         return when {
             !accepts(minion.state.definition, item) -> Deposit.Refused
+            fits == 0 -> Deposit.Accepted(0)
             !events.dispatch(event) -> Deposit.Cancelled
             else -> Deposit.Accepted(store(minion, item))
         }

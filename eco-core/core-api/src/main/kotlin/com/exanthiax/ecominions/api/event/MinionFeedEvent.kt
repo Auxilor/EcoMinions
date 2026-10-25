@@ -10,7 +10,8 @@ import org.bukkit.event.HandlerList
  * Fired before a feeder takes fuel from its storage to refuel [target].
  *
  * [minion] is the feeder. Cancelling leaves the fuel in storage and [target] unfed. A listener may
- * change [durationMillis], which is the burn time handed to the target.
+ * change [durationMillis], which is the burn time handed to the target. A [durationMillis] of zero or
+ * less is treated as a cancel.
  */
 class MinionFeedEvent(
     override val minion: Minion,
