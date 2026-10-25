@@ -44,13 +44,13 @@ class MinionHologram(
         if (minion.entity.isDead) {
             return null
         }
-        val display = minion.entity.world.spawn(anchorOf(minion), TextDisplay::class.java) {
+        val display = minion.entity.world.spawn(anchorOf(minion), TextDisplay::class.java) { textDisplay ->
             // Never looked up by identity - always re-spawned from minion.hologram in
             // memory. Persisting it just leaves an orphan behind on an ungraceful
             // stop (crash, kill), which stacks up over repeated restarts.
-            it.isPersistent = false
-            it.billboard = Display.Billboard.CENTER
-            it.text(Component.empty())
+            textDisplay.isPersistent = false
+            textDisplay.billboard = Display.Billboard.CENTER
+            textDisplay.text(Component.empty())
         }
         minion.hologram = display
         return display
