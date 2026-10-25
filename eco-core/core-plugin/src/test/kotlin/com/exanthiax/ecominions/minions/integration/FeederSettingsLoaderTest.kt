@@ -12,11 +12,16 @@ import io.mockk.mockk
 import io.mockk.slot
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class FeederSettingsLoaderTest {
-    private val coal = Fuel("coal", "Coal", "coal", 1200L, 2.0)
+    private val coal = Fuel(
+        id = "coal",
+        displayName = "Coal",
+        itemLookup = "coal",
+        durationTicks = 1_200L,
+        speedMultiplier = 2.0
+    )
     private val fuels = mockk<FuelService> {
         every { getById(any()) } returns null
         every { getById("coal") } returns coal
@@ -24,14 +29,14 @@ class FeederSettingsLoaderTest {
     private val loader = FeederSettingsLoader(fuels)
 
     @Test
-    fun `empty fuels reads as every fuel`() {
+    fun `empty fuels means every fuel`() {
         val config = mockk<Config>(relaxed = true) { every { getStrings("fuels") } returns emptyList() }
 
-        assertTrue(loader.load(config, context())?.fuelIds?.isEmpty() == true)
+        assertEquals(emptyList<String>(), loader.load(config, context())?.fuelIds)
     }
 
     @Test
-    fun `unknown fuel id warns and is dropped`() {
+    fun `unknown fuel id is dropped`() {
         val violations = mutableListOf<String>()
         val config = mockk<Config>(relaxed = true) { every { getStrings("fuels") } returns listOf("coal", "nope") }
 
@@ -42,7 +47,7 @@ class FeederSettingsLoaderTest {
     }
 
     @Test
-    fun `every listed fuel invalid rejects the minion`() {
+    fun `all fuels invalid rejects`() {
         val violations = mutableListOf<String>()
         val config = mockk<Config>(relaxed = true) { every { getStrings("fuels") } returns listOf("nope", "nada") }
 

@@ -104,10 +104,12 @@ import com.exanthiax.ecominions.minions.service.SeedingService
 import com.exanthiax.ecominions.minions.service.SellPricingService
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.minions.service.TreeService
+import com.exanthiax.ecominions.minions.service.activity.ActivitySignals
 import com.exanthiax.ecominions.minions.service.activity.BlockActivity
 import com.exanthiax.ecominions.minions.service.activity.BreederActivity
 import com.exanthiax.ecominions.minions.service.activity.CollectionActivity
 import com.exanthiax.ecominions.minions.service.activity.FeederActivity
+import com.exanthiax.ecominions.minions.service.activity.FeederTargets
 import com.exanthiax.ecominions.minions.service.activity.FishingActivity
 import com.exanthiax.ecominions.minions.service.activity.MinionActivities
 import com.exanthiax.ecominions.minions.service.activity.SlayerActivity
@@ -269,6 +271,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         miningTargets, blockIndex, regenService, behaviours, triggerDispatch, events, dropTables, experienceSink
     )
     private val workAreaEntities = BukkitWorkAreaEntities()
+    private val islandRegistry = IslandRegistry(logger::warning)
     private val collectionActivity = CollectionActivity(
         workAreaEntities, triggerDispatch, events, experienceSink,
         { item -> item.itemMeta?.persistentDataContainer?.let(repository::isMinion) == true },
@@ -285,26 +288,29 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
     private val minionInput = MinionInput(fuelService, repository::save, events)
+    private val activitySignals = ActivitySignals(events, triggerDispatch)
     private val feederActivity = FeederActivity(
-        entities = workAreaEntities,
+        targets = FeederTargets(
+            entities = workAreaEntities,
+            fuels = fuelService,
+            minionOf = { minionService.getByEntity(it) },
+            isActive = { minionService.isActive(it) },
+            islandAt = { location ->
+                if (minionSettings.value.islandPrivileges) islandRegistry.islandAt(location) else null
+            },
+            takesInput = minionInput::takesInput
+        ),
         fuels = fuelService,
         fuelService = minionFuelService,
         storageSaved = { repository.save(it) },
-        minionOf = { minionService.getByEntity(it) },
-        isActive = { activityService.isActive(it) },
-        islandAt = { islandRegistry.islandAt(it) },
-        islandPrivileges = { minionSettings.value.islandPrivileges },
-        takesInput = minionInput::takesInput,
-        events = events,
-        dispatch = triggerDispatch,
+        signals = activitySignals,
         canWork = protection::allows
     )
     private val breederActivity = BreederActivity(
         entities = workAreaEntities,
         storageSaved = { repository.save(it) },
         spawnedByKey = dataKeys.spawnedBy,
-        events = events,
-        dispatch = triggerDispatch,
+        signals = activitySignals,
         canWork = protection::allows
     )
     private val ecoItemsIntegration = EcoItemsIntegrationService()
@@ -355,7 +361,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         readLimits = { ServerProfile.load().read(islandLimitsKey) },
         writeLimits = { ServerProfile.load().write(islandLimitsKey, it) }
     )
-    private val islandRegistry = IslandRegistry(logger::warning)
     private val islandMemberCache = IslandMemberCache()
     private val islandTracker = IslandMinionTracker(islandRegistry, islandIndex, islandMemberCache)
     private val minionService: MinionService = MinionService(

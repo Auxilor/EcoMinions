@@ -47,7 +47,7 @@ class EventContractTest {
     }
 
     @Test
-    fun `the new input events start uncancelled and can be cancelled`() {
+    fun `input events cancel`() {
         val events: List<Cancellable> = listOf(
             MinionFeedEvent(minion, minion, mockk(relaxed = true), 1000L),
             MinionBreedEvent(minion, mockk(relaxed = true), mockk(relaxed = true), ItemStack(Material.WHEAT)),
@@ -60,7 +60,7 @@ class EventContractTest {
     }
 
     @Test
-    fun `the feed duration is writable and the deposit event is a player event`() {
+    fun `feed duration is writable`() {
         val feed = MinionFeedEvent(minion, minion, mockk(relaxed = true), 1000L)
         feed.durationMillis = 250L
         assertEquals(250L, feed.durationMillis)

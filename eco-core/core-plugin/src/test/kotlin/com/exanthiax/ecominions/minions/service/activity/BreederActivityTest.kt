@@ -109,7 +109,7 @@ class BreederActivityTest {
         every { isAdult } returns true
         every { isLoveMode } returns false
         every { isBreedItem(any<ItemStack>()) } answers {
-            firstArg<ItemStack>().type.let { it == Material.WHEAT || it == Material.CARROT }
+            firstArg<ItemStack>().type in setOf(Material.WHEAT, Material.CARROT)
         }
         every { customName() } returns null
         every { persistentDataContainer } returns tagContainer(false)
@@ -127,9 +127,9 @@ class BreederActivityTest {
         every { location } returns mockk<Location>(relaxed = true)
     }.also { animals += it }
 
-    private fun tagContainer(tagged: Boolean) = FakePersistentDataContainer.create().also {
+    private fun tagContainer(tagged: Boolean) = FakePersistentDataContainer.create().also { container ->
         if (tagged) {
-            it.set(spawnedByKey, PersistentDataType.STRING, UUID.randomUUID().toString())
+            container.set(spawnedByKey, PersistentDataType.STRING, UUID.randomUUID().toString())
         }
     }
 
@@ -140,7 +140,14 @@ class BreederActivityTest {
         events: EventDispatcher = RecordingEventDispatcher(),
         listening: Boolean = true,
         canWork: (Minion, Block) -> Boolean = { _, _ -> true }
-    ) = BreederActivity(entities, saved, spawnedByKey, events, dispatch, Random(1), { listening }, canWork)
+    ) = BreederActivity(
+        entities = entities,
+        storageSaved = saved,
+        spawnedByKey = spawnedByKey,
+        signals = ActivitySignals(events, dispatch) { listening },
+        random = Random(1),
+        canWork = canWork
+    )
 
     private fun count(minion: Minion, material: Material) = minion.storage.count { it.type == material }
 
@@ -151,7 +158,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `breeds one ready pair and uses two food`() {
+    fun `breeds a pair with two food`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         val first = cow()
         val second = cow()
@@ -166,7 +173,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `a cancelled breed event breeds nothing and keeps the food`() {
+    fun `cancelled breed keeps the food`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         val first = cow()
         val second = cow()
@@ -182,7 +189,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `the breed event carries the pair and the food`() {
+    fun `breed event carries the pair`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         val first = cow()
         val second = cow()
@@ -197,7 +204,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `does not dispatch the breed event when nobody listens`() {
+    fun `breed event needs a listener`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         cow()
         cow()
@@ -209,7 +216,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `fires the breed trigger once at the first animal with the food used`() {
+    fun `fires the breed trigger once`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         cow()
         cow()
@@ -240,7 +247,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `breeds a pair of another kind with matching food`() {
+    fun `breeds another kind`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5), ItemStack(Material.CARROT, 4))
         val first = pig()
         val second = pig()
@@ -267,7 +274,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `a single stray food does not hide a full stack`() {
+    fun `stray food hides no stack`() {
         val subject = breeder(ItemStack(Material.WHEAT, 1), ItemStack(Material.CARROT, 64))
         val first = forager()
         val second = forager()
@@ -281,7 +288,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `the breed event food amount is two`() {
+    fun `breed event food amount is two`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         cow()
         cow()
@@ -293,7 +300,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `stops at max-mobs and counts babies`() {
+    fun `max-mobs counts babies`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         repeat(2) { cow() }
         repeat(6) { cow(adult = false) }
@@ -332,7 +339,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `skips animals that cannot breed`() {
+    fun `skips unbreedable animals`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         cow()
         cow(ready = false)
@@ -359,7 +366,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `skips mobs that are not a target`() {
+    fun `skips mobs not targeted`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         cow()
         mockk<Cow>(relaxed = true) {
@@ -377,7 +384,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `skips animals where the owner cannot build`() {
+    fun `skips animals owner cannot use`() {
         val subject = breeder(ItemStack(Material.WHEAT, 5))
         cow()
         cow()
@@ -396,7 +403,7 @@ class BreederActivityTest {
     }
 
     @Test
-    fun `ignores stored items that are no longer food`() {
+    fun `ignores items no longer food`() {
         val subject = breeder(ItemStack(Material.STONE, 4))
         cow()
         cow()

@@ -11,12 +11,12 @@ class BreederSettingsLoader(
     private val entities: EntityLookup,
     private val items: ItemLookup
 ) {
-    fun load(config: Config, context: LoadContext): BreederSettings? =
-        resolve(config, context, "target-mobs", MOBS, "a mob or custom mob id", entities::lookup)?.let { targets ->
-            resolve(config, context, "food", FOOD, "an item or custom item id", items::lookup)?.let { food ->
-                BreederSettings(targets = targets, food = food, maxMobs = maxMobsOf(config))
-            }
+    fun load(config: Config, context: LoadContext): BreederSettings? {
+        val targets = resolve(config, context, MOBS, entities::lookup) ?: return null
+        return resolve(config, context, FOOD, items::lookup)?.let { food ->
+            BreederSettings(targets = targets, food = food, maxMobs = maxMobsOf(config))
         }
+    }
 
     private fun maxMobsOf(config: Config): String =
         config.getStringOrNull("max-mobs")?.takeIf { it.isNotBlank() } ?: DEFAULT_MAX_MOBS
@@ -24,29 +24,29 @@ class BreederSettingsLoader(
     private fun <T : Any> resolve(
         config: Config,
         context: LoadContext,
-        key: String,
-        names: Names,
-        expected: String,
+        field: Field,
         lookup: (String) -> T?
     ): List<T>? {
-        val configured = config.getStrings(key).filter { it.isNotBlank() }
-        val resolved = configured.mapNotNull { id -> lookup(id) ?: context.invalid(key, id, expected) }
+        val configured = config.getStrings(field.key).filter { it.isNotBlank() }
+        val resolved = configured.mapNotNull { id ->
+            lookup(id) ?: context.invalid(param = field.key, value = id, expected = field.expected)
+        }
         if (resolved.isEmpty()) {
             val reason = if (configured.isEmpty()) {
-                "no ${names.plural} - a breeder would never breed anything"
+                "no ${field.plural} - a breeder would never breed anything"
             } else {
-                "every configured ${names.singular} is invalid"
+                "every configured ${field.singular} is invalid"
             }
-            context.violation(key, reason)
+            context.violation(param = field.key, message = reason)
         }
         return resolved.takeIf { it.isNotEmpty() }
     }
 
-    private class Names(val plural: String, val singular: String)
+    private class Field(val key: String, val expected: String, val plural: String, val singular: String)
 
     private companion object {
         const val DEFAULT_MAX_MOBS = "8"
-        val MOBS = Names("mobs", "mob")
-        val FOOD = Names("food", "food")
+        val MOBS = Field(key = "target-mobs", expected = "a mob or custom mob id", plural = "mobs", singular = "mob")
+        val FOOD = Field(key = "food", expected = "an item or custom item id", plural = "food", singular = "food")
     }
 }

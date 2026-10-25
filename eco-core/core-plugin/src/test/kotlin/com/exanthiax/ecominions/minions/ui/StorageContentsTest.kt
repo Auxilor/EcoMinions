@@ -87,7 +87,7 @@ class StorageContentsTest {
     }
 
     @Test
-    fun `a slot's sample is the raw stored stack and can be withdrawn from storage`() {
+    fun `sample is the raw stored stack`() {
         val storage = storage(ItemStack(Material.DIAMOND, 2), ItemStack(Material.COBBLESTONE, 64))
 
         val sample = StorageContents.top(storage, 9, byMaterial)[1].first

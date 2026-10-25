@@ -23,7 +23,8 @@ class MinionInput(
     fun takesInput(definition: MinionDefinition): Boolean = definition.feeder != null || definition.breeder != null
 
     fun accepts(definition: MinionDefinition, item: ItemStack): Boolean {
-        val feeds = definition.feeder?.let { settings -> fuels.matching(item)?.let(settings::accepts) } == true
+        val fuel = fuels.matching(item)
+        val feeds = fuel != null && definition.feeder?.accepts(fuel) == true
         return feeds || definition.breeder?.accepts(item) == true
     }
 
@@ -71,7 +72,7 @@ class MinionInput(
      * @return How many moved.
      */
     fun withdraw(player: Player, minion: Minion, sample: ItemStack): Int {
-        val amount = minOf(sample.type.maxStackSize, minion.storage.countSimilar(sample))
+        val amount = minion.storage.countSimilar(sample).coerceAtMost(sample.type.maxStackSize)
         val event = MinionExtractEvent(player, minion, mutableListOf(sample.clone().apply { this.amount = amount }))
         return if (amount > 0 && events.dispatch(event)) hand(player, minion, event.items) else 0
     }

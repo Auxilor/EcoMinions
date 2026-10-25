@@ -161,7 +161,7 @@ class MinionTickerTest {
     }
 
     @Test
-    fun `input minion acts with full storage`() {
+    fun `input minion acts when full`() {
         val subject = minion()
         subject.storage.add(ItemStack(Material.STONE))
         val activity = ScriptedActivity(ActivityResult.WORKED)
@@ -174,7 +174,7 @@ class MinionTickerTest {
     }
 
     @Test
-    fun `other minions still stop when full`() {
+    fun `other minions stop when full`() {
         val subject = minion()
         subject.storage.add(ItemStack(Material.STONE))
         val activity = ScriptedActivity(ActivityResult.WORKED)

@@ -48,8 +48,20 @@ class FeederActivityTest {
         level = 1
     )
 
-    private val coal = Fuel("coal", "Coal", "coal", 1200L, 2.0)
-    private val blazeRod = Fuel("blaze_rod", "Blaze Rod", "blaze_rod", 2400L, 3.0)
+    private val coal = Fuel(
+        id = "coal",
+        displayName = "Coal",
+        itemLookup = "coal",
+        durationTicks = 1_200L,
+        speedMultiplier = 2.0
+    )
+    private val blazeRod = Fuel(
+        id = "blaze_rod",
+        displayName = "Blaze Rod",
+        itemLookup = "blaze_rod",
+        durationTicks = 2_400L,
+        speedMultiplier = 3.0
+    )
     private val owner = UUID.randomUUID()
     private val stands = mutableMapOf<ArmorStand, Minion>()
     private val inactive = mutableSetOf<Minion>()
@@ -60,11 +72,7 @@ class FeederActivityTest {
     }
     private val fuels = mockk<FuelService> {
         every { matching(any()) } answers {
-            when (firstArg<ItemStack>().type) {
-                Material.COAL -> coal
-                Material.BLAZE_ROD -> blazeRod
-                else -> null
-            }
+            mapOf(Material.COAL to coal, Material.BLAZE_ROD to blazeRod)[firstArg<ItemStack>().type]
         }
         every { getById("coal") } returns coal
         every { getById("blaze_rod") } returns blazeRod
@@ -73,10 +81,10 @@ class FeederActivityTest {
         }
     }
     private val fuelService = mockk<MinionFuelService> {
-        every { unitMillis(coal) } returns 60000L
-        every { applyDirect(any(), coal, 60000L) } returns true
-        every { unitMillis(blazeRod) } returns 120000L
-        every { applyDirect(any(), blazeRod, 120000L) } returns true
+        every { unitMillis(coal) } returns 60_000L
+        every { applyDirect(any(), coal, 60_000L) } returns true
+        every { unitMillis(blazeRod) } returns 120_000L
+        every { applyDirect(any(), blazeRod, 120_000L) } returns true
     }
 
     private fun minion(
@@ -102,9 +110,9 @@ class FeederActivityTest {
         minion(type, minionOwner).also { stands[mockk<ArmorStand>(relaxed = true)] = it }
 
     private fun feeder(coalCount: Int = 3, settings: FeederSettings = FeederSettings(emptyList())) =
-        minion(settings = settings).also {
+        minion(settings = settings).also { feeder ->
             if (coalCount > 0) {
-                it.storage.add(ItemStack(Material.COAL, coalCount))
+                feeder.storage.add(ItemStack(Material.COAL, coalCount))
             }
         }
 
@@ -117,30 +125,30 @@ class FeederActivityTest {
         saved: (Minion) -> Unit = {},
         canWork: (Minion, Block) -> Boolean = { _, _ -> true }
     ) = FeederActivity(
-        entities = entities,
+        targets = FeederTargets(
+            entities = entities,
+            fuels = fuels,
+            minionOf = { entity -> stands[entity] },
+            isActive = { minion -> minion !in inactive },
+            islandAt = { location -> if (islandPrivileges()) islandAt(location) else null },
+            takesInput = { definition -> definition.feeder != null || definition.breeder != null }
+        ),
         fuels = fuels,
         fuelService = fuelService,
         storageSaved = saved,
-        minionOf = { entity -> stands[entity] },
-        isActive = { it !in inactive },
-        islandAt = islandAt,
-        islandPrivileges = islandPrivileges,
-        takesInput = { it.feeder != null || it.breeder != null },
-        events = events,
-        dispatch = dispatch,
-        listening = { true },
+        signals = ActivitySignals(events, dispatch) { true },
         canWork = canWork
     )
 
-    private fun island(id: String = "one", provider: String = "test") = mockk<MinionIsland> {
-        every { this@mockk.id } returns id
-        every { this@mockk.provider } returns provider
+    private fun island(islandId: String = "one", islandProvider: String = "test") = mockk<MinionIsland> {
+        every { id } returns islandId
+        every { provider } returns islandProvider
     }
 
     private fun coalIn(minion: Minion) = minion.storage.count { it.type == Material.COAL }
 
     @Test
-    fun `feeds one unfuelled active neighbour from storage`() {
+    fun `feeds one unfuelled neighbour`() {
         val subject = feeder()
         val first = target()
         target()
@@ -148,16 +156,16 @@ class FeederActivityTest {
 
         assertEquals(ActivityResult.WORKED, activity(saved = { saves++ }).act(subject, 0L))
 
-        verify(exactly = 1) { fuelService.applyDirect(any(), coal, 60000L) }
-        verify(exactly = 1) { fuelService.applyDirect(first, coal, 60000L) }
+        verify(exactly = 1) { fuelService.applyDirect(any(), coal, 60_000L) }
+        verify(exactly = 1) { fuelService.applyDirect(first, coal, 60_000L) }
         assertEquals(2, coalIn(subject))
         assertEquals(1, saves)
     }
 
     @Test
-    fun `skips a neighbour with a frozen remainder`() {
+    fun `skips a frozen remainder`() {
         val subject = feeder()
-        target().burningFuelRemainingMillis = 5000L
+        target().burningFuelRemainingMillis = 5_000L
 
         assertEquals(ActivityResult.BUSY, activity().act(subject, 0L))
 
@@ -166,19 +174,19 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `feeds a target whose live burn expired with a stale remainder`() {
+    fun `feeds after a burn expired`() {
         val subject = feeder()
         val stale = target()
-        stale.burningFuelEndsAt = System.currentTimeMillis() - 1000L
-        stale.burningFuelRemainingMillis = 5000L
+        stale.burningFuelEndsAt = System.currentTimeMillis() - 1_000L
+        stale.burningFuelRemainingMillis = 5_000L
 
         assertEquals(ActivityResult.WORKED, activity().act(subject, 0L))
 
-        verify(exactly = 1) { fuelService.applyDirect(stale, coal, 60000L) }
+        verify(exactly = 1) { fuelService.applyDirect(stale, coal, 60_000L) }
     }
 
     @Test
-    fun `skips a target with full storage`() {
+    fun `skips a full target`() {
         val subject = feeder()
         val full = target()
         full.storage.add(ItemStack(Material.STONE, 64))
@@ -208,7 +216,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `skips a neighbour of another owner off-island`() {
+    fun `skips another owner off-island`() {
         val subject = feeder()
         target(minionOwner = UUID.randomUUID())
 
@@ -216,7 +224,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `feeds a neighbour of another owner on the same island`() {
+    fun `feeds another owner on island`() {
         val subject = feeder()
         target(minionOwner = UUID.randomUUID())
         val shared = island()
@@ -227,7 +235,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `puts the fuel back when the event is cancelled`() {
+    fun `cancelled burn returns fuel`() {
         val subject = feeder()
         target()
         every { fuelService.applyDirect(any(), any(), any()) } returns false
@@ -241,7 +249,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `a cancelled feed event takes nothing and applies nothing`() {
+    fun `cancelled feed takes nothing`() {
         val subject = feeder()
         target()
         var saves = 0
@@ -256,7 +264,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `moves on to the next neighbour when the feed event for the first is cancelled`() {
+    fun `cancelled feed moves on`() {
         val subject = feeder()
         val first = target()
         val second = target()
@@ -267,12 +275,12 @@ class FeederActivityTest {
         assertEquals(ActivityResult.WORKED, activity(events).act(subject, 0L))
 
         verify(exactly = 0) { fuelService.applyDirect(first, any(), any()) }
-        verify(exactly = 1) { fuelService.applyDirect(second, coal, 60000L) }
+        verify(exactly = 1) { fuelService.applyDirect(second, coal, 60_000L) }
         assertEquals(2, coalIn(subject))
     }
 
     @Test
-    fun `the feed event carries the feeder target fuel and duration`() {
+    fun `feed event carries the burn`() {
         val subject = feeder()
         val hungry = target()
         val events = RecordingEventDispatcher()
@@ -283,11 +291,11 @@ class FeederActivityTest {
         assertSame(subject, event.minion)
         assertSame(hungry, event.target)
         assertEquals("coal", event.fuel.id)
-        assertEquals(60000L, event.durationMillis)
+        assertEquals(60_000L, event.durationMillis)
     }
 
     @Test
-    fun `a listener that zeroes the duration cancels the feed`() {
+    fun `zero duration cancels the feed`() {
         val subject = feeder()
         target()
         val events = RecordingEventDispatcher(edit = { event ->
@@ -302,37 +310,37 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `applies the duration a listener changed`() {
+    fun `applies a changed duration`() {
         val subject = feeder()
         val hungry = target()
-        every { fuelService.applyDirect(hungry, coal, 5000L) } returns true
+        every { fuelService.applyDirect(hungry, coal, 5_000L) } returns true
         val events = RecordingEventDispatcher(edit = { event ->
-            if (event is MinionFeedEvent) event.durationMillis = 5000L
+            if (event is MinionFeedEvent) event.durationMillis = 5_000L
         })
 
         assertEquals(ActivityResult.WORKED, activity(events).act(subject, 0L))
 
-        verify(exactly = 1) { fuelService.applyDirect(hungry, coal, 5000L) }
+        verify(exactly = 1) { fuelService.applyDirect(hungry, coal, 5_000L) }
     }
 
     @Test
-    fun `does not dispatch the feed event when nobody listens`() {
+    fun `feed event needs a listener`() {
         val subject = feeder()
         target()
         val events = RecordingEventDispatcher()
         val silent = FeederActivity(
-            entities = entities,
+            targets = FeederTargets(
+                entities = entities,
+                fuels = fuels,
+                minionOf = { entity -> stands[entity] },
+                isActive = { true },
+                islandAt = { null },
+                takesInput = { false }
+            ),
             fuels = fuels,
             fuelService = fuelService,
             storageSaved = {},
-            minionOf = { entity -> stands[entity] },
-            isActive = { true },
-            islandAt = { null },
-            islandPrivileges = { false },
-            takesInput = { false },
-            events = events,
-            dispatch = dispatch,
-            listening = { false }
+            signals = ActivitySignals(events, dispatch) { false }
         )
 
         assertEquals(ActivityResult.WORKED, silent.act(subject, 0L))
@@ -341,7 +349,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `fires the feed trigger once at the target`() {
+    fun `fires the feed trigger once`() {
         val subject = feeder()
         val hungry = target()
         target()
@@ -354,7 +362,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `fires no trigger when the fuel event cancels the burn`() {
+    fun `no trigger on cancelled burn`() {
         val subject = feeder()
         target()
         every { fuelService.applyDirect(any(), any(), any()) } returns false
@@ -365,7 +373,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `skips another owner on the same island when privileges are off`() {
+    fun `skips island if privileges off`() {
         val subject = feeder()
         target(minionOwner = UUID.randomUUID())
         val shared = island()
@@ -378,10 +386,13 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `skips another owner on an island of a different provider`() {
+    fun `skips another island provider`() {
         val subject = feeder()
         val other = target(minionOwner = UUID.randomUUID())
-        val islands = mapOf(subject.location to island(provider = "a"), other.location to island(provider = "b"))
+        val islands = mapOf(
+            subject.location to island(islandProvider = "a"),
+            other.location to island(islandProvider = "b")
+        )
 
         val subjectActivity = activity(islandAt = { islands[it] }, islandPrivileges = { true })
 
@@ -391,10 +402,10 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `skips another owner on an island with a different id`() {
+    fun `skips another island id`() {
         val subject = feeder()
         val other = target(minionOwner = UUID.randomUUID())
-        val islands = mapOf(subject.location to island(id = "one"), other.location to island(id = "two"))
+        val islands = mapOf(subject.location to island(islandId = "one"), other.location to island(islandId = "two"))
 
         val subjectActivity = activity(islandAt = { islands[it] }, islandPrivileges = { true })
 
@@ -404,7 +415,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `skips a neighbour the owner cannot work at`() {
+    fun `skips where owner cannot work`() {
         val subject = feeder()
         target()
 
@@ -414,7 +425,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `a fuel filter rejects a stored fuel that is not listed`() {
+    fun `fuel filter rejects unlisted`() {
         val subject = feeder(coalCount = 0, settings = FeederSettings(listOf("coal")))
         subject.storage.add(ItemStack(Material.BLAZE_ROD, 2))
         target()
@@ -426,7 +437,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `prefers the fuel the neighbour last burned`() {
+    fun `prefers the last burned fuel`() {
         val subject = feeder()
         subject.storage.add(ItemStack(Material.BLAZE_ROD, 2))
         val hungry = target()
@@ -434,32 +445,32 @@ class FeederActivityTest {
 
         assertEquals(ActivityResult.WORKED, activity().act(subject, 0L))
 
-        verify(exactly = 1) { fuelService.applyDirect(hungry, blazeRod, 120000L) }
+        verify(exactly = 1) { fuelService.applyDirect(hungry, blazeRod, 120_000L) }
         verify(exactly = 0) { fuelService.applyDirect(any(), coal, any()) }
     }
 
     @Test
-    fun `feeds the next neighbour when the first is cancelled`() {
+    fun `feeds next after a cancel`() {
         val subject = feeder()
         val first = target()
         val second = target()
-        every { fuelService.applyDirect(first, coal, 60000L) } returns false
+        every { fuelService.applyDirect(first, coal, 60_000L) } returns false
 
         assertEquals(ActivityResult.WORKED, activity().act(subject, 0L))
 
-        verify(exactly = 1) { fuelService.applyDirect(second, coal, 60000L) }
+        verify(exactly = 1) { fuelService.applyDirect(second, coal, 60_000L) }
         assertEquals(2, coalIn(subject))
     }
 
     @Test
-    fun `second feeder sees the live burn`() {
+    fun `second feeder sees the burn`() {
         val first = feeder()
         val second = feeder()
         val shared = target()
         val subject = activity()
 
         assertEquals(ActivityResult.WORKED, subject.act(first, 0L))
-        shared.burningFuelEndsAt = System.currentTimeMillis() + 60000L
+        shared.burningFuelEndsAt = System.currentTimeMillis() + 60_000L
 
         assertEquals(ActivityResult.BUSY, subject.act(second, 0L))
     }
@@ -475,7 +486,7 @@ class FeederActivityTest {
     }
 
     @Test
-    fun `ignores stored items that are no longer fuel`() {
+    fun `ignores items no longer fuel`() {
         val subject = feeder(coalCount = 0)
         subject.storage.add(ItemStack(Material.STONE, 4))
         target()

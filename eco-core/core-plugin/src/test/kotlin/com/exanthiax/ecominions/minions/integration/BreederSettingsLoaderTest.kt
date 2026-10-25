@@ -34,7 +34,7 @@ class BreederSettingsLoaderTest {
         }
 
     @Test
-    fun `missing food rejects the minion`() {
+    fun `missing food rejects`() {
         val violations = mutableListOf<String>()
 
         assertNull(loader.load(config(food = emptyList()), context(violations)))
@@ -42,7 +42,7 @@ class BreederSettingsLoaderTest {
     }
 
     @Test
-    fun `missing target-mobs rejects the minion`() {
+    fun `missing target-mobs rejects`() {
         val violations = mutableListOf<String>()
 
         assertNull(loader.load(config(mobs = emptyList()), context(violations)))

@@ -1,8 +1,6 @@
 package com.exanthiax.ecominions.minions.service.activity
 
 import com.exanthiax.ecominions.api.event.MinionBreedEvent
-import com.exanthiax.ecominions.core.event.EventDispatcher
-import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionBreed
 import com.exanthiax.ecominions.minions.model.BreederSettings
 import com.exanthiax.ecominions.minions.model.accepts
@@ -11,7 +9,6 @@ import com.exanthiax.ecominions.minions.service.WorkAreaEntities
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.entity.Animals
-import org.bukkit.event.HandlerList
 import org.bukkit.inventory.ItemStack
 import kotlin.random.Random
 
@@ -24,22 +21,24 @@ class BreederActivity(
     private val entities: WorkAreaEntities,
     private val storageSaved: (Minion) -> Unit,
     private val spawnedByKey: NamespacedKey,
-    private val events: EventDispatcher,
-    private val dispatch: MinionTriggerDispatch,
+    private val signals: ActivitySignals,
     private val random: Random = Random.Default,
-    private val listening: (HandlerList) -> Boolean = { it.registeredListeners.isNotEmpty() },
     private val canWork: (Minion, Block) -> Boolean = { _, _ -> true }
 ) : MinionActivity {
 
     override fun act(minion: Minion, now: Long): ActivityResult {
         val settings = minion.state.definition.breeder
         return when {
-            settings == null -> ActivityResult.BLOCKED
+            settings == null -> {
+                ActivityResult.BLOCKED
+            }
             storedFood(minion, settings).isEmpty() -> {
                 minion.blockedReason = NO_FOOD_STORED
                 ActivityResult.BLOCKED
             }
-            else -> cycle(minion, settings)
+            else -> {
+                cycle(minion, settings)
+            }
         }
     }
 
@@ -65,7 +64,9 @@ class BreederActivity(
                 minion.blockedReason = PEN_FULL
                 ActivityResult.BUSY
             }
-            breedFirst(minion, settings, groups) -> ActivityResult.WORKED
+            breedFirst(minion, settings, groups) -> {
+                ActivityResult.WORKED
+            }
             else -> {
                 minion.blockedReason = NOTHING_TO_BREED
                 ActivityResult.BUSY
@@ -88,33 +89,34 @@ class BreederActivity(
         } else {
             storedFood(minion, settings)
                 .firstOrNull { minion.storage.countSimilar(it) >= FOOD_PER_BREEDING && pair.first().isBreedItem(it) }
-                ?.clone()
-                ?.apply { amount = FOOD_PER_BREEDING }
+                ?.let(::portionOf)
         }
 
     private fun breed(minion: Minion, settings: BreederSettings, pair: List<Animals>): Boolean {
         val food = foodFor(minion, settings, pair)
-        val fed = food != null && approved(minion, pair, food) && consumeFood(minion, food)
+        val fed = food != null &&
+            signals.allows(
+                MinionBreedEvent(minion = minion, first = pair[0], second = pair[1], food = food.clone()),
+                MinionBreedEvent.getHandlerList()
+            ) &&
+            consumeFood(minion, food)
         if (fed) {
             pair.take(2).forEach { it.loveModeTicks = LOVE_MODE_TICKS }
             storageSaved(minion)
-            dispatch.triggerAt(minion, TriggerMinionBreed, pair.first().location, FOOD_PER_BREEDING.toDouble())
+            signals.trigger(minion, TriggerMinionBreed, pair.first().location, FOOD_PER_BREEDING.toDouble())
         }
         return fed
     }
 
-    private fun approved(minion: Minion, pair: List<Animals>, food: ItemStack): Boolean =
-        !listening(MinionBreedEvent.getHandlerList()) ||
-            events.dispatch(MinionBreedEvent(minion, pair[0], pair[1], food.clone()))
-
     private fun consumeFood(minion: Minion, food: ItemStack): Boolean {
-        val portion = food.clone().apply { amount = FOOD_PER_BREEDING }
-        val removed = minion.storage.remove(portion)
+        val removed = minion.storage.remove(food)
         if (removed in 1 until FOOD_PER_BREEDING) {
-            minion.storage.add(portion.clone().apply { amount = removed })
+            minion.storage.add(food.clone().apply { amount = removed })
         }
         return removed >= FOOD_PER_BREEDING
     }
+
+    private fun portionOf(food: ItemStack): ItemStack = food.clone().apply { amount = FOOD_PER_BREEDING }
 
     private companion object {
         const val NOTHING_TO_BREED = "nothing-to-breed"

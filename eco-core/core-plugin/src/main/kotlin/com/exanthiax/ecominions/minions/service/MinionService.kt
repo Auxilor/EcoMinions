@@ -49,6 +49,8 @@ class MinionService(
     fun getByEntity(entity: Entity): Minion? =
         byUuid[entity.uniqueId] ?: byUuid.values.firstOrNull { it.entity.uniqueId == entity.uniqueId }
 
+    fun isActive(minion: Minion): Boolean = activity.isActive(minion)
+
     fun ownedBy(player: OfflinePlayer): Collection<Minion> =
         byOwner[player.uniqueId].orEmpty().mapNotNull { byUuid[it] }
 

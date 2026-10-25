@@ -94,15 +94,15 @@ class MainMenu(
                 override fun getEntries(player: Player, menu: Menu): List<Pair<ItemStack, Int>> = entries
 
                 override fun getEntrySlot(player: Player, menu: Menu, entry: Pair<ItemStack, Int>): Slot =
-                    storageSlot(
-                        player,
-                        minion,
-                        storageView.displayItem(entry.first, entry.second, settings.value),
-                        entry.first
+                    inputSlot(
+                        player = player,
+                        minion = minion,
+                        shown = storageView.displayItem(entry.first, entry.second, settings.value),
+                        sample = entry.first
                     )
 
                 override fun getEmptySlot(player: Player, menu: Menu): Slot =
-                    storageSlot(player, minion, chrome.fillerItem(), null)
+                    inputSlot(player = player, minion = minion, shown = chrome.fillerItem(), sample = null)
             })
 
             setButton(current.mainSection, key = "collect-all", row = rows, column = 2) { section ->
@@ -157,28 +157,21 @@ class MainMenu(
         return item
     }
 
-    /**
-     * A feeder or breeder's storage slots are its input: the cursor stack goes
-     * in, and clicking an empty-handed slot takes its stack back out.
-     */
-    private fun storageSlot(player: Player, minion: Minion, shown: ItemStack, sample: ItemStack?): Slot =
+    private fun inputSlot(player: Player, minion: Minion, shown: ItemStack, sample: ItemStack?): Slot =
         slot(shown) {
-            if (!input.takesInput(minion.state.definition)) {
-                return@slot
-            }
-            onLeftClick { event, _, menu ->
-                if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
-                    return@onLeftClick
+            if (input.takesInput(minion.state.definition)) {
+                onLeftClick { event, _, menu ->
+                    if (regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                        when {
+                            event.cursor.type != Material.AIR -> deposit(player, minion, event.cursor)
+                            sample != null -> input.withdraw(player, minion, sample)
+                        }
+                        menu.refresh(player)
+                    }
                 }
-                val cursor = event.cursor
-                if (cursor.type != Material.AIR) {
-                    deposit(player, minion, cursor)
-                } else {
-                    sample?.let { input.withdraw(player, minion, it) }
-                }
-                menu.refresh(player)
             }
         }
+
 
     private fun deposit(player: Player, minion: Minion, cursor: ItemStack) {
         when (val result = input.deposit(player, minion, cursor)) {

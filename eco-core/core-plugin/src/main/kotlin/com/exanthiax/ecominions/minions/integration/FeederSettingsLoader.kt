@@ -17,11 +17,11 @@ class FeederSettingsLoader(
     fun load(config: Config, context: LoadContext): FeederSettings? {
         val configured = config.getStrings("fuels").filter { it.isNotBlank() }
         val resolved = configured.mapNotNull { id ->
-            fuels.getById(id)?.id ?: context.invalid("fuels", id, "a fuel id")
+            fuels.getById(id)?.id ?: context.invalid(param = "fuels", value = id, expected = "a fuel id")
         }
         val rejected = configured.isNotEmpty() && resolved.isEmpty()
         if (rejected) {
-            context.violation("fuels", "every configured fuel is invalid")
+            context.violation(param = "fuels", message = "every configured fuel is invalid")
         }
         return if (rejected) null else FeederSettings(fuelIds = resolved)
     }

@@ -45,11 +45,15 @@ class MinionInputTest {
 
     private val saved = mutableListOf<Minion>()
 
+    private val coal = Fuel(
+        id = "coal",
+        displayName = "Coal",
+        itemLookup = "coal",
+        durationTicks = 1_000L,
+        speedMultiplier = 1.0
+    )
     private val fuels = mockk<FuelService> {
-        every { matching(any()) } answers {
-            val item = firstArg<ItemStack>()
-            if (item.type == Material.COAL) Fuel("coal", "Coal", "coal", 1000L, 1.0) else null
-        }
+        every { matching(any()) } answers { coal.takeIf { firstArg<ItemStack>().type == Material.COAL } }
     }
 
     private val events = RecordingEventDispatcher()
@@ -58,8 +62,8 @@ class MinionInputTest {
 
     private fun inputWith(dispatcher: RecordingEventDispatcher) = MinionInput(fuels, { saved += it }, dispatcher)
 
-    private fun playerWith(inventory: PlayerInventory) = mockk<Player>(relaxed = true) {
-        every { this@mockk.inventory } returns inventory
+    private fun playerWith(playerInventory: PlayerInventory) = mockk<Player>(relaxed = true) {
+        every { inventory } returns playerInventory
     }
 
     private fun roomyInventory() = mockk<PlayerInventory> { every { addItem(*anyVararg()) } returns hashMapOf() }
@@ -108,7 +112,7 @@ class MinionInputTest {
     }
 
     @Test
-    fun `withdraw puts back what does not fit`() {
+    fun `withdraw keeps the overflow`() {
         val subject = breeder()
         subject.storage.add(ItemStack(Material.WHEAT, 64))
         val inventory = mockk<PlayerInventory> {
@@ -123,7 +127,7 @@ class MinionInputTest {
     }
 
     @Test
-    fun `withdraw empties the slot when everything fits`() {
+    fun `withdraw empties the slot`() {
         val subject = breeder()
         subject.storage.add(ItemStack(Material.WHEAT, 10))
         val inventory = roomyInventory()
@@ -134,7 +138,7 @@ class MinionInputTest {
     }
 
     @Test
-    fun `a cancelled deposit event moves nothing`() {
+    fun `cancelled deposit is a no-op`() {
         val subject = breeder()
         val cancelling = inputWith(RecordingEventDispatcher(allow = false))
 
@@ -155,7 +159,7 @@ class MinionInputTest {
     }
 
     @Test
-    fun `a partial fit fires the deposit event with the amount that fits`() {
+    fun `deposit event has fit amount`() {
         val subject = breeder()
         subject.storage.add(ItemStack(Material.WHEAT, 60))
 
@@ -165,7 +169,7 @@ class MinionInputTest {
     }
 
     @Test
-    fun `the deposit event carries the player minion and item`() {
+    fun `deposit event carries the item`() {
         val subject = breeder()
 
         input.deposit(player, subject, ItemStack(Material.WHEAT, 10))
@@ -177,14 +181,14 @@ class MinionInputTest {
     }
 
     @Test
-    fun `a refused item fires no deposit event`() {
+    fun `refused item fires no event`() {
         input.deposit(player, feeder(), ItemStack(Material.BLAZE_ROD, 5))
 
         assertTrue(events.events.isEmpty())
     }
 
     @Test
-    fun `a cancelled extract event on withdraw moves nothing`() {
+    fun `cancelled extract is a no-op`() {
         val subject = breeder()
         subject.storage.add(ItemStack(Material.WHEAT, 10))
         val inventory = roomyInventory()
@@ -199,7 +203,7 @@ class MinionInputTest {
     }
 
     @Test
-    fun `the extract event carries the stack about to be taken`() {
+    fun `extract event has the stack`() {
         val subject = breeder()
         subject.storage.add(ItemStack(Material.WHEAT, 10))
 
@@ -211,7 +215,7 @@ class MinionInputTest {
     }
 
     @Test
-    fun `a listener that lowers the amount withdraws only that amount`() {
+    fun `lowered extract takes less`() {
         val subject = breeder()
         subject.storage.add(ItemStack(Material.WHEAT, 10))
         val lowering = RecordingEventDispatcher(edit = { event ->
@@ -224,14 +228,14 @@ class MinionInputTest {
     }
 
     @Test
-    fun `an empty withdraw fires no event`() {
+    fun `empty withdraw fires no event`() {
         assertEquals(0, input.withdraw(playerWith(roomyInventory()), breeder(), ItemStack(Material.WHEAT)))
 
         assertTrue(events.events.isEmpty())
     }
 
     @Test
-    fun `takesInput is false for a miner`() {
+    fun `a miner takes no input`() {
         assertFalse(input.takesInput(MinionDefinitionFixture.build()))
         assertTrue(input.takesInput(feeder().state.definition))
         assertTrue(input.takesInput(breeder().state.definition))
