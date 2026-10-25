@@ -12,10 +12,10 @@ import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.ui.MainMenu
 import com.exanthiax.ecominions.minions.ui.displayName
 import com.exanthiax.ecominions.minions.ui.limitName
+import com.willfp.eco.util.StringUtils
 import com.willfp.eco.util.asAudience
 import com.willfp.libreforge.toDispatcher
 import com.willfp.libreforge.triggers.TriggerData
-import net.kyori.adventure.text.Component
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.ArmorStand
@@ -182,7 +182,7 @@ class MinionPlacementListener(
 
     private fun sendSummary(player: Player, minion: Minion) {
         player.asAudience().sendActionBar(
-            Component.text(
+            StringUtils.toComponent(
                 messages.line(
                     "action-bar.interact",
                     TemplateContext.of(MinionPlaceholders.MINION to minion)

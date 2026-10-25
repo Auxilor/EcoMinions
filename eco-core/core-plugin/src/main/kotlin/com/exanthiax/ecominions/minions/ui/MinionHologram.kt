@@ -8,6 +8,7 @@ import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.willfp.eco.core.Prerequisite
+import com.willfp.eco.util.StringUtils
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
@@ -31,7 +32,7 @@ class MinionHologram(
         } else {
             display.teleport(anchorOf(minion))
         }
-        display.text(Component.text(textFor(minion)))
+        display.text(StringUtils.toComponent(textFor(minion)))
     }
 
     fun remove(minion: Minion) {
