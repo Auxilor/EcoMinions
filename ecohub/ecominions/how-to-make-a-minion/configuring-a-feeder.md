@@ -59,6 +59,7 @@ Once per cycle the feeder picks one minion in its area and gives it one fuel ite
 
 - It is active.
 - It holds no fuel at all, neither burning nor frozen.
+- Its storage is not full, unless it is a breeder, whose storage holds input and is never full of output.
 - It has the same owner as the feeder, or is on the same island when island privileges are on.
 
 It only feeds minions in spots where its owner can build, unless `bypass-antigrief` is set. A feeder never feeds another feeder. Cancelling the fuel event returns the item to the feeder. A feeder does nothing while its owner is offline, and it does not earn catch-up time.

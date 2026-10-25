@@ -64,7 +64,7 @@ Shift-clicking from the player inventory does not deposit.
 
 ### Cap
 
-Each cycle the breeder breeds one pair, using one food item for each parent. It needs two eligible adults of the same kind in range. `max-mobs` is the most target animals it allows in its area. Babies count toward it, and once the count reaches the cap the breeder stops until some are gone. It may use `%level%`, and it defaults to `8`. It only works animals in spots where its owner can build, unless `bypass-antigrief` is set. A breeder never spawns animals, so a pen must already hold a pair. A breeder does nothing while its owner is offline, and it does not earn catch-up time.
+Each cycle the breeder breeds one pair, using one food item for each parent. A breed needs at least two of one accepted food in storage, so a single leftover item is never used. It needs two eligible adults of the same kind in range. `max-mobs` is the most target animals it allows in its area. Babies count toward it, and once the count reaches the cap the breeder stops until some are gone. It may use `%level%`, and it defaults to `8`. It only works animals in spots where its owner can build, unless `bypass-antigrief` is set. A breeder never spawns animals, so a pen must already hold a pair. A breeder does nothing while its owner is offline, and it does not earn catch-up time.
 
 :::tip Troubleshooting
 - **Hologram says "No Food Stored"?** Click food into the breeder's storage.
