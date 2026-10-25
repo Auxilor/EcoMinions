@@ -50,7 +50,6 @@ class MinionHologram(
             // stop (crash, kill), which stacks up over repeated restarts.
             it.isPersistent = false
             it.billboard = Display.Billboard.CENTER
-            it.setSeeThrough(true)
             it.text(Component.empty())
         }
         minion.hologram = display
