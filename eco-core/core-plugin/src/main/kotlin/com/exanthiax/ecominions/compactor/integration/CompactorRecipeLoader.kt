@@ -46,7 +46,8 @@ class CompactorRecipeLoader : ConfigLoader<CompactorRecipeDefinition> {
                     holder = null,
                     buyConditions = buyConditions
                 )
-            )
+            ),
+            toggleable = config.getBoolOrNull("toggleable") != false
         )
 
         return CompactorRecipeDefinition(recipe, upgrade)

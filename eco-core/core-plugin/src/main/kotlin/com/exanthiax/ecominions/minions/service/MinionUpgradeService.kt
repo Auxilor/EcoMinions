@@ -71,6 +71,20 @@ class MinionUpgradeService(
         return true
     }
 
+    /**
+     * Switches an owned [upgrade] on or off for [minion]. Its tier stays as it is.
+     *
+     * @return Whether it changed. False if the upgrade is not owned or cannot be switched off.
+     */
+    fun toggle(minion: Minion, upgrade: Upgrade): Boolean {
+        if (!upgrade.toggleable || minion.state.upgradeLevel(upgrade.id) <= 0) {
+            return false
+        }
+        val disabled = !minion.state.isUpgradeDisabled(upgrade.id)
+        minions.updateState(minion, minion.state.withUpgradeDisabled(upgrade.id, disabled))
+        return true
+    }
+
     private fun applyTier(minion: Minion, upgrade: Upgrade, tier: Int) {
         minions.updateState(minion, minion.state.withUpgrade(upgrade.id, tier.coerceIn(0, upgrade.maxTier)))
         minions.onLevelChanged(minion)

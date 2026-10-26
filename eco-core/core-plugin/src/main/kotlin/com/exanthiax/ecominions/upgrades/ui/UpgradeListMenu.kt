@@ -80,12 +80,25 @@ class UpgradeListMenu(
         val item = Items.lookup(upgrade.iconLookup).item.clone()
         item.itemMeta?.let { meta ->
             meta.setDisplayName(messages.line("gui.main.upgrade-button.name", context))
-            meta.lore = messages.linesWithout("gui.main.upgrade-button.lore", "multi_pay_indicator", context)
+            meta.lore = messages.linesWithout("gui.main.upgrade-button.lore", "multi_pay_indicator", context) +
+                toggleLore(minion, upgrade, tier)
             item.itemMeta = meta
         }
 
         return slot(item) {
             onLeftClick { _, _ -> upgradeMenu.open(player, minion, upgrade) }
+            onRightClick { _, _ ->
+                if (upgradeMenu.toggle(minion, upgrade)) {
+                    open(player, minion)
+                }
+            }
         }
     }
+
+    private fun toggleLore(minion: Minion, upgrade: Upgrade, tier: Int): List<String> = when {
+        !upgrade.toggleable || tier <= 0 -> emptyList()
+        minion.state.isUpgradeDisabled(upgrade.id) -> messages.lines("gui.main.upgrade-button.disabled-lore")
+        else -> messages.lines("gui.main.upgrade-button.enabled-lore")
+    }
+
 }

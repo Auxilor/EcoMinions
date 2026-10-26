@@ -81,4 +81,29 @@ class MinionHoldersTest {
     fun `an unknown upgrade id is ignored rather than throwing`() {
         assertTrue(holders.holdersFor(minion(mapOf("ghost" to 3), null)).isEmpty())
     }
+
+    @Test
+    fun `disabled upgrade gives none`() {
+        val type = MinionDefinitionFixture.build(allowedUpgradeIds = listOf("speed"), holder = null)
+        val state = MinionState(definition = type, upgrades = mapOf("speed" to 1), disabledUpgrades = setOf("speed"))
+        val minion = mockk<Minion> { every { this@mockk.state } returns state }
+
+        assertTrue(holders.holdersFor(minion).isEmpty())
+    }
+
+    @Test
+    fun `untoggleable ignores disable`() {
+        val locked = Upgrade(
+            id = "speed",
+            name = "Speed",
+            iconLookup = "sugar",
+            tiers = speed.tiers,
+            toggleable = false
+        )
+        val type = MinionDefinitionFixture.build(allowedUpgradeIds = listOf("speed"), holder = null)
+        val state = MinionState(definition = type, upgrades = mapOf("speed" to 1), disabledUpgrades = setOf("speed"))
+        val minion = mockk<Minion> { every { this@mockk.state } returns state }
+
+        assertEquals(listOf(tierOneHolder), MinionHolders { locked }.holdersFor(minion).map { it.holder })
+    }
 }

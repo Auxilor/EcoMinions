@@ -1,6 +1,7 @@
 name: "&dCapacity"
 display:
   icon: chest
+toggleable: false # Turning capacity off would shrink storage that already holds items.
 
 effects:
   - id: minion_capacity

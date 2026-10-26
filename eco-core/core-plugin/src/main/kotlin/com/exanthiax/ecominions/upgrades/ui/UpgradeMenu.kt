@@ -154,6 +154,10 @@ class UpgradeMenu(
         }
     }
 
+    /** Switches an owned [upgrade] on or off. @return Whether it changed. */
+    fun toggle(minion: Minion, upgrade: Upgrade): Boolean =
+        regions.ownsOrWarn(minion.entity, TOGGLE_ACTION) && purchases.toggle(minion, upgrade)
+
     /** Tells [player] how buying [tier] went, and reopens the upgrade after a purchase. */
     fun finishPurchase(
         player: Player,
@@ -221,5 +225,6 @@ class UpgradeMenu(
     private companion object {
         const val TITLE_COLUMN = 5
         const val MENU_ACTION = "Buying a minion upgrade"
+        const val TOGGLE_ACTION = "Switching a minion upgrade"
     }
 }

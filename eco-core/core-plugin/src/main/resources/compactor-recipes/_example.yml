@@ -10,6 +10,9 @@ name: "&eExample Compactor Recipe" # The recipe's name in the menu.
 display:
   icon: furnace # The recipe's icon in the menu.
 
+# (Optional) Whether the owner can right-click the recipe in the menu to switch it off. Defaults to true.
+# toggleable: true
+
 # The output must be a different item to the input, and input-amount must be
 # more than output-amount, or the recipe loops and can destroy items.
 input: COBBLESTONE # The item used up.
