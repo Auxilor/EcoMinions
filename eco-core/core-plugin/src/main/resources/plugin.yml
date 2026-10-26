@@ -26,6 +26,8 @@ permissions:
     children:
       ecominions.command.*: true
       ecominions.admin: true
+      ecominions.rename: true
+      ecominions.rename.color: true
   ecominions.command.*:
     description: All commands
     default: op
@@ -57,3 +59,9 @@ permissions:
   ecominions.admin:
     description: Bypasses minion limits and ownership checks.
     default: op
+  ecominions.rename:
+    description: Allows renaming a minion with a name tag.
+    default: false
+  ecominions.rename.color:
+    description: Keeps colour and format codes in a minion's name.
+    default: false

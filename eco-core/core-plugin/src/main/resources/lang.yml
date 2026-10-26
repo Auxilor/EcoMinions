@@ -35,6 +35,9 @@ messages:
   no-fuel: "&cYou have no fuel items in your inventory."
   fuel-applied: "&aFueled with &e%count%x %fuel_name%&a."
   level-up: "&aYour &e%minion_name% &areached level &e%level%&a!"
+  rename-success: "&aRenamed your minion to &f%minion_name%&a."
+  rename-no-permission: "&cYou don't have permission to rename minions."
+  rename-too-long: "&cThat name is too long. The most is &e%max% &ccharacters."
 
 infinity: "&7∞"
 

@@ -65,6 +65,11 @@ minion:
     # orb: dropped as an orb at the minion.
     mode: store
 
+# Players with ecominions.rename can right-click their minion with a named name tag to rename it.
+# Colour codes are kept only for players with ecominions.rename.color.
+rename:
+  max-length: 32 # The longest name a minion can have, in visible characters.
+
 # The layout of each menu.
 # A button's item and location are set here, and its name and lore in lang.yml.
 # A location is a row and a column, counted from the top left corner, which is row 1, column 1.

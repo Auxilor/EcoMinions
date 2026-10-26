@@ -44,7 +44,8 @@ class MinionSettingsLoader(
         overLimit = readOverLimit(),
         typeLimitsEnabled = config.getBoolOrNull("limits.per-type.enabled") ?: false,
         typeLimitOverrides = config.getBoolOrNull("limits.per-type.permission-overrides") ?: true,
-        typeLimits = readTypeLimits()
+        typeLimits = readTypeLimits(),
+        renameMaxLength = config.getIntOrNull("rename.max-length")?.coerceAtLeast(1) ?: 32
     )
 
     private fun readOverLimit(): OverLimitMode {

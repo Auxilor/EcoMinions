@@ -8,6 +8,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.bukkit.NamespacedKey
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -28,6 +29,7 @@ class MinionStateRepositoryTest {
         every { storedExperience } returns NamespacedKey("ecominions", "stored_experience")
         every { killSample } returns NamespacedKey("ecominions", "kill_sample")
         every { limitedSince } returns NamespacedKey("ecominions", "limited_ts")
+        every { customName } returns NamespacedKey("ecominions", "custom_name")
     }
     private val repository = MinionStateRepository(keys) { id -> definition.takeIf { it.id == id } }
 
@@ -64,5 +66,24 @@ class MinionStateRepositoryTest {
         repository.write(container, MinionState(definition, limitedSince = 1_234L))
 
         assertEquals(1_234L, repository.read(container)!!.limitedSince)
+    }
+
+    @Test
+    fun `custom name round trips`() {
+        val container = FakePersistentDataContainer.create()
+
+        repository.write(container, MinionState(definition, customName = "Bob"))
+
+        assertEquals("Bob", repository.read(container)!!.customName)
+    }
+
+    @Test
+    fun `no custom name reads null`() {
+        val container = FakePersistentDataContainer.create()
+        repository.write(container, MinionState(definition, customName = "Bob"))
+
+        repository.write(container, MinionState(definition))
+
+        assertNull(repository.read(container)!!.customName)
     }
 }

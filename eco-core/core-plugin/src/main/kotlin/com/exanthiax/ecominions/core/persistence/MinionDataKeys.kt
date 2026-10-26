@@ -25,6 +25,7 @@ class MinionDataKeys(plugin: EcoPlugin) {
     val seeded: NamespacedKey = NamespacedKey(plugin, "seeded")
     val storedExperience: NamespacedKey = NamespacedKey(plugin, "stored_experience")
     val killSample: NamespacedKey = NamespacedKey(plugin, "kill_sample")
+    val customName: NamespacedKey = NamespacedKey(plugin, "custom_name")
 
     /** On a mob a slayer spawned: the spawning minion's UUID. */
     val spawnedBy: NamespacedKey = NamespacedKey(plugin, "minion")

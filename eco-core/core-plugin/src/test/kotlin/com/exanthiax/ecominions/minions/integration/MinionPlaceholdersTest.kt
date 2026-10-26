@@ -39,7 +39,7 @@ class MinionPlaceholdersTest {
     private val placeholders = MinionPlaceholders(mockk(), mockk(), limits, messages).internalPlaceholders()
         .associateBy { it.key }
 
-    private fun minion(limitedSince: Long?): Minion {
+    private fun minion(limitedSince: Long?, customName: String? = null): Minion {
         val stats = MinionStats(
             MinionDefinition.BaseStats(
                 speedTicks = "40",
@@ -53,7 +53,7 @@ class MinionPlaceholdersTest {
             level = 1
         )
         return Minion(
-            state = MinionState(definition = coal, owner = owner, limitedSince = limitedSince),
+            state = MinionState(definition = coal, owner = owner, limitedSince = limitedSince, customName = customName),
             entity = mockk<ArmorStand>(relaxed = true),
             storage = MinionStorage(stats.storageSize),
             stats = stats
@@ -86,5 +86,15 @@ class MinionPlaceholdersTest {
         assertEquals("∞", resolve("player_limit", subject))
         assertEquals("∞", resolve("type_limit", subject))
         assertEquals("", resolve("limit_name", subject))
+    }
+
+    @Test
+    fun `minion name is the type name`() {
+        assertEquals("Coal Minion", resolve("minion_name", minion(limitedSince = null)))
+    }
+
+    @Test
+    fun `minion name uses custom name`() {
+        assertEquals("Bob", resolve("minion_name", minion(limitedSince = null, customName = "Bob")))
     }
 }

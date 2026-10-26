@@ -34,7 +34,9 @@ data class MinionSettings(
     val typeLimitsEnabled: Boolean = false,
     val typeLimitOverrides: Boolean = true,
     /** The cap for each type. A type left out has no cap. */
-    val typeLimits: Map<MinionType, Int> = emptyMap()
+    val typeLimits: Map<MinionType, Int> = emptyMap(),
+    /** The longest name, in visible characters, a name tag can give a minion. */
+    val renameMaxLength: Int = 32
 )
 
 /** What happens when a placement would go past a limit. */
