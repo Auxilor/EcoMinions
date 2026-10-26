@@ -26,12 +26,14 @@ This page lists every EcoMinions command and permission, so you can hand out min
 | `ecominions.island-limit.<number>` | Raises the minion limit of every island the holder owns to `<number>`, e.g. `ecominions.island-limit.20`. The highest one wins. Needs `limits.per-island.permission-overrides: true` |
 | `ecominions.type-limit.<type>.<number>` | Raises a player's limit for one minion type to `<number>`, e.g. `ecominions.type-limit.miner.15`. The highest one wins. Needs `limits.per-type.permission-overrides: true` |
 | `ecominions.minion-limit.<minion>.<number>` | Raises a player's limit for one minion to `<number>`, e.g. `ecominions.minion-limit.coal.4`. The highest one wins. Only applies to a minion with `limit` in its config |
+| `ecominions.rename` | Rename your own minions with a name tag. See [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config#rename) |
+| `ecominions.rename.color` | Keep colour and format codes in a minion's name. Needs `ecominions.rename` |
 | `ecominions.admin` | No minion limit, and can pick up other players' minions. Skips every island check and every limit |
 | `ecominions.command.*` | Permission to use every command |
 | `ecominions.*` | Every permission above |
 
 :::info
-`/minions` and `/minions open` are given to everyone by default. Every other command, `ecominions.admin`, and the parent nodes are given to operators by default.
+`/minions` and `/minions open` are given to everyone by default. `ecominions.rename` and `ecominions.rename.color` are given to nobody by default, but operators get them through `ecominions.*`. Every other command, `ecominions.admin`, and the parent nodes are given to operators by default.
 :::
 
 <hr/>
