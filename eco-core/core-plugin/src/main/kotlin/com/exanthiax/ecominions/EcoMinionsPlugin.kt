@@ -30,6 +30,17 @@ import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
+import com.exanthiax.ecominions.islands.IslandLimits
+import com.exanthiax.ecominions.islands.IslandMemberCache
+import com.exanthiax.ecominions.islands.IslandMemberListener
+import com.exanthiax.ecominions.islands.IslandMinionIndex
+import com.exanthiax.ecominions.islands.IslandMinionTracker
+import com.exanthiax.ecominions.islands.IslandRegistry
+import com.exanthiax.ecominions.islands.MinionAccess
+import com.exanthiax.ecominions.islands.providers.BentoBoxIslandProvider
+import com.exanthiax.ecominions.islands.providers.IridiumSkyblockIslandProvider
+import com.exanthiax.ecominions.islands.providers.LandsIslandProvider
+import com.exanthiax.ecominions.islands.providers.SuperiorSkyblockIslandProvider
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
 import com.exanthiax.ecominions.levelling.integration.LevellingPlaceholders
 import com.exanthiax.ecominions.levelling.service.MinionXpService
@@ -41,6 +52,7 @@ import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCustomItems
 import com.exanthiax.ecominions.minions.integration.MinionDefinitionLoader
+import com.exanthiax.ecominions.minions.integration.MinionLimitsListener
 import com.exanthiax.ecominions.minions.integration.MinionOwnerListener
 import com.exanthiax.ecominions.minions.integration.MinionPickListener
 import com.exanthiax.ecominions.minions.integration.MinionPistonListener
@@ -54,9 +66,11 @@ import com.exanthiax.ecominions.minions.integration.PaperMinionPickListener
 import com.exanthiax.ecominions.minions.integration.ParticleSettingsLoader
 import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
 import com.exanthiax.ecominions.minions.integration.items.EcoItemsIntegrationService
+import com.exanthiax.ecominions.minions.integration.model.EcoModelProvider
 import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.MinionModel
 import com.exanthiax.ecominions.minions.model.VanillaFishingTable
 import com.exanthiax.ecominions.minions.service.BukkitWorkAreaEntities
 import com.exanthiax.ecominions.minions.service.ExperienceSink
@@ -72,7 +86,10 @@ import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
+import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionMiningLoop
+import com.exanthiax.ecominions.minions.service.MinionModels
+import com.exanthiax.ecominions.minions.service.MinionProtection
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.MinionStateRepository
 import com.exanthiax.ecominions.minions.service.MinionTicker
@@ -114,8 +131,11 @@ import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeMenu
 import com.willfp.eco.core.command.impl.PluginCommand
 import com.willfp.eco.core.data.PlayerProfile
+import com.willfp.eco.core.data.ServerProfile
 import com.willfp.eco.core.data.keys.PersistentDataKey
 import com.willfp.eco.core.data.keys.PersistentDataKeyType
+import com.willfp.eco.core.integrations.antigrief.AntigriefManager
+import com.willfp.eco.core.integrations.model.ModelManager
 import com.willfp.eco.core.items.Items
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
@@ -152,7 +172,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val regions = Regions(this)
 
     // Settings
-    private val minionSettingsLoader = MinionSettingsLoader(configYml)
+    private val minionSettingsLoader = MinionSettingsLoader(configYml, logger::warning)
     private val menuSettingsLoader = MenuSettingsLoader(configYml)
     private val upgradeMenuSettingsLoader = UpgradeMenuSettingsLoader(configYml)
     private val minionSettings = SettingsHolder(minionSettingsLoader.load())
@@ -168,7 +188,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val itemLookup = EcoItemLookup()
     private val blockDefinitions = ConfigDrivenRegistry(
         "minion_block", "blocks", "block definitions",
-        MinionBlockLoader(blockLookup), report
+        MinionBlockLoader(blockLookup), report,
+        onBeforeReload = { refreshSettings() }
     )
     private val vanillaBlocks = VanillaBlockDefaults(blockLookup)
     private val blockIndex = MinionBlockIndex({ blockDefinitions.all() }, vanillaBlocks)
@@ -219,6 +240,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val compactService = MinionCompactService(compactorService, events)
     private val repository = MinionStateRepository(dataKeys) { minionTypes.find(it) }
     private val minionFactory = MinionFactory()
+    private val minionModels = MinionModels()
     private val itemFactory = MinionItemFactory(repository, renderer)
     private val limits = PlacementLimits(minionSettings)
     private val shopIntegration = ShopIntegrationService(minionSettings)
@@ -229,14 +251,15 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         resolve = { material, location -> vanillaDrops(material, location) },
         resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
     )
-    private val seedingService = SeedingService()
+    private val protection = MinionProtection()
+    private val seedingService = SeedingService(protection::allows)
     private val regenService = RegenService(minionSettings, triggerDispatch, events)
     private val behaviours = MinionBehaviours(
         miner = MinerBehaviour(regenService, seedingService),
-        woodcutter = WoodcutterBehaviour(TreeService()),
+        woodcutter = WoodcutterBehaviour(TreeService(), protection::allows),
         farmer = FarmerBehaviour(regenService, seedingService)
     )
-    private val miningTargets = MiningTargetFinder()
+    private val miningTargets = MiningTargetFinder(protection::allows)
     private val experienceSink = ExperienceSink(minionSettings) { minion, amount -> spawnXpOrb(minion, amount) }
     private val blockActivity = BlockActivity(
         miningTargets, blockIndex, regenService, behaviours, triggerDispatch, events, dropTables, experienceSink
@@ -244,7 +267,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val workAreaEntities = BukkitWorkAreaEntities()
     private val collectionActivity = CollectionActivity(
         workAreaEntities, triggerDispatch, events, experienceSink,
-        { item -> item.itemMeta?.persistentDataContainer?.let(repository::isMinion) == true }
+        { item -> item.itemMeta?.persistentDataContainer?.let(repository::isMinion) == true },
+        canWork = protection::allows
     )
     private val slayerActivity = SlayerActivity(
         entities = workAreaEntities,
@@ -252,12 +276,14 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         dispatch = triggerDispatch,
         events = events,
         experience = experienceSink,
-        spawnedByKey = dataKeys.spawnedBy
+        spawnedByKey = dataKeys.spawnedBy,
+        canWork = protection::allows
     )
     private val ecoItemsIntegration = EcoItemsIntegrationService()
     private val fishingActivity = FishingActivity(
         FishingLootRoller(ecoItemsIntegration, { location, owner -> vanillaFishingLoot(location, owner) }),
-        triggerDispatch, events, experienceSink
+        triggerDispatch, events, experienceSink,
+        canWork = protection::allows
     )
     private val activities = MinionActivities(blockActivity, collectionActivity, slayerActivity, fishingActivity)
     private val offlineProgress = OfflineProgressService(
@@ -265,8 +291,11 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val ticker = MinionTicker(worlds, fuelService, triggerDispatch, events, activities::get)
     private val activityService = MinionActivityService(
-        repository, offlineProgress, minionSettings
-    ) { Bukkit.getPlayer(it) != null }
+        repository, offlineProgress, minionSettings,
+        { Bukkit.getPlayer(it) != null },
+        { islandMemberCache.membersOf(it.uuid) },
+        { minionLimits.breachOf(it) }
+    )
     private val placedMinionsKey = PersistentDataKey(
         namespacedKeyFactory.create("placed_minions"),
         PersistentDataKeyType.STRING_LIST,
@@ -276,13 +305,54 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         read = { PlayerProfile.load(it).read(placedMinionsKey) },
         write = { owner, entries -> PlayerProfile.load(owner).write(placedMinionsKey, entries) }
     )
+    private val islandMinionsKey = PersistentDataKey(
+        namespacedKeyFactory.create("island_minions"),
+        PersistentDataKeyType.STRING_LIST,
+        emptyList(),
+        true
+    )
+    private val islandLimitsKey = PersistentDataKey(
+        namespacedKeyFactory.create("island_limits"),
+        PersistentDataKeyType.STRING_LIST,
+        emptyList(),
+        true
+    )
+    private val islandIndex = IslandMinionIndex(
+        readMinions = { ServerProfile.load().read(islandMinionsKey) },
+        writeMinions = { ServerProfile.load().write(islandMinionsKey, it) },
+        readLimits = { ServerProfile.load().read(islandLimitsKey) },
+        writeLimits = { ServerProfile.load().write(islandLimitsKey, it) }
+    )
+    private val islandRegistry = IslandRegistry(logger::warning)
+    private val islandMemberCache = IslandMemberCache()
+    private val islandTracker = IslandMinionTracker(islandRegistry, islandIndex, islandMemberCache)
     private val minionService = MinionService(
         minionTypes, minionFactory, repository,
-        limits, activityService, minionSettings, events, regions, placedMinions
+        limits, activityService, minionSettings, events, regions, placedMinions,
+        onRegister = { minion ->
+            minionModels.attach(minion)
+            islandTracker.register(minion)
+            activityService.noteLoaded(minion)
+        },
+        onRetire = islandTracker::retire,
+        onPlacedChanged = { minionLimits.invalidate(it) }
+    )
+    private val minionAccess = MinionAccess(islandRegistry, minionSettings)
+    private val islandLimits = IslandLimits(minionSettings, islandIndex) { Bukkit.getPlayer(it) }
+    private val limitCapsKey = PersistentDataKey(
+        namespacedKeyFactory.create("limit_caps"),
+        PersistentDataKeyType.STRING_LIST,
+        emptyList()
+    )
+    private val minionLimits = MinionLimits(
+        minionSettings, placedMinions, minionTypes::find, minionTypes::all,
+        islandIndex, islandLimits, islandRegistry::islandAt, { Bukkit.getPlayer(it) },
+        readCaps = { PlayerProfile.load(it).read(limitCapsKey) },
+        writeCaps = { owner, entries -> PlayerProfile.load(owner).write(limitCapsKey, entries) }
     )
     private val placementService = PlacementService(
-        minionService, minionFactory, itemFactory, repository, limits, worlds, minionSettings,
-        triggerDispatch, events
+        minionService, minionFactory, itemFactory, repository, minionLimits, worlds, minionSettings,
+        triggerDispatch, events, minionAccess, islandRegistry, AntigriefManager::canPlaceBlock
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
@@ -301,7 +371,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val menuViewers = MenuViewers { menu, player -> regions.on(player) { menu.refresh(player) } }
     private val mainMenu = MainMenu(
         menuSettings, messages, chrome, MinionStorageView(messages), placementService,
-        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions
+        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions, minionLimits
     )
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
 
@@ -309,15 +379,17 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val api = EcoMinionsApiImpl(
         MinionsManagerImpl(
             minionService, placementService, itemFactory, minionItems, collector,
-            sellService, repository, activityService, xpService, compactService, events, regions
+            sellService, repository, activityService, xpService, compactService, events, regions, minionAccess,
+            islandLimits, minionLimits
         ) { Bukkit.getOfflinePlayer(it) },
         UpgradesManagerImpl(upgradeService, purchases, minionService),
         FuelsManagerImpl(fuelService, minionFuelService, minionService),
-        MenusManagerImpl(mainMenu, upgradeListMenu, typeSelectMenu, minionService, regions)
+        MenusManagerImpl(mainMenu, upgradeListMenu, typeSelectMenu, minionService, regions),
+        islandRegistry
     )
 
     // Lifecycle
-    private val placementListener = MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages)
+    private val placementListener = MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages, minionAccess)
     private val customItems = MinionCustomItems(this, minionService, itemFactory)
     private val recipes = MinionRecipes(this, minionService, itemFactory)
     private val lifecycle = LifecycleManager(
@@ -325,18 +397,63 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         listOf(
             MinionMiningLoop(minionService, ticker, activityService, regions),
             MinionRenderLoop(
-                minionService, MinionAnimator(),
+                minionService, MinionAnimator(minionModels),
                 MinionHologram(messages, minionSettings, activityService),
                 ParticleEmitter(), minionSettings, activityService, regions
             ),
-            menuViewers
+            menuViewers,
+            minionLimits
         )
     )
 
     override fun loadConfigCategories(): List<ConfigCategory> =
         LibreforgeRegistrations.configCategories(blockDefinitions, minionTypes, upgrades, fuels, compactorRecipes)
 
+    private var superiorSkyblockPrivilegesRegistered = false
+    private var landsProvider: LandsIslandProvider? = null
+
+    override fun handleLoad() {
+        if (Bukkit.getPluginManager().getPlugin(SUPERIOR_SKYBLOCK) != null) {
+            runCatching { SuperiorSkyblockIslandProvider.registerPrivileges() }
+                .onSuccess { superiorSkyblockPrivilegesRegistered = true }
+                .onFailure { logger.warning("SuperiorSkyblock2 support disabled: ${it.message}") }
+        }
+        if (Bukkit.getPluginManager().getPlugin(LANDS) != null) {
+            runCatching { landsProvider = LandsIslandProvider.create(this, logger::warning) }
+                .onFailure { logger.warning("Lands support disabled: ${it.message}") }
+        }
+    }
+
     override fun handleEnable() {
+        if (superiorSkyblockPrivilegesRegistered && Bukkit.getPluginManager().isPluginEnabled(SUPERIOR_SKYBLOCK)) {
+            runCatching {
+                val privilegesEnabled = { minionSettings.value.islandPrivileges }
+                islandRegistry.register(SuperiorSkyblockIslandProvider(logger::warning, privilegesEnabled))
+                SuperiorSkyblockIslandProvider.listenForNewIslands(this, privilegesEnabled)
+            }.onFailure { logger.warning("SuperiorSkyblock2 support disabled: ${it.message}") }
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled(BENTO_BOX)) {
+            runCatching {
+                islandRegistry.register(BentoBoxIslandProvider(logger::warning).also(BentoBoxIslandProvider::register))
+            }.onFailure { logger.warning("BentoBox support disabled: ${it.message}") }
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled(IRIDIUM_SKYBLOCK)) {
+            runCatching {
+                islandRegistry.register(
+                    IridiumSkyblockIslandProvider(logger::warning).also(IridiumSkyblockIslandProvider::register)
+                )
+            }.onFailure { logger.warning("IridiumSkyblock support disabled: ${it.message}") }
+        }
+        landsProvider?.takeIf { Bukkit.getPluginManager().isPluginEnabled(LANDS) }?.let { provider ->
+            runCatching {
+                islandRegistry.register(provider)
+                provider.listenForNewLands(this)
+            }
+                .onFailure { logger.warning("Lands support disabled: ${it.message}") }
+        }
+        MinionModel.Provider.entries
+            .filter { ModelManager.getIntegration(it.configName) != null }
+            .forEach { minionModels.register(EcoModelProvider(it)) }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)
         shopIntegration.init()
         ecoItemsIntegration.init()
@@ -357,6 +474,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
         customItems.registerAll()
         recipes.registerAll()
+        minionLimits.invalidateAll()
         minionService.refreshAll()
         minionService.hydrateLoadedWorlds()
         lifecycle.restart()
@@ -384,7 +502,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         MinionChunkListener(minionService),
         MinionSlayerListener(slayerActivity, minionService),
         MinionPistonListener(minionService),
-        MinionOwnerListener(minionService, activityService, regions)
+        MinionOwnerListener(minionService, activityService, regions),
+        MinionLimitsListener(minionLimits),
+        IslandMemberListener(minionService, activityService, islandRegistry, islandIndex, minionSettings, regions)
     )
 
     override fun loadPluginCommands(): List<PluginCommand> = listOf(
@@ -405,13 +525,13 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private fun wireMenuNavigation() {
         upgradeListMenu.onBack = { player, minion -> mainMenu.open(player, minion) }
         upgradeMenu.onBack = { player, minion -> upgradeListMenu.open(player, minion) }
-        costSelectMenu.onPurchased = { player, minion, upgrade -> upgradeMenu.open(player, minion, upgrade) }
+        costSelectMenu.onResult = upgradeMenu::finishPurchase
     }
 
     private fun registerPlaceholders() {
         placeholderRegistrar.registerAll(
             listOf(
-                MinionPlaceholders(minionService, fuelService),
+                MinionPlaceholders(minionService, fuelService, minionLimits, messages),
                 UpgradePlaceholders(),
                 levellingPlaceholders
             )
@@ -469,5 +589,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     private companion object {
         const val XP_MERGE_RADIUS = 1.5
+        const val SUPERIOR_SKYBLOCK = "SuperiorSkyblock2"
+        const val BENTO_BOX = "BentoBox"
+        const val IRIDIUM_SKYBLOCK = "IridiumSkyblock"
+        const val LANDS = "Lands"
     }
 }

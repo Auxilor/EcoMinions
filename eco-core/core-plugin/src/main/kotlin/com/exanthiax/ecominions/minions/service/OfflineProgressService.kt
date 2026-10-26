@@ -34,6 +34,7 @@ class OfflineProgressService(
 
         val accumulated = mutableListOf<ItemStack>()
         var earned = 0
+        val room = minion.storage.copy()
 
         val result = OfflineProgress.simulate(
             elapsedMillis = now - idleSince,
@@ -42,10 +43,10 @@ class OfflineProgressService(
             fuelRemainingMillis = minion.burningFuelRemainingMillis,
             fueledCycleTicks = fueledCycleTicksOf(minion)
         ) {
-            if (accumulated.size >= minion.storageSize) {
+            val cycle = activity.offlineCycle(minion) ?: return@simulate false
+            if (room.store(cycle.drops).isNotEmpty()) {
                 return@simulate false
             }
-            val cycle = activity.offlineCycle(minion) ?: return@simulate false
             accumulated += cycle.drops
             earned += cycle.experience
             true

@@ -51,6 +51,8 @@ class MinionRenderLoop(
         val active = activity.isActive(minion)
         if (active) {
             animator.apply(minion, now)
+        } else {
+            animator.rest(minion)
         }
 
         if (now % hologramInterval < RENDER_INTERVAL_TICKS) {

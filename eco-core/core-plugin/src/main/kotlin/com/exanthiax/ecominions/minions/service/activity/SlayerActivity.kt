@@ -47,7 +47,8 @@ class SlayerActivity(
     private val ownerOf: (Minion) -> Player? = { it.ownerPlayer() },
     private val listening: (HandlerList) -> Boolean = { it.registeredListeners.isNotEmpty() },
     private val rewardOf: (LivingEntity) -> Int = { (it as? Mob)?.possibleExperienceReward ?: 0 },
-    private val random: Random = Random.Default
+    private val random: Random = Random.Default,
+    private val canWork: (Minion, Block) -> Boolean = { _, _ -> true }
 ) : MinionActivity {
 
     private val pendingDeaths: MutableMap<UUID, Minion> = ConcurrentHashMap()
@@ -183,14 +184,14 @@ class SlayerActivity(
         if (spawnedBy == null && entity.customName() != null) {
             return false
         }
-        return settings.targets.any { it.matches(entity) }
+        return settings.targets.any { it.matches(entity) } && canWork(minion, entity.location.block)
     }
 
     private fun maxMobs(minion: Minion, settings: SlayerSettings): Int =
         minion.state.definition.baseStats.evaluate(settings.maxMobs, minion.level).coerceAtLeast(1)
 
     private fun spawn(minion: Minion, settings: SlayerSettings): Boolean {
-        val spot = MinionWorkArea.blocks(minion).filter(::isOpenSpot).randomOrNull(random) ?: return false
+        val spot = MinionWorkArea.blocks(minion).filter { isOpenSpot(it) && canWork(minion, it) }.randomOrNull(random) ?: return false
         val mob = spawner(settings.targets.random(random), spot.location.add(0.5, 0.0, 0.5)) ?: return false
         mob.setAI(false)
         mob.isPersistent = true

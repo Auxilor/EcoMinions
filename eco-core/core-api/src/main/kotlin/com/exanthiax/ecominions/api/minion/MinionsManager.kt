@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.api.minion
 
+import com.exanthiax.ecominions.api.island.MinionIsland
 import org.bukkit.Location
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Entity
@@ -35,13 +36,43 @@ interface MinionsManager {
     /** @return How many minions [player] may place, or [Int.MAX_VALUE] if unlimited. */
     fun placementLimit(player: OfflinePlayer): Int
 
+    /**
+     * @return How many minions [island] may hold, or [Int.MAX_VALUE] if island
+     *         limits are off.
+     */
+    fun islandLimit(island: MinionIsland): Int
+
+    /** @return How many minions of [type] [player] may place, or [Int.MAX_VALUE] if unlimited. */
+    fun typeLimit(player: OfflinePlayer, type: MinionType): Int
+
+    /** @return How many of [type] [player] may place, or [Int.MAX_VALUE] if unlimited. */
+    fun minionLimit(player: OfflinePlayer, type: MinionDefinition): Int
+
+    /** @return The limit holding [minion] back, or null when none does. Only ever set with `limits.over-limit: inactive`. */
+    fun limitBreach(minion: Minion): LimitBreach?
+
+    /**
+     * @return Whether [player] may open [minion]'s menu. Its owner always may;
+     *         anyone else needs the island privilege where it stands.
+     */
+    fun canUse(player: Player, minion: Minion): Boolean
+
+    /**
+     * @return Whether [player] may pick [minion] up. Its owner always may;
+     *         anyone else needs the island privilege where it stands.
+     */
+    fun canPickUp(player: Player, minion: Minion): Boolean
+
     fun types(): Collection<MinionDefinition>
 
     fun getType(id: String): MinionDefinition?
 
     /**
-     * @return Whether [minion] is working. A minion only works while its owner
-     *         is online; an idle one is credited when they come back.
+     * @return Whether [minion] is working. A minion works while its owner is
+     *         online or, with `islands.active-while-member-online` on, while any
+     *         member of the island it stands on is; an idle one is credited when
+     *         it starts working again. A minion held back by a limit is never
+     *         active, and is never credited for that time.
      */
     fun isActive(minion: Minion): Boolean
 
@@ -126,14 +157,18 @@ interface MinionsManager {
      */
     fun pickUp(player: Player, minion: Minion): PickUpResult
 
-    /** Removes [minion] from the world, deleting its storage. Fires `MinionDestroyEvent`. */
+    /**
+     * Removes [minion] from the world, deleting its storage. Fires `MinionDestroyEvent`.
+     *
+     * @return Whether it was removed: false if it is no longer loaded or the event was cancelled.
+     */
     fun destroy(minion: Minion, cause: DestroyCause): Boolean
 
     /**
      * Removes [minion] from the world. Fires `MinionDestroyEvent`.
      *
      * @param dropItem Whether to drop the minion's item, storage included, where it stood.
-     * @return Whether it was removed.
+     * @return Whether it was removed: false if it is no longer loaded or the event was cancelled.
      */
     fun destroy(minion: Minion, cause: DestroyCause, dropItem: Boolean): Boolean
 

@@ -33,6 +33,32 @@ class SeedingServiceTest {
         assertEquals(1, world.countOf(Material.COAL_ORE))
     }
 
+    @Test
+    fun `seeds nowhere the owner cannot build`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val minion = minionAt(world, placement = selfSeeding(Material.COAL_ORE))
+        val service = SeedingService { _, block -> block.x != 1 }
+
+        while (service.tick(minion)) {
+            // seed until nowhere is left
+        }
+
+        assertTrue(world.countOf(Material.COAL_ORE) > 0)
+        assertTrue(world.positionsOf(Material.COAL_ORE).none { it.first == 1 })
+    }
+
+    /** Ground the owner cannot build at is not converted to the seed's surface. */
+    @Test
+    fun `does not lay a surface the owner cannot build at`() {
+        val world = FakeWorld()
+        world.fillFloor()
+        val minion = minionAt(world, placement = cropSeeding())
+
+        assertFalse(SeedingService { _, block -> block.y != -1 }.tick(minion))
+        assertEquals(0, world.countOf(Material.FARMLAND))
+    }
+
     /** The whole area is seeded before anything is mined, a block per cycle. */
     @Test
     fun `keeps seeding until the area is full`() {

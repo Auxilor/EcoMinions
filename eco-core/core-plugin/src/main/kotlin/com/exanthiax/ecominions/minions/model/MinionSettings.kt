@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.model
 
+import com.exanthiax.ecominions.api.minion.MinionType
 import org.bukkit.Material
 
 /** Runtime settings for placed minions, refreshed on reload. */
@@ -20,8 +21,30 @@ data class MinionSettings(
     val defaultLimit: Int,
     val permissionOverrides: Boolean,
     val sellPricing: SellPricingSettings,
-    val experienceMode: ExperienceMode = ExperienceMode.STORE
+    val experienceMode: ExperienceMode = ExperienceMode.STORE,
+    /** Whether island ranks decide who may place, use and pick up minions. */
+    val islandPrivileges: Boolean = true,
+    /** Whether a minion on an island keeps working while any island member is online. */
+    val activeWhileMemberOnline: Boolean = false,
+    val islandLimitsEnabled: Boolean = false,
+    val defaultIslandLimit: Int = 10,
+    val islandPermissionOverrides: Boolean = true,
+    /** What happens when a placement would go past any limit. */
+    val overLimit: OverLimitMode = OverLimitMode.PREVENT,
+    val typeLimitsEnabled: Boolean = false,
+    val typeLimitOverrides: Boolean = true,
+    /** The cap for each type. A type left out has no cap. */
+    val typeLimits: Map<MinionType, Int> = emptyMap()
 )
+
+/** What happens when a placement would go past a limit. */
+enum class OverLimitMode {
+    /** The placement is refused. */
+    PREVENT,
+
+    /** The minion is placed, and the newest-placed minions over the limit stay idle until there is room. */
+    INACTIVE
+}
 
 /** Where the XP a minion earns goes. */
 enum class ExperienceMode {

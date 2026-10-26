@@ -150,6 +150,11 @@ class MinionStorage(
     /** Index-aligned copy for persistence, empty slots included. */
     fun snapshot(): Array<ItemStack?> = slots.copyOf()
 
+    /** A detached copy with cloned stacks, to try additions without touching this storage. */
+    fun copy(): MinionStorage = MinionStorage(slots.size, similar).also { copy ->
+        slots.forEachIndexed { index, item -> copy.setItem(index, item?.clone()) }
+    }
+
     /**
      * Grows or shrinks to [capacity], preserving contents in order.
      *

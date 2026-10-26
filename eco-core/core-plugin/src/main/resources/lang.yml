@@ -8,8 +8,14 @@ messages:
   placed: "&aMinion placed!"
   picked-up: "&7Minion picked up."
   limit-reached-player: "&cYou have reached your minion limit (&e%limit%&c)."
+  limit-reached-island: "&cThis island has reached its minion limit (&e%limit%&c)."
+  limit-reached-type: "&cYou have reached your %type% minion limit (&e%limit%&c)."
+  limit-reached-minion: "&cYou have reached your %minion_name% limit (&e%limit%&c)."
+  placed-inactive: "&eThis minion is over your %limit_name% limit, so it will stay inactive until you have room."
   world-disabled: "&cMinions are disabled in this world."
+  cannot-place-here: "&cYou can't place a minion here."
   not-owner: "&cYou are not the owner of this minion."
+  no-island-permission: "&cYou don't have permission to do that on this island."
   no-such-type: "&cNo minion type with id &e%id%&c."
   no-such-player: "&cNo player with name &e%name%&c."
   reloaded: "Reloaded in %time%ms! Loaded %count% minion types."
@@ -17,7 +23,7 @@ messages:
   remove-success: "&aRemoved &e%count% &aminions for &e%player%&a."
   info-no-target: "&cYou are not looking at a minion."
   info-header: "&e%minion_name% &7(Lvl %level%) &8| &7Owner: &f%owner%"
-  inventory-full: "&cMinion inventory is full!"
+  inventory-full: "&cYour inventory is full!"
   collected: "&aCollected &e%count% &aitems."
   claimed-xp: "&aClaimed &e%amount% &aXP."
   no-stored-xp: "&cThis minion has no stored XP."
@@ -43,6 +49,11 @@ hologram:
   no-mobs: "&e&lNo Mobs in %diameter%x%height%x%diameter% Area"
   no-water: "&e&lNo Water in %diameter%x%height%x%diameter% Area"
   idle: "&7&lIDLE &8- &7Owner offline"
+  limited: "&c&lINACTIVE &8- &7Over %limit_name% limit"
+
+limit-names:
+  player: "total"
+  island: "island"
 
 gui:
   main:
@@ -93,6 +104,23 @@ gui:
         - "&7Radius: &f%radius%"
         - "&7Height: &f%height%"
         - "&7Capacity: &f%capacity%"
+    limit:
+      name: "&eLimits"
+      status-active: "&a&lWorking"
+      status-limited: "&c&lInactive"
+      active-lore:
+        - "%limit_status%"
+        - ""
+        - "&7%minion_name%: &f%minion_count%&7/&f%minion_limit%"
+        - "&7%kind%: &f%type_count%&7/&f%type_limit%"
+        - "&7Total: &f%player_count%&7/&f%player_limit%"
+      limited-lore:
+        - "%limit_status%"
+        - "&7Over your %limit_name% limit"
+        - "&7(&f%limit_count%&7/&f%limit_max%&7)."
+        - ""
+        - "&7Pick up another minion"
+        - "&7to make room for this one."
     upgrades-button:
       name: "&eUpgrades"
       lore:
@@ -129,6 +157,10 @@ gui:
         - "&7Target: &f%targets%"
         - "&7Speed: &f%speed%"
         - "&7Capacity: &f%capacity%"
+    previous-page:
+      name: "&fPrevious Page"
+    next-page:
+      name: "&fNext Page"
 
   cost-select:
     option:

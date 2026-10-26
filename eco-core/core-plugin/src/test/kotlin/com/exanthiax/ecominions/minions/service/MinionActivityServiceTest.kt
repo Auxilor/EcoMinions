@@ -1,5 +1,7 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.api.minion.LimitBreach
+import com.exanthiax.ecominions.api.minion.LimitScope
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionSettings
@@ -65,13 +67,32 @@ class MinionActivityServiceTest {
     private fun service(
         online: Set<UUID> = setOf(owner),
         repository: MinionStateRepository = mockk(relaxed = true),
-        offlineProgress: OfflineProgressService = mockk(relaxed = true)
+        offlineProgress: OfflineProgressService = mockk(relaxed = true),
+        members: Collection<UUID> = emptyList(),
+        limitBreach: (Minion) -> LimitBreach? = { null }
     ) = MinionActivityService(
         repository = repository,
         offlineProgress = offlineProgress,
         settings = settings,
-        isOnline = { it in online }
+        isOnline = { it in online },
+        islandMembers = { members },
+        limitBreach = limitBreach
     )
+
+    private val breach = LimitBreach(LimitScope.MINION, 3, 2)
+
+    private val member = UUID.randomUUID()
+
+    private fun ownedMinion() = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = owner))
+
+    private fun withToggle(enabled: Boolean, block: () -> Unit) {
+        settings.update(settings.value.copy(activeWhileMemberOnline = enabled))
+        try {
+            block()
+        } finally {
+            settings.update(settings.value.copy(activeWhileMemberOnline = false))
+        }
+    }
 
     @Test
     fun `a minion with an online owner is active`() {
@@ -164,5 +185,215 @@ class MinionActivityServiceTest {
         verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
         assertNull(subject.state.shutdownTimestamp)
         settings.update(settings.value.copy(offlineEnabled = true))
+    }
+
+    @Test
+    fun `toggle off keeps owner only activity`() = withToggle(false) {
+        val subject = ownedMinion()
+
+        assertFalse(service(online = setOf(member), members = listOf(owner, member)).isActive(subject))
+    }
+
+    @Test
+    fun `toggle on runs while a member is online`() = withToggle(true) {
+        val subject = ownedMinion()
+
+        assertTrue(service(online = setOf(member), members = listOf(owner, member)).isActive(subject))
+        assertFalse(service(online = emptySet(), members = listOf(owner, member)).isActive(subject))
+    }
+
+    @Test
+    fun `toggle on never activates an unowned minion`() = withToggle(true) {
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = null))
+
+        assertFalse(service(online = setOf(member), members = listOf(member)).isActive(subject))
+    }
+
+    @Test
+    fun `leaving with the toggle off is inactive even for the owner`() = withToggle(false) {
+        val subject = ownedMinion()
+
+        assertFalse(service(online = setOf(owner, member), members = listOf(owner, member)).isActiveWithout(subject, owner))
+    }
+
+    @Test
+    fun `the owner leaving keeps a minion running while members are on`() = withToggle(true) {
+        val subject = ownedMinion()
+        val subjectService = service(online = setOf(owner, member), members = listOf(owner, member))
+
+        assertTrue(subjectService.isActiveWithout(subject, owner))
+    }
+
+    @Test
+    fun `the last member leaving makes a minion inactive`() = withToggle(true) {
+        val subject = ownedMinion()
+        val subjectService = service(online = setOf(member), members = listOf(owner, member))
+
+        assertFalse(subjectService.isActiveWithout(subject, member))
+    }
+
+    @Test
+    fun `leaving does not count the leaver as online`() = withToggle(true) {
+        val subject = ownedMinion()
+
+        assertFalse(service(online = setOf(owner), members = listOf(owner)).isActiveWithout(subject, owner))
+    }
+
+    @Test
+    fun `reconciling resumes a stamped minion that became active`() = withToggle(true) {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = minion(
+            MinionState(definition = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
+        )
+        val subjectService = service(
+            online = setOf(member), offlineProgress = offlineProgress, members = listOf(owner, member)
+        )
+
+        assertTrue(subjectService.reconcile(subject, now = 3_000L))
+
+        verify(exactly = 1) { offlineProgress.apply(subject, 1_000L, 3_000L) }
+        assertNull(subject.state.shutdownTimestamp)
+    }
+
+    @Test
+    fun `reconciling stamps a running minion that became inactive`() = withToggle(true) {
+        val repository = mockk<MinionStateRepository>(relaxed = true)
+        val subject = ownedMinion()
+        val subjectService = service(online = emptySet(), repository = repository, members = listOf(owner, member))
+
+        assertFalse(subjectService.reconcile(subject, now = 2_000L))
+
+        assertEquals(2_000L, subject.state.shutdownTimestamp)
+        verify(exactly = 1) { repository.markShutdown(subject, 2_000L) }
+    }
+
+    @Test
+    fun `reconciling a minion already in step changes nothing`() = withToggle(true) {
+        val repository = mockk<MinionStateRepository>(relaxed = true)
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val idle = minion(
+            MinionState(definition = MinionDefinitionFixture.build(), owner = owner, shutdownTimestamp = 1_000L)
+        )
+        val running = ownedMinion()
+
+        service(online = emptySet(), repository = repository, offlineProgress = offlineProgress)
+            .reconcile(idle, now = 2_000L)
+        service(repository = repository, offlineProgress = offlineProgress).reconcile(running, now = 2_000L)
+
+        assertEquals(1_000L, idle.state.shutdownTimestamp)
+        assertNull(running.state.shutdownTimestamp)
+        verify(exactly = 0) { repository.markShutdown(any(), any()) }
+        verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
+    }
+
+    @Test
+    fun `an unowned minion is not stamped by the reconcile`() {
+        val repository = mockk<MinionStateRepository>(relaxed = true)
+        val subject = minion(MinionState(definition = MinionDefinitionFixture.build(), owner = null))
+
+        assertFalse(service(repository = repository).reconcile(subject, now = 2_000L))
+
+        assertNull(subject.state.shutdownTimestamp)
+        verify(exactly = 0) { repository.markShutdown(any(), any()) }
+    }
+
+    @Test
+    fun `a limit-idle minion is not active even with its owner online`() {
+        assertFalse(service(limitBreach = { breach }).isActive(ownedMinion()))
+    }
+
+    @Test
+    fun `owner joining does not resume or pay a limit-idle minion`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        subject.state = subject.state.copy(shutdownTimestamp = 1_000L, limitedSince = 1_000L)
+
+        service(offlineProgress = offlineProgress).resume(subject, now = 9_000L)
+
+        verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
+        assertEquals(1_000L, subject.state.shutdownTimestamp)
+    }
+
+    @Test
+    fun `limit-idle time is never paid`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        var limited = true
+        val service = service(offlineProgress = offlineProgress, limitBreach = { breach.takeIf { limited } })
+
+        assertFalse(service.reconcile(subject, now = 1_000L))
+        limited = false
+        assertTrue(service.reconcile(subject, now = 5_000L))
+
+        verify(exactly = 0) { offlineProgress.apply(any(), 1_000L, any()) }
+        assertNull(subject.state.limitedSince)
+        assertNull(subject.state.shutdownTimestamp)
+    }
+
+    @Test
+    fun `offline window before becoming limited is paid when seen allowed`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        var limited = false
+        val service = service(online = emptySet(), offlineProgress = offlineProgress, limitBreach = { breach.takeIf { limited } })
+
+        service.reconcile(subject, now = 1_000L)
+        limited = true
+        service.reconcile(subject, now = 3_000L)
+
+        verify(exactly = 1) { offlineProgress.apply(subject, 1_000L, 3_000L) }
+        assertEquals(3_000L, subject.state.limitedSince)
+    }
+
+    @Test
+    fun `unloaded window is not paid when limited at wake`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        subject.state = subject.state.copy(shutdownTimestamp = 1_000L)
+
+        service(offlineProgress = offlineProgress, limitBreach = { breach }).reconcile(subject, now = 3_000L)
+
+        verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
+        assertEquals(3_000L, subject.state.limitedSince)
+    }
+
+    @Test
+    fun `needsReconcile only when limit status changed`() {
+        val subject = ownedMinion()
+        var limited = false
+        val service = service(limitBreach = { breach.takeIf { limited } })
+
+        assertFalse(service.needsReconcile(subject))
+        limited = true
+        assertTrue(service.needsReconcile(subject))
+        service.reconcile(subject, now = 1_000L)
+        assertFalse(service.needsReconcile(subject))
+    }
+
+    @Test
+    fun `a minion loaded within its limits pays its window when it becomes limited`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        subject.state = subject.state.copy(shutdownTimestamp = 1_000L)
+        var limited = false
+        val service = service(online = emptySet(), offlineProgress = offlineProgress, limitBreach = { breach.takeIf { limited } })
+
+        service.noteLoaded(subject)
+        limited = true
+        service.reconcile(subject, now = 3_000L)
+
+        verify(exactly = 1) { offlineProgress.apply(subject, 1_000L, 3_000L) }
+    }
+
+    @Test
+    fun `resuming a minion over a limit pays nothing and marks it limited`() {
+        val offlineProgress = mockk<OfflineProgressService>(relaxed = true)
+        val subject = ownedMinion()
+        subject.state = subject.state.copy(shutdownTimestamp = 1_000L)
+
+        service(offlineProgress = offlineProgress, limitBreach = { breach }).resume(subject, now = 9_000L)
+
+        verify(exactly = 0) { offlineProgress.apply(any(), any(), any()) }
+        assertEquals(9_000L, subject.state.limitedSince)
     }
 }

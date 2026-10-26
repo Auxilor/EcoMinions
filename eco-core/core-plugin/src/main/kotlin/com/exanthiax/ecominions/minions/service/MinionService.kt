@@ -10,7 +10,9 @@ import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.willfp.libreforge.flushHolders
 import com.willfp.libreforge.forceRefreshHolders
+import com.willfp.libreforge.updateEffects
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.ArmorStand
@@ -31,7 +33,10 @@ class MinionService(
     private val settings: SettingsHolder<MinionSettings>,
     private val events: EventDispatcher,
     private val regions: Regions,
-    private val placed: PlacedMinionRegistry
+    private val placed: PlacedMinionRegistry,
+    private val onRegister: (Minion) -> Unit = {},
+    private val onRetire: (Minion) -> Unit = {},
+    private val onPlacedChanged: (UUID) -> Unit = {}
 ) {
 
     private val byUuid: MutableMap<UUID, Minion> = ConcurrentHashMap()
@@ -64,18 +69,30 @@ class MinionService(
         minion.state.owner?.let { owner ->
             byOwner.computeIfAbsent(owner) { ConcurrentHashMap.newKeySet() }.add(minion.uuid)
             placed.add(owner, minion.uuid, minion.state.definition.id)
+            onPlacedChanged(owner)
         }
+        onRegister(minion)
         return minion
     }
 
     /** Unregisters a minion that is leaving the world for good, so its owner no longer counts it. */
     fun retire(minion: Minion) {
-        minion.state.owner?.let { placed.remove(it, minion.uuid) }
+        minion.state.owner?.let {
+            placed.remove(it, minion.uuid)
+            onPlacedChanged(it)
+        }
+        onRetire(minion)
         unregister(minion)
     }
 
-    /** Forgets every minion [owner] placed; any still in the world record themselves again when they load. */
-    fun forgetPlaced(owner: UUID) = placed.clear(owner)
+    /**
+     * Forgets every minion [owner] placed except [keep]; any still in the world
+     * record themselves again when they load.
+     */
+    fun forgetPlaced(owner: UUID, keep: Set<UUID> = emptySet()) {
+        placed.clear(owner, keep)
+        onPlacedChanged(owner)
+    }
 
     fun unregister(minion: Minion) {
         byUuid.remove(minion.uuid)
@@ -89,10 +106,12 @@ class MinionService(
         minion.state.owner?.let {
             byOwner[it]?.remove(minion.uuid)
             placed.remove(it, minion.uuid)
+            onPlacedChanged(it)
         }
         owner?.let {
             byOwner.computeIfAbsent(it) { ConcurrentHashMap.newKeySet() }.add(minion.uuid)
             placed.add(it, minion.uuid, minion.state.definition.id)
+            onPlacedChanged(it)
         }
         updateState(minion, minion.state.copy(owner = owner))
 
@@ -149,9 +168,16 @@ class MinionService(
      *
      * Called explicitly because libreforge only polls players, entities and the
      * global dispatcher - a minion dispatcher is never swept automatically.
+     * Conditions are re-evaluated too, as unchanged holders keep their old
+     * results, and the change is applied now so a trigger fired straight
+     * after (such as minion_place) already sees the holders.
      */
     fun refreshEffects(minion: Minion) {
-        minion.toDispatcher().forceRefreshHolders()
+        minion.toDispatcher().apply {
+            forceRefreshHolders()
+            updateEffects()
+            flushHolders()
+        }
     }
 
     /**

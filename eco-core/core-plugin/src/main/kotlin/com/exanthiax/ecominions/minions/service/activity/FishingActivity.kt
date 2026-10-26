@@ -28,7 +28,8 @@ class FishingActivity(
     private val listening: (HandlerList) -> Boolean = { it.registeredListeners.isNotEmpty() },
     private val isWaterSource: (Block) -> Boolean = ::isStillWater,
     private val splash: (Block) -> Unit = { it.world.spawnParticle(Particle.SPLASH, it.location.add(0.5, 1.0, 0.5), SPLASH_COUNT) },
-    private val random: Random = Random.Default
+    private val random: Random = Random.Default,
+    private val canWork: (Minion, Block) -> Boolean = { _, _ -> true }
 ) : MinionActivity {
 
     override fun onTick(minion: Minion, now: Long) {
@@ -107,7 +108,11 @@ class FishingActivity(
 
     private fun seed(minion: Minion): Boolean {
         val spot = MinionWorkArea.blocks(minion)
-            .filter { it.type == Material.AIR && it.world.getBlockAt(it.x, it.y - 1, it.z).isSolid }
+            .filter {
+                (it.type == Material.AIR || isFlowingWater(it)) &&
+                    it.world.getBlockAt(it.x, it.y - 1, it.z).isSolid &&
+                    canWork(minion, it)
+            }
             .randomOrNull(random)
             ?: return false
         spot.type = Material.WATER
@@ -125,3 +130,6 @@ class FishingActivity(
 
 private fun isStillWater(block: Block): Boolean =
     block.type == Material.WATER && (block.blockData as? Levelled)?.level == 0
+
+private fun isFlowingWater(block: Block): Boolean =
+    block.type == Material.WATER && !isStillWater(block)

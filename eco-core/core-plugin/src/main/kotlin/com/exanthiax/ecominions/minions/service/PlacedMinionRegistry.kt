@@ -17,6 +17,12 @@ class PlacedMinionRegistry(
 ) {
     fun count(owner: UUID): Int = read(owner).size
 
+    /** Every minion [owner] placed, oldest first. */
+    fun entries(owner: UUID): List<PlacedEntry> = read(owner).mapNotNull { entry ->
+        runCatching { UUID.fromString(entry.substringBefore(SEPARATOR)) }.getOrNull()
+            ?.let { PlacedEntry(it, entry.substringAfter(SEPARATOR)) }
+    }
+
     fun count(owner: UUID, typeId: String): Int = read(owner).count { it.substringAfter(SEPARATOR) == typeId }
 
     /** Records [minion] for [owner]; a minion already recorded is left as it is. */
@@ -37,13 +43,19 @@ class PlacedMinionRegistry(
         }
     }
 
-    /** Forgets every minion [owner] placed; those still in the world record themselves again when they load. */
+    /**
+     * Forgets every minion [owner] placed except [keep]; those still in the world
+     * record themselves again when they load.
+     */
     @Synchronized
-    fun clear(owner: UUID) {
-        write(owner, emptyList())
+    fun clear(owner: UUID, keep: Set<UUID> = emptySet()) {
+        write(owner, read(owner).filter { entry -> keep.any { entry.startsWith("$it$SEPARATOR") } })
     }
 
     private companion object {
         const val SEPARATOR = ":"
     }
 }
+
+/** One placed minion and the minion id it was placed as. */
+data class PlacedEntry(val minion: UUID, val typeId: String)

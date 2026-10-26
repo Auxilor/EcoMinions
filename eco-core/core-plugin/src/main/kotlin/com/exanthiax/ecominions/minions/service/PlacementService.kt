@@ -3,21 +3,30 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.api.event.MinionDestroyEvent
 import com.exanthiax.ecominions.api.event.MinionPickupEvent
 import com.exanthiax.ecominions.api.event.MinionPlaceEvent
+import com.exanthiax.ecominions.api.island.IslandPrivilege
+import com.exanthiax.ecominions.api.minion.LimitBreach
+import com.exanthiax.ecominions.api.minion.LimitScope
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.api.minion.DestroyCause
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
 import com.exanthiax.ecominions.core.world.WorldSettings
+import com.exanthiax.ecominions.islands.IslandRegistry
+import com.exanthiax.ecominions.islands.MinionAccess
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPickup
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionPlace
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
+import com.exanthiax.ecominions.minions.model.OverLimitMode
 import com.willfp.eco.core.items.Items
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
+import org.bukkit.block.Block
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -29,22 +38,32 @@ class PlacementService(
     private val factory: MinionFactory,
     private val itemFactory: MinionItemFactory,
     private val repository: MinionStateRepository,
-    private val limits: PlacementLimits,
+    private val limits: MinionLimits,
     private val worlds: WorldSettings,
     private val settings: SettingsHolder<MinionSettings>,
     private val triggers: MinionTriggerDispatch,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val access: MinionAccess,
+    private val islands: IslandRegistry,
+    private val canPlace: (Player, Block) -> Boolean
 ) {
     sealed interface PlaceResult {
-        data class Placed(val minion: Minion) : PlaceResult
+        /** @property limited The limit holding the new minion back in `inactive` mode, or null. */
+        data class Placed(val minion: Minion, val limited: LimitBreach? = null) : PlaceResult
         data object WorldDisabled : PlaceResult
         data class LimitReached(val limit: Int) : PlaceResult
+        data class IslandLimitReached(val limit: Int) : PlaceResult
+        data class TypeLimitReached(val type: MinionType, val limit: Int) : PlaceResult
+        data class MinionLimitReached(val definition: MinionDefinition, val limit: Int) : PlaceResult
+        data object Protected : PlaceResult
+        data object NoIslandPermission : PlaceResult
         data object Cancelled : PlaceResult
     }
 
     sealed interface PickUpResult {
         data class PickedUp(val item: ItemStack) : PickUpResult
         data object NotOwner : PickUpResult
+        data object NoIslandPermission : PickUpResult
         data object Cancelled : PickUpResult
     }
 
@@ -52,13 +71,31 @@ class PlacementService(
         if (isDisabled(location)) {
             return PlaceResult.WorldDisabled
         }
-        val limit = limits.limitFor(player)
-        if (minions.countOwnedBy(player) >= limit) {
-            return PlaceResult.LimitReached(limit)
+        if (!state.definition.bypassAntigrief && !canPlace(player, location.block)) {
+            return PlaceResult.Protected
+        }
+        val island by lazy { islands.islandAt(location) }
+        if (!access.canPlace(player) { island }) {
+            return PlaceResult.NoIslandPermission
+        }
+        if (settings.value.overLimit == OverLimitMode.PREVENT) {
+            limits.checkPlacement(player, state.owner ?: player.uniqueId, state.definition) { island }
+                ?.let { return refusal(it, state.definition) }
         }
 
         val owner = state.owner?.takeIf { it != player.uniqueId }?.let { Bukkit.getOfflinePlayer(it) } ?: player
-        return placeAs(player, state, location.facing(player), owner)
+        val result = placeAs(player, state, location.facing(player), owner)
+        if (result is PlaceResult.Placed) {
+            return result.copy(limited = limits.breachOf(result.minion))
+        }
+        return result
+    }
+
+    private fun refusal(breach: LimitBreach, definition: MinionDefinition): PlaceResult = when (breach.scope) {
+        LimitScope.PLAYER -> PlaceResult.LimitReached(breach.max)
+        LimitScope.ISLAND -> PlaceResult.IslandLimitReached(breach.max)
+        LimitScope.TYPE -> PlaceResult.TypeLimitReached(definition.type, breach.max)
+        LimitScope.MINION -> PlaceResult.MinionLimitReached(definition, breach.max)
     }
 
     /**
@@ -98,8 +135,12 @@ class PlacementService(
 
     /** Removes [minion] and hands back the item that carries its contents. */
     fun pickUp(player: Player, minion: Minion): PickUpResult {
-        if (!canPickUp(player, minion)) {
-            return PickUpResult.NotOwner
+        if (!access.canPickUp(player, minion)) {
+            return if (access.deniedByIsland(player, minion, IslandPrivilege.PICKUP)) {
+                PickUpResult.NoIslandPermission
+            } else {
+                PickUpResult.NotOwner
+            }
         }
 
         val event = MinionPickupEvent(player, minion, itemFor(minion))
@@ -156,11 +197,6 @@ class PlacementService(
         minions.retire(minion)
         minion.entity.remove()
     }
-
-    fun canPickUp(player: Player, minion: Minion): Boolean =
-        minion.state.owner == null ||
-            minion.state.owner == player.uniqueId ||
-            player.hasPermission(ADMIN_PERMISSION)
 
     /** Minions look back at whoever placed them, squared to the nearest cardinal direction. */
     private fun Location.facing(player: Player): Location = clone().apply {
@@ -232,8 +268,4 @@ class PlacementService(
     }
 
     private fun String.toItemStack(): ItemStack = Items.lookup(this).item.clone()
-
-    private companion object {
-        const val ADMIN_PERMISSION = "ecominions.admin"
-    }
 }

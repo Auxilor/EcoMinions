@@ -1,0 +1,1269 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>AbstractClassCanBeConcreteClass:MinionStatEffect.kt:MinionStatEffect$MinionStatEffect</ID>
+    <ID>AlsoCouldBeApply:BentoBoxIslandProvider.kt:BentoBoxIslandProvider.Companion$also</ID>
+    <ID>AlsoCouldBeApply:IslandMemberListenerTest.kt:IslandMemberListenerTest$also</ID>
+    <ID>BracesOnWhenStatements:IslandMinionTracker.kt:IslandMinionTracker$when</ID>
+    <ID>BracesOnWhenStatements:MainMenu.kt:MainMenu$when</ID>
+    <ID>BracesOnWhenStatements:MinionPlacementListener.kt:MinionPlacementListener$when</ID>
+    <ID>BracesOnWhenStatements:MinionsManagerImpl.kt:MinionsManagerImpl$when</ID>
+    <ID>BracesOnWhenStatements:SellService.kt:SellService$when</ID>
+    <ID>BracesOnWhenStatements:UpgradeMenu.kt:UpgradeMenu$when</ID>
+    <ID>C002:MinionHologram.kt:MinionHologram$display.teleportAsync(anchorOf(minion))</ID>
+    <ID>CanBeNonNullable:LandsIslandProvider.kt:LandsIslandProvider.LandsMinionIsland$override val owner: UUID? = land.ownerUID</ID>
+    <ID>CascadingCallWrapping:MinionLimits.kt:MinionLimits$minionIslands.computeIfAbsent(minion.uuid) { listOfNotNull(islandAt(minion.entity.location)) } .firstOrNull() ?: return null</ID>
+    <ID>CascadingCallWrapping:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$toMap()</ID>
+    <ID>CastNullableToNonNullableType:LevellingLoaderTest.kt:LevellingLoaderTest$as</ID>
+    <ID>CognitiveComplexMethod:SeedingService.kt:SeedingService$private fun findSpot: Block?</ID>
+    <ID>CognitiveComplexMethod:WoodcutterBehaviour.kt:WoodcutterBehaviour$private fun findPlantSpot: Location?</ID>
+    <ID>ComplexCondition:MinionMiningLoop.kt:MinionMiningLoop$minion.state.owner == null || minion.state.shutdownTimestamp != null &amp;&amp; !activity.isActive(minion) &amp;&amp; !activity.needsReconcile(minion)</ID>
+    <ID>ComplexCondition:SlayerActivity.kt:SlayerActivity$entity is Player || entity is ArmorStand || (entity is Tameable &amp;&amp; entity.ownerUniqueId != null)</ID>
+    <ID>ComplexInterface:Minion.kt:Minion</ID>
+    <ID>ComplexInterface:MinionsManager.kt:MinionsManager</ID>
+    <ID>CouldBeSequence:IslandMemberListener.kt:IslandMemberListener$flatMap { index.minionsOn(it) }</ID>
+    <ID>CouldBeSequence:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$filter { it.startsWith(TYPE) }</ID>
+    <ID>CouldBeSequence:MinionStorageView.kt:StorageContents$sortedByDescending { counts[it] }</ID>
+    <ID>CyclomaticComplexMethod:MinionPlaceholders.kt:MinionPlaceholders$override fun internalPlaceholders: List&lt;InternalPlaceholder&gt;</ID>
+    <ID>CyclomaticComplexMethod:MinionPlacementListener.kt:MinionPlacementListener$@EventHandler fun onPlace</ID>
+    <ID>CyclomaticComplexMethod:MinionState.kt:MinionState$override fun equals: Boolean</ID>
+    <ID>CyclomaticComplexMethod:MinionStorage.kt:MinionStorage$fun add: ItemStack?</ID>
+    <ID>CyclomaticComplexMethod:SellService.kt:SellService$fun sellStorage: Double</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:BentoBoxIslandProvider.kt:BentoBoxIslandProvider.Companion$val (icon, rank, displayName, description) = when (privilege) { IslandPrivilege.PLACE -&gt; FlagSpec( Material.ARMOR_STAND, RanksManager.MEMBER_RANK, "Place minions", "Allow placing minions" ) IslandPrivilege.USE -&gt; FlagSpec( Material.CHEST, RanksManager.MEMBER_RANK, "Use minions", "Allow opening and using minions" ) IslandPrivilege.PICKUP -&gt; FlagSpec( Material.HOPPER, RanksManager.OWNER_RANK, "Pick up minions", "Allow picking up minions" ) }</ID>
+    <ID>DocumentationOverPrivateFunction:BlockActivity.kt:BlockActivity$private fun behaviourOf: MinionBehaviour</ID>
+    <ID>DocumentationOverPrivateFunction:BlockActivity.kt:BlockActivity$private fun mineEvent: List&lt;ItemStack&gt;?</ID>
+    <ID>DocumentationOverPrivateFunction:BoundaryBox.kt:BoundaryBox$private fun onEdge: Boolean</ID>
+    <ID>DocumentationOverPrivateFunction:BoundaryBox.kt:BoundaryBox$private fun samples: List&lt;Double&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:CompactorService.kt:CompactorService$private fun orderByChain: List&lt;CompactorRecipe&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:EcoMinionsPlugin.kt:EcoMinionsPlugin$private fun spawnXpOrb</ID>
+    <ID>DocumentationOverPrivateFunction:EcoMinionsPlugin.kt:EcoMinionsPlugin$private fun vanillaDrops: List&lt;ItemStack&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:EcoMinionsPlugin.kt:EcoMinionsPlugin$private fun vanillaFishingLoot: List&lt;ItemStack&gt;?</ID>
+    <ID>DocumentationOverPrivateFunction:EcoMinionsPlugin.kt:EcoMinionsPlugin$private fun wireMenuNavigation</ID>
+    <ID>DocumentationOverPrivateFunction:FishingActivity.kt:FishingActivity$private fun waterOf: List&lt;Block&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:LevellingPlaceholders.kt:LevellingPlaceholders$private fun requiredFor: Double?</ID>
+    <ID>DocumentationOverPrivateFunction:MainMenu.kt:MainMenu$private fun fromCursor: MinionFuelService.Outcome?</ID>
+    <ID>DocumentationOverPrivateFunction:MainMenu.kt:MainMenu$private fun fuelSlot: Slot</ID>
+    <ID>DocumentationOverPrivateFunction:MainMenu.kt:MainMenu$private fun storagePositions: List&lt;Pair&lt;Int, Int&gt;&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:MiningTargetFinder.kt:MiningTargetFinder$private fun isMineableNow: Boolean</ID>
+    <ID>DocumentationOverPrivateFunction:MinionActivityService.kt:MinionActivityService$private fun markLimited</ID>
+    <ID>DocumentationOverPrivateFunction:MinionAnimator.kt:MinionAnimator$private fun bobOf: Double</ID>
+    <ID>DocumentationOverPrivateFunction:MinionBlockIndexTest.kt:MinionBlockIndexTest$private fun index</ID>
+    <ID>DocumentationOverPrivateFunction:MinionBlockLoader.kt:MinionBlockLoader$private fun readExperience: IntRange?</ID>
+    <ID>DocumentationOverPrivateFunction:MinionBlockLoader.kt:MinionBlockLoader$private fun readRestore: RestoreMode?</ID>
+    <ID>DocumentationOverPrivateFunction:MinionCollectServiceTest.kt:MinionCollectServiceTest$private fun player: Player</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readAllowedUpgrades: List&lt;String&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readBaseStats: MinionDefinition.BaseStats</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readBlockTargets: TargetSet?</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readCompactorRecipes: List&lt;CompactorRecipeDefinition&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readSeedBlocks: List&lt;TestableBlock&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readSellPrices: PriceList</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readSpacing: Int</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readTargetBlocks: List&lt;String&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun rejectUnfellableTargets: Boolean</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun resolve: MinionBlock?</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun resolveTargets: TargetSet</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun validateBaseStats: Boolean</ID>
+    <ID>DocumentationOverPrivateFunction:MinionDropTablesTest.kt:MinionDropTablesTest$private fun custom</ID>
+    <ID>DocumentationOverPrivateFunction:MinionFuelService.kt:MinionFuelService$private fun authorise: Long?</ID>
+    <ID>DocumentationOverPrivateFunction:MinionFuelService.kt:MinionFuelService$private fun chooseFuel: Fuel?</ID>
+    <ID>DocumentationOverPrivateFunction:MinionFuelService.kt:MinionFuelService$private fun remainingOf: Long</ID>
+    <ID>DocumentationOverPrivateFunction:MinionFuelServiceTest.kt:MinionFuelServiceTest$private fun fuel</ID>
+    <ID>DocumentationOverPrivateFunction:MinionFuelServiceTest.kt:MinionFuelServiceTest$private fun serviceWith: MinionFuelService</ID>
+    <ID>DocumentationOverPrivateFunction:MinionHologram.kt:MinionHologram$private fun statusPath: String</ID>
+    <ID>DocumentationOverPrivateFunction:MinionPistonListener.kt:MinionPistonListener$private fun sweepsMinion: Boolean</ID>
+    <ID>DocumentationOverPrivateFunction:MinionPlaceholders.kt:MinionPlaceholders$private fun TemplateContext.state: MinionState?</ID>
+    <ID>DocumentationOverPrivateFunction:MinionPlaceholders.kt:MinionPlaceholders$private fun TemplateContext.stats: MinionStats?</ID>
+    <ID>DocumentationOverPrivateFunction:MinionPlacementListener.kt:MinionPlacementListener$private fun clickIfAllowed</ID>
+    <ID>DocumentationOverPrivateFunction:MinionRenderLoop.kt:MinionRenderLoop$private fun emitBoundaryBox</ID>
+    <ID>DocumentationOverPrivateFunction:MinionRenderLoop.kt:MinionRenderLoop$private fun emitFullParticles</ID>
+    <ID>DocumentationOverPrivateFunction:MinionRenderLoop.kt:MinionRenderLoop$private fun emitIdleParticles</ID>
+    <ID>DocumentationOverPrivateFunction:MinionStatsTest.kt:MinionStatsTest$private fun stats</ID>
+    <ID>DocumentationOverPrivateFunction:MinionStorageTest.kt:MinionStorageTest$private fun storage</ID>
+    <ID>DocumentationOverPrivateFunction:MinionStorageView.kt:MinionStorageView$private fun buildItem: ItemStack</ID>
+    <ID>DocumentationOverPrivateFunction:MinionStorageView.kt:MinionStorageView$private fun nameOf: String</ID>
+    <ID>DocumentationOverPrivateFunction:MinionStorageView.kt:MinionStorageView$private fun titleCase: String</ID>
+    <ID>DocumentationOverPrivateFunction:MinionTicker.kt:MinionTicker$private fun checkFuelExpiry</ID>
+    <ID>DocumentationOverPrivateFunction:MinionTicker.kt:MinionTicker$private fun pollConditions</ID>
+    <ID>DocumentationOverPrivateFunction:MinionXpService.kt:MinionXpService$private fun allowGain: Double?</ID>
+    <ID>DocumentationOverPrivateFunction:MinionsManagerImpl.kt:MinionsManagerImpl$private fun owned: Minion</ID>
+    <ID>DocumentationOverPrivateFunction:OfflineProgressService.kt:OfflineProgressService$private fun creditDrops: Int</ID>
+    <ID>DocumentationOverPrivateFunction:OfflineProgressService.kt:OfflineProgressService$private fun fueledCycleTicksOf: Int</ID>
+    <ID>DocumentationOverPrivateFunction:ParticleEmitter.kt:ParticleEmitter$private fun scatter: List&lt;Location&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:ParticleSettingsLoader.kt:ParticleSettingsLoader$private fun layer: ParticleSettings.Layer?</ID>
+    <ID>DocumentationOverPrivateFunction:ParticleSettingsLoader.kt:ParticleSettingsLoader$private fun readLayer: ParticleSettings.Layer?</ID>
+    <ID>DocumentationOverPrivateFunction:PlacementService.kt:PlacementService$private fun Location.facing: Location</ID>
+    <ID>DocumentationOverPrivateFunction:PlacementService.kt:PlacementService$private fun clearRegenMarkers</ID>
+    <ID>DocumentationOverPrivateFunction:PlacementService.kt:PlacementService$private fun clearSeeded</ID>
+    <ID>DocumentationOverPrivateFunction:PlacementService.kt:PlacementService$private fun removeSpawnedMobs</ID>
+    <ID>DocumentationOverPrivateFunction:PriceListTest.kt:PriceListTest$private fun custom</ID>
+    <ID>DocumentationOverPrivateFunction:SeedingService.kt:SeedingService$private fun findSpot: Block?</ID>
+    <ID>DocumentationOverPrivateFunction:SeedingService.kt:SeedingService$private fun irrigate</ID>
+    <ID>DocumentationOverPrivateFunction:SeedingService.kt:SeedingService$private fun ripen</ID>
+    <ID>DocumentationOverPrivateFunction:SeedingService.kt:SeedingService$private fun survives: Boolean</ID>
+    <ID>DocumentationOverPrivateFunction:SeedingService.kt:SeedingService$private fun waterSpotFor: Block?</ID>
+    <ID>DocumentationOverPrivateFunction:SuperiorSkyblockIslandProvider.kt:SuperiorSkyblockIslandProvider.Companion$private fun applyDefaults</ID>
+    <ID>DocumentationOverPrivateFunction:TargetSetTest.kt:TargetSetTest$private fun custom</ID>
+    <ID>DocumentationOverPrivateFunction:TreeService.kt:TreeService$private fun keepFromDecaying</ID>
+    <ID>DocumentationOverPrivateFunction:TreeShape.kt:TreeShape$private fun cap: List&lt;TreeBlock&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:TreeShape.kt:TreeShape$private fun slab: List&lt;TreeBlock&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:TreeSpeciesTest.kt:TreeSpeciesTest$private fun everyBlockResolves</ID>
+    <ID>DocumentationOverPrivateFunction:UpgradeLoader.kt:UpgradeLoader$private fun compileHolder: Holder?</ID>
+    <ID>DocumentationOverPrivateFunction:UpgradesManagerImpl.kt:UpgradesManagerImpl$private fun compactorUpgrades: List&lt;Upgrade&gt;</ID>
+    <ID>DocumentationOverPrivateFunction:UpgradesManagerImpl.kt:UpgradesManagerImpl$private fun findUpgrade: Upgrade?</ID>
+    <ID>DocumentationOverPrivateFunction:VanillaBlockDefaults.kt:VanillaBlockDefaults$private fun column: MinionBlock?</ID>
+    <ID>DocumentationOverPrivateFunction:VanillaBlockDefaults.kt:VanillaBlockDefaults$private fun crop: MinionBlock?</ID>
+    <ID>DocumentationOverPrivateFunction:VanillaBlockDefaults.kt:VanillaBlockDefaults$private fun grounded: MinionBlock?</ID>
+    <ID>DocumentationOverPrivateFunction:VanillaBlockDefaults.kt:VanillaBlockDefaults$private fun ore: MinionBlock?</ID>
+    <ID>DocumentationOverPrivateFunction:VanillaBlockDefaults.kt:VanillaBlockDefaults$private fun tree: MinionBlock?</ID>
+    <ID>DocumentationOverPrivateFunction:VanillaBlockDefaults.kt:VanillaBlockDefaults$private fun unmineable: MinionBlock?</ID>
+    <ID>DocumentationOverPrivateFunction:WoodcutterBehaviour.kt:WoodcutterBehaviour$private fun definitionFor: MinionBlock?</ID>
+    <ID>DocumentationOverPrivateFunction:WoodcutterBehaviour.kt:WoodcutterBehaviour$private fun findPlantSpot: Location?</ID>
+    <ID>DocumentationOverPrivateFunction:WoodcutterBehaviour.kt:WoodcutterBehaviour$private fun growMatured</ID>
+    <ID>DocumentationOverPrivateFunction:WoodcutterBehaviour.kt:WoodcutterBehaviour$private fun harvestFelled</ID>
+    <ID>DocumentationOverPrivateFunction:WoodcutterBehaviour.kt:WoodcutterBehaviour$private fun surfaceFor: TestableBlock?</ID>
+    <ID>DocumentationOverPrivateFunction:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$private fun grownTree: Minion</ID>
+    <ID>DocumentationOverPrivateProperty:BoundaryBox.kt:BoundaryBox$/** * Guards against a heavily upgraded radius turning one draw into thousands of * particles. Comfortably above the largest box any shipped type produces. */ private const val MAX_VOLUME_SAMPLES = 8000</ID>
+    <ID>DocumentationOverPrivateProperty:FakeItemRegistry.kt:ItemTypeRegistry$/** Every material the tests use stacks to 64; the real server answers this properly. */ private const val DEFAULT_MAX_STACK_SIZE = 64</ID>
+    <ID>DocumentationOverPrivateProperty:OfflineProgressTest.kt:OfflineProgressTest$/** 50 ticks per cycle, so 2500ms of wall clock per unfuelled cycle. */ private val stats = MinionStats( MinionDefinition.BaseStats( speedTicks = "40", efficiencyTicks = "10", radius = "2", storageSlots = "1", maxStorageSlots = "54", hardSlotCap = 54, regenDelayTicks = "60" ), level = 1 )</ID>
+    <ID>DocumentationOverPrivateProperty:OfflineProgressTest.kt:OfflineProgressTest$/** A doubled-speed fuel: 20 speed ticks + 10 efficiency = 30, so 1500ms per cycle. */ private val fueledCycleTicks = 30</ID>
+    <ID>DocumentationOverPrivateProperty:StorageContentsTest.kt:StorageContentsTest$/** Stacks of one material merge, which is what a plain vanilla drop does. */ private val byMaterial: (ItemStack, ItemStack) -&gt; Boolean = { a, b -&gt; a.type == b.type }</ID>
+    <ID>DocumentationOverPrivateProperty:TreeSpeciesTest.kt:TreeSpeciesTest$/** Every tree [VanillaBlockDefaults] knows, taken from the source of truth rather than retyped. */ private val vanillaTrees: List&lt;String&gt; = VanillaBlockDefaults(everyBlockResolves()).all() .filter { it.plant != null &amp;&amp; it.leaves != null } .map { it.id }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:UpgradeMenu.kt:UpgradeMenu$when (state) { TierState.CURRENT -&gt; messages.raw("gui.upgrade.tier.current-prefix") TierState.NEXT -&gt; messages.raw("gui.upgrade.tier.next-prefix") else -&gt; messages.raw("gui.upgrade.tier.locked-prefix") }</ID>
+    <ID>F001:CollectionActivityTest.kt:CollectionActivityTest$mutableListOf&lt;ExperienceOrb&gt;()</ID>
+    <ID>F001:CollectionActivityTest.kt:CollectionActivityTest$mutableListOf&lt;Item&gt;()</ID>
+    <ID>F001:FakeIslandProvider.kt:FakeIslandProvider$HashMap&lt;BlockPosition, FakeIsland&gt;()</ID>
+    <ID>F001:FakeIslandProvider.kt:FakeIslandProvider$LinkedHashSet&lt;FakeIsland&gt;()</ID>
+    <ID>F001:FakeItemRegistry.kt:ItemTypeRegistry$HashMap&lt;NamespacedKey, ItemType&gt;()</ID>
+    <ID>F001:FakeWorld.kt:FakeWorld$HashMap&lt;Triple&lt;Int, Int, Int&gt;, Material&gt;()</ID>
+    <ID>F001:IslandMemberListenerTest.kt:IslandMemberListenerTest$mutableListOf&lt;String&gt;()</ID>
+    <ID>F001:IslandMemberListenerTest.kt:IslandMemberListenerTest$mutableSetOf(owner, member)</ID>
+    <ID>F001:IslandRegistryTest.kt:IslandRegistryTest$mutableListOf&lt;String&gt;()</ID>
+    <ID>F001:LifecycleManager.kt:LifecycleManager$mutableListOf&lt;EcoTask&gt;()</ID>
+    <ID>F001:LoadReport.kt:LoadReport$LinkedHashMap&lt;String, Int&gt;()</ID>
+    <ID>F001:MenuViewersTest.kt:MenuViewersTest$mutableListOf&lt;Pair&lt;Menu, Player&gt;&gt;()</ID>
+    <ID>F001:MiningState.kt:MiningState$mutableListOf()</ID>
+    <ID>F001:MiningState.kt:MiningState$mutableMapOf()</ID>
+    <ID>F001:MiningState.kt:MiningState$mutableSetOf()</ID>
+    <ID>F001:MinionItemServiceTest.kt:MinionItemServiceTest$hashMapOf()</ID>
+    <ID>F001:MinionLimitsTest.kt:MinionLimitsTest$mutableMapOf&lt;UUID, List&lt;String&gt;&gt;()</ID>
+    <ID>F001:MinionLimitsTest.kt:MinionLimitsTest$mutableMapOf&lt;UUID, Player&gt;()</ID>
+    <ID>F001:ParticleEmitterTest.kt:ParticleEmitterTest.RecordingParticle$mutableListOf&lt;Pair&lt;Location, Int&gt;&gt;()</ID>
+    <ID>F001:ParticleEmitterTest.kt:ParticleEmitterTest.RecordingParticle$mutableListOf&lt;Player&gt;()</ID>
+    <ID>F001:PlacedMinionRegistryTest.kt:PlacedMinionRegistryTest$mutableMapOf&lt;UUID, List&lt;String&gt;&gt;()</ID>
+    <ID>F001:PlacementServiceTest.kt:PlacementServiceTest$mutableMapOf&lt;UUID, List&lt;String&gt;&gt;()</ID>
+    <ID>F001:RecordingEventDispatcher.kt:RecordingEventDispatcher$mutableListOf&lt;Event&gt;()</ID>
+    <ID>F001:SlayerActivityTest.kt:SlayerActivityTest$mutableListOf&lt;LivingEntity&gt;()</ID>
+    <ID>F004:MinionHologram.kt:MinionHologram$teleport(anchorOf(minion))</ID>
+    <ID>FunctionNameMaxLength:BlockActivityTest.kt:BlockActivityTest$@Test fun `keeps seeding after a seeded cycle while spots are left`</ID>
+    <ID>FunctionNameMaxLength:BlockPositionsTest.kt:BlockPositionsTest$@Test fun `round trips positive and negative positions`</ID>
+    <ID>FunctionNameMaxLength:BoundaryBoxTest.kt:BoundaryBoxTest$@Test fun `an oversized box draws nothing rather than flooding the client`</ID>
+    <ID>FunctionNameMaxLength:BoundaryBoxTest.kt:BoundaryBoxTest$@Test fun `edges start at the floor offset`</ID>
+    <ID>FunctionNameMaxLength:BoundaryBoxTest.kt:BoundaryBoxTest$@Test fun `height grows the outline upward only`</ID>
+    <ID>FunctionNameMaxLength:BoundaryBoxTest.kt:BoundaryBoxTest$@Test fun `shared corners are not emitted twice`</ID>
+    <ID>FunctionNameMaxLength:BoundaryBoxTest.kt:BoundaryBoxTest$@Test fun `the outline spans exactly the blocks the minion mines`</ID>
+    <ID>FunctionNameMaxLength:CollectionActivityTest.kt:CollectionActivityTest$@Test fun `a cancelled collect event leaves the item`</ID>
+    <ID>FunctionNameMaxLength:CollectionActivityTest.kt:CollectionActivityTest$@Test fun `a stack that only partly fits is split`</ID>
+    <ID>FunctionNameMaxLength:CollectionActivityTest.kt:CollectionActivityTest$@Test fun `collects a ready item into storage`</ID>
+    <ID>FunctionNameMaxLength:CollectionActivityTest.kt:CollectionActivityTest$@Test fun `leaves items and orbs where the owner cannot build`</ID>
+    <ID>FunctionNameMaxLength:CollectionActivityTest.kt:CollectionActivityTest$@Test fun `nothing in range waits with nothing-to-collect`</ID>
+    <ID>FunctionNameMaxLength:CollectionActivityTest.kt:CollectionActivityTest$@Test fun `respects the target item filter`</ID>
+    <ID>FunctionNameMaxLength:CollectionActivityTest.kt:CollectionActivityTest$@Test fun `skips an item that still has a pickup delay`</ID>
+    <ID>FunctionNameMaxLength:CollectionSettingsLoaderTest.kt:CollectionSettingsLoaderTest$@Test fun `an unknown target item is reported and skipped`</ID>
+    <ID>FunctionNameMaxLength:CollectionSettingsLoaderTest.kt:CollectionSettingsLoaderTest$@Test fun `defaults collect everything including xp`</ID>
+    <ID>FunctionNameMaxLength:CompactorRecipeLoaderTest.kt:CompactorRecipeLoaderTest$@Test fun `a missing input is rejected and reported`</ID>
+    <ID>FunctionNameMaxLength:CompactorRecipeLoaderTest.kt:CompactorRecipeLoaderTest$@Test fun `a missing output is rejected and reported`</ID>
+    <ID>FunctionNameMaxLength:CompactorRecipeLoaderTest.kt:CompactorRecipeLoaderTest$@Test fun `a non-positive input amount is rejected`</ID>
+    <ID>FunctionNameMaxLength:CompactorRecipeLoaderTest.kt:CompactorRecipeLoaderTest$@Test fun `a non-positive output amount is rejected`</ID>
+    <ID>FunctionNameMaxLength:CompactorRecipeLoaderTest.kt:CompactorRecipeLoaderTest$@Test fun `higher-level-of is read when present`</ID>
+    <ID>FunctionNameMaxLength:CraftingSpecTest.kt:CraftingSpecTest$@Test fun `a short grid is padded with empty slots`</ID>
+    <ID>FunctionNameMaxLength:CraftingSpecTest.kt:CraftingSpecTest$@Test fun `an entirely empty grid is rejected`</ID>
+    <ID>FunctionNameMaxLength:EcoMinionsPluginTest.kt:EcoMinionsPluginTest$@Test fun `plugin class names no libreforge type outside the loader`</ID>
+    <ID>FunctionNameMaxLength:EventContractTest.kt:EventContractTest$@Test fun `cancellable events start uncancelled and remember cancelling`</ID>
+    <ID>FunctionNameMaxLength:EventContractTest.kt:EventContractTest$@Test fun `handler lists are shared per event type`</ID>
+    <ID>FunctionNameMaxLength:EventContractTest.kt:EventContractTest$@Test fun `minion events expose their minion through the marker`</ID>
+    <ID>FunctionNameMaxLength:EventContractTest.kt:EventContractTest$@Test fun `mutable fields are writable by listeners`</ID>
+    <ID>FunctionNameMaxLength:EventContractTest.kt:EventContractTest$@Test fun `reporting events are not cancellable`</ID>
+    <ID>FunctionNameMaxLength:ExperienceSinkTest.kt:ExperienceSinkTest$@Test fun `orb mode spawns an orb and stores nothing`</ID>
+    <ID>FunctionNameMaxLength:FarmerBehaviourTest.kt:FarmerBehaviourTest$@Test fun `is blocked when there is nothing left to seed`</ID>
+    <ID>FunctionNameMaxLength:FarmerBehaviourTest.kt:FarmerBehaviourTest$@Test fun `is busy while a seed is still on the way`</ID>
+    <ID>FunctionNameMaxLength:FarmerBehaviourTest.kt:FarmerBehaviourTest$@Test fun `leaves the cycle to mining when nothing is left to seed`</ID>
+    <ID>FunctionNameMaxLength:FarmerBehaviourTest.kt:FarmerBehaviourTest$@Test fun `regenerates when nothing defines the block at all`</ID>
+    <ID>FunctionNameMaxLength:FarmerBehaviourTest.kt:FarmerBehaviourTest$@Test fun `regenerates when the block names nothing to plant`</ID>
+    <ID>FunctionNameMaxLength:FarmerBehaviourTest.kt:FarmerBehaviourTest$@Test fun `replants the crop rather than queueing a regen`</ID>
+    <ID>FunctionNameMaxLength:FishingActivityTest.kt:FishingActivityTest$@Test fun `a cancelled catch stores nothing`</ID>
+    <ID>FunctionNameMaxLength:FishingActivityTest.kt:FishingActivityTest$@Test fun `self-seed lays no water where the owner cannot build`</ID>
+    <ID>FunctionNameMaxLength:FishingActivityTest.kt:FishingActivityTest$@Test fun `self-seed lays one water source on solid ground`</ID>
+    <ID>FunctionNameMaxLength:FishingActivityTest.kt:FishingActivityTest$@Test fun `water is rescanned every 20 cycles`</ID>
+    <ID>FunctionNameMaxLength:FishingActivityTest.kt:FishingActivityTest$@Test fun `water placed while blocked is found on the next cycle`</ID>
+    <ID>FunctionNameMaxLength:FishingActivityTest.kt:FishingActivityTest$@Test fun `with water it casts and catches after the windup`</ID>
+    <ID>FunctionNameMaxLength:FishingActivityTest.kt:FishingActivityTest$@Test fun `without enough water it is blocked with no-water`</ID>
+    <ID>FunctionNameMaxLength:FishingLootRollerTest.kt:FishingLootRollerTest$@Test fun `EcoItems is used for an online owner`</ID>
+    <ID>FunctionNameMaxLength:FishingLootRollerTest.kt:FishingLootRollerTest$@Test fun `vanilla is used offline, and the code table when vanilla gives nothing`</ID>
+    <ID>FunctionNameMaxLength:FishingSettingsLoaderTest.kt:FishingSettingsLoaderTest$@Test fun `defaults need one water block and have no drops`</ID>
+    <ID>FunctionNameMaxLength:FishingSettingsLoaderTest.kt:FishingSettingsLoaderTest$@Test fun `min-water below one is reported and raised`</ID>
+    <ID>FunctionNameMaxLength:FuelsManagerImplTest.kt:FuelsManagerImplTest$@Test fun `a cancelled fuelling burns nothing`</ID>
+    <ID>FunctionNameMaxLength:FuelsManagerImplTest.kt:FuelsManagerImplTest$@Test fun `a listener's duration is the one burnt`</ID>
+    <ID>FunctionNameMaxLength:FuelsManagerImplTest.kt:FuelsManagerImplTest$@Test fun `one unit of fuel burns for its configured duration`</ID>
+    <ID>FunctionNameMaxLength:IntRangesTest.kt:IntRangesTest$@Test fun `a single number is a one value range`</ID>
+    <ID>FunctionNameMaxLength:IntRangesTest.kt:IntRangesTest$@Test fun `reversed, negative and junk values are rejected`</ID>
+    <ID>FunctionNameMaxLength:InventoryCodecTest.kt:InventoryCodecTest$@Test fun `an entirely empty array round-trips as empty`</ID>
+    <ID>FunctionNameMaxLength:InventoryCodecTest.kt:InventoryCodecTest$@Test fun `interior empty slots keep their positions`</ID>
+    <ID>FunctionNameMaxLength:InventoryCodecTest.kt:InventoryCodecTest$@Test fun `trailing empty slots are not written`</ID>
+    <ID>FunctionNameMaxLength:IslandLimitsTest.kt:IslandLimitsTest$@Test fun `an island is full once it holds its limit`</ID>
+    <ID>FunctionNameMaxLength:IslandLimitsTest.kt:IslandLimitsTest$@Test fun `an offline owner uses the cached limit`</ID>
+    <ID>FunctionNameMaxLength:IslandLimitsTest.kt:IslandLimitsTest$@Test fun `an offline owner with no cache uses the default`</ID>
+    <ID>FunctionNameMaxLength:IslandLimitsTest.kt:IslandLimitsTest$@Test fun `island limits off means unlimited`</ID>
+    <ID>FunctionNameMaxLength:IslandLimitsTest.kt:IslandLimitsTest$@Test fun `permission overrides off keeps the default`</ID>
+    <ID>FunctionNameMaxLength:IslandLimitsTest.kt:IslandLimitsTest$@Test fun `the default applies with no overrides`</ID>
+    <ID>FunctionNameMaxLength:IslandLimitsTest.kt:IslandLimitsTest$@Test fun `the owner's highest island-limit permission wins`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberCacheTest.kt:IslandMemberCacheTest$@Test fun `a forgotten minion has no members`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberCacheTest.kt:IslandMemberCacheTest$@Test fun `a minion with no island has no members`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberCacheTest.kt:IslandMemberCacheTest$@Test fun `members are looked up once within the window`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberCacheTest.kt:IslandMemberCacheTest$@Test fun `members come from the island remembered for the minion`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberCacheTest.kt:IslandMemberCacheTest$@Test fun `members refresh after the window`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberCacheTest.kt:IslandMemberCacheTest$@Test fun `remembering a new island drops the cached members`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberListenerTest.kt:IslandMemberListenerTest$@Test fun `a member joining does not resume while the minion stays inactive`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberListenerTest.kt:IslandMemberListenerTest$@Test fun `a member joining resumes an idle island minion`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberListenerTest.kt:IslandMemberListenerTest$@Test fun `a member leaving keeps the minion running while others are on`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberListenerTest.kt:IslandMemberListenerTest$@Test fun `nothing happens while the toggle is off`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberListenerTest.kt:IslandMemberListenerTest$@Test fun `the owner is left to the owner listener`</ID>
+    <ID>FunctionNameMaxLength:IslandMemberListenerTest.kt:IslandMemberListenerTest$@Test fun `toggle on idles when the last member leaves`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionIndexTest.kt:IslandMinionIndexTest$@Test fun `a cached limit is replaced, not duplicated`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionIndexTest.kt:IslandMinionIndexTest$@Test fun `a minion is counted once on its island`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionIndexTest.kt:IslandMinionIndexTest$@Test fun `islands with the same id on different providers are separate`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionIndexTest.kt:IslandMinionIndexTest$@Test fun `minionsOn lists the minions recorded on one island only`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionIndexTest.kt:IslandMinionIndexTest$@Test fun `recording a minion on another island moves it there`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionIndexTest.kt:IslandMinionIndexTest$@Test fun `remove forgets the minion on every island`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionTrackerTest.kt:IslandMinionTrackerTest$@Test fun `a failing provider keeps the minion's entry`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionTrackerTest.kt:IslandMinionTrackerTest$@Test fun `a minion no provider claims leaves the index`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionTrackerTest.kt:IslandMinionTrackerTest$@Test fun `no registered provider keeps the minion's entry`</ID>
+    <ID>FunctionNameMaxLength:IslandMinionTrackerTest.kt:IslandMinionTrackerTest$@Test fun `registering a minion records it on the island it stands on`</ID>
+    <ID>FunctionNameMaxLength:IslandRegistryTest.kt:IslandRegistryTest$@Test fun `a provider that throws a linkage error counts as no island`</ID>
+    <ID>FunctionNameMaxLength:IslandRegistryTest.kt:IslandRegistryTest$@Test fun `a provider that throws counts as no island`</ID>
+    <ID>FunctionNameMaxLength:IslandRegistryTest.kt:IslandRegistryTest$@Test fun `a throwing provider does not hide a later one`</ID>
+    <ID>FunctionNameMaxLength:IslandRegistryTest.kt:IslandRegistryTest$@Test fun `an island that throws denies and has no members`</ID>
+    <ID>FunctionNameMaxLength:IslandRegistryTest.kt:IslandRegistryTest$@Test fun `islandsOf skips a provider that throws`</ID>
+    <ID>FunctionNameMaxLength:IslandRegistryTest.kt:IslandRegistryTest$@Test fun `registering the same id replaces the old provider`</ID>
+    <ID>FunctionNameMaxLength:IslandRegistryTest.kt:IslandRegistryTest$@Test fun `the first provider to claim a location wins`</ID>
+    <ID>FunctionNameMaxLength:IslandRegistryTest.kt:IslandRegistryTest$@Test fun `unregister removes the provider`</ID>
+    <ID>FunctionNameMaxLength:KillSampleTest.kt:KillSampleTest$@Test fun `the sample keeps the newest ten`</ID>
+    <ID>FunctionNameMaxLength:LangResourceTest.kt:LangResourceTest$@Test fun `lang yml carries the keys eco requires`</ID>
+    <ID>FunctionNameMaxLength:LevellingLoaderTest.kt:LevellingLoaderTest$@Test fun `a formula curve has no natural ceiling to clamp against`</ID>
+    <ID>FunctionNameMaxLength:LevellingLoaderTest.kt:LevellingLoaderTest$@Test fun `max-level above the requirements ceiling is clamped and reported`</ID>
+    <ID>FunctionNameMaxLength:LevellingLoaderTest.kt:LevellingLoaderTest$@Test fun `max-level within the requirements ceiling is left alone`</ID>
+    <ID>FunctionNameMaxLength:LevellingLoaderTest.kt:LevellingLoaderTest$@Test fun `neither a formula nor requirements yields no curve`</ID>
+    <ID>FunctionNameMaxLength:LevellingLoaderTest.kt:LevellingLoaderTest$@Test fun `no explicit max-level is untouched and unreported`</ID>
+    <ID>FunctionNameMaxLength:LoadContextTest.kt:LoadContextTest$@Test fun `exposes the violation context libreforge compilation needs`</ID>
+    <ID>FunctionNameMaxLength:LoadReportTest.kt:LoadReportTest$@Test fun `a clean load reports no violations`</ID>
+    <ID>FunctionNameMaxLength:LoadReportTest.kt:LoadReportTest$@Test fun `a reload starts the counts again`</ID>
+    <ID>FunctionNameMaxLength:LoadReportTest.kt:LoadReportTest$@Test fun `an empty load says so rather than printing nothing`</ID>
+    <ID>FunctionNameMaxLength:LoadReportTest.kt:LoadReportTest$@Test fun `violations are counted and surfaced`</ID>
+    <ID>FunctionNameMaxLength:MenuViewersTest.kt:MenuViewersTest$@Test fun `a closed menu stops being refreshed`</ID>
+    <ID>FunctionNameMaxLength:MenuViewersTest.kt:MenuViewersTest$@Test fun `a watched menu is refreshed on every tick`</ID>
+    <ID>FunctionNameMaxLength:MenuViewersTest.kt:MenuViewersTest$@Test fun `closing the previous menu does not stop the one that replaced it`</ID>
+    <ID>FunctionNameMaxLength:MinerBehaviourTest.kt:MinerBehaviourTest$@Test fun `is blocked when there is nothing left to seed`</ID>
+    <ID>FunctionNameMaxLength:MinerBehaviourTest.kt:MinerBehaviourTest$@Test fun `is busy while a seed is still on the way`</ID>
+    <ID>FunctionNameMaxLength:MinerBehaviourTest.kt:MinerBehaviourTest$@Test fun `leaves the cycle to mining when nothing is left to seed`</ID>
+    <ID>FunctionNameMaxLength:MinerBehaviourTest.kt:MinerBehaviourTest$@Test fun `queues a regen for the block it broke`</ID>
+    <ID>FunctionNameMaxLength:MinerBehaviourTest.kt:MinerBehaviourTest$@Test fun `regenerates even when the block could be replanted`</ID>
+    <ID>FunctionNameMaxLength:MiningTargetFinderTest.kt:MiningTargetFinderTest$@Test fun `a block above the configured height is out of reach`</ID>
+    <ID>FunctionNameMaxLength:MiningTargetFinderTest.kt:MiningTargetFinderTest$@Test fun `a block the owner cannot build at is not a target`</ID>
+    <ID>FunctionNameMaxLength:MiningTargetFinderTest.kt:MiningTargetFinderTest$@Test fun `a block waiting on regen is not a target`</ID>
+    <ID>FunctionNameMaxLength:MiningTargetFinderTest.kt:MiningTargetFinderTest$@Test fun `a box with floor zero starts at the minion's own level`</ID>
+    <ID>FunctionNameMaxLength:MiningTargetFinderTest.kt:MiningTargetFinderTest$@Test fun `a height of three scans one below the minion up to one above`</ID>
+    <ID>FunctionNameMaxLength:MiningTargetFinderTest.kt:MiningTargetFinderTest$@Test fun `a raised floor moves the whole box up`</ID>
+    <ID>FunctionNameMaxLength:MiningTargetFinderTest.kt:MiningTargetFinderTest$@Test fun `a taller height reaches the top log of a tree`</ID>
+    <ID>FunctionNameMaxLength:MiningTargetFinderTest.kt:MiningTargetFinderTest$@Test fun `blocks outside the horizontal radius are ignored`</ID>
+    <ID>FunctionNameMaxLength:MiningTargetFinderTest.kt:MiningTargetFinderTest$@Test fun `height never reaches further down than one block`</ID>
+    <ID>FunctionNameMaxLength:MinionAccessTest.kt:MinionAccessTest$@Test fun `a member with pickup can pick up`</ID>
+    <ID>FunctionNameMaxLength:MinionAccessTest.kt:MinionAccessTest$@Test fun `a member with use can open but not pick up`</ID>
+    <ID>FunctionNameMaxLength:MinionAccessTest.kt:MinionAccessTest$@Test fun `admins bypass island privileges`</ID>
+    <ID>FunctionNameMaxLength:MinionAccessTest.kt:MinionAccessTest$@Test fun `an unowned minion is open to everyone`</ID>
+    <ID>FunctionNameMaxLength:MinionAccessTest.kt:MinionAccessTest$@Test fun `outside an island only the owner can use`</ID>
+    <ID>FunctionNameMaxLength:MinionAccessTest.kt:MinionAccessTest$@Test fun `placing needs the place privilege on an island`</ID>
+    <ID>FunctionNameMaxLength:MinionAccessTest.kt:MinionAccessTest$@Test fun `placing outside an island needs no privilege`</ID>
+    <ID>FunctionNameMaxLength:MinionAccessTest.kt:MinionAccessTest$@Test fun `privileges off keeps owner only access`</ID>
+    <ID>FunctionNameMaxLength:MinionAccessTest.kt:MinionAccessTest$@Test fun `the owner can always use and pick up their minion`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `a limit-idle minion is not active even with its owner online`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `a minion loaded within its limits pays its window when it becomes limited`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `a minion with an offline owner is inactive`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `a minion with an online owner is active`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `a minion with no owner is inactive`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `an unowned minion is not stamped by the reconcile`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `disabling offline calculation still clears the stamp`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `leaving does not count the leaver as online`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `leaving with the toggle off is inactive even for the owner`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `marking idle stamps the shutdown timestamp and freezes fuel`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `marking idle twice does not restamp`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `needsReconcile only when limit status changed`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `offline window before becoming limited is paid when seen allowed`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `owner joining does not resume or pay a limit-idle minion`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `reconciling a minion already in step changes nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `reconciling resumes a stamped minion that became active`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `reconciling stamps a running minion that became inactive`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `resuming a minion over a limit pays nothing and marks it limited`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `resuming a minion that was never idle does nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `resuming credits the absence, clears the stamp and thaws fuel`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `the last member leaving makes a minion inactive`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `the owner leaving keeps a minion running while members are on`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `toggle off keeps owner only activity`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `toggle on never activates an unowned minion`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `toggle on runs while a member is online`</ID>
+    <ID>FunctionNameMaxLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$@Test fun `unloaded window is not paid when limited at wake`</ID>
+    <ID>FunctionNameMaxLength:MinionBehavioursTest.kt:MinionBehavioursTest$@Test fun `every block type has a behaviour`</ID>
+    <ID>FunctionNameMaxLength:MinionBehavioursTest.kt:MinionBehavioursTest$@Test fun `maps each type to its behaviour`</ID>
+    <ID>FunctionNameMaxLength:MinionBehavioursTest.kt:MinionBehavioursTest$@Test fun `types that break no blocks have no behaviour`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockIndexTest.kt:MinionBlockIndexTest$@Test fun `an authored definition overrides the built-in one`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockIndexTest.kt:MinionBlockIndexTest$@Test fun `falls back to a built-in definition when nothing authored defines the block`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockIndexTest.kt:MinionBlockIndexTest$@Test fun `finds a definition for a world block`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockIndexTest.kt:MinionBlockIndexTest$@Test fun `returns null for a world block nothing defines`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockIndexTest.kt:MinionBlockIndexTest$@Test fun `returns null for an undefined lookup`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockIndexTest.kt:MinionBlockIndexTest$@Test fun `sees definitions added after construction`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a block can declare itself a stacked column`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a block can declare itself unmineable`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a block can promote to the block it becomes`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a block is mineable unless it says otherwise`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a block is not a stacked column unless it says so`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a block promotes to nothing by default`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a declared restore overrides the minion type`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a missing restore leaves the minion type to decide`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a plant is kept even when nothing overrides the restore mode`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `a tree without leaves drops the override and is reported`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `an unknown restore mode is reported and dropped`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `an unresolvable block is rejected`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `an unresolvable promotion target is reported`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$@Test fun `bad xp is reported and left unset`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockTest.kt:MinionBlockTest$@Test fun `a definition with a plant is plantable`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockTest.kt:MinionBlockTest$@Test fun `a regen default overrides nothing and plants nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionBlockTest.kt:MinionBlockTest$@Test fun `an explicit tree pattern wins over the id`</ID>
+    <ID>FunctionNameMaxLength:MinionCollectServiceTest.kt:MinionCollectServiceTest$@Test fun `a cancelled extract leaves storage alone`</ID>
+    <ID>FunctionNameMaxLength:MinionCollectServiceTest.kt:MinionCollectServiceTest$@Test fun `claiming gives the stored xp and empties it`</ID>
+    <ID>FunctionNameMaxLength:MinionCollectServiceTest.kt:MinionCollectServiceTest$@Test fun `collecting moves everything into the inventory`</ID>
+    <ID>FunctionNameMaxLength:MinionCollectServiceTest.kt:MinionCollectServiceTest$@Test fun `only what a listener leaves in the list is taken`</ID>
+    <ID>FunctionNameMaxLength:MinionCollectServiceTest.kt:MinionCollectServiceTest$@Test fun `what the inventory refuses goes back into storage`</ID>
+    <ID>FunctionNameMaxLength:MinionCounterTest.kt:MinionCounterTest$@Test fun `a bare counter grants the trigger value`</ID>
+    <ID>FunctionNameMaxLength:MinionCounterTest.kt:MinionCounterTest$@Test fun `a counter does not apply to a different trigger`</ID>
+    <ID>FunctionNameMaxLength:MinionCounterTest.kt:MinionCounterTest$@Test fun `a counter does not apply when a condition rejects`</ID>
+    <ID>FunctionNameMaxLength:MinionCounterTest.kt:MinionCounterTest$@Test fun `a counter does not apply when a filter rejects`</ID>
+    <ID>FunctionNameMaxLength:MinionCounterTest.kt:MinionCounterTest$@Test fun `a multiplier scales the trigger value`</ID>
+    <ID>FunctionNameMaxLength:MinionCounterTest.kt:MinionCounterTest$@Test fun `a value expression ignores the trigger value`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionFloorTest.kt:MinionDefinitionFloorTest$@Test fun `block types keep their reach under the new floor`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionFloorTest.kt:MinionDefinitionFloorTest$@Test fun `collector box starts below the minion and is three high`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionFloorTest.kt:MinionDefinitionFloorTest$@Test fun `fishing box is the layer below the minion`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionFloorTest.kt:MinionDefinitionFloorTest$@Test fun `slayer box starts at the minion and is three high`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLevellingTest.kt:MinionDefinitionLevellingTest$@Test fun `a levelling type reports the curve's max level`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLevellingTest.kt:MinionDefinitionLevellingTest$@Test fun `a type without a levelling block cannot level`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$@Test fun `a collector needs no target blocks`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$@Test fun `a floor-offset that is not a whole number is reported and ignored`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$@Test fun `floor-offset overrides the type default`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$@Test fun `no floor-offset uses the type default`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$@Test fun `rejects a woodcutter aimed at something that is not a tree`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$@Test fun `rejects a woodcutter whose target has a plant but no leaves`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$@Test fun `rejects an unknown type and lists what would have worked`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$@Test fun `resolves a block definition by its block id, not its file name`</ID>
+    <ID>FunctionNameMaxLength:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$@Test fun `target blocks on a collector are reported as unused`</ID>
+    <ID>FunctionNameMaxLength:MinionDispatcherTest.kt:MinionDispatcherTest$@Test fun `dispatcher exposes the minion uuid and location`</ID>
+    <ID>FunctionNameMaxLength:MinionDispatcherTest.kt:MinionDispatcherTest$@Test fun `dispatcher resolves back to the minion by type`</ID>
+    <ID>FunctionNameMaxLength:MinionDropListLoaderTest.kt:MinionDropListLoaderTest$@Test fun `a bad amount is reported and defaults to one`</ID>
+    <ID>FunctionNameMaxLength:MinionDropListLoaderTest.kt:MinionDropListLoaderTest$@Test fun `a chance above one is reported and clamped`</ID>
+    <ID>FunctionNameMaxLength:MinionDropListLoaderTest.kt:MinionDropListLoaderTest$@Test fun `an unknown item is reported and skipped`</ID>
+    <ID>FunctionNameMaxLength:MinionDropListLoaderTest.kt:MinionDropListLoaderTest$@Test fun `chance and amount default to one`</ID>
+    <ID>FunctionNameMaxLength:MinionDropListLoaderTest.kt:MinionDropListLoaderTest$@Test fun `reads item, chance, amount and xp`</ID>
+    <ID>FunctionNameMaxLength:MinionDropListTest.kt:MinionDropListTest$@Test fun `a sure entry always drops and a zero entry never does`</ID>
+    <ID>FunctionNameMaxLength:MinionDropTablesTest.kt:MinionDropTablesTest$@Test fun `credits a custom block from its declared drops`</ID>
+    <ID>FunctionNameMaxLength:MinionDropTablesTest.kt:MinionDropTablesTest$@Test fun `credits a custom block nothing when it declares no drops`</ID>
+    <ID>FunctionNameMaxLength:MinionDropTablesTest.kt:MinionDropTablesTest$@Test fun `credits nothing rather than the ore when no drops resolve`</ID>
+    <ID>FunctionNameMaxLength:MinionDropTablesTest.kt:MinionDropTablesTest$@Test fun `resolves drops through the supplied loot table`</ID>
+    <ID>FunctionNameMaxLength:MinionDropTablesTest.kt:MinionDropTablesTest$@Test fun `returns copies so callers cannot mutate the cache`</ID>
+    <ID>FunctionNameMaxLength:MinionDropTablesTest.kt:MinionDropTablesTest$@Test fun `rolls vanilla drops on every call`</ID>
+    <ID>FunctionNameMaxLength:MinionDropTablesTest.kt:MinionDropTablesTest$@Test fun `skips a declared drop this server does not have`</ID>
+    <ID>FunctionNameMaxLength:MinionFacingTest.kt:MinionFacingTest$@Test fun `faces the placing player, squared to the nearest cardinal`</ID>
+    <ID>FunctionNameMaxLength:MinionFacingTest.kt:MinionFacingTest$@Test fun `normalises yaws outside a single turn`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `a burn that already expired does not carry time forward`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `a deposit of many items is worth many times the burn`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `a deposit prefers the fuel already burning over the first one found`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `a different fuel replaces the burn instead of stacking`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `a limited deposit stops once it has enough`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `an inventory with no fuel takes nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `an unlimited deposit drains every stack of the one fuel`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `fuelling an idle minion stays frozen and stacks on the remainder`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `more of the same fuel adds to the time left`</ID>
+    <ID>FunctionNameMaxLength:MinionFuelServiceTest.kt:MinionFuelServiceTest$@Test fun `taking one fuel leaves the rest of the stack`</ID>
+    <ID>FunctionNameMaxLength:MinionHoldersTest.kt:MinionHoldersTest$@Test fun `a minion with no upgrades and no type effects has no holders`</ID>
+    <ID>FunctionNameMaxLength:MinionHoldersTest.kt:MinionHoldersTest$@Test fun `an unknown upgrade id is ignored rather than throwing`</ID>
+    <ID>FunctionNameMaxLength:MinionHoldersTest.kt:MinionHoldersTest$@Test fun `an upgrade the type does not allow is ignored`</ID>
+    <ID>FunctionNameMaxLength:MinionHoldersTest.kt:MinionHoldersTest$@Test fun `only the owned tier's holder is provided`</ID>
+    <ID>FunctionNameMaxLength:MinionHoldersTest.kt:MinionHoldersTest$@Test fun `purchasing a tier swaps which holder is provided`</ID>
+    <ID>FunctionNameMaxLength:MinionHoldersTest.kt:MinionHoldersTest$@Test fun `the type holder is always provided when the type declares one`</ID>
+    <ID>FunctionNameMaxLength:MinionItemServiceTest.kt:MinionItemServiceTest$@Test fun `a cancelled give builds nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionItemServiceTest.kt:MinionItemServiceTest$@Test fun `a listener can lower how many are taken`</ID>
+    <ID>FunctionNameMaxLength:MinionItemServiceTest.kt:MinionItemServiceTest$@Test fun `counting sums every minion stack`</ID>
+    <ID>FunctionNameMaxLength:MinionItemServiceTest.kt:MinionItemServiceTest$@Test fun `giving builds the listener's level and amount`</ID>
+    <ID>FunctionNameMaxLength:MinionItemServiceTest.kt:MinionItemServiceTest$@Test fun `taking removes only minion items, up to the amount`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `a minion idle under one limit does not count toward others`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `an owner never seen online is not held back by owner limits`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `breachOf is null in prevent mode`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `checkPlacement counts the owner not the placer`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `checkPlacement reports the first failing limit in order`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `checkPlacement reports type before minion`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `in use only when a new limit or inactive mode is set`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `inactive counts the owner's limit-idle minions`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `island pass ranks by island order`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `newest placed is the one over the minion limit`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `offline owner caps follow config changes`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `offline owner keeps last seen permission caps across a restart`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `permission raises a minion cap and never lowers it`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `picking one up lets the next one in`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `the total limit idles the newest minion`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `type limit counts every minion of that type`</ID>
+    <ID>FunctionNameMaxLength:MinionLimitsTest.kt:MinionLimitsTest$@Test fun `unknown minion id counts toward the total only`</ID>
+    <ID>FunctionNameMaxLength:MinionPlaceholdersTest.kt:MinionPlaceholdersTest$@Test fun `limit placeholders show the breach of a limited minion`</ID>
+    <ID>FunctionNameMaxLength:MinionPlaceholdersTest.kt:MinionPlaceholdersTest$@Test fun `uncapped limits render as infinity`</ID>
+    <ID>FunctionNameMaxLength:MinionProtectionTest.kt:MinionProtectionTest$@Test fun `a block the owner can build at is allowed`</ID>
+    <ID>FunctionNameMaxLength:MinionProtectionTest.kt:MinionProtectionTest$@Test fun `a block the owner cannot build at is refused`</ID>
+    <ID>FunctionNameMaxLength:MinionProtectionTest.kt:MinionProtectionTest$@Test fun `a type that bypasses antigrief is never refused`</ID>
+    <ID>FunctionNameMaxLength:MinionProtectionTest.kt:MinionProtectionTest$@Test fun `answers are asked again after a minute`</ID>
+    <ID>FunctionNameMaxLength:MinionProtectionTest.kt:MinionProtectionTest$@Test fun `without an online owner nothing is asked`</ID>
+    <ID>FunctionNameMaxLength:MinionSettingsLoaderTest.kt:MinionSettingsLoaderTest$@Test fun `missing island keys fall back to the defaults`</ID>
+    <ID>FunctionNameMaxLength:MinionSettingsLoaderTest.kt:MinionSettingsLoaderTest$@Test fun `over-limit defaults to prevent and type limits to off`</ID>
+    <ID>FunctionNameMaxLength:MinionSettingsLoaderTest.kt:MinionSettingsLoaderTest$@Test fun `over-limit reads inactive in any case`</ID>
+    <ID>FunctionNameMaxLength:MinionSettingsLoaderTest.kt:MinionSettingsLoaderTest$@Test fun `type limits read per type and skip unknown types`</ID>
+    <ID>FunctionNameMaxLength:MinionSettingsLoaderTest.kt:MinionSettingsLoaderTest$@Test fun `unknown over-limit falls back to prevent with a warning`</ID>
+    <ID>FunctionNameMaxLength:MinionStateRepositoryTest.kt:MinionStateRepositoryTest$@Test fun `a container from before stored experience reads zero`</ID>
+    <ID>FunctionNameMaxLength:MinionStateRepositoryTest.kt:MinionStateRepositoryTest$@Test fun `a container without a kill sample reads an empty one`</ID>
+    <ID>FunctionNameMaxLength:MinionStateRepositoryTest.kt:MinionStateRepositoryTest$@Test fun `limitedSince survives a write and read`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `a level is clamped to the curve's maximum on read`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `a levelling minion carries its xp`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `a non-levelling minion is never at max level`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `an unbought upgrade reads as tier zero`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `buying a higher tier replaces the old one instead of stacking`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `buying an upgrade does not move the level of a levelling minion`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `level is one plus the sum of purchased tiers`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `states with equal contents are equal despite the byte array`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `stored experience is part of equality`</ID>
+    <ID>FunctionNameMaxLength:MinionStateTest.kt:MinionStateTest$@Test fun `withStoredExperience keeps everything else`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsCapacityTest.kt:MinionStatsCapacityTest$@Test fun `a type may cap higher than a full double chest`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsCapacityTest.kt:MinionStatsCapacityTest$@Test fun `slots never exceed the type's own maximum`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsCapacityTest.kt:MinionStatsCapacityTest$@Test fun `storage size tracks contributed slots`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `an unset height defaults by type`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `base stats are evaluated at the minion's level`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `changing level recomputes the base`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `clamping happens on read so contribution order does not matter`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `clamping still applies after level scaling`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `clearing removes every contribution`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `contributions layer on top of the level-scaled base`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `contributions sum onto the base`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `cycle ticks are speed plus efficiency, never below one`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `height never drops below one block`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `inventory slots clamp to the type maximum`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `no contributions leaves base stats untouched`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `re-contributing under the same id replaces rather than stacks`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `rebasing swaps the base and keeps contributions`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `removing a contribution reverses it exactly`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `speed clamps to one and efficiency clamps to zero`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `stats built without a type fall back to a three-block box`</ID>
+    <ID>FunctionNameMaxLength:MinionStatsTest.kt:MinionStatsTest$@Test fun `the woodcutter default reaches the top of a tree`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageImplTest.kt:MinionStorageImplTest$@Test fun `adding saves and reports overflow`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `a copy takes additions without changing the original`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `a stack that overflows a partial slot spills into the next slot`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `add returns the remainder when storage runs out of room`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `adding into empty storage occupies one slot`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `adding tops up a matching partial stack before using a new slot`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `capacity is exact and need not be a multiple of nine`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `counting sums matching stacks across slots`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `growing preserves contents and returns nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `removing more than is stored removes what there is`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `removing takes from the last matching slot first`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `setItem keeps the occupancy count correct in both directions`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `shrinking preserves what fits and returns the overflow`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `snapshot is index-aligned and includes empty slots`</ID>
+    <ID>FunctionNameMaxLength:MinionStorageTest.kt:MinionStorageTest$@Test fun `store keeps trying later items after one does not fit`</ID>
+    <ID>FunctionNameMaxLength:MinionTest.kt:MinionTest$@Test fun `rebinding picks up a reloaded definition`</ID>
+    <ID>FunctionNameMaxLength:MinionTest.kt:MinionTest$@Test fun `rebinding to a smaller type hands back what no longer fits`</ID>
+    <ID>FunctionNameMaxLength:MinionTickerTest.kt:MinionTickerTest$@Test fun `before the next action only onTick runs`</ID>
+    <ID>FunctionNameMaxLength:MinionTickerTest.kt:MinionTickerTest$@Test fun `busy idles and clears the seeded mark`</ID>
+    <ID>FunctionNameMaxLength:MinionTickerTest.kt:MinionTickerTest$@Test fun `conditions are re-evaluated every 20 ticks`</ID>
+    <ID>FunctionNameMaxLength:MinionTickerTest.kt:MinionTickerTest$@Test fun `full storage skips the activity and announces once`</ID>
+    <ID>FunctionNameMaxLength:MinionTickerTest.kt:MinionTickerTest$@Test fun `seeded idles and marks the cycle as seeded`</ID>
+    <ID>FunctionNameMaxLength:MinionTickerTest.kt:MinionTickerTest$@Test fun `the blocked reason is reset before each action`</ID>
+    <ID>FunctionNameMaxLength:MinionTickerTest.kt:MinionTickerTest$@Test fun `worked sets mining animation and waits speed plus efficiency`</ID>
+    <ID>FunctionNameMaxLength:MinionTriggerDispatchTest.kt:MinionTriggerDispatchTest$@Test fun `block drops take contributed items`</ID>
+    <ID>FunctionNameMaxLength:MinionTriggerDispatchTest.kt:MinionTriggerDispatchTest$@Test fun `contributed experience is returned`</ID>
+    <ID>FunctionNameMaxLength:MinionTriggerDispatchTest.kt:MinionTriggerDispatchTest$@Test fun `custom drops ask for no contributions`</ID>
+    <ID>FunctionNameMaxLength:MinionTriggerDispatchTest.kt:MinionTriggerDispatchTest$@Test fun `the entity reaches the drop context`</ID>
+    <ID>FunctionNameMaxLength:MinionTypeTest.kt:MinionTypeTest$@Test fun `every type has a lowercase config id`</ID>
+    <ID>FunctionNameMaxLength:MinionTypeTest.kt:MinionTypeTest$@Test fun `parses a known type by its config spelling`</ID>
+    <ID>FunctionNameMaxLength:MinionTypeTest.kt:MinionTypeTest$@Test fun `parsing ignores surrounding whitespace`</ID>
+    <ID>FunctionNameMaxLength:MinionTypeTest.kt:MinionTypeTest$@Test fun `returns null for a missing type`</ID>
+    <ID>FunctionNameMaxLength:MinionTypeTest.kt:MinionTypeTest$@Test fun `returns null for an unknown type`</ID>
+    <ID>FunctionNameMaxLength:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$@Test fun `a cancelled purchase charges nothing and changes nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$@Test fun `a listener's tier is the one applied`</ID>
+    <ID>FunctionNameMaxLength:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$@Test fun `a purchase pays and applies the tier`</ID>
+    <ID>FunctionNameMaxLength:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$@Test fun `an unaffordable tier is rejected once buy-conditions pass`</ID>
+    <ID>FunctionNameMaxLength:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$@Test fun `an upgrade not on the minion's allow-list is rejected`</ID>
+    <ID>FunctionNameMaxLength:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$@Test fun `setting a tier fires an event with no player`</ID>
+    <ID>FunctionNameMaxLength:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$@Test fun `setting a tier out of range fires nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionWorkAreaTest.kt:MinionWorkAreaTest$@Test fun `blocks covers the box and skips the minion's column`</ID>
+    <ID>FunctionNameMaxLength:MinionXpServiceGrantTest.kt:MinionXpServiceGrantTest$@Test fun `a level past the top is refused`</ID>
+    <ID>FunctionNameMaxLength:MinionXpServiceGrantTest.kt:MinionXpServiceGrantTest$@Test fun `a listener's amount is the one banked`</ID>
+    <ID>FunctionNameMaxLength:MinionXpServiceGrantTest.kt:MinionXpServiceGrantTest$@Test fun `a type that cannot level fires nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionXpServiceGrantTest.kt:MinionXpServiceGrantTest$@Test fun `setting a level clears banked xp`</ID>
+    <ID>FunctionNameMaxLength:MinionXpServiceTest.kt:MinionXpServiceTest$@Test fun `a degenerate curve terminates instead of looping`</ID>
+    <ID>FunctionNameMaxLength:MinionXpServiceTest.kt:MinionXpServiceTest$@Test fun `a non-levelling minion banks nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionXpServiceTest.kt:MinionXpServiceTest$@Test fun `crossing a requirement levels up and keeps the remainder`</ID>
+    <ID>FunctionNameMaxLength:MinionXpServiceTest.kt:MinionXpServiceTest$@Test fun `one grant may cross several levels`</ID>
+    <ID>FunctionNameMaxLength:MinionXpServiceTest.kt:MinionXpServiceTest$@Test fun `xp below the requirement banks without levelling`</ID>
+    <ID>FunctionNameMaxLength:MinionsManagerImplTest.kt:MinionsManagerImplTest$@Test fun `a cancelled owner change leaves the owner alone`</ID>
+    <ID>FunctionNameMaxLength:MinionsManagerImplTest.kt:MinionsManagerImplTest$@Test fun `a cancelled pickup gives nothing`</ID>
+    <ID>FunctionNameMaxLength:MinionsManagerImplTest.kt:MinionsManagerImplTest$@Test fun `a limit reached carries the limit`</ID>
+    <ID>FunctionNameMaxLength:MinionsManagerImplTest.kt:MinionsManagerImplTest$@Test fun `a listener's new owner is the one applied`</ID>
+    <ID>FunctionNameMaxLength:MinionsManagerImplTest.kt:MinionsManagerImplTest$@Test fun `activity comes from the owner rule`</ID>
+    <ID>FunctionNameMaxLength:MinionsManagerImplTest.kt:MinionsManagerImplTest$@Test fun `destroying without a drop delegates with the cause`</ID>
+    <ID>FunctionNameMaxLength:MinionsManagerImplTest.kt:MinionsManagerImplTest$@Test fun `every internal place result maps to a public status`</ID>
+    <ID>FunctionNameMaxLength:MinionsManagerImplTest.kt:MinionsManagerImplTest$@Test fun `placing an item that carries no minion is refused`</ID>
+    <ID>FunctionNameMaxLength:MinionsManagerImplTest.kt:MinionsManagerImplTest$@Test fun `the api reports no island permission`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `a clock that went backwards credits nothing`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `an implausibly long absence is capped rather than walked forever`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `disabling efficiency credits nothing`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `fuel covering the whole window runs every cycle at the fuelled rate`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `fuel outlasting the window is only partly consumed`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `fuel running out mid window falls back to the base rate`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `partial cycles are not credited`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `reduced efficiency credits proportionally fewer cycles`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `stopping early leaves the remaining fuel unspent`</ID>
+    <ID>FunctionNameMaxLength:OfflineProgressTest.kt:OfflineProgressTest$@Test fun `unfuelled full efficiency credits one cycle per cycle length`</ID>
+    <ID>FunctionNameMaxLength:ParticleEmitterTest.kt:ParticleEmitterTest$@Test fun `a zero offset spawns on the point itself`</ID>
+    <ID>FunctionNameMaxLength:ParticleEmitterTest.kt:ParticleEmitterTest$@Test fun `emitting does not move the caller's location`</ID>
+    <ID>FunctionNameMaxLength:ParticleEmitterTest.kt:ParticleEmitterTest$@Test fun `every particle in the count is spawned individually`</ID>
+    <ID>FunctionNameMaxLength:ParticleEmitterTest.kt:ParticleEmitterTest$@Test fun `particles are scattered within the layer's offset`</ID>
+    <ID>FunctionNameMaxLength:ParticleEmitterTest.kt:ParticleEmitterTest$@Test fun `targeting a player spawns for that player alone`</ID>
+    <ID>FunctionNameMaxLength:PlacedMinionRegistryTest.kt:PlacedMinionRegistryTest$@Test fun `adding the same minion again is a no-op`</ID>
+    <ID>FunctionNameMaxLength:PlacedMinionRegistryTest.kt:PlacedMinionRegistryTest$@Test fun `clearing forgets everything for that owner`</ID>
+    <ID>FunctionNameMaxLength:PlacedMinionRegistryTest.kt:PlacedMinionRegistryTest$@Test fun `counts every minion and each type`</ID>
+    <ID>FunctionNameMaxLength:PlacedMinionRegistryTest.kt:PlacedMinionRegistryTest$@Test fun `removing forgets only that minion`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `inactive mode never refuses for limits`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `limits count the owner not the placer`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `per-player limit still applies on an island`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `picking up without the pickup privilege reports no island permission`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `placing looks the island up once`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `placing on a full island is refused with the limit`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `placing past a minion limit is refused`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `placing past a type limit is refused`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `placing with privileges and island limits off never looks the island up`</ID>
+    <ID>FunctionNameMaxLength:PlacementServiceTest.kt:PlacementServiceTest$@Test fun `the island privilege is checked before the player limit`</ID>
+    <ID>FunctionNameMaxLength:PriceListTest.kt:PriceListTest$@Test fun `has no price for an unlisted item`</ID>
+    <ID>FunctionNameMaxLength:PriceListTest.kt:PriceListTest$@Test fun `prefers the material index over scanning custom entries`</ID>
+    <ID>FunctionNameMaxLength:PriceListTest.kt:PriceListTest$@Test fun `prices a custom item by matching rather than by material`</ID>
+    <ID>FunctionNameMaxLength:RegenServiceTest.kt:RegenServiceTest$@Test fun `leaves a hole when the marker is turned off`</ID>
+    <ID>FunctionNameMaxLength:RegenServiceTest.kt:RegenServiceTest$@Test fun `marks a broken block with the regen marker`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `does not lay a surface over a hole`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `does not lay a surface the owner cannot build at`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `does not seed above the mining box`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `does not seed on top of a spot waiting on regen`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `does nothing when self-seeding is off`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `is not pending when every spot is too close`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `is pending only while somewhere is left to seed`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `keeps seeding until the area is full`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `lays its configured surface under a seeded crop`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `leaves a spot that is waiting on regen`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `packs seeds tightly without spacing`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `seeds ageable blocks at max age`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `seeds diagonally beside a plant`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `seeds higher up when the height reaches there`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `seeds nowhere the owner cannot build`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `seeds on existing surface without converting more ground`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `seeds the nearest air block on a solid surface`</ID>
+    <ID>FunctionNameMaxLength:SeedingServiceTest.kt:SeedingServiceTest$@Test fun `spacing counts plants at other heights`</ID>
+    <ID>FunctionNameMaxLength:SellPricingServiceTest.kt:SellPricingServiceTest$@Test fun `a configured price wins and ignores the multiplier`</ID>
+    <ID>FunctionNameMaxLength:SellPricingServiceTest.kt:SellPricingServiceTest$@Test fun `a material with neither price is unsellable`</ID>
+    <ID>FunctionNameMaxLength:SellPricingServiceTest.kt:SellPricingServiceTest$@Test fun `a shop price is used when nothing is configured`</ID>
+    <ID>FunctionNameMaxLength:SellPricingServiceTest.kt:SellPricingServiceTest$@Test fun `disabling auto pricing falls back to unsellable`</ID>
+    <ID>FunctionNameMaxLength:SellPricingServiceTest.kt:SellPricingServiceTest$@Test fun `isSellable rejects a material neither source prices`</ID>
+    <ID>FunctionNameMaxLength:SellPricingServiceTest.kt:SellPricingServiceTest$@Test fun `isSellable reports configured materials`</ID>
+    <ID>FunctionNameMaxLength:SellPricingServiceTest.kt:SellPricingServiceTest$@Test fun `isSellable reports shop backed materials`</ID>
+    <ID>FunctionNameMaxLength:SellPricingServiceTest.kt:SellPricingServiceTest$@Test fun `the multiplier applies to shop prices`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `a cancelled kill event stores nothing`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `a configured drop list replaces the death drops and is sampled`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `a death the minion did not cause is not handled`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `a matching mob in range is swung at and killed after the windup`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `a mob where the owner cannot build is skipped`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `a tagged mob that dies to a player leaves the spawned set`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `named mobs and other minions' mobs are skipped`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `offline replays the sample or nothing`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `recount finds only this minion's tagged mobs in the box`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `self-seed spawns a frozen tagged mob`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `self-seed spawns nothing where the owner cannot build`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `the owner is credited only when credit-owner is on`</ID>
+    <ID>FunctionNameMaxLength:SlayerActivityTest.kt:SlayerActivityTest$@Test fun `without a killer the mob's own xp reward is paid`</ID>
+    <ID>FunctionNameMaxLength:SlayerSettingsLoaderTest.kt:SlayerSettingsLoaderTest$@Test fun `an unknown mob is reported and the rest load`</ID>
+    <ID>FunctionNameMaxLength:StorageContentsTest.kt:StorageContentsTest$@Test fun `an item with no sell price is still shown`</ID>
+    <ID>FunctionNameMaxLength:StorageContentsTest.kt:StorageContentsTest$@Test fun `counts are summed per item and ordered by size`</ID>
+    <ID>FunctionNameMaxLength:StorageContentsTest.kt:StorageContentsTest$@Test fun `the limit keeps the largest entries`</ID>
+    <ID>FunctionNameMaxLength:StorageContentsTest.kt:StorageContentsTest$@Test fun `the sample is a copy of the stored item, not the stored item itself`</ID>
+    <ID>FunctionNameMaxLength:StorageContentsTest.kt:StorageContentsTest$@Test fun `two items of one material that do not stack are shown separately`</ID>
+    <ID>FunctionNameMaxLength:TargetSetTest.kt:TargetSetTest$@Test fun `does not match an untargeted block`</ID>
+    <ID>FunctionNameMaxLength:TargetSetTest.kt:TargetSetTest$@Test fun `has no definition for an untargeted block`</ID>
+    <ID>FunctionNameMaxLength:TargetSetTest.kt:TargetSetTest$@Test fun `matches a custom block that no material names`</ID>
+    <ID>FunctionNameMaxLength:TargetSetTest.kt:TargetSetTest$@Test fun `prefers a custom block over the vanilla material it is drawn with`</ID>
+    <ID>FunctionNameMaxLength:TargetSetTest.kt:TargetSetTest$@Test fun `resolves the definition for a targeted block`</ID>
+    <ID>FunctionNameMaxLength:TreeShapeTest.kt:TreeShapeTest$@Test fun `a conifer narrows towards the top`</ID>
+    <ID>FunctionNameMaxLength:TreeShapeTest.kt:TreeShapeTest$@Test fun `a flat canopy is a single wide slab`</ID>
+    <ID>FunctionNameMaxLength:TreeShapeTest.kt:TreeShapeTest$@Test fun `a one-block canopy keeps its corners`</ID>
+    <ID>FunctionNameMaxLength:TreeShapeTest.kt:TreeShapeTest$@Test fun `a round canopy loses its top corners`</ID>
+    <ID>FunctionNameMaxLength:TreeShapeTest.kt:TreeShapeTest$@Test fun `a wider tree gets a plus-shaped crown and a narrow one a single leaf`</ID>
+    <ID>FunctionNameMaxLength:TreeShapeTest.kt:TreeShapeTest$@Test fun `every block of a default tree is within a woodcutter's reach`</ID>
+    <ID>FunctionNameMaxLength:TreeShapeTest.kt:TreeShapeTest$@Test fun `no leaf ever occupies the trunk column`</ID>
+    <ID>FunctionNameMaxLength:TreeShapeTest.kt:TreeShapeTest$@Test fun `the trunk is a straight column from the sapling`</ID>
+    <ID>FunctionNameMaxLength:TreeSpeciesTest.kt:TreeSpeciesTest$@Test fun `an unknown species has no shape, so the caller falls back`</ID>
+    <ID>FunctionNameMaxLength:TreeSpeciesTest.kt:TreeSpeciesTest$@Test fun `every shape places at least one log and one leaf`</ID>
+    <ID>FunctionNameMaxLength:TreeSpeciesTest.kt:TreeSpeciesTest$@Test fun `every vanilla tree species has its own shape`</ID>
+    <ID>FunctionNameMaxLength:TreeSpeciesTest.kt:TreeSpeciesTest$@Test fun `no species grows a trunk its own minion cannot reach`</ID>
+    <ID>FunctionNameMaxLength:TreeSpeciesTest.kt:TreeSpeciesTest$@Test fun `the species are not all the same tree`</ID>
+    <ID>FunctionNameMaxLength:TriggerGroupMinionStaticTest.kt:TriggerGroupMinionStaticTest$@Test fun `a non-integer value is treated as an expression, not rejected`</ID>
+    <ID>FunctionNameMaxLength:TriggerGroupMinionStaticTest.kt:TriggerGroupMinionStaticTest$@Test fun `a non-positive fixed interval is rejected`</ID>
+    <ID>FunctionNameMaxLength:TriggerGroupMinionStaticTest.kt:TriggerGroupMinionStaticTest$@Test fun `a plain integer creates a fixed-interval trigger`</ID>
+    <ID>FunctionNameMaxLength:TriggerGroupMinionStaticTest.kt:TriggerGroupMinionStaticTest$@Test fun `dueFixed only returns triggers whose interval divides the tick evenly`</ID>
+    <ID>FunctionNameMaxLength:TriggerGroupMinionStaticTest.kt:TriggerGroupMinionStaticTest$@Test fun `the same interval string returns the same trigger instance`</ID>
+    <ID>FunctionNameMaxLength:UpgradeCodecTest.kt:UpgradeCodecTest$@Test fun `an empty map encodes to an empty string`</ID>
+    <ID>FunctionNameMaxLength:UpgradeCodecTest.kt:UpgradeCodecTest$@Test fun `blank data decodes to no upgrades`</ID>
+    <ID>FunctionNameMaxLength:UpgradeCodecTest.kt:UpgradeCodecTest$@Test fun `encoding then decoding preserves every tier`</ID>
+    <ID>FunctionNameMaxLength:UpgradeCodecTest.kt:UpgradeCodecTest$@Test fun `entries with a non-numeric tier are dropped`</ID>
+    <ID>FunctionNameMaxLength:UpgradeCodecTest.kt:UpgradeCodecTest$@Test fun `entries without a tier are dropped`</ID>
+    <ID>FunctionNameMaxLength:UpgradeTest.kt:UpgradeTest$@Test fun `a tier with no effects block has no holder`</ID>
+    <ID>FunctionNameMaxLength:UpgradeTest.kt:UpgradeTest$@Test fun `holderFor returns null for an unowned or unconfigured tier`</ID>
+    <ID>FunctionNameMaxLength:UpgradeTest.kt:UpgradeTest$@Test fun `holderFor returns the holder compiled for that tier`</ID>
+    <ID>FunctionNameMaxLength:UpgradesManagerImplTest.kt:UpgradesManagerImplTest$@Test fun `a tier with no cost cannot be bought`</ID>
+    <ID>FunctionNameMaxLength:UpgradesManagerImplTest.kt:UpgradesManagerImplTest$@Test fun `every internal purchase result maps to a public one`</ID>
+    <ID>FunctionNameMaxLength:UpgradesManagerImplTest.kt:UpgradesManagerImplTest$@Test fun `only the next tier up can be bought`</ID>
+    <ID>FunctionNameMaxLength:UpgradesManagerImplTest.kt:UpgradesManagerImplTest$@Test fun `resetting sets every owned upgrade back to zero`</ID>
+    <ID>FunctionNameMaxLength:UpgradesManagerImplTest.kt:UpgradesManagerImplTest$@Test fun `the first affordable cost is charged`</ID>
+    <ID>FunctionNameMaxLength:VanillaBlockDefaultsTest.kt:VanillaBlockDefaultsTest$@Test fun `stone has no built in definition`</ID>
+    <ID>FunctionNameMaxLength:VanillaFishingTableTest.kt:VanillaFishingTableTest$@Test fun `ten thousand rolls stay near vanilla weights`</ID>
+    <ID>FunctionNameMaxLength:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$@Test fun `a tree grows no leaves where the owner cannot build`</ID>
+    <ID>FunctionNameMaxLength:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$@Test fun `harvests the leaves once the last log is felled`</ID>
+    <ID>FunctionNameMaxLength:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$@Test fun `keeps leaves out of the minion's column`</ID>
+    <ID>FunctionNameMaxLength:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$@Test fun `keeps the leaves while any log is still standing`</ID>
+    <ID>FunctionNameMaxLength:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$@Test fun `plants a sapling clear of existing logs`</ID>
+    <ID>FunctionNameMaxLength:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$@Test fun `plants no sapling where the owner cannot build`</ID>
+    <ID>FunctionNameMaxLength:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$@Test fun `plants nothing within spacing of the minion`</ID>
+    <ID>FunctionNameMinLength:FakeIslandProvider.kt:FakeIslandProvider.BlockPosition.Companion$fun of</ID>
+    <ID>FunctionNameMinLength:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$fun of: PermissionCaps</ID>
+    <ID>FunctionNameMinLength:Regions.kt:Regions$inline fun at</ID>
+    <ID>FunctionNameMinLength:Regions.kt:Regions$inline fun on</ID>
+    <ID>FunctionNameMinLength:TemplateContext.kt:TemplateContext.Companion$fun of: TemplateContext</ID>
+    <ID>FunctionNameMinLength:UpgradeMenu.kt:UpgradeMenu.TierState.Companion$fun of: TierState</ID>
+    <ID>IC002:FakeItemRegistry.kt:ItemTypeRegistry$// Material.getMaxStackSize() delegates here; storage needs a stack limit.</ID>
+    <ID>IC002:FakeWorld.kt:FakeWorld$// A plain state: nothing in a fake world is a tile entity.</ID>
+    <ID>IC002:FakeWorld.kt:FakeWorld$// Drops need the item factory, which needs a server. Tests assert on</ID>
+    <ID>IC002:FakeWorld.kt:FakeWorld$// Real block data needs a running server; nothing under test is Ageable.</ID>
+    <ID>IC002:LevellingLoader.kt:LevellingLoader$// load() reports this case itself, with a message specific to a</ID>
+    <ID>IC002:MainMenu.kt:MainMenu$// Built once per render and then read by each storage slot, so the</ID>
+    <ID>IC002:MainMenu.kt:MainMenu$// Refreshed here as well as on the loop so the storage area empties</ID>
+    <ID>IC002:MainMenu.kt:MainMenu$// The click is cancelled before this runs, so the cursor is ours to</ID>
+    <ID>IC002:MenuViewersTest.kt:MenuViewersTest$// Bukkit fires the close of the old inventory after the new one opens.</ID>
+    <ID>IC002:MinionBlockIndex.kt:MinionBlockIndex$// Defaults first: associateBy keeps the last entry, so an authored</ID>
+    <ID>IC002:MinionFuelService.kt:MinionFuelService$// An idle minion holds its fuel frozen as a remainder; giving it an</ID>
+    <ID>IC002:MinionFuelServiceTest.kt:MinionFuelServiceTest$// 600ms was left of the first second when the second item went in.</ID>
+    <ID>IC002:MinionHologram.kt:MinionHologram$// Never looked up by identity - always re-spawned from minion.hologram in</ID>
+    <ID>IC002:MinionRenderLoop.kt:MinionRenderLoop$// An idle minion keeps its nameplate so it does not look broken, but</ID>
+    <ID>IC002:MinionStatEffect.kt:MinionStatEffect$// Override when needed.</ID>
+    <ID>IC002:MinionStatsTest.kt:MinionStatsTest$// The box tops out at height - 1 above the minion; a sapling may sit one above it.</ID>
+    <ID>IC002:MinionStorageView.kt:MinionStorageView$// Appended rather than assigned: the item's own lore is part of what</ID>
+    <ID>IC002:MinionTest.kt:MinionTest$// FakeItemStack does not fake isSimilar, so compare by material.</ID>
+    <ID>IC002:MinionXpService.kt:MinionXpService$// dispatchTrigger = true keeps this path's global dispatch, which the shared</ID>
+    <ID>IC002:OfflineProgressTest.kt:OfflineProgressTest$// 3000ms of fuel buys two 1500ms cycles, then 4000ms of window remains</ID>
+    <ID>IC002:OfflineProgressTest.kt:OfflineProgressTest$// 6000ms of window, 1500ms per fuelled cycle, 6000ms of fuel.</ID>
+    <ID>IC002:OfflineProgressTest.kt:OfflineProgressTest$// Storage fills after one cycle; only that cycle's fuel is consumed.</ID>
+    <ID>IC002:SeedingServiceTest.kt:SeedingServiceTest$// seed until nowhere is left</ID>
+    <ID>IC002:StorageContentsTest.kt:StorageContentsTest$// Stands in for a compacted item: same material as the raw drop, but</ID>
+    <ID>IC002:TreeShape.kt:TreeShape$// A one-block canopy trimmed of its corners is just a plus,</ID>
+    <ID>IC002:TreeShape.kt:TreeShape$// The topmost layer loses its corners, which is what stops a</ID>
+    <ID>IC002:WoodcutterBehaviour.kt:WoodcutterBehaviour$// A player can clear a trunk themselves, which never reaches</ID>
+    <ID>IC002:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$// plant until nowhere is left</ID>
+    <ID>IM001:CommandMinions.kt:CommandMinions$com.willfp.eco.core.command.impl.Subcommand</ID>
+    <ID>IM001:TreeSpeciesTest.kt:TreeSpeciesTest.&lt;no name provided&gt;$com.exanthiax.ecominions.core.world.BlockLookup</ID>
+    <ID>IM002:TreeSpeciesTest.kt:TreeSpeciesTest.&lt;no name provided&gt;$org.bukkit.Material.STONE</ID>
+    <ID>ImplicitDefaultLocale:MainMenu.kt:MainMenu$MULTIPLIER_FORMAT.format(active.speedMultiplier)</ID>
+    <ID>ImplicitUnitReturnType:ConfiguredPriceCost.kt:ConfiguredPriceCost$override fun pay</ID>
+    <ID>ImplicitUnitReturnType:FakeWorld.kt:FakeWorld$fun fillFloor</ID>
+    <ID>ImplicitUnitReturnType:MinerBehaviour.kt:MinerBehaviour$override fun onBlockBroken</ID>
+    <ID>ImplicitUnitReturnType:MinionLimits.kt:MinionLimits$override fun tick</ID>
+    <ID>ImplicitUnitReturnType:MinionService.kt:MinionService$fun onLevelChanged</ID>
+    <ID>ImplicitUnitReturnType:RegenServiceTest.kt:RegenServiceTest$@AfterEach fun releaseBlockData</ID>
+    <ID>LabeledExpression:BlockActivityTest.kt:BlockActivityTest$@mockk</ID>
+    <ID>LabeledExpression:CollectionActivityTest.kt:CollectionActivityTest$@mockk</ID>
+    <ID>LabeledExpression:CompactorRecipeLoader.kt:CompactorRecipeLoader$@mapNotNull</ID>
+    <ID>LabeledExpression:CostSelectMenu.kt:CostSelectMenu$@onLeftClick</ID>
+    <ID>LabeledExpression:FakeWorld.kt:FakeWorld$@mockk</ID>
+    <ID>LabeledExpression:LevellingPlaceholders.kt:LevellingPlaceholders$@DynamicInternalPlaceholder</ID>
+    <ID>LabeledExpression:LevellingPlaceholders.kt:LevellingPlaceholders$@InternalPlaceholder</ID>
+    <ID>LabeledExpression:MainMenu.kt:MainMenu$@onLeftClick</ID>
+    <ID>LabeledExpression:MainMenu.kt:MainMenu$@onShiftLeftClick</ID>
+    <ID>LabeledExpression:MiningTargetFinderTest.kt:MiningTargetFinderTest$@mockk</ID>
+    <ID>LabeledExpression:MinionAccessTest.kt:MinionAccessTest$@mockk</ID>
+    <ID>LabeledExpression:MinionDefinitionLoader.kt:MinionDefinitionLoader$@mapNotNull</ID>
+    <ID>LabeledExpression:MinionDefinitionLoader.kt:MinionDefinitionLoader$@mapValues</ID>
+    <ID>LabeledExpression:MinionDispatcherTest.kt:MinionDispatcherTest$@mockk</ID>
+    <ID>LabeledExpression:MinionHoldersTest.kt:MinionHoldersTest$@mockk</ID>
+    <ID>LabeledExpression:MinionLimitsTest.kt:MinionLimitsTest$@mockk</ID>
+    <ID>LabeledExpression:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$@mockk</ID>
+    <ID>LabeledExpression:OfflineProgressService.kt:OfflineProgressService$@simulate</ID>
+    <ID>LabeledExpression:PlacementServiceTest.kt:PlacementServiceTest$@mockk</ID>
+    <ID>LabeledExpression:RegenServiceTest.kt:RegenServiceTest$@mockk</ID>
+    <ID>LabeledExpression:SeedingServiceTest.kt:SeedingServiceTest$@mockk</ID>
+    <ID>LabeledExpression:SellService.kt:SellService$@mapNotNull</ID>
+    <ID>LabeledExpression:SlayerActivityTest.kt:SlayerActivityTest$@mockk</ID>
+    <ID>LabeledExpression:TypeSelectMenu.kt:TypeSelectMenu$@onLeftClick</ID>
+    <ID>LabeledExpression:UpgradeCodec.kt:UpgradeCodec$@mapNotNull</ID>
+    <ID>LabeledExpression:UpgradeLoader.kt:UpgradeLoader$@mapNotNull</ID>
+    <ID>LabeledExpression:UpgradePlaceholderProvider.kt:UpgradePlaceholderProvider$@registerPlaceholderProvider</ID>
+    <ID>LabeledExpression:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$@mockk</ID>
+    <ID>LongParameterList:BlockActivity.kt:BlockActivity</ID>
+    <ID>LongParameterList:BoundaryBox.kt:BoundaryBox$private fun onEdge: Boolean</ID>
+    <ID>LongParameterList:CollectionActivity.kt:CollectionActivity</ID>
+    <ID>LongParameterList:CompactorRecipe.kt:CompactorRecipe</ID>
+    <ID>LongParameterList:FishingActivity.kt:FishingActivity</ID>
+    <ID>LongParameterList:LibreforgeRegistrations.kt:LibreforgeRegistrations$fun registerAll</ID>
+    <ID>LongParameterList:MainMenu.kt:MainMenu</ID>
+    <ID>LongParameterList:MinionBlockLoaderTest.kt:MinionBlockLoaderTest$private fun config: Config</ID>
+    <ID>LongParameterList:MinionCounter.kt:MinionCounter</ID>
+    <ID>LongParameterList:MinionDefinition.kt:MinionDefinition</ID>
+    <ID>LongParameterList:MinionDefinitionFixture.kt:MinionDefinitionFixture$fun build</ID>
+    <ID>LongParameterList:MinionDefinitionLoader.kt:MinionDefinitionLoader</ID>
+    <ID>LongParameterList:MinionLimits.kt:MinionLimits</ID>
+    <ID>LongParameterList:MinionRenderLoop.kt:MinionRenderLoop</ID>
+    <ID>LongParameterList:MinionService.kt:MinionService</ID>
+    <ID>LongParameterList:MinionTicker.kt:MinionTicker</ID>
+    <ID>LongParameterList:MinionTriggerDispatch.kt:MinionTriggerDispatch$fun drops: MinionDrops</ID>
+    <ID>LongParameterList:MinionsManagerImpl.kt:MinionsManagerImpl</ID>
+    <ID>LongParameterList:OfflineProgress.kt:OfflineProgress$fun simulate: Result</ID>
+    <ID>LongParameterList:PlacementService.kt:PlacementService</ID>
+    <ID>LongParameterList:SlayerActivity.kt:SlayerActivity</ID>
+    <ID>LongParameterList:UpgradeMenu.kt:UpgradeMenu</ID>
+    <ID>LoopWithTooManyJumpStatements:CompactorService.kt:CompactorService$for</ID>
+    <ID>LoopWithTooManyJumpStatements:MinionFuelService.kt:MinionFuelService$for</ID>
+    <ID>LoopWithTooManyJumpStatements:MinionHolders.kt:MinionHolders$for</ID>
+    <ID>LoopWithTooManyJumpStatements:MinionItemService.kt:MinionItemService$for</ID>
+    <ID>LoopWithTooManyJumpStatements:MinionStorage.kt:MinionStorage$for</ID>
+    <ID>LoopWithTooManyJumpStatements:MinionStorageView.kt:StorageContents$for</ID>
+    <ID>LoopWithTooManyJumpStatements:OfflineProgress.kt:OfflineProgress$while</ID>
+    <ID>LoopWithTooManyJumpStatements:PermissionLimits.kt:for</ID>
+    <ID>LoopWithTooManyJumpStatements:UpgradesManagerImpl.kt:UpgradesManagerImpl$for</ID>
+    <ID>LoopWithTooManyJumpStatements:WoodcutterBehaviour.kt:WoodcutterBehaviour$for</ID>
+    <ID>LoopWithTooManyJumpStatements:WoodcutterBehaviour.kt:WoodcutterBehaviour$while</ID>
+    <ID>MagicNumber:FishingActivity.kt:FishingActivity$0.5</ID>
+    <ID>MagicNumber:LevellingPlaceholders.kt:LevellingPlaceholders$100</ID>
+    <ID>MagicNumber:MainMenu.kt:MainMenu$3</ID>
+    <ID>MagicNumber:MainMenu.kt:MainMenu$4</ID>
+    <ID>MagicNumber:MainMenu.kt:MainMenu$5</ID>
+    <ID>MagicNumber:MainMenu.kt:MainMenu$6</ID>
+    <ID>MagicNumber:MainMenu.kt:MainMenu$7</ID>
+    <ID>MagicNumber:MainMenu.kt:MainMenu$8</ID>
+    <ID>MagicNumber:MinionAnimator.kt:MinionAnimator$4L</ID>
+    <ID>MagicNumber:MinionHologram.kt:MinionHologram$3</ID>
+    <ID>MagicNumber:MinionPlacementListener.kt:MinionPlacementListener$0.4</ID>
+    <ID>MagicNumber:MinionPlacementListener.kt:MinionPlacementListener$0.6</ID>
+    <ID>MagicNumber:TypeSelectMenu.kt:TypeSelectMenu$9</ID>
+    <ID>MagicNumber:WorkAreaEntities.kt:BukkitWorkAreaEntities$0.5</ID>
+    <ID>MatchingDeclarationName:FakeItemRegistry.kt:FakeRegistryAccess : RegistryAccess</ID>
+    <ID>MaxChainedCallsOnSameLine:EcoMinionsPlugin.kt:EcoMinionsPlugin$location.block.state.apply { type = material }.drops.toList()</ID>
+    <ID>MaxChainedCallsOnSameLine:LandsIslandProvider.kt:LandsIslandProvider.NewLandListener$event.land.defaultArea.roles.filterNotNull().forEach { role -&gt; runCatching { flags.forEach { (privilege, flag) -&gt; if (spec(privilege).enabledForRole(role.type) &amp;&amp; !role.hasFlag(flag)) { role.toggleFlag(flag) } } }.onFailure { warnOnce("Lands role setup failed: ${it.message}") } }</ID>
+    <ID>MaxChainedCallsOnSameLine:LevellingPlaceholders.kt:LevellingPlaceholders$it.state()?.definition?.levelling?.maxLevel?.toString()</ID>
+    <ID>MaxChainedCallsOnSameLine:MinionPlaceholders.kt:MinionPlaceholders$context.state()?.definition?.type?.id?.replaceFirstChar { it.uppercase() }</ID>
+    <ID>MaxChainedCallsOnSameLine:MinionRenderLoop.kt:MinionRenderLoop$minion.state.definition.particles.blockedPlayerRadius.toDouble()</ID>
+    <ID>MaxChainedCallsOnSameLine:SlayerActivity.kt:SlayerActivity$minion.state.definition.baseStats.evaluate(settings.maxMobs, minion.level).coerceAtLeast(1)</ID>
+    <ID>MaxChainedCallsOnSameLine:UpgradesManagerImpl.kt:UpgradesManagerImpl$minion.state.definition.compactorRecipes.map { it.upgrade }.firstOrNull { it.id == id }</ID>
+    <ID>MaxChainedCallsOnSameLine:WoodcutterBehaviour.kt:WoodcutterBehaviour$minion.state.definition.targetBlocks.definitions.firstOrNull { it.plant != null }</ID>
+    <ID>MaxLineLength:BlockActivityTest.kt:BlockActivityTest$return BlockActivity(targets, mockk(relaxed = true), mockk(relaxed = true), behaviours, mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true))</ID>
+    <ID>MaxLineLength:BlockPositionsTest.kt:BlockPositionsTest$for</ID>
+    <ID>MaxLineLength:BlockPositionsTest.kt:BlockPositionsTest$val unpacked = BlockPositions.unpack(null, BlockPositions.pack(Location(null, x.toDouble(), y.toDouble(), z.toDouble())))</ID>
+    <ID>MaxLineLength:CollectionActivity.kt:CollectionActivity$if</ID>
+    <ID>MaxLineLength:CollectionActivity.kt:CollectionActivity$val orbs = entities.find(minion, ExperienceOrb::class.java).filter { it.isValid &amp;&amp; canWork(minion, it.location.block) }</ID>
+    <ID>MaxLineLength:CollectionActivityTest.kt:CollectionActivityTest$)</ID>
+    <ID>MaxLineLength:CollectionActivityTest.kt:CollectionActivityTest$assertEquals(ActivityResult.BUSY, activity(subject, isMinionItem = { it.type == Material.ARMOR_STAND }).act(subject, 0L))</ID>
+    <ID>MaxLineLength:CollectionActivityTest.kt:CollectionActivityTest$state = MinionState(definition = MinionDefinitionFixture.build(type = MinionType.COLLECTOR, collection = settings))</ID>
+    <ID>MaxLineLength:CollectionActivityTest.kt:CollectionActivityTest$val first = mockk&lt;ExperienceOrb&gt;(relaxed = true) { every { isValid } returns true; every { experience } returns 3 }</ID>
+    <ID>MaxLineLength:CollectionActivityTest.kt:CollectionActivityTest$val second = mockk&lt;ExperienceOrb&gt;(relaxed = true) { every { isValid } returns true; every { experience } returns 4 }</ID>
+    <ID>MaxLineLength:CollectionSettingsLoaderTest.kt:CollectionSettingsLoaderTest$private val loader = CollectionSettingsLoader(FakeItemLookup(mapOf("cobblestone" to FakeItemLookup.testable(Material.COBBLESTONE))))</ID>
+    <ID>MaxLineLength:EcoMinionsPlugin.kt:EcoMinionsPlugin$LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)</ID>
+    <ID>MaxLineLength:EcoMinionsPlugin.kt:EcoMinionsPlugin$if (PaperMinionAttackListener.isSupported) PaperMinionAttackListener(minionService, placementListener) else null</ID>
+    <ID>MaxLineLength:EcoMinionsPlugin.kt:EcoMinionsPlugin$private</ID>
+    <ID>MaxLineLength:EffectGiveMinionXp.kt:EffectGiveMinionXp$"Only works on minions: in a minion type's effects, an upgrade's effects, or level-up-effects. Anywhere else it does nothing."</ID>
+    <ID>MaxLineLength:EffectMinionCompact.kt:EffectMinionCompact$"Only works on minions: in a minion type's effects, an upgrade's effects, or level-up-effects. Anywhere else it does nothing."</ID>
+    <ID>MaxLineLength:EffectMinionSellStorage.kt:EffectMinionSellStorage$"Only sells items with a price, from the minion's sell-prices or EcoShop. Fires minion_sell when it earns anything."</ID>
+    <ID>MaxLineLength:EffectMinionSellStorage.kt:EffectMinionSellStorage$"Only works on minions: in a minion type's effects, an upgrade's effects, or level-up-effects. Anywhere else it does nothing."</ID>
+    <ID>MaxLineLength:EventContractTest.kt:EventContractTest$val reporting = listOf(MinionCloseEvent::class.java, MinionStorageFullEvent::class.java, MinionLevelUpEvent::class.java)</ID>
+    <ID>MaxLineLength:ExperienceSinkTest.kt:ExperienceSinkTest$private fun minion</ID>
+    <ID>MaxLineLength:FakePersistentDataContainer.kt:FakePersistentDataContainer$every { container.get(any&lt;NamespacedKey&gt;(), any&lt;PersistentDataType&lt;Any, Any&gt;&gt;()) } answers { values[firstArg()] }</ID>
+    <ID>MaxLineLength:FishingActivity.kt:FishingActivity$private val splash: (Block) -&gt; Unit = { it.world.spawnParticle(Particle.SPLASH, it.location.add(0.5, 1.0, 0.5), SPLASH_COUNT) }</ID>
+    <ID>MaxLineLength:FishingLootRollerTest.kt:FishingLootRollerTest$every { ecoItems.rollFishing(location, owner) } returns OfflineYield(listOf(ItemStack(Material.NAUTILUS_SHELL)), 3)</ID>
+    <ID>MaxLineLength:FishingSettingsLoader.kt:FishingSettingsLoader$return FishingSettings(minWater.coerceAtLeast(1), dropLists.load(config.getSubsections("drops"), "drops", context))</ID>
+    <ID>MaxLineLength:FishingSettingsLoaderTest.kt:FishingSettingsLoaderTest$val settings = loader.load(mockk&lt;Config&gt;(relaxed = true) { every { getIntOrNull("min-water") } returns 0; every { getSubsections("drops") } returns emptyList() }, context(violations))</ID>
+    <ID>MaxLineLength:FishingSettingsLoaderTest.kt:FishingSettingsLoaderTest$val settings = loader.load(mockk&lt;Config&gt;(relaxed = true) { every { getIntOrNull("min-water") } returns null; every { getSubsections("drops") } returns emptyList() }, context())</ID>
+    <ID>MaxLineLength:FuelsManagerImplTest.kt:FuelsManagerImplTest$private val coal = Fuel(id = "coal", displayName = "Coal", itemLookup = "coal", durationTicks = 20L, speedMultiplier = 2.0)</ID>
+    <ID>MaxLineLength:IridiumSkyblockIslandProvider.kt:IridiumSkyblockIslandProvider.Companion$XMaterial.HOPPER</ID>
+    <ID>MaxLineLength:IridiumSkyblockIslandProvider.kt:IridiumSkyblockIslandProvider.Companion$return Permission(Item(spec.material, spec.slot, 1, spec.displayName, lore), PERMISSION_PAGE, spec.defaultRank)</ID>
+    <ID>MaxLineLength:IslandRegistry.kt:IslandRegistry$warn("Island provider '$providerId' failed and will be ignored: ${failure.message ?: failure.javaClass.name}")</ID>
+    <ID>MaxLineLength:MainMenu.kt:MainMenu$messages.lines(if (limited) "gui.main.limit.limited-lore" else "gui.main.limit.active-lore", context(minion))</ID>
+    <ID>MaxLineLength:MinionActivityService.kt:MinionActivityService$/** Records that [minion] was loaded within its limits, so the idle window it carries is paid if a limit later holds it back. */</ID>
+    <ID>MaxLineLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$assertFalse(service(online = setOf(owner, member), members = listOf(owner, member)).isActiveWithout(subject, owner))</ID>
+    <ID>MaxLineLength:MinionActivityServiceTest.kt:MinionActivityServiceTest$val service = service(online = emptySet(), offlineProgress = offlineProgress, limitBreach = { breach.takeIf { limited } })</ID>
+    <ID>MaxLineLength:MinionCatchEvent.kt:MinionCatchEvent$/** Fired before a fishing minion stores a catch. Listeners may edit [drops] and [experience], or cancel to store nothing. */</ID>
+    <ID>MaxLineLength:MinionCollectServiceTest.kt:MinionCollectServiceTest$val collected = MinionCollectService(repository, RecordingEventDispatcher()).collect(player(refused = 1), subject)</ID>
+    <ID>MaxLineLength:MinionCollectServiceTest.kt:MinionCollectServiceTest$val collected = MinionCollectService(repository, RecordingEventDispatcher(allow = false)).collect(player(), subject)</ID>
+    <ID>MaxLineLength:MinionDefinitionLoader.kt:MinionDefinitionLoader$stats.violation(key, "evaluates to ${it.toInt()}, below the minimum of $minimum - it is raised to $minimum")</ID>
+    <ID>MaxLineLength:MinionDropListLoaderTest.kt:MinionDropListLoaderTest$assertEquals(1..1, loader.load(listOf(section("cod", amount = "x")), "drops", context(violations)).entries.single().amount)</ID>
+    <ID>MaxLineLength:MinionDropListLoaderTest.kt:MinionDropListLoaderTest$assertEquals(1.0, loader.load(listOf(section("cod", chance = 2.0)), "drops", context(violations)).entries.single().chance)</ID>
+    <ID>MaxLineLength:MinionItemServiceTest.kt:MinionItemServiceTest$private val player = mockk&lt;Player&gt;(relaxed = true) { every { inventory } returns this@MinionItemServiceTest.inventory }</ID>
+    <ID>MaxLineLength:MinionLimits.kt:MinionLimits$fun</ID>
+    <ID>MaxLineLength:MinionLimits.kt:MinionLimits$return current.overLimit == OverLimitMode.INACTIVE || current.typeLimitsEnabled || allTypes().any { it.limit != null }</ID>
+    <ID>MaxLineLength:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$.</ID>
+    <ID>MaxLineLength:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$?.</ID>
+    <ID>MaxLineLength:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$minions = entries.filter { it.startsWith(MINION) }.mapNotNull { it.removePrefix(MINION).splitCap(":") }.toMap()</ID>
+    <ID>MaxLineLength:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$permission.startsWith(MINION_LIMIT_PREFIX)</ID>
+    <ID>MaxLineLength:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$permission.startsWith(TYPE_LIMIT_PREFIX)</ID>
+    <ID>MaxLineLength:MinionLimitsTest.kt:MinionLimitsTest$assertEquals(7, limits(settings(typeLimits = mapOf(MinionType.MINER to 2))).capsFor(owner).typeCap(MinionType.MINER))</ID>
+    <ID>MaxLineLength:MinionLimitsTest.kt:MinionLimitsTest$private val registry = PlacedMinionRegistry({ placedData[it].orEmpty() }, { id, entries -&gt; placedData[id] = entries })</ID>
+    <ID>MaxLineLength:MinionLimitsTest.kt:MinionLimitsTest$val limits = limits(settings(overLimit = OverLimitMode.PREVENT, defaultLimit = 2, typeLimits = mapOf(MinionType.MINER to 2)))</ID>
+    <ID>MaxLineLength:MinionPlaceholders.kt:MinionPlaceholders$context.ownedState()?.let { (owner, state) -&gt; capText(limits.capsFor(owner).minionCap(state.definition.id)) }</ID>
+    <ID>MaxLineLength:MinionPlaceholders.kt:MinionPlaceholders$context.ownedState()?.let { (owner, state) -&gt; capText(limits.capsFor(owner).typeCap(state.definition.type)) }</ID>
+    <ID>MaxLineLength:MinionPlaceholders.kt:MinionPlaceholders$messages.line(if (it.limitedSince != null) "gui.main.limit.status-limited" else "gui.main.limit.status-active")</ID>
+    <ID>MaxLineLength:MinionPlaceholders.kt:MinionPlaceholders$placeholders += PlayerPlaceholder(plugin, "inactive") { player -&gt; limits.inactiveCount(player.uniqueId).toString() }</ID>
+    <ID>MaxLineLength:MinionProtectionTest.kt:MinionProtectionTest$every { state } returns MinionState(definition = MinionDefinitionFixture.build(bypassAntigrief = bypassAntigrief))</ID>
+    <ID>MaxLineLength:MinionRenderLoop.kt:MinionRenderLoop$for</ID>
+    <ID>MaxLineLength:MinionSettingsLoader.kt:MinionSettingsLoader$MinionType.entries.firstOrNull { it.id == key.lowercase() }?.let { it to section.getInt(key).coerceAtLeast(0) }</ID>
+    <ID>MaxLineLength:MinionSettingsLoader.kt:MinionSettingsLoader$return</ID>
+    <ID>MaxLineLength:MinionSettingsLoaderTest.kt:MinionSettingsLoaderTest$private</ID>
+    <ID>MaxLineLength:MinionState.kt:MinionState$killSample.map { it.experience to it.drops.size } == other.killSample.map { it.experience to it.drops.size }</ID>
+    <ID>MaxLineLength:MinionStateRepository.kt:MinionStateRepository$state.limitedSince?.let { container.set(keys.limitedSince, MinionDataKeys.LONG, it) } ?: container.remove(keys.limitedSince)</ID>
+    <ID>MaxLineLength:MinionTriggerDispatchTest.kt:MinionTriggerDispatchTest$val dispatch = MinionTriggerDispatch(contributions = { _, _, _ -&gt; DropContribution(listOf(ItemStack(Material.DIAMOND)), 0) })</ID>
+    <ID>MaxLineLength:MinionTriggerDispatchTest.kt:MinionTriggerDispatchTest$val dispatch = MinionTriggerDispatch(contributions = { _, context, _ -&gt; seen = context.entity; DropContribution.EMPTY })</ID>
+    <ID>MaxLineLength:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$val result = service.purchase(player, minion(MinionState(definition = type)), speed, speed.tier(1)!!, affordableCost)</ID>
+    <ID>MaxLineLength:MinionUpgradeServiceTest.kt:MinionUpgradeServiceTest$val result = service.purchase(player, minion(MinionState(definition = type)), speed, speed.tier(1)!!, unaffordable)</ID>
+    <ID>MaxLineLength:MinionXpServiceGrantTest.kt:MinionXpServiceGrantTest$private val minion = mockk&lt;Minion&gt;(relaxed = true) { every { state } answers { this@MinionXpServiceGrantTest.state } }</ID>
+    <ID>MaxLineLength:MinionsManager.kt:MinionsManager$/** @return The limit holding [minion] back, or null when none does. Only ever set with `limits.over-limit: inactive`. */</ID>
+    <ID>MaxLineLength:MinionsManagerImpl.kt:MinionsManagerImpl$is PlacementService.PlaceResult.TypeLimitReached -&gt; PlaceResult(PlaceResult.Status.TYPE_LIMIT_REACHED, null, limit)</ID>
+    <ID>MaxLineLength:MinionsManagerImpl.kt:MinionsManagerImpl$return placement.place(player, MinionState(definition = resolve(type), storedLevel = level), location).toPublic()</ID>
+    <ID>MaxLineLength:PlacementService.kt:PlacementService$if</ID>
+    <ID>MaxLineLength:PlacementServiceTest.kt:PlacementServiceTest$assertEquals(PlacementService.PlaceResult.TypeLimitReached(MinionType.MINER, 2), placement.place(member, state, location))</ID>
+    <ID>MaxLineLength:SeedingService.kt:SeedingService$if (SeedSurface.isPrepared(SeedSurface.below(candidate), expectedSurface)) 0 else UNPREPARED_PENALTY</ID>
+    <ID>MaxLineLength:SeedingService.kt:SeedingService$private</ID>
+    <ID>MaxLineLength:SeedingServiceTest.kt:SeedingServiceTest$placement = PlacementSettings(liftRegen = false, surfaceBlock = null, selfSeed = true, seedBlocks = listOf(seed))</ID>
+    <ID>MaxLineLength:SlayerActivity.kt:SlayerActivity$val spot = MinionWorkArea.blocks(minion).filter { isOpenSpot(it) &amp;&amp; canWork(minion, it) }.randomOrNull(random) ?: return false</ID>
+    <ID>MaxLineLength:SlayerActivityTest.kt:SlayerActivityTest$slayer = SlayerSettings(listOf(FakeEntityLookup.testable(EntityType.ZOMBIE)), maxMobs, drops, creditOwner)</ID>
+    <ID>MaxLineLength:SlayerActivityTest.kt:SlayerActivityTest$val subject = minion(drops = MinionDropList(listOf(MinionDropList.Entry(ItemStack(Material.DIAMOND), 1.0, 1..1, 2..2))))</ID>
+    <ID>MaxLineLength:SuperiorSkyblockIslandProvider.kt:SuperiorSkyblockIslandProvider.SuperiorSkyblockMinionIsland$private</ID>
+    <ID>MaxLineLength:TriggerMinionTick.kt:TriggerMinionTick$"Fires very often. For something on a timer, use minion_static_&lt;ticks&gt; instead, as it only fires on the ticks it is due."</ID>
+    <ID>MaxLineLength:UpgradeListMenu.kt:UpgradeListMenu$"multi_pay_indicator" to if ((nextCosts?.size ?: 0) &gt; 1) messages.line("gui.main.multi-pay-indicator") else ""</ID>
+    <ID>MaxLineLength:WoodcutterBehaviour.kt:WoodcutterBehaviour$private</ID>
+    <ID>MultilineLambdaItParameter:BentoBoxIslandProvider.kt:BentoBoxIslandProvider.Companion${ it.setTranslatedName(Locale.US, displayName) it.setTranslatedDescription(Locale.US, description) }</ID>
+    <ID>MultilineLambdaItParameter:EcoMinionsPlugin.kt:EcoMinionsPlugin${ islandTracker.register(it) activityService.noteLoaded(it) }</ID>
+    <ID>MultilineLambdaItParameter:EcoMinionsPlugin.kt:EcoMinionsPlugin${ it.experience += amount return }</ID>
+    <ID>MultilineLambdaItParameter:FishingActivity.kt:FishingActivity${ (it.type == Material.AIR || isFlowingWater(it)) &amp;&amp; it.world.getBlockAt(it.x, it.y - 1, it.z).isSolid &amp;&amp; canWork(minion, it) }</ID>
+    <ID>MultilineLambdaItParameter:IslandMemberListenerTest.kt:IslandMemberListenerTest${ minionEntries.clear(); minionEntries.addAll(it) }</ID>
+    <ID>MultilineLambdaItParameter:MinionDefinitionLoader.kt:MinionDefinitionLoader${ MinionBlock.regenDefault(id = id.lowercase(), lookup = id, block = it) .copy(vanillaMaterial = Material.matchMaterial(id)?.takeIf { m -&gt; m.isBlock }) }</ID>
+    <ID>MultilineLambdaItParameter:MinionDefinitionLoader.kt:MinionDefinitionLoader${ stats.violation( "max-storage-slots", "${it.toInt()} is above minion.hard-slot-cap (${hardSlotCap()}) - it is lowered to ${hardSlotCap()}" ) }</ID>
+    <ID>MultilineLambdaItParameter:MinionFactory.kt:MinionFactory${ burningFuelId = it.id burningFuelRemainingMillis = it.remainingMillis }</ID>
+    <ID>MultilineLambdaItParameter:MinionHologram.kt:MinionHologram${ // Never looked up by identity - always re-spawned from minion.hologram in // memory. Persisting it just leaves an orphan behind on an ungraceful // stop (crash, kill), which stacks up over repeated restarts. it.isPersistent = false it.billboard = Display.Billboard.CENTER it.setSeeThrough(true) it.text(Component.empty()) }</ID>
+    <ID>MultilineLambdaItParameter:MinionService.kt:MinionService${ byOwner.computeIfAbsent(it) { ConcurrentHashMap.newKeySet() }.add(minion.uuid) placed.add(it, minion.uuid, minion.state.definition.id) onPlacedChanged(it) }</ID>
+    <ID>MultilineLambdaItParameter:MinionService.kt:MinionService${ byOwner[it]?.remove(minion.uuid) placed.remove(it, minion.uuid) onPlacedChanged(it) }</ID>
+    <ID>MultilineLambdaItParameter:MinionService.kt:MinionService${ placed.remove(it, minion.uuid) onPlacedChanged(it) }</ID>
+    <ID>MultilineLambdaItParameter:MinionsManagerImpl.kt:MinionsManagerImpl${ regions.warnIfNotOwned(it.entity, CHANGING) placement.destroy(it, cause, false) }</ID>
+    <ID>MultilineLambdaItParameter:SeedingService.kt:SeedingService${ it.type = Material.WATER minion.mining.seeded += it.location }</ID>
+    <ID>MultilineLambdaItParameter:SellService.kt:SellService${ shopPaid += it minion.storage.setItem(slot, null) }</ID>
+    <ID>MultilineLambdaItParameter:TreeService.kt:TreeService${ keepFromDecaying(it.place(block.location)) leaves += block }</ID>
+    <ID>MultilineLambdaItParameter:VanillaBlockDefaults.kt:VanillaBlockDefaults${ it.copy( plant = blocks.lookup(spec.block), surface = blocks.lookup(spec.surface) ) }</ID>
+    <ID>MultilineLambdaItParameter:VanillaBlockDefaults.kt:VanillaBlockDefaults${ it.copy( plant = blocks.lookup(spec.sapling), leaves = blocks.lookup(spec.leaves), surface = blocks.lookup(spec.surface) ) }</ID>
+    <ID>NestedScopeFunctions:EcoMinionsPlugin.kt:EcoMinionsPlugin$let(::killer)</ID>
+    <ID>NestedScopeFunctions:MinionFactory.kt:MinionFactory$let { burningFuelId = it.id burningFuelRemainingMillis = it.remainingMillis }</ID>
+    <ID>NestedScopeFunctions:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$let { types.merge(it, cap, ::maxOf) }</ID>
+    <ID>NestedScopeFunctions:MinionPlaceholders.kt:MinionPlaceholders$let { capText(it.max) }</ID>
+    <ID>NestedScopeFunctions:MinionPlaceholders.kt:MinionPlaceholders$let { it to state }</ID>
+    <ID>NestedScopeFunctions:MinionPlaceholders.kt:MinionPlaceholders$let { messages.limitName(it.scope, minion.state.definition) }</ID>
+    <ID>NoNameShadowing:BlockActivity.kt:BlockActivity${ it.clone() }</ID>
+    <ID>NoNameShadowing:FishingActivityTest.kt:FishingActivityTest${ DropResult(it, 0) }</ID>
+    <ID>NoNameShadowing:SeedingService.kt:SeedingService$seed</ID>
+    <ID>NoNameShadowing:SlayerActivityTest.kt:SlayerActivityTest${ DropResult(it, 0) }</ID>
+    <ID>NonBooleanPropertyPrefixedWithIs:MinionDataKeys.kt:MinionDataKeys$val isMinion: NamespacedKey = NamespacedKey(plugin, "is_minion")</ID>
+    <ID>NullableBooleanCheck:CollectionSettingsLoader.kt:CollectionSettingsLoader$config.getBoolOrNull("collect-xp") ?: true</ID>
+    <ID>NullableBooleanCheck:IslandRegistry.kt:IslandRegistry.GuardedIsland$guarded(providerId) { island.isAllowed(player, privilege) } ?: false</ID>
+    <ID>NullableBooleanCheck:IslandRegistry.kt:IslandRegistry.GuardedIsland$guarded(providerId) { island.isMember(uuid) } ?: false</ID>
+    <ID>NullableBooleanCheck:MinionAccess.kt:MinionAccess$island()?.isAllowed(player, IslandPrivilege.PLACE) ?: true</ID>
+    <ID>NullableBooleanCheck:MinionAccess.kt:MinionAccess$islands.islandAt(minion.location)?.isAllowed(player, privilege) ?: false</ID>
+    <ID>NullableBooleanCheck:MinionBlockLoader.kt:MinionBlockLoader$config.getBoolOrNull("mineable") ?: true</ID>
+    <ID>NullableBooleanCheck:MinionBlockLoader.kt:MinionBlockLoader$config.getBoolOrNull("stacked-column") ?: false</ID>
+    <ID>NullableBooleanCheck:MinionItemFactory.kt:MinionItemFactory$item?.itemMeta?.let { repository.isMinion(it.persistentDataContainer) } ?: false</ID>
+    <ID>NullableBooleanCheck:MinionSettingsLoader.kt:MinionSettingsLoader$config.getBoolOrNull("islands.active-while-member-online") ?: false</ID>
+    <ID>NullableBooleanCheck:MinionSettingsLoader.kt:MinionSettingsLoader$config.getBoolOrNull("islands.privileges") ?: true</ID>
+    <ID>NullableBooleanCheck:MinionSettingsLoader.kt:MinionSettingsLoader$config.getBoolOrNull("limits.per-island.enabled") ?: false</ID>
+    <ID>NullableBooleanCheck:MinionSettingsLoader.kt:MinionSettingsLoader$config.getBoolOrNull("limits.per-island.permission-overrides") ?: true</ID>
+    <ID>NullableBooleanCheck:MinionSettingsLoader.kt:MinionSettingsLoader$config.getBoolOrNull("limits.per-type.enabled") ?: false</ID>
+    <ID>NullableBooleanCheck:MinionSettingsLoader.kt:MinionSettingsLoader$config.getBoolOrNull("limits.per-type.permission-overrides") ?: true</ID>
+    <ID>NullableBooleanCheck:SlayerSettingsLoader.kt:SlayerSettingsLoader$config.getBoolOrNull("credit-owner") ?: false</ID>
+    <ID>NullableToStringCall:CompactorRecipeLoader.kt:CompactorRecipeLoader$${costConfig.getStringOrNull("type")}</ID>
+    <ID>NullableToStringCall:EcoMinionsPlugin.kt:EcoMinionsPlugin$${it.message}</ID>
+    <ID>NullableToStringCall:LandsIslandProvider.kt:LandsIslandProvider.Companion$${it.message}</ID>
+    <ID>NullableToStringCall:LandsIslandProvider.kt:LandsIslandProvider.NewLandListener$${it.message}</ID>
+    <ID>NullableToStringCall:Minion.kt:Minion$${state.owner}</ID>
+    <ID>NullableToStringCall:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$${result.exceptionOrNull()}</ID>
+    <ID>NullableToStringCall:UpgradeLoader.kt:UpgradeLoader$${costConfig.getStringOrNull("type")}</ID>
+    <ID>OptionalUnit:MinionActivity.kt:MinionActivity$Unit</ID>
+    <ID>OutdatedDocumentation:LimitBreach.kt:LimitBreach</ID>
+    <ID>OutdatedDocumentation:MinionBehaviour.kt:MinionBehaviour$fun onBlockBroken</ID>
+    <ID>OutdatedDocumentation:MinionLimits.kt:MinionLimits$fun checkPlacement: LimitBreach?</ID>
+    <ID>OutdatedDocumentation:MinionLimits.kt:OwnerCaps</ID>
+    <ID>OutdatedDocumentation:MinionStorage.kt:MinionStorage</ID>
+    <ID>OutdatedDocumentation:MinionStorageView.kt:StorageContents$fun top: List&lt;Pair&lt;ItemStack, Int&gt;&gt;</ID>
+    <ID>OutdatedDocumentation:MinionXpService.kt:MinionXpService$LevelUpResult</ID>
+    <ID>OutdatedDocumentation:MinionsManager.kt:MinionsManager$fun destroy: Boolean</ID>
+    <ID>OutdatedDocumentation:MinionsManager.kt:MinionsManager$fun place: PlaceResult</ID>
+    <ID>OutdatedDocumentation:OfflineProgress.kt:OfflineProgress$Result</ID>
+    <ID>OutdatedDocumentation:OfflineProgress.kt:OfflineProgress$fun simulate: Result</ID>
+    <ID>OutdatedDocumentation:OfflineProgressService.kt:OfflineProgressService$fun apply</ID>
+    <ID>OutdatedDocumentation:PermissionLimits.kt:fun highestPermissionLimit: Int</ID>
+    <ID>OutdatedDocumentation:PlacementService.kt:PlacementService$fun destroy: Boolean</ID>
+    <ID>OutdatedDocumentation:PlacementService.kt:PlacementService$fun placeUnattended: PlaceResult</ID>
+    <ID>OutdatedDocumentation:PlacementService.kt:PlacementService.PlaceResult$Placed : PlaceResult</ID>
+    <ID>OutdatedDocumentation:SellPricingService.kt:SellPricingService$fun quote: Quote?</ID>
+    <ID>PF009:EcoMinionsPluginTest.kt:EcoMinionsPluginTest$Regex("""com/willfp/libreforge/[A-Za-z0-9/$]+""")</ID>
+    <ID>PF011:MinionHolders.kt:MinionHolders$upgradeId !in state.definition.allowedUpgradeIds</ID>
+    <ID>PropertyUsedBeforeDeclaration:BlockPositions.kt:BlockPositions$XZ_MASK</ID>
+    <ID>PropertyUsedBeforeDeclaration:BlockPositions.kt:BlockPositions$X_SHIFT</ID>
+    <ID>PropertyUsedBeforeDeclaration:BlockPositions.kt:BlockPositions$Y_MASK</ID>
+    <ID>PropertyUsedBeforeDeclaration:BlockPositions.kt:BlockPositions$Y_SIGN_SHIFT</ID>
+    <ID>PropertyUsedBeforeDeclaration:BlockPositions.kt:BlockPositions$Z_SHIFT</ID>
+    <ID>PropertyUsedBeforeDeclaration:BlockPositions.kt:BlockPositions$Z_SIGN_SHIFT</ID>
+    <ID>PropertyUsedBeforeDeclaration:BoundaryBox.kt:BoundaryBox$MAX_VOLUME_SAMPLES</ID>
+    <ID>PropertyUsedBeforeDeclaration:BoundaryBox.kt:BoundaryBox$SPACING</ID>
+    <ID>PropertyUsedBeforeDeclaration:EcoMinionsPlugin.kt:EcoMinionsPlugin$islandMemberCache</ID>
+    <ID>PropertyUsedBeforeDeclaration:EcoMinionsPlugin.kt:EcoMinionsPlugin$minionLimits</ID>
+    <ID>PropertyUsedBeforeDeclaration:EcoMinionsPlugin.kt:EcoMinionsPlugin$minionService</ID>
+    <ID>PropertyUsedBeforeDeclaration:EcoMinionsPlugin.kt:EcoMinionsPlugin$sellPricingSettings</ID>
+    <ID>PropertyUsedBeforeDeclaration:EcoMinionsPlugin.kt:EcoMinionsPlugin$upgrades</ID>
+    <ID>PropertyUsedBeforeDeclaration:PlantSpacing.kt:PlantSpacing$DIRECTIONS</ID>
+    <ID>PropertyUsedBeforeDeclaration:VanillaFishingTable.kt:VanillaFishingTable$FISH_PERCENT</ID>
+    <ID>PropertyUsedBeforeDeclaration:VanillaFishingTable.kt:VanillaFishingTable$JUNK_PERCENT</ID>
+    <ID>ReplaceSafeCallChainWithRun:BlockActivity.kt:BlockActivity$definition?.block?.getDrops(segment, null)</ID>
+    <ID>ReplaceSafeCallChainWithRun:EcoMinionsPlugin.kt:EcoMinionsPlugin$item.itemMeta?.persistentDataContainer?.let(repository::isMinion)</ID>
+    <ID>ReplaceSafeCallChainWithRun:FuelsManagerImpl.kt:FuelsManagerImpl$(fuelling.fuelFrom(player, resolve(minion)) as? MinionFuelService.Outcome.Applied)?.application?.fuel</ID>
+    <ID>ReplaceSafeCallChainWithRun:IslandMinionIndex.kt:IslandMinionIndex$readLimits().firstOrNull { it.startsWith(prefix(island)) }?.substringAfterLast(SEPARATOR)?.toIntOrNull()</ID>
+    <ID>ReplaceSafeCallChainWithRun:LevellingPlaceholders.kt:LevellingPlaceholders$it.state()?.definition?.levelling?.maxLevel?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:LevellingPlaceholders.kt:LevellingPlaceholders$it.state()?.level?.toNumeral()</ID>
+    <ID>ReplaceSafeCallChainWithRun:LevellingPlaceholders.kt:LevellingPlaceholders$it.state()?.xp?.toInt()?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:LevellingPlaceholders.kt:LevellingPlaceholders$requiredFor(state)?.toInt()?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionCollectServiceTest.kt:MinionCollectServiceTest$(event as? MinionExtractEvent)?.items?.removeIf { it.type == Material.DIAMOND }</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionCustomItems.kt:MinionCustomItems$itemFactory.read(it)?.definition?.id</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionDefinitionLoader.kt:MinionDefinitionLoader.Companion$raw?.trim()?.takeIf { it.isNotEmpty() }</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionFuelServiceTest.kt:MinionFuelServiceTest$taken?.fuel?.id</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionItemService.kt:MinionItemService$itemFactory.read(stack)?.definition?.id</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionLimits.kt:MinionLimits$permissions?.minions?.get(definition.id)</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$entries.firstOrNull { it.startsWith(TOTAL) }?.removePrefix(TOTAL)?.toIntOrNull()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$context.minion()?.storageSize?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$context.minion()?.usedStorage?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$context.state()?.definition?.type?.id?.replaceFirstChar { it.uppercase() }</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$context.state()?.let(::storedSlots)?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$context.stats()?.speedTicks?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$context.stats()?.storageSize?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$it.state()?.definition?.id</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$it.state()?.definition?.name</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$it.state()?.level?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$it.state()?.storedExperience?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$it.stats()?.efficiencyTicks?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$it.stats()?.height?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$it.stats()?.radius?.let { radius -&gt; (radius * 2 + 1).toString() }</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$it.stats()?.radius?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$it.stats()?.storageSize?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionPlaceholders.kt:MinionPlaceholders$limits.breachOf(minion)?.count?.toString()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionStats.kt:MinionStats$contributions[stat]?.values?.sum()</ID>
+    <ID>ReplaceSafeCallChainWithRun:MinionType.kt:MinionType.Companion$raw?.trim()?.takeIf { it.isNotEmpty() }</ID>
+    <ID>ReplaceSafeCallChainWithRun:PlaceholderRegistrar.kt:PlaceholderRegistrar$internal[key]?.resolve?.invoke(context)</ID>
+    <ID>ReplaceSafeCallChainWithRun:PlacementService.kt:PlacementService$configured.boots?.toItemStack()?.let { equipment.boots = it }</ID>
+    <ID>ReplaceSafeCallChainWithRun:PlacementService.kt:PlacementService$configured.chestplate?.toItemStack()?.let { equipment.chestplate = it }</ID>
+    <ID>ReplaceSafeCallChainWithRun:PlacementService.kt:PlacementService$configured.leggings?.toItemStack()?.let { equipment.leggings = it }</ID>
+    <ID>ReplaceSafeCallChainWithRun:PlayerExtensions.kt:EcoMinionsApi.getOrNull()?.minions()?.getByEntity(this)</ID>
+    <ID>ReplaceSafeCallChainWithRun:SlayerActivity.kt:SlayerActivity$spawnerOf(entity, minionOf)?.mining?.spawnedMobs?.add(entity.uniqueId)</ID>
+    <ID>ReplaceSafeCallChainWithRun:SlayerActivity.kt:SlayerActivity$spawnerOf(entity, minionOf)?.mining?.spawnedMobs?.remove(entity.uniqueId)</ID>
+    <ID>ReplaceSafeCallChainWithRun:UpgradePlaceholders.kt:UpgradePlaceholders$it.get&lt;Upgrade&gt;(UPGRADE)?.maxTier?.toString()</ID>
+    <ID>ReturnCount:BlockActivity.kt:BlockActivity$override fun act: ActivityResult</ID>
+    <ID>ReturnCount:BlockActivity.kt:BlockActivity$private fun completePendingBreak</ID>
+    <ID>ReturnCount:CollectionActivity.kt:CollectionActivity$override fun act: ActivityResult</ID>
+    <ID>ReturnCount:CollectionActivity.kt:CollectionActivity$private fun collect: Boolean</ID>
+    <ID>ReturnCount:CommandGive.kt:CommandGive$override fun onExecute</ID>
+    <ID>ReturnCount:CompactorRecipeLoader.kt:CompactorRecipeLoader$fun readRecipe: CompactorRecipe?</ID>
+    <ID>ReturnCount:CompactorRecipeLoader.kt:CompactorRecipeLoader$override fun load: CompactorRecipeDefinition?</ID>
+    <ID>ReturnCount:ConditionMinionStorageAbovePercent.kt:ConditionMinionStorageAbovePercent$override fun isMet: Boolean</ID>
+    <ID>ReturnCount:EffectGiveMinionXp.kt:EffectGiveMinionXp$override fun onTrigger: Boolean</ID>
+    <ID>ReturnCount:EffectMinionSellStorage.kt:EffectMinionSellStorage$override fun onTrigger: Boolean</ID>
+    <ID>ReturnCount:FishingActivity.kt:FishingActivity$override fun act: ActivityResult</ID>
+    <ID>ReturnCount:FishingActivity.kt:FishingActivity$override fun offlineCycle: OfflineYield?</ID>
+    <ID>ReturnCount:FishingLootRoller.kt:FishingLootRoller$fun roll: OfflineYield</ID>
+    <ID>ReturnCount:FuelLoader.kt:FuelLoader$override fun load: Fuel?</ID>
+    <ID>ReturnCount:FuelService.kt:FuelService$private fun burnStateOf: Pair&lt;String, Long&gt;?</ID>
+    <ID>ReturnCount:IntRanges.kt:IntRanges$fun parse: IntRange?</ID>
+    <ID>ReturnCount:IslandLimits.kt:IslandLimits$fun limitFor: Int</ID>
+    <ID>ReturnCount:IslandMemberCache.kt:IslandMemberCache$fun membersOf: Collection&lt;UUID&gt;</ID>
+    <ID>ReturnCount:LevellingLoader.kt:LevellingLoader$fun load: LevellingSpec</ID>
+    <ID>ReturnCount:LevellingLoader.kt:LevellingLoader$private fun readGainMethod: MinionCounter?</ID>
+    <ID>ReturnCount:LevellingPlaceholders.kt:LevellingPlaceholders$private fun requiredFor: Double?</ID>
+    <ID>ReturnCount:MiningTargetFinder.kt:MiningTargetFinder$private fun isMineableNow: Boolean</ID>
+    <ID>ReturnCount:MinionAccess.kt:MinionAccess$fun deniedByIsland: Boolean</ID>
+    <ID>ReturnCount:MinionAccess.kt:MinionAccess$private fun canAccess: Boolean</ID>
+    <ID>ReturnCount:MinionActivityService.kt:MinionActivityService$fun reconcile: Boolean</ID>
+    <ID>ReturnCount:MinionActivityService.kt:MinionActivityService$fun resume</ID>
+    <ID>ReturnCount:MinionActivityService.kt:MinionActivityService$private fun isActiveWhere: Boolean</ID>
+    <ID>ReturnCount:MinionBlockLoader.kt:MinionBlockLoader$override fun load: MinionBlock?</ID>
+    <ID>ReturnCount:MinionBlockLoader.kt:MinionBlockLoader$private fun readPromotion: String?</ID>
+    <ID>ReturnCount:MinionBlockLoader.kt:MinionBlockLoader$private fun readRestore: RestoreMode?</ID>
+    <ID>ReturnCount:MinionCollectService.kt:MinionCollectService$fun collect: Int?</ID>
+    <ID>ReturnCount:MinionCounter.kt:MinionCounter$fun amountFor: Double?</ID>
+    <ID>ReturnCount:MinionDefinitionLoader.kt:MinionDefinitionLoader$override fun load: MinionDefinition?</ID>
+    <ID>ReturnCount:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readBlockTargets: TargetSet?</ID>
+    <ID>ReturnCount:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readCrafting: CraftingSpec?</ID>
+    <ID>ReturnCount:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readExplicitPlacement: PlacementSettings</ID>
+    <ID>ReturnCount:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readPlacement: PlacementSettings</ID>
+    <ID>ReturnCount:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readRegenPlacement: PlacementSettings</ID>
+    <ID>ReturnCount:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun readSpacing: Int</ID>
+    <ID>ReturnCount:MinionDefinitionLoader.kt:MinionDefinitionLoader$private fun rejectUnfellableTargets: Boolean</ID>
+    <ID>ReturnCount:MinionDropListLoader.kt:MinionDropListLoader$private fun entry: MinionDropList.Entry?</ID>
+    <ID>ReturnCount:MinionFuelService.kt:MinionFuelService$fun fuelFrom: Outcome</ID>
+    <ID>ReturnCount:MinionFuelService.kt:MinionFuelService$fun fuelFromItem: Outcome</ID>
+    <ID>ReturnCount:MinionHologram.kt:MinionHologram$private fun textFor: String</ID>
+    <ID>ReturnCount:MinionLimits.kt:MinionLimits$fun breachOf: LimitBreach?</ID>
+    <ID>ReturnCount:MinionLimits.kt:MinionLimits$fun checkPlacement: LimitBreach?</ID>
+    <ID>ReturnCount:MinionLimits.kt:MinionLimits$private fun islandBreachOf: LimitBreach?</ID>
+    <ID>ReturnCount:MinionPickListener.kt:MinionPickListener$@EventHandler(ignoreCancelled = true) fun onCreativePick</ID>
+    <ID>ReturnCount:MinionPlacementListener.kt:MinionPlacementListener$@EventHandler fun onInteract</ID>
+    <ID>ReturnCount:MinionPlacementListener.kt:MinionPlacementListener$@EventHandler fun onPlace</ID>
+    <ID>ReturnCount:MinionProtection.kt:MinionProtection$fun allows: Boolean</ID>
+    <ID>ReturnCount:MinionRenderLoop.kt:MinionRenderLoop$private fun emitBoundaryBox</ID>
+    <ID>ReturnCount:MinionService.kt:MinionService$fun hydrate: Minion?</ID>
+    <ID>ReturnCount:MinionStateRepository.kt:MinionStateRepository$fun read: MinionState?</ID>
+    <ID>ReturnCount:MinionStateRepository.kt:MinionStateRepository$private fun readStoredFuel: StoredFuel?</ID>
+    <ID>ReturnCount:MinionTicker.kt:MinionTicker$fun tick</ID>
+    <ID>ReturnCount:MinionUpgradeService.kt:MinionUpgradeService$fun purchase: Result</ID>
+    <ID>ReturnCount:MinionUpgradeService.kt:MinionUpgradeService$fun setTier: Boolean</ID>
+    <ID>ReturnCount:MinionXpService.kt:MinionXpService$fun grant: Boolean</ID>
+    <ID>ReturnCount:MinionXpService.kt:MinionXpService$private fun allowGain: Double?</ID>
+    <ID>ReturnCount:MutatorMinionOwnerAsDispatcher.kt:MutatorMinionOwnerAsDispatcher$override fun mutate: TriggerData</ID>
+    <ID>ReturnCount:ParticleSettingsLoader.kt:ParticleSettingsLoader$private fun layer: ParticleSettings.Layer?</ID>
+    <ID>ReturnCount:PlacementLimits.kt:PlacementLimits$fun limitFor: Int</ID>
+    <ID>ReturnCount:PlacementService.kt:PlacementService$fun pickUp: PickUpResult</ID>
+    <ID>ReturnCount:PlacementService.kt:PlacementService$fun place: PlaceResult</ID>
+    <ID>ReturnCount:PlacementService.kt:PlacementService$private fun placeAs: PlaceResult</ID>
+    <ID>ReturnCount:PlantSpacing.kt:PlantSpacing$fun isClear: Boolean</ID>
+    <ID>ReturnCount:SeedSurface.kt:SeedSurface$fun accepts: Boolean</ID>
+    <ID>ReturnCount:SeedingService.kt:SeedingService$fun tick: Boolean</ID>
+    <ID>ReturnCount:SeedingService.kt:SeedingService$private fun isSeedable: Boolean</ID>
+    <ID>ReturnCount:SeedingService.kt:SeedingService$private fun survives: Boolean</ID>
+    <ID>ReturnCount:SellPricingService.kt:SellPricingService$fun quote: Quote?</ID>
+    <ID>ReturnCount:SellService.kt:SellService$fun sellStorage: Double</ID>
+    <ID>ReturnCount:ShopIntegrationService.kt:ShopIntegrationService$fun sell: Double?</ID>
+    <ID>ReturnCount:ShopIntegrationService.kt:ShopIntegrationService$fun unitsFor: Int?</ID>
+    <ID>ReturnCount:ShopIntegrationService.kt:ShopIntegrationService$fun valueOf: Double?</ID>
+    <ID>ReturnCount:SlayerActivity.kt:SlayerActivity$fun onDeath: Boolean</ID>
+    <ID>ReturnCount:SlayerActivity.kt:SlayerActivity$override fun act: ActivityResult</ID>
+    <ID>ReturnCount:SlayerActivity.kt:SlayerActivity$override fun onTick</ID>
+    <ID>ReturnCount:SlayerActivity.kt:SlayerActivity$private fun isTarget: Boolean</ID>
+    <ID>ReturnCount:SlayerActivity.kt:SlayerActivity$private fun spawn: Boolean</ID>
+    <ID>ReturnCount:SlayerSettingsLoader.kt:SlayerSettingsLoader$fun load: SlayerSettings?</ID>
+    <ID>ReturnCount:SpawnItemSpec.kt:CraftingSpec.Companion$fun normalise: List&lt;String&gt;?</ID>
+    <ID>ReturnCount:TriggerGroupMinionStatic.kt:TriggerGroupMinionStatic$override fun create: Trigger?</ID>
+    <ID>ReturnCount:UpgradeLoader.kt:UpgradeLoader$private fun compileHolder: Holder?</ID>
+    <ID>ReturnCount:UpgradesManagerImpl.kt:UpgradesManagerImpl$override fun purchase: PurchaseResult</ID>
+    <ID>ReturnCount:WoodcutterBehaviour.kt:WoodcutterBehaviour$override fun canStock: Boolean</ID>
+    <ID>ReturnCount:WoodcutterBehaviour.kt:WoodcutterBehaviour$override fun onBeforeMine: Boolean</ID>
+    <ID>TooGenericExceptionCaught:IslandRegistry.kt:IslandRegistry$exception: Exception</ID>
+    <ID>TooGenericExceptionCaught:SuperiorSkyblockIslandProvider.kt:SuperiorSkyblockIslandProvider$exception: Exception</ID>
+    <ID>TooGenericExceptionCaught:SuperiorSkyblockIslandProvider.kt:SuperiorSkyblockIslandProvider.Companion$exception: Exception</ID>
+    <ID>TooManyFunctions:EcoMinionsPlugin.kt:EcoMinionsPlugin : LibreforgePlugin</ID>
+    <ID>TooManyFunctions:MainMenu.kt:MainMenu</ID>
+    <ID>TooManyFunctions:MinionDefinitionLoader.kt:MinionDefinitionLoader : ConfigLoader</ID>
+    <ID>TooManyFunctions:MinionFuelService.kt:MinionFuelService</ID>
+    <ID>TooManyFunctions:MinionLimits.kt:MinionLimits : Tickable</ID>
+    <ID>TooManyFunctions:MinionService.kt:MinionService</ID>
+    <ID>TooManyFunctions:MinionStateRepository.kt:MinionStateRepository</ID>
+    <ID>TooManyFunctions:MinionsManager.kt:MinionsManager</ID>
+    <ID>TooManyFunctions:MinionsManagerImpl.kt:MinionsManagerImpl : MinionsManager</ID>
+    <ID>TooManyFunctions:PlacementService.kt:PlacementService</ID>
+    <ID>TooManyFunctions:SlayerActivity.kt:SlayerActivity : MinionActivity</ID>
+    <ID>TooManyFunctions:UpgradesManagerImpl.kt:UpgradesManagerImpl : UpgradesManager</ID>
+    <ID>UnderscoresInNumericLiterals:BlockPositionsTest.kt:BlockPositionsTest$12345</ID>
+    <ID>UnderscoresInNumericLiterals:BlockPositionsTest.kt:BlockPositionsTest$29999999</ID>
+    <ID>UnderscoresInNumericLiterals:BlockPositionsTest.kt:BlockPositionsTest$30000</ID>
+    <ID>UnderscoresInNumericLiterals:FuelLoader.kt:FuelLoader.Companion$12000L</ID>
+    <ID>UnnamedParameterUse:BentoBoxIslandProvider.kt:BentoBoxIslandProvider.Companion$FlagSpec</ID>
+    <ID>UnnamedParameterUse:BlockPositionsTest.kt:BlockPositionsTest$Triple</ID>
+    <ID>UnnamedParameterUse:BoundaryBox.kt:BoundaryBox$samples</ID>
+    <ID>UnnamedParameterUse:BoundaryBoxTest.kt:BoundaryBoxTest$edges</ID>
+    <ID>UnnamedParameterUse:CollectionSettingsLoader.kt:CollectionSettingsLoader$invalid</ID>
+    <ID>UnnamedParameterUse:CommandReload.kt:CommandReload$replace</ID>
+    <ID>UnnamedParameterUse:CompactorRecipeLoader.kt:CompactorRecipeLoader$violation</ID>
+    <ID>UnnamedParameterUse:CompactorService.kt:CompactorService$minOf</ID>
+    <ID>UnnamedParameterUse:ConditionMinionHasUpgrade.kt:ConditionMinionHasUpgrade$require</ID>
+    <ID>UnnamedParameterUse:ConditionMinionIsType.kt:ConditionMinionIsType$require</ID>
+    <ID>UnnamedParameterUse:ConditionMinionLevelAbove.kt:ConditionMinionLevelAbove$require</ID>
+    <ID>UnnamedParameterUse:ConditionMinionLevelBelow.kt:ConditionMinionLevelBelow$require</ID>
+    <ID>UnnamedParameterUse:ConditionMinionStorageAbovePercent.kt:ConditionMinionStorageAbovePercent$require</ID>
+    <ID>UnnamedParameterUse:EcoMinionsPlugin.kt:EcoMinionsPlugin$ConfigDrivenRegistry</ID>
+    <ID>UnnamedParameterUse:EcoMinionsPlugin.kt:EcoMinionsPlugin$MinionDefinitionLoader</ID>
+    <ID>UnnamedParameterUse:EffectGiveMinionXp.kt:EffectGiveMinionXp$require</ID>
+    <ID>UnnamedParameterUse:EffectMinionCapacity.kt:EffectMinionCapacity$require</ID>
+    <ID>UnnamedParameterUse:EffectMinionEfficiency.kt:EffectMinionEfficiency$require</ID>
+    <ID>UnnamedParameterUse:EffectMinionHeight.kt:EffectMinionHeight$require</ID>
+    <ID>UnnamedParameterUse:EffectMinionRadius.kt:EffectMinionRadius$require</ID>
+    <ID>UnnamedParameterUse:EffectMinionSpeed.kt:EffectMinionSpeed$require</ID>
+    <ID>UnnamedParameterUse:EventContractTest.kt:EventContractTest$MinionLevelUpEvent</ID>
+    <ID>UnnamedParameterUse:FakeIslandProvider.kt:FakeIslandProvider.BlockPosition.Companion$BlockPosition</ID>
+    <ID>UnnamedParameterUse:FakeWorld.kt:FakeWorld$Triple</ID>
+    <ID>UnnamedParameterUse:FakeWorld.kt:FakeWorld$blockAt</ID>
+    <ID>UnnamedParameterUse:FarmerBehaviourTest.kt:FarmerBehaviourTest$regenDefault</ID>
+    <ID>UnnamedParameterUse:FishingActivityTest.kt:FishingActivityTest$set</ID>
+    <ID>UnnamedParameterUse:FishingLootRoller.kt:FishingLootRoller$nextInt</ID>
+    <ID>UnnamedParameterUse:FishingSettingsLoader.kt:FishingSettingsLoader$violation</ID>
+    <ID>UnnamedParameterUse:FuelLoader.kt:FuelLoader$violation</ID>
+    <ID>UnnamedParameterUse:IridiumSkyblockIslandProvider.kt:IridiumSkyblockIslandProvider.Companion$PermissionSpec</ID>
+    <ID>UnnamedParameterUse:IslandLimitsTest.kt:IslandLimitsTest$FakeIsland</ID>
+    <ID>UnnamedParameterUse:IslandMemberListenerTest.kt:IslandMemberListenerTest$FakeIsland</ID>
+    <ID>UnnamedParameterUse:IslandMinionIndexTest.kt:IslandMinionIndexTest$FakeIsland</ID>
+    <ID>UnnamedParameterUse:IslandMinionTrackerTest.kt:IslandMinionTrackerTest$FakeIsland</ID>
+    <ID>UnnamedParameterUse:IslandRegistryTest.kt:IslandRegistryTest$FakeIsland</ID>
+    <ID>UnnamedParameterUse:LandsIslandProvider.kt:LandsIslandProvider.Companion$FlagSpec</ID>
+    <ID>UnnamedParameterUse:LevellingLoader.kt:LevellingLoader$required</ID>
+    <ID>UnnamedParameterUse:LevellingLoader.kt:LevellingLoader$unknown</ID>
+    <ID>UnnamedParameterUse:LevellingLoader.kt:LevellingLoader$violation</ID>
+    <ID>UnnamedParameterUse:LevellingPlaceholders.kt:LevellingPlaceholders$coerceIn</ID>
+    <ID>UnnamedParameterUse:LevellingPlaceholders.kt:LevellingPlaceholders$resolveOffset</ID>
+    <ID>UnnamedParameterUse:MenuSettingsLoader.kt:MenuSettingsLoader$coerceIn</ID>
+    <ID>UnnamedParameterUse:MinerBehaviourTest.kt:MinerBehaviourTest$regenDefault</ID>
+    <ID>UnnamedParameterUse:MiningTargetFinderTest.kt:MiningTargetFinderTest$blockAt</ID>
+    <ID>UnnamedParameterUse:MiningTargetFinderTest.kt:MiningTargetFinderTest$regenDefault</ID>
+    <ID>UnnamedParameterUse:MiningTargetFinderTest.kt:MiningTargetFinderTest$set</ID>
+    <ID>UnnamedParameterUse:MinionAccessTest.kt:MinionAccessTest$FakeIsland</ID>
+    <ID>UnnamedParameterUse:MinionActivityServiceTest.kt:MinionActivityServiceTest$LimitBreach</ID>
+    <ID>UnnamedParameterUse:MinionActivityServiceTest.kt:MinionActivityServiceTest$apply</ID>
+    <ID>UnnamedParameterUse:MinionBlockIndexTest.kt:MinionBlockIndexTest$regenDefault</ID>
+    <ID>UnnamedParameterUse:MinionBlockLoader.kt:MinionBlockLoader$invalid</ID>
+    <ID>UnnamedParameterUse:MinionBlockLoader.kt:MinionBlockLoader$unknown</ID>
+    <ID>UnnamedParameterUse:MinionBlockLoader.kt:MinionBlockLoader$violation</ID>
+    <ID>UnnamedParameterUse:MinionDefinition.kt:MinionDefinition.BaseStats$coerceIn</ID>
+    <ID>UnnamedParameterUse:MinionDefinitionLoader.kt:MinionDefinitionLoader$invalid</ID>
+    <ID>UnnamedParameterUse:MinionDefinitionLoader.kt:MinionDefinitionLoader$unknown</ID>
+    <ID>UnnamedParameterUse:MinionDefinitionLoader.kt:MinionDefinitionLoader$violation</ID>
+    <ID>UnnamedParameterUse:MinionDefinitionLoader.kt:MinionDefinitionLoader.Companion$invalid</ID>
+    <ID>UnnamedParameterUse:MinionDefinitionLoaderTest.kt:MinionDefinitionLoaderTest$regenDefault</ID>
+    <ID>UnnamedParameterUse:MinionDropList.kt:MinionDropList$coerceIn</ID>
+    <ID>UnnamedParameterUse:MinionDropListLoader.kt:MinionDropListLoader$coerceIn</ID>
+    <ID>UnnamedParameterUse:MinionDropListLoader.kt:MinionDropListLoader$invalid</ID>
+    <ID>UnnamedParameterUse:MinionDropListLoader.kt:MinionDropListLoader$violation</ID>
+    <ID>UnnamedParameterUse:MinionDropListLoaderTest.kt:MinionDropListLoaderTest$section</ID>
+    <ID>UnnamedParameterUse:MinionDropTables.kt:MinionDropTables$Key</ID>
+    <ID>UnnamedParameterUse:MinionFuelService.kt:MinionFuelService$minOf</ID>
+    <ID>UnnamedParameterUse:MinionItemService.kt:MinionItemService$minOf</ID>
+    <ID>UnnamedParameterUse:MinionLimits.kt:MinionLimits$LimitBreach</ID>
+    <ID>UnnamedParameterUse:MinionLimits.kt:MinionLimits$maxOf</ID>
+    <ID>UnnamedParameterUse:MinionLimits.kt:MinionLimits.PermissionCaps.Companion$maxOf</ID>
+    <ID>UnnamedParameterUse:MinionLimitsTest.kt:MinionLimitsTest$FakeIsland</ID>
+    <ID>UnnamedParameterUse:MinionLimitsTest.kt:MinionLimitsTest$LimitBreach</ID>
+    <ID>UnnamedParameterUse:MinionLimitsTest.kt:MinionLimitsTest$add</ID>
+    <ID>UnnamedParameterUse:MinionPlaceholdersTest.kt:MinionPlaceholdersTest$LimitBreach</ID>
+    <ID>UnnamedParameterUse:MinionProtectionTest.kt:MinionProtectionTest$blockAt</ID>
+    <ID>UnnamedParameterUse:MinionRenderLoop.kt:MinionRenderLoop$edges</ID>
+    <ID>UnnamedParameterUse:MinionService.kt:MinionService$add</ID>
+    <ID>UnnamedParameterUse:MinionService.kt:MinionService$at</ID>
+    <ID>UnnamedParameterUse:MinionService.kt:MinionService$remove</ID>
+    <ID>UnnamedParameterUse:MinionState.kt:MinionState$coerceIn</ID>
+    <ID>UnnamedParameterUse:MinionStatsTest.kt:MinionStatsTest$replace</ID>
+    <ID>UnnamedParameterUse:MinionStorage.kt:MinionStorage$minOf</ID>
+    <ID>UnnamedParameterUse:MinionStorageView.kt:MinionStorageView$minOf</ID>
+    <ID>UnnamedParameterUse:MinionUpgradeService.kt:MinionUpgradeService$coerceIn</ID>
+    <ID>UnnamedParameterUse:MinionXpService.kt:MinionXpService$MinionLevelUpEvent</ID>
+    <ID>UnnamedParameterUse:MinionsManagerImpl.kt:MinionsManagerImpl$MinionOwnerChangeEvent</ID>
+    <ID>UnnamedParameterUse:OfflineProgress.kt:OfflineProgress$minOf</ID>
+    <ID>UnnamedParameterUse:ParticleEmitter.kt:ParticleEmitter$nextDouble</ID>
+    <ID>UnnamedParameterUse:ParticleSettingsLoader.kt:ParticleSettingsLoader$invalid</ID>
+    <ID>UnnamedParameterUse:PlacementServiceTest.kt:PlacementServiceTest$FakeIsland</ID>
+    <ID>UnnamedParameterUse:RegenServiceTest.kt:RegenServiceTest$blockAt</ID>
+    <ID>UnnamedParameterUse:RegenServiceTest.kt:RegenServiceTest$typeAt</ID>
+    <ID>UnnamedParameterUse:SeedingService.kt:SeedingService$findSpot</ID>
+    <ID>UnnamedParameterUse:SeedingServiceTest.kt:SeedingServiceTest$Triple</ID>
+    <ID>UnnamedParameterUse:SeedingServiceTest.kt:SeedingServiceTest$blockAt</ID>
+    <ID>UnnamedParameterUse:SeedingServiceTest.kt:SeedingServiceTest$set</ID>
+    <ID>UnnamedParameterUse:SeedingServiceTest.kt:SeedingServiceTest$typeAt</ID>
+    <ID>UnnamedParameterUse:SlayerActivityTest.kt:SlayerActivityTest$Entry</ID>
+    <ID>UnnamedParameterUse:SlayerSettingsLoader.kt:SlayerSettingsLoader$invalid</ID>
+    <ID>UnnamedParameterUse:SlayerSettingsLoader.kt:SlayerSettingsLoader$violation</ID>
+    <ID>UnnamedParameterUse:TreeShape.kt:TreeShape$TreeBlock</ID>
+    <ID>UnnamedParameterUse:TreeShapeTest.kt:TreeShapeTest$Triple</ID>
+    <ID>UnnamedParameterUse:TypeSelectMenu.kt:TypeSelectMenu$addPageChanger</ID>
+    <ID>UnnamedParameterUse:UpgradeListMenu.kt:UpgradeListMenu$linesWithout</ID>
+    <ID>UnnamedParameterUse:UpgradeLoader.kt:UpgradeLoader$readTier</ID>
+    <ID>UnnamedParameterUse:UpgradeLoader.kt:UpgradeLoader$violation</ID>
+    <ID>UnnamedParameterUse:UpgradeMenuSettingsLoader.kt:UpgradeMenuSettingsLoader$coerceIn</ID>
+    <ID>UnnamedParameterUse:VanillaBlockDefaults.kt:VanillaBlockDefaults$define</ID>
+    <ID>UnnamedParameterUse:VanillaBlockDefaults.kt:VanillaBlockDefaults.Companion$Crop</ID>
+    <ID>UnnamedParameterUse:VanillaBlockDefaults.kt:VanillaBlockDefaults.Companion$Grounded</ID>
+    <ID>UnnamedParameterUse:VanillaBlockDefaults.kt:VanillaBlockDefaults.Companion$Promotion</ID>
+    <ID>UnnamedParameterUse:VanillaBlockDefaults.kt:VanillaBlockDefaults.Companion$Tree</ID>
+    <ID>UnnamedParameterUse:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$Triple</ID>
+    <ID>UnnamedParameterUse:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$regenDefault</ID>
+    <ID>UnnamedParameterUse:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$set</ID>
+    <ID>UnnamedParameterUse:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$typeAt</ID>
+    <ID>UnnecessaryBracesAroundTrailingLambda:LandsIslandProvider.kt:LandsIslandProvider$NewLandListener</ID>
+    <ID>UnnecessaryBracesAroundTrailingLambda:MainMenu.kt:MainMenu$slot</ID>
+    <ID>UnnecessaryParentheses:BlockPositions.kt:BlockPositions$((location.blockX.toLong() and XZ_MASK) shl X_SHIFT)</ID>
+    <ID>UnnecessaryParentheses:BlockPositions.kt:BlockPositions$(location.blockX.toLong() and XZ_MASK)</ID>
+    <ID>UnnecessaryParentheses:BlockPositions.kt:BlockPositions$(location.blockZ.toLong() and XZ_MASK)</ID>
+    <ID>UnnecessaryParentheses:CollectionActivity.kt:CollectionActivity$(settings.targetItems.isNotEmpty() &amp;&amp; settings.targetItems.none { it.matches(stack) })</ID>
+    <ID>UnnecessaryParentheses:FakeItemRegistry.kt:ItemTypeRegistry$(args?.getOrNull(0) as? Int)</ID>
+    <ID>UnnecessaryParentheses:LevellingPlaceholders.kt:LevellingPlaceholders$(state.xp / required)</ID>
+    <ID>UnnecessaryParentheses:MinionActivityService.kt:MinionActivityService$(limitBreach(minion) != null)</ID>
+    <ID>UnnecessaryParentheses:MinionAnimator.kt:MinionAnimator$(now / BOB_PERIOD_TICKS)</ID>
+    <ID>UnnecessaryParentheses:MinionAnimator.kt:MinionAnimator$(now / SWING_PERIOD_TICKS)</ID>
+    <ID>UnnecessaryParentheses:MinionFacing.kt:MinionFacing$(FULL_TURN / 2)</ID>
+    <ID>UnnecessaryParentheses:MinionFacing.kt:MinionFacing$(squared % FULL_TURN)</ID>
+    <ID>UnnecessaryParentheses:MinionLimits.kt:MinionLimits$(allowedMinions[definition.id] ?: 0)</ID>
+    <ID>UnnecessaryParentheses:MinionLimits.kt:MinionLimits$(allowedTypes[definition.type] ?: 0)</ID>
+    <ID>UnnecessaryParentheses:MinionState.kt:MinionState$(inventoryBytes?.contentEquals(other.inventoryBytes) ?: (other.inventoryBytes == null))</ID>
+    <ID>UnnecessaryParentheses:MinionWorkArea.kt:MinionWorkArea$(floor + minion.stats.height - 1)</ID>
+    <ID>UnnecessaryParentheses:PlacementLimits.kt:PlacementLimits$(player is Player &amp;&amp; player.hasPermission(ADMIN_PERMISSION))</ID>
+    <ID>UnnecessaryParentheses:SlayerActivity.kt:SlayerActivity$(entity is Tameable &amp;&amp; entity.ownerUniqueId != null)</ID>
+    <ID>UnnecessaryParentheses:TypeSelectMenu.kt:TypeSelectMenu$(position % COLUMNS)</ID>
+    <ID>UnnecessaryParentheses:TypeSelectMenu.kt:TypeSelectMenu$(position / COLUMNS)</ID>
+    <ID>UnnecessaryParentheses:UpgradeListMenu.kt:UpgradeListMenu$(index % COLUMNS)</ID>
+    <ID>UnnecessaryParentheses:UpgradeListMenu.kt:UpgradeListMenu$(index / COLUMNS)</ID>
+    <ID>UnnecessaryParentheses:UpgradeListMenu.kt:UpgradeListMenu$(nextCosts?.size ?: 0)</ID>
+    <ID>UnnecessaryParentheses:UpgradeMenu.kt:UpgradeMenu$(index % COLUMNS)</ID>
+    <ID>UnnecessaryParentheses:UpgradeMenu.kt:UpgradeMenu$(index / COLUMNS)</ID>
+    <ID>UnnecessaryParentheses:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$(x1 == x2 &amp;&amp; abs(z1 - z2) == 1)</ID>
+    <ID>UnnecessaryParentheses:WoodcutterBehaviourTest.kt:WoodcutterBehaviourTest$(z1 == z2 &amp;&amp; abs(x1 - x2) == 1)</ID>
+    <ID>UnnecessaryParentheses:WorkAreaEntities.kt:BukkitWorkAreaEntities$(block.y - base.y)</ID>
+    <ID>UnnecessarySafeCall:ParticleSettingsLoader.kt:ParticleSettingsLoader$section.getSubsection(name)?.takeIf { it.has("enabled") }</ID>
+    <ID>UnreachableCode:MinionDefinitionLoader.kt:MinionDefinitionLoader$config.getSubsection("equipment") ?: return MinionEquipment.EMPTY</ID>
+    <ID>UnusedImport:CostSelectMenu.kt:import com.willfp.eco.core.gui.onClose</ID>
+    <ID>UnusedImport:EcoMinionsPlugin.kt:import com.exanthiax.ecominions.minions.model.MinionBlock</ID>
+    <ID>UnusedImport:EcoMinionsPlugin.kt:import com.exanthiax.ecominions.minions.model.MinionDefinition</ID>
+    <ID>UnusedImport:MainMenu.kt:import com.willfp.eco.core.gui.onClose</ID>
+    <ID>UnusedImport:MainMenu.kt:import com.willfp.eco.core.gui.onOpen</ID>
+    <ID>UnusedImport:MainMenu.kt:import com.willfp.eco.core.gui.onRender</ID>
+    <ID>UnusedImport:MainMenu.kt:import com.willfp.eco.core.gui.onShiftLeftClick</ID>
+    <ID>UnusedImport:MiningState.kt:import org.bukkit.Material</ID>
+    <ID>UnusedImport:MinionActivityServiceTest.kt:import io.mockk.every</ID>
+    <ID>UnusedImport:MinionDefinition.kt:import org.bukkit.Material</ID>
+    <ID>UnusedImport:MinionDefinitionFixture.kt:import org.bukkit.Material</ID>
+    <ID>UnusedImport:UpgradeListMenu.kt:import com.willfp.eco.core.gui.onClose</ID>
+    <ID>UnusedImport:UpgradeMenu.kt:import com.willfp.eco.core.gui.onClose</ID>
+    <ID>UnusedParameter:MinionDefinitionLoader.kt:MinionDefinitionLoader$id: String</ID>
+    <ID>UnusedPrivateProperty:IslandMemberListenerTest.kt:IslandMemberListenerTest$private val online = mutableSetOf(owner, member)</ID>
+    <ID>UnusedPrivateProperty:MinionDefinitionLoader.kt:MinionDefinitionLoader$private val entities: EntityLookup = EcoEntityLookup()</ID>
+    <ID>UnusedPrivateProperty:MinionService.kt:MinionService$private val settings: SettingsHolder&lt;MinionSettings&gt;</ID>
+    <ID>UseCheckOrError:EcoMinionsApi.kt:EcoMinionsApi.Companion$throw IllegalStateException("EcoMinions is not enabled")</ID>
+    <ID>UseLet:ShopIntegrationService.kt:ShopIntegrationService$if (shopItem.sellPrice != null) 1 else null</ID>
+    <ID>UseOrEmpty:MinionPlaceholders.kt:MinionPlaceholders$limits.breachOf(minion)?.count?.toString() ?: ""</ID>
+    <ID>UseOrEmpty:MinionPlaceholders.kt:MinionPlaceholders$limits.breachOf(minion)?.let { capText(it.max) } ?: ""</ID>
+    <ID>UseOrEmpty:MinionPlaceholders.kt:MinionPlaceholders$limits.breachOf(minion)?.let { messages.limitName(it.scope, minion.state.definition) } ?: ""</ID>
+    <ID>UseOrEmpty:MinionStateRepository.kt:MinionStateRepository$container.get(keys.upgrades, MinionDataKeys.STRING) ?: ""</ID>
+    <ID>UseOrEmpty:MinionStorageView.kt:MinionStorageView$meta.lore ?: emptyList()</ID>
+    <ID>UseOrEmpty:UpgradeLoader.kt:UpgradeLoader$tierConfig.getStringOrNull("stat-delta") ?: ""</ID>
+  </CurrentIssues>
+</SmellBaseline>

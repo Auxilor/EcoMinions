@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.MinionModel
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionStats
 import com.exanthiax.ecominions.minions.model.MinionStorage
@@ -104,11 +105,23 @@ class Minion(
     var animation: AnimationState = AnimationState.IDLE
         internal set
 
+    /** The custom model drawing this minion, or null when it shows its armour stand. */
+    var model: MinionModel? = null
+        internal set
+
+    /** The model animation looping now, so it is only restarted when the state changes. */
+    var playingAnimation: String? = null
+        internal set
+
     /** Which `hologram.<reason>` line explains a blocked or waiting minion. Reset before each action. */
     var blockedReason: String = NO_TARGET
         internal set
 
     var hologram: TextDisplay? = null
+        internal set
+
+    /** Whether a reconcile has found this minion within its limits since it was loaded. */
+    var seenAllowed: Boolean = false
         internal set
 
     override var burningFuelId: String? = null

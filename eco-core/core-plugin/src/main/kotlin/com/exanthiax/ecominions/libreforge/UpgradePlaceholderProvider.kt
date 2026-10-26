@@ -27,8 +27,8 @@ class UpgradePlaceholderProvider(
                 }
                 val value = upgrade.tier(tier)?.value ?: 0.0
                 return@registerPlaceholderProvider listOf(
-                    NamedValue("tier_value", value),
-                    NamedValue("tier", tier.toDouble())
+                    NamedValue("tier_value", if (value % 1.0 == 0.0) value.toInt() else value),
+                    NamedValue("tier", tier)
                 )
             }
 

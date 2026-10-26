@@ -1,14 +1,17 @@
 package com.exanthiax.ecominions.minions.integration
 
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.minions.model.ExperienceMode
 import com.exanthiax.ecominions.minions.model.MinionSettings
+import com.exanthiax.ecominions.minions.model.OverLimitMode
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import com.willfp.eco.core.config.interfaces.Config
 import org.bukkit.Material
 
 /** Reads `config.yml` into [MinionSettings], re-run on every reload. */
 class MinionSettingsLoader(
-    private val config: Config
+    private val config: Config,
+    private val warn: (String) -> Unit = {}
 ) {
     fun load(): MinionSettings = MinionSettings(
         hologramOffset = config.getDouble("minion.hologram-offset"),
@@ -32,6 +35,29 @@ class MinionSettingsLoader(
         ),
         experienceMode = ExperienceMode.entries.firstOrNull {
             it.name.equals(config.getStringOrNull("minion.xp.mode")?.trim(), ignoreCase = true)
-        } ?: ExperienceMode.STORE
+        } ?: ExperienceMode.STORE,
+        islandPrivileges = config.getBoolOrNull("islands.privileges") ?: true,
+        activeWhileMemberOnline = config.getBoolOrNull("islands.active-while-member-online") ?: false,
+        islandLimitsEnabled = config.getBoolOrNull("limits.per-island.enabled") ?: false,
+        defaultIslandLimit = config.getIntOrNull("limits.per-island.default") ?: 10,
+        islandPermissionOverrides = config.getBoolOrNull("limits.per-island.permission-overrides") ?: true,
+        overLimit = readOverLimit(),
+        typeLimitsEnabled = config.getBoolOrNull("limits.per-type.enabled") ?: false,
+        typeLimitOverrides = config.getBoolOrNull("limits.per-type.permission-overrides") ?: true,
+        typeLimits = readTypeLimits()
     )
+
+    private fun readOverLimit(): OverLimitMode {
+        val value = config.getStringOrNull("limits.over-limit")?.trim() ?: return OverLimitMode.PREVENT
+        return OverLimitMode.entries.firstOrNull { it.name.equals(value, ignoreCase = true) } ?: OverLimitMode.PREVENT.also {
+            warn("Unknown limits.over-limit '$value', using prevent. Use prevent or inactive.")
+        }
+    }
+
+    private fun readTypeLimits(): Map<MinionType, Int> {
+        val section = config.getSubsectionOrNull("limits.per-type.types") ?: return emptyMap()
+        return section.getKeys(false).mapNotNull { key ->
+            MinionType.entries.firstOrNull { it.id == key.lowercase() }?.let { it to section.getInt(key).coerceAtLeast(0) }
+        }.toMap()
+    }
 }

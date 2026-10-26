@@ -51,7 +51,7 @@ placement:
 
 ### Targets
 
-The minion harvests a crop once it is ripe and replants it. It is paced by how fast the crop ripens, not by `regen-delay-ticks`. A target with no `plant` regenerates instead of being left as a hole. Offline cycles roll each target's real drop table. Crops are worth no XP unless their [block definition](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block) sets `xp`.
+The minion harvests a crop once it is ripe and replants it. It is paced by how fast the crop ripens, not by `regen-delay-ticks`. A target with no `plant` regenerates instead of being left as a hole. Targets are blocks, so list the crop block (`WHEAT`, `CARROTS`, `BEETROOTS`), not its seed item: `WHEAT_SEEDS` or `BEETROOT_SEEDS` is not a block and is rejected at startup. Offline cycles roll each target's real drop table. Crops are worth no XP unless their [block definition](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block) sets `xp`.
 
 ### Work area
 

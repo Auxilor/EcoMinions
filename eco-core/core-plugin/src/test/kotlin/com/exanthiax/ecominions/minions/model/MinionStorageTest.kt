@@ -189,4 +189,18 @@ class MinionStorageTest {
 
         assertEquals(70, storage.count { it.type == Material.COBBLESTONE })
     }
+
+    @Test
+    fun `a copy takes additions without changing the original`() {
+        val storage = storage(2)
+        storage.add(stack(Material.COBBLESTONE, 60))
+
+        val copy = storage.copy()
+        assertNull(copy.add(stack(Material.COBBLESTONE, 64)))
+
+        assertEquals(60, storage.count { it.type == Material.COBBLESTONE })
+        assertEquals(1, storage.used)
+        assertEquals(124, copy.count { it.type == Material.COBBLESTONE })
+        assertTrue(copy.isFull)
+    }
 }

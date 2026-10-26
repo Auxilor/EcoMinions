@@ -16,8 +16,18 @@ name: "&fExample Minion" # The name shown on its hologram and item.
 # A block definition in blocks/ can force a behaviour for one block with restore.
 type: miner
 
+# If true, this minion is placed and works where its owner cannot build, in
+# claims, islands and protected regions. Leave it false unless only admins can
+# get this minion.
+bypass-antigrief: false
+
+# (Optional) The most of this minion each player can place. Leave it out for no cap.
+# The permission ecominions.minion-limit.<minion id>.<number> can raise it.
+# limit: 2
+
 # The blocks this minion works, for miners, farmers and woodcutters.
-# A woodcutter lists its log here. A seed or crop is promoted to its grown form.
+# A woodcutter lists its log here. A farmer lists the crop block, e.g. WHEAT or
+# BEETROOTS, not the seed item.
 target-blocks:
   - STONE
   - COBBLESTONE
@@ -102,6 +112,16 @@ equipment:
   leggings: "LEATHER_LEGGINGS"
   boots: "LEATHER_BOOTS"
   # hand: "" # Leave out to hold an iron pickaxe.
+
+# Optional. A ModelEngine or BetterModel model shown instead of the armour
+# stand. Leave the id blank to keep the armour stand.
+model:
+  plugin: "model-engine" # Either model-engine or better-model.
+  id: "" # The model id in that plugin.
+  animations: # Optional. Each animation loops while the minion is in that state.
+    idle: "" # While it is waiting or has nothing to work on.
+    working: "" # While it is working.
+    full: "" # While its storage is full.
 
 placement:
   # If true, surface-block is put back under a block when it regenerates, such

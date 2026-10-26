@@ -78,6 +78,14 @@ class CompactorRecipeLoader : ConfigLoader<CompactorRecipeDefinition> {
             return null
         }
 
+        if (output.equals(input, ignoreCase = true) || outputAmount >= inputAmount) {
+            context.violation(
+                "output",
+                "output must differ from input and input-amount must be more than output-amount, or the recipe loops"
+            )
+            return null
+        }
+
         return CompactorRecipe(
             id = id,
             inputLookup = input,
@@ -91,6 +99,10 @@ class CompactorRecipeLoader : ConfigLoader<CompactorRecipeDefinition> {
 
     private fun readCosts(config: Config, context: LoadContext): List<TierCost> =
         config.getSubsections("cost-options").mapNotNull { costConfig ->
+            if (!costConfig.has("display")) {
+                context.violation("cost-options", "every cost option needs a display")
+                return@mapNotNull null
+            }
             val price = ConfiguredPrice.create(costConfig)
             if (price == null || price.price is PriceFree) {
                 context.violation(

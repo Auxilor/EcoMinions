@@ -17,7 +17,9 @@ data class MinionState(
     /** XP earned and not yet claimed by the owner. Distinct from [xp], which levels the minion. */
     val storedExperience: Int = 0,
     /** The last real kills of a slayer, replayed by its offline cycles. */
-    val killSample: List<KillRecord> = emptyList()
+    val killSample: List<KillRecord> = emptyList(),
+    /** When a limit started holding this minion back. Idle time after it is never paid out. */
+    val limitedSince: Long? = null
 ) {
     /**
      * Clamped on read so that lowering `max-level` in config demotes minions
@@ -69,6 +71,7 @@ data class MinionState(
             upgrades == other.upgrades &&
             uuid == other.uuid &&
             shutdownTimestamp == other.shutdownTimestamp &&
+            limitedSince == other.limitedSince &&
             fuel == other.fuel &&
             storedExperience == other.storedExperience &&
             killSample.map { it.experience to it.drops.size } == other.killSample.map { it.experience to it.drops.size } &&
@@ -83,6 +86,7 @@ data class MinionState(
         result = 31 * result + upgrades.hashCode()
         result = 31 * result + (uuid?.hashCode() ?: 0)
         result = 31 * result + (shutdownTimestamp?.hashCode() ?: 0)
+        result = 31 * result + (limitedSince?.hashCode() ?: 0)
         result = 31 * result + (fuel?.hashCode() ?: 0)
         result = 31 * result + storedExperience
         result = 31 * result + killSample.size

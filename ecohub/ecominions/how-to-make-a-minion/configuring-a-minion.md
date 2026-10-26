@@ -35,7 +35,7 @@ IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). 
 | **Selling** | What its storage sells for |
 | **Upgrades** | Which upgrades and compactor recipes it can buy |
 | **Effects** | libreforge effects that are always active |
-| **Appearance** | Its equipment and particles |
+| **Appearance** | Its equipment, custom model and particles |
 | **Levelling** | Optional XP-based levels |
 | **Placement** | Where its work area starts and how it makes its own work |
 
@@ -45,6 +45,8 @@ name: "&8Coal Minion" # The name shown on its hologram and item.
 type: miner # One of miner, farmer, woodcutter, slayer, fishing or collector.
 target-blocks: # Type keys go here; see the type's page.
   - COAL_ORE
+bypass-antigrief: false # If true, it is placed and works where its owner cannot build.
+limit: 2 # Optional. The most of this minion each player can place.
 
 # === Stats: level-one values before upgrades ===
 base-stats:
@@ -226,7 +228,7 @@ A minion keeps working on triggers like `minion_mine_block` without its owner, a
 
 ### Appearance
 
-What the minion wears, and the particles it shows.
+What the minion wears or which custom model it uses, and the particles it shows.
 
 ```yaml
 equipment: # Optional. Each slot is an item lookup.
@@ -235,6 +237,14 @@ equipment: # Optional. Each slot is an item lookup.
   leggings: "LEATHER_LEGGINGS"
   boots: "LEATHER_BOOTS"
   hand: "" # Leave out to hold an iron pickaxe.
+
+model: # Optional. Shown instead of the armour stand.
+  plugin: "model-engine" # Either model-engine or better-model.
+  id: "" # The model id in that plugin. Leave blank to keep the armour stand.
+  animations: # Optional. Each animation loops while the minion is in that state.
+    idle: "" # While it is waiting or has nothing to work on.
+    working: "" # While it is working.
+    full: "" # While its storage is full.
 
 particles:
   full: # Shown while its storage is full.
@@ -262,10 +272,12 @@ particles:
 
 Every equipment slot is optional. Set a slot to `""` to leave it bare on purpose. A dyed leather piece is written the way any dyed item is in the item lookup.
 
+A `model` hides the armour stand and its equipment, and the model is shown in its place. If the model plugin is not installed or the id is not found, the minion keeps its armour stand. An animation left blank plays nothing in that state. A ModelEngine animation should be set to loop in its blueprint.
+
 The `blocked` box is sized from `radius` and `height`, and only the owner sees it. Keep its `offset` at `0.0` so the outline is drawn exactly on the box.
 
 :::warning
-`equipment` replaced the old `armor` section. A config that still uses `armor` is ignored, and the minion wears the defaults above.
+`equipment` replaced the old `armor` section. A config that still uses `armor` is ignored, and the minion wears no armour: only the spawn item on its head and an iron pickaxe in its hand.
 :::
 
 ### Levelling
@@ -307,9 +319,29 @@ placement:
 | `lift-regen` | `miner`, `farmer`, `woodcutter` | When a block regenerates, `surface-block` is placed under it first if it is missing, e.g. farmland under wheat. Left out, it is on when a target has a `surface` in its [block definition](https://hub.auxilor.io/wiki/ecominions/how-to-make-a-minion-configuring-a-block), as crops and trees do. |
 | `surface-block` | `miner`, `farmer`, `woodcutter` | The block placed under a regenerating block when `lift-regen` is on. |
 
+### Land protection
+
+A minion respects land protection plugins, such as WorldGuard, GriefPrevention, Lands, Towny, SuperiorSkyblock2 and BentoBox. A player can't place one where they can't build. A placed minion leaves alone every block in its work area that its owner can't build at: it does not mine, plant, seed or lay water there, and it does not collect items or kill mobs standing there.
+
+```yaml
+bypass-antigrief: false # If true, it is placed and works where its owner cannot build.
+```
+
+:::warning Bypassing protection
+A type with `bypass-antigrief: true` ignores land protection completely, so its owner can use it to grief claims. Give it only to admins.
+:::
+
+### Limit
+
+```yaml
+limit: 2 # Optional. The most of this minion each player can place.
+```
+
+Leave `limit` out for no cap. A player with `ecominions.minion-limit.<minion>.<number>` gets that cap instead when it is higher, e.g. `ecominions.minion-limit.coal.4`. What happens at the cap is set by `limits.over-limit` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config#limits).
+
 ### Stored XP
 
-Every minion keeps the XP it earns until its owner claims it from the stored XP button in its menu. The button is set under `gui.main.stored-xp` in `lang.yml`, and removing that section hides it. Set `minion.xp.mode: orb` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config) to drop XP as orbs instead.
+Every minion keeps the XP it earns until its owner claims it from the stored XP button in its menu. The button is set under `gui.main.stored-xp` in `lang.yml`. Set `gui.main.show-stored-xp: false` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config) to hide it. Set `minion.xp.mode: orb` in [Plugin Config](https://hub.auxilor.io/wiki/ecominions/plugin-config) to drop XP as orbs instead.
 
 ## Internal placeholders
 
@@ -331,6 +363,12 @@ These work in holograms, `lang.yml`, menu titles and item names, `spawn-item.lor
 | `%speed%` | Ticks between actions, after upgrades and any burning fuel. |
 | `%efficiency%` | Ticks each action takes. |
 | `%stored_experience%` | XP the minion has stored that its owner has not claimed. |
+| `%limit_status%` | `gui.main.limit.status-active` or `status-limited` from `lang.yml`. |
+| `%limit_name%` | The limit holding the minion back: its name, its type, `total` or `island`. Empty when none does. |
+| `%limit_count%`, `%limit_max%` | Minions placed under that limit, and its cap. Empty when no limit holds it back. |
+| `%minion_count%`, `%minion_limit%` | The owner's minions of this ID, and their cap. |
+| `%type_count%`, `%type_limit%` | The owner's minions of this type, and their cap. |
+| `%player_count%`, `%player_limit%` | The owner's minions in total, and their cap. |
 
 Levelling adds `%xp%`, `%xp_required%`, `%progress%`, `%max_level%`, `%level_numeral%` and `%level_<offset>%`, see [How to Level a Minion](https://hub.auxilor.io/wiki/ecominions/how-to-level-a-minion#internal-placeholders).
 

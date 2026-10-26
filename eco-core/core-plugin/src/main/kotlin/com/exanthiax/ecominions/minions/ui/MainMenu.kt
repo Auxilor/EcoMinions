@@ -12,12 +12,19 @@ import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MenuSettings
 import com.exanthiax.ecominions.minions.service.Minion
+import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
+import com.willfp.eco.core.config.interfaces.Config
+import com.willfp.eco.core.gui.SlotLocation
+import com.willfp.eco.core.gui.addCustomSlots
+import com.willfp.eco.core.gui.component.PagedAreaComponent
+import com.willfp.eco.core.gui.getSlotLocations
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.menu.Menu
+import com.willfp.eco.core.gui.menu.MenuBuilder
 import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.onOpen
 import com.willfp.eco.core.gui.onRender
@@ -52,7 +59,8 @@ class MainMenu(
     private val upgradeList: UpgradeListMenu,
     private val viewers: MenuViewers,
     private val events: EventDispatcher,
-    private val regions: Regions
+    private val regions: Regions,
+    private val limits: MinionLimits
 ) {
     fun open(player: Player, minion: Minion) {
         if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.MAIN))) {
@@ -61,7 +69,7 @@ class MainMenu(
 
         val current = settings.value
         val rows = current.mainRows
-        val positions = storagePositions(rows)
+        val storageArea = chrome.area(current.mainSection, "storage-area", rows)
 
         // Built once per render and then read by each storage slot, so the
         // aggregation runs once for the whole area instead of once per slot.
@@ -69,25 +77,47 @@ class MainMenu(
 
         menu(rows) {
             setTitle(messages.render(current.mainTitle, context(minion)))
-            setMask(chrome.fillerMask(rows))
+            setMask(chrome.mask(current.mainSection, rows))
+            addCustomSlots(current.mainSection, "")
 
             onRender { _, _ ->
-                contents = storageView.itemsFor(minion, settings.value, positions.size)
+                contents = storageView.itemsFor(minion, settings.value, storageArea.size)
             }
 
-            setSlot(1, TITLE_COLUMN, slot({ _, _ -> titleItem(minion) }))
-
-            positions.forEachIndexed { index, (row, column) ->
-                setSlot(row, column, slot({ _, _ -> contents.getOrNull(index) ?: chrome.fillerItem() }))
+            setButton(current.mainSection, key = "title-item", row = 1, column = TITLE_COLUMN) { section ->
+                slot({ _, _ -> titleItem(minion, section) })
             }
 
-            setSlot(rows, 2, collectAllSlot(player, minion))
-            setSlot(rows, 4, fuelSlot(player, minion))
-            setSlot(rows, 5, pickupSlot(player, minion))
-            setSlot(rows, 7, upgradesSlot(player, minion))
-            setSlot(rows, 8, infoSlot(minion))
-            if (messages.has("gui.main.stored-xp.name")) {
-                setSlot(rows, 6, storedExperienceSlot(player, minion))
+            addPagedAreaIfNotEmpty(object : PagedAreaComponent<ItemStack>(storageArea) {
+                override fun getEntries(player: Player, menu: Menu): List<ItemStack> = contents
+
+                override fun getEntrySlot(player: Player, menu: Menu, entry: ItemStack): Slot = slot(entry)
+
+                override fun getEmptySlot(player: Player, menu: Menu): Slot = slot(chrome.fillerItem())
+            })
+
+            setButton(current.mainSection, key = "collect-all", row = rows, column = 2) { section ->
+                collectAllSlot(player, minion, section)
+            }
+            setButton(current.mainSection, key = "fuel", row = rows, column = 4) { section ->
+                fuelSlot(player, minion, section)
+            }
+            setButton(current.mainSection, key = "pickup", row = rows, column = 5) { section ->
+                pickupSlot(player, minion, section)
+            }
+            setButton(current.mainSection, key = "upgrades", row = rows, column = 7) { section ->
+                upgradesSlot(player, minion, section)
+            }
+            setButton(current.mainSection, key = "info", row = rows, column = 8) { section ->
+                infoSlot(minion, section)
+            }
+            if (limits.inUse()) {
+                setButton(current.mainSection, key = "limit", row = rows, column = 3) { limitSlot(minion) }
+            }
+            if (current.showStoredXp && messages.has("gui.main.stored-xp.name")) {
+                setButton(current.mainSection, key = "stored-xp", row = rows, column = 6) { section ->
+                    storedExperienceSlot(player, minion, section)
+                }
             }
 
             onOpen { viewer, menu -> viewers.watch(viewer, menu) }
@@ -99,16 +129,18 @@ class MainMenu(
         }.open(player)
     }
 
-    /** The storage area is everything between the title row and the button row. */
-    private fun storagePositions(rows: Int): List<Pair<Int, Int>> =
-        (2 until rows).flatMap { row -> (2..8).map { column -> row to column } }
+    private fun MenuBuilder.setButton(section: Config, key: String, row: Int, column: Int, button: (Config) -> Slot) =
+        setSlots(
+            section.getSlotLocations(key, listOf(SlotLocation(row = row, column = column))),
+            button(section.getSubsection(key))
+        )
 
     private fun context(minion: Minion): TemplateContext =
         TemplateContext.of(MinionPlaceholders.MINION to minion)
 
-    private fun titleItem(minion: Minion): ItemStack {
+    private fun titleItem(minion: Minion, section: Config): ItemStack {
         val context = context(minion)
-        val item = ItemStack(Material.PLAYER_HEAD)
+        val item = chrome.buttonItem(section, Material.PLAYER_HEAD)
         val meta = item.itemMeta ?: return item
         meta.setDisplayName(messages.line("gui.main.title-item.name", context))
         meta.lore = messages.lines("gui.main.title-item.lore", context)
@@ -116,8 +148,8 @@ class MainMenu(
         return item
     }
 
-    private fun collectAllSlot(player: Player, minion: Minion): Slot =
-        slot({ _, _ -> collectAllItem(minion) }) {
+    private fun collectAllSlot(player: Player, minion: Minion, section: Config): Slot =
+        slot({ _, _ -> collectAllItem(minion, section) }) {
             // Refreshed here as well as on the loop so the storage area empties
             // the moment it is clicked, not on the next tick of the loop.
             onLeftClick { _, _, menu ->
@@ -125,17 +157,21 @@ class MainMenu(
                     return@onLeftClick
                 }
                 val collected = collector.collect(player, minion) ?: return@onLeftClick
-                player.sendMessage(
-                    messages.line("messages.collected", TemplateContext.of("count" to collected))
-                )
+                if (collected == 0 && minion.usedStorage > 0) {
+                    player.sendMessage(messages.line("messages.inventory-full"))
+                } else {
+                    player.sendMessage(
+                        messages.line("messages.collected", TemplateContext.of("count" to collected))
+                    )
+                }
                 menu.refresh(player)
             }
         }
 
-    private fun collectAllItem(minion: Minion): ItemStack {
+    private fun collectAllItem(minion: Minion, section: Config): ItemStack {
         val context = context(minion)
         return chrome.named(
-            Material.HOPPER,
+            chrome.buttonItem(section, Material.HOPPER),
             messages.line("gui.main.collect-all.name", context),
             messages.lines("gui.main.collect-all.lore", context)
         )
@@ -149,8 +185,8 @@ class MainMenu(
      * empty cursor, or something that is not fuel, falls back to taking fuel
      * out of the player's inventory.
      */
-    private fun fuelSlot(player: Player, minion: Minion): Slot =
-        slot({ _, _ -> fuelItem(minion) }) {
+    private fun fuelSlot(player: Player, minion: Minion, section: Config): Slot =
+        slot({ _, _ -> fuelItem(minion, section) }) {
             onLeftClick { event, _, menu -> deposit(player, minion, event, menu, whole = true) }
             onRightClick { event, _, menu -> deposit(player, minion, event, menu, whole = false) }
             onShiftLeftClick { _, _, menu ->
@@ -217,7 +253,7 @@ class MainMenu(
         )
     }
 
-    private fun fuelItem(minion: Minion): ItemStack {
+    private fun fuelItem(minion: Minion, section: Config): ItemStack {
         val active = fuels.activeFuelOf(minion)
         val lore = if (active == null) {
             messages.lines("gui.main.fuel.idle-lore")
@@ -234,15 +270,16 @@ class MainMenu(
 
         return chrome.named(
             active?.let { Items.lookup(it.itemLookup).item.type.takeIf { type -> type.isItem && !type.isAir } }
-                ?: Material.COAL,
+                ?.let { ItemStack(it) }
+                ?: chrome.buttonItem(section, Material.COAL),
             messages.line("gui.main.fuel.name"),
             lore
         )
     }
 
-    private fun pickupSlot(player: Player, minion: Minion): Slot {
+    private fun pickupSlot(player: Player, minion: Minion, section: Config): Slot {
         val item = chrome.named(
-            Material.BARRIER,
+            chrome.buttonItem(section, Material.BARRIER),
             messages.line("gui.main.pickup.name"),
             messages.lines("gui.main.pickup.lore")
         )
@@ -258,6 +295,10 @@ class MainMenu(
                         player.sendMessage(messages.line("messages.not-owner"))
                         return@onLeftClick
                     }
+                    PlacementService.PickUpResult.NoIslandPermission -> {
+                        player.sendMessage(messages.line("messages.no-island-permission"))
+                        return@onLeftClick
+                    }
                     PlacementService.PickUpResult.Cancelled -> return@onLeftClick
                 }
                 player.inventory.addItem(picked).values.forEach { leftover ->
@@ -269,9 +310,9 @@ class MainMenu(
         }
     }
 
-    private fun upgradesSlot(player: Player, minion: Minion): Slot {
+    private fun upgradesSlot(player: Player, minion: Minion, section: Config): Slot {
         val item = chrome.named(
-            Material.ANVIL,
+            chrome.buttonItem(section, Material.ANVIL),
             messages.line("gui.main.upgrades-button.name"),
             messages.lines("gui.main.upgrades-button.lore")
         )
@@ -280,10 +321,10 @@ class MainMenu(
         }
     }
 
-    private fun storedExperienceSlot(player: Player, minion: Minion): Slot =
+    private fun storedExperienceSlot(player: Player, minion: Minion, section: Config): Slot =
         slot({ _, _ ->
             chrome.named(
-                Material.EXPERIENCE_BOTTLE,
+                chrome.buttonItem(section, Material.EXPERIENCE_BOTTLE),
                 messages.line("gui.main.stored-xp.name", context(minion)),
                 messages.lines("gui.main.stored-xp.lore", context(minion))
             )
@@ -304,10 +345,20 @@ class MainMenu(
             }
         }
 
-    private fun infoSlot(minion: Minion): Slot =
+    private fun limitSlot(minion: Minion): Slot =
+        slot({ _, _ ->
+            val limited = minion.state.limitedSince != null
+            chrome.named(
+                if (limited) Material.BARRIER else Material.PAPER,
+                messages.line("gui.main.limit.name", context(minion)),
+                messages.lines(if (limited) "gui.main.limit.limited-lore" else "gui.main.limit.active-lore", context(minion))
+            )
+        })
+
+    private fun infoSlot(minion: Minion, section: Config): Slot =
         slot({ _, _ ->
             chrome.named(
-                Material.BOOK,
+                chrome.buttonItem(section, Material.BOOK),
                 messages.line("gui.main.info.name"),
                 messages.lines("gui.main.info.lore", context(minion))
             )

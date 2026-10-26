@@ -15,6 +15,7 @@ import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
+import com.willfp.eco.core.gui.addCustomSlots
 import com.willfp.eco.core.gui.menu
 import com.willfp.eco.core.gui.onClose
 import com.willfp.eco.core.gui.slot
@@ -31,8 +32,8 @@ class CostSelectMenu(
     private val events: EventDispatcher,
     private val regions: Regions
 ) {
-    /** Set by the composition root: where to return after a successful purchase. */
-    var onPurchased: ((Player, Minion, Upgrade) -> Unit)? = null
+    /** Set by the composition root: announces a purchase attempt and reopens the upgrade on success. */
+    var onResult: ((Player, Minion, Upgrade, UpgradeTier, MinionUpgradeService.Result) -> Unit)? = null
 
     fun open(player: Player, minion: Minion, upgrade: Upgrade, tier: UpgradeTier) {
         if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.COST_SELECT))) {
@@ -44,7 +45,8 @@ class CostSelectMenu(
 
         menu(rows) {
             setTitle(messages.render(current.costSelectTitle))
-            setMask(chrome.fillerMask(rows))
+            setMask(chrome.mask(current.costSelectSection, rows))
+            addCustomSlots(current.costSelectSection, "")
             onClose { event, _ ->
                 events.dispatch(MinionCloseEvent(event.player as Player, minion, MinionMenuType.COST_SELECT))
             }
@@ -54,7 +56,11 @@ class CostSelectMenu(
                 if (column > LAST_COLUMN) {
                     break
                 }
-                setSlot(OPTION_ROW, column, optionSlot(player, minion, upgrade, tier, cost))
+                setSlot(
+                    current.costSelectSection.getIntOrNull("option-row") ?: OPTION_ROW,
+                    column,
+                    optionSlot(player, minion, upgrade, tier, cost)
+                )
             }
         }.open(player)
     }
@@ -88,11 +94,8 @@ class CostSelectMenu(
                 if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
                     return@onLeftClick
                 }
-                when (purchases.purchase(player, minion, upgrade, tier, cost)) {
-                    MinionUpgradeService.Result.PURCHASED -> onPurchased?.invoke(player, minion, upgrade)
-                    MinionUpgradeService.Result.CANCELLED -> Unit
-                    else -> player.sendMessage(messages.line("messages.upgrade-cant-afford"))
-                }
+                val result = purchases.purchase(player, minion, upgrade, tier, cost)
+                onResult?.invoke(player, minion, upgrade, tier, result)
             }
         }
     }

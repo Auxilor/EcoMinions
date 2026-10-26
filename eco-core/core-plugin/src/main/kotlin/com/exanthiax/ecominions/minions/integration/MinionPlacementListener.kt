@@ -1,17 +1,21 @@
 package com.exanthiax.ecominions.minions.integration
 
+import com.exanthiax.ecominions.api.island.IslandPrivilege
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
+import com.exanthiax.ecominions.islands.MinionAccess
 import com.exanthiax.ecominions.libreforge.triggers.TriggerClickMinion
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.ui.MainMenu
+import com.exanthiax.ecominions.minions.ui.displayName
+import com.exanthiax.ecominions.minions.ui.limitName
+import com.willfp.eco.util.StringUtils
 import com.willfp.eco.util.asAudience
 import com.willfp.libreforge.toDispatcher
 import com.willfp.libreforge.triggers.TriggerData
-import net.kyori.adventure.text.Component
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.ArmorStand
@@ -30,7 +34,8 @@ class MinionPlacementListener(
     private val placement: PlacementService,
     private val itemFactory: MinionItemFactory,
     private val mainMenu: MainMenu,
-    private val messages: Messages
+    private val messages: Messages,
+    private val access: MinionAccess
 ) : Listener {
 
     @EventHandler
@@ -53,15 +58,50 @@ class MinionPlacementListener(
             is PlacementService.PlaceResult.WorldDisabled ->
                 player.sendMessage(messages.line("messages.world-disabled"))
 
+            is PlacementService.PlaceResult.Protected ->
+                player.sendMessage(messages.line("messages.cannot-place-here"))
+
+            is PlacementService.PlaceResult.NoIslandPermission ->
+                player.sendMessage(messages.line("messages.no-island-permission"))
+
             is PlacementService.PlaceResult.LimitReached ->
                 player.sendMessage(
                     messages.line("messages.limit-reached-player", TemplateContext.of("limit" to result.limit))
+                )
+
+            is PlacementService.PlaceResult.IslandLimitReached ->
+                player.sendMessage(
+                    messages.line("messages.limit-reached-island", TemplateContext.of("limit" to result.limit))
+                )
+
+            is PlacementService.PlaceResult.TypeLimitReached ->
+                player.sendMessage(
+                    messages.line(
+                        "messages.limit-reached-type",
+                        TemplateContext.of("type" to result.type.displayName(), "limit" to result.limit)
+                    )
+                )
+
+            is PlacementService.PlaceResult.MinionLimitReached ->
+                player.sendMessage(
+                    messages.line(
+                        "messages.limit-reached-minion",
+                        TemplateContext.of("minion_name" to result.definition.name, "limit" to result.limit)
+                    )
                 )
 
             is PlacementService.PlaceResult.Placed -> {
                 item.amount -= 1
                 celebrate(result.minion)
                 player.sendMessage(messages.line("messages.placed"))
+                result.limited?.let { breach ->
+                    player.sendMessage(
+                        messages.line(
+                            "messages.placed-inactive",
+                            TemplateContext.of("limit_name" to messages.limitName(breach.scope, state.definition))
+                        )
+                    )
+                }
             }
 
             is PlacementService.PlaceResult.Cancelled -> Unit
@@ -93,8 +133,8 @@ class MinionPlacementListener(
      */
     private fun clickIfAllowed(event: PlayerInteractAtEntityEvent, stand: ArmorStand, minion: Minion) {
         val player = event.player
-        if (!placement.canPickUp(player, minion)) {
-            player.sendMessage(messages.line("messages.not-owner"))
+        if (!access.canUse(player, minion)) {
+            player.sendMessage(denialMessage(player, minion))
             return
         }
         TriggerClickMinion.dispatch(
@@ -119,12 +159,19 @@ class MinionPlacementListener(
     }
 
     fun openIfAllowed(player: Player, minion: Minion) {
-        if (!placement.canPickUp(player, minion)) {
-            player.sendMessage(messages.line("messages.not-owner"))
+        if (!access.canUse(player, minion)) {
+            player.sendMessage(denialMessage(player, minion))
             return
         }
         mainMenu.open(player, minion)
     }
+
+    private fun denialMessage(player: Player, minion: Minion): String =
+        if (access.deniedByIsland(player, minion, IslandPrivilege.USE)) {
+            messages.line("messages.no-island-permission")
+        } else {
+            messages.line("messages.not-owner")
+        }
 
     private fun celebrate(minion: Minion) {
         val location = minion.entity.location
@@ -135,7 +182,7 @@ class MinionPlacementListener(
 
     private fun sendSummary(player: Player, minion: Minion) {
         player.asAudience().sendActionBar(
-            Component.text(
+            StringUtils.toComponent(
                 messages.line(
                     "action-bar.interact",
                     TemplateContext.of(MinionPlaceholders.MINION to minion)

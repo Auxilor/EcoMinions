@@ -58,9 +58,9 @@ surface: GRASS_BLOCK
 # in one action. Defaults to false.
 # stacked-column: true
 
-# (Optional) What targeting this block really means. A minion set to target
-# seeds should mine the grown crop, so the seed promotes to it.
-# promotes-to: WHEAT
+# (Optional) The block a minion really works when it targets this one, e.g.
+# BAMBOO_SAPLING promotes to BAMBOO.
+# promotes-to: BAMBOO
 
 # (Optional) What one break gives the minion, live and during offline catch-up.
 # Only needed for custom blocks. Live mining already uses the drops of an

@@ -16,7 +16,9 @@ import org.bukkit.block.data.Ageable
  * [com.exanthiax.ecominions.minions.service.behaviour.WoodcutterBehaviour]
  * instead, which has a plant-wait-fell cycle of its own.
  */
-class SeedingService {
+class SeedingService(
+    private val canWork: (Minion, Block) -> Boolean = { _, _ -> true }
+) {
     /**
      * Seeds a single block, if there is anywhere left to seed.
      *
@@ -126,6 +128,8 @@ class SeedingService {
         val below = SeedSurface.below(block)
         return SeedSurface.accepts(below, expectedSurface, definition.targetBlocks) &&
             survives(minion, seed, block, below, expectedSurface) &&
+            canWork(minion, block) &&
+            (SeedSurface.isPrepared(below, expectedSurface) || canWork(minion, below)) &&
             PlantSpacing.isClear(minion, block, placement.spacing) {
                 definition.targetBlocks.matches(it) || placement.seedBlocks.any { seed -> seed.matches(it) }
             }
@@ -181,6 +185,7 @@ class SeedingService {
                 !targets.matches(candidate) &&
                 !minion.mining.isAwaitingRegen(candidate) &&
                 candidate.getRelative(BlockFace.UP).type == Material.AIR &&
+                canWork(minion, candidate) &&
                 HORIZONTAL.all { face ->
                     candidate.getRelative(face).let { it.isSolid || it.type == Material.WATER }
                 }

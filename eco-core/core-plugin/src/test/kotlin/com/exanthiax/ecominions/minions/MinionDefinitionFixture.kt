@@ -7,6 +7,7 @@ import com.exanthiax.ecominions.minions.model.CollectionSettings
 import com.exanthiax.ecominions.minions.model.FishingSettings
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionEquipment
+import com.exanthiax.ecominions.minions.model.MinionModel
 import com.exanthiax.ecominions.minions.model.ParticleSettings
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.PriceList
@@ -45,10 +46,14 @@ object MinionDefinitionFixture {
         compactorRecipes: List<CompactorRecipeDefinition> = emptyList(),
         collection: CollectionSettings? = null,
         slayer: SlayerSettings? = null,
-        fishing: FishingSettings? = null
+        fishing: FishingSettings? = null,
+        bypassAntigrief: Boolean = false,
+        limit: Int? = null,
+        name: String = "Stone Minion",
+        model: MinionModel? = null
     ) = MinionDefinition(
         id = id,
-        name = "Stone Minion",
+        name = name,
         targetBlocks = targetBlocks,
         allowedUpgradeIds = allowedUpgradeIds,
         type = type,
@@ -75,6 +80,9 @@ object MinionDefinitionFixture {
         compactorRecipes = compactorRecipes,
         collection = collection,
         slayer = slayer,
-        fishing = fishing
+        fishing = fishing,
+        bypassAntigrief = bypassAntigrief,
+        limit = limit,
+        model = model
     )
 }

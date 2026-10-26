@@ -20,11 +20,17 @@ class ConfigDrivenRegistry<T : Any>(
     directory: String,
     private val displayName: String,
     private val loader: ConfigLoader<T>,
-    private val report: LoadReport
+    private val report: LoadReport,
+    /** Runs before this folder reloads; the first category uses it to refresh settings the loaders read. */
+    private val onBeforeReload: () -> Unit = {}
 ) : RegistrableCategory<ConfigDrivenRegistry.Entry<T>>(id, directory) {
 
     /** Adapts a model object to eco's registry, which requires an id-bearing type. */
     class Entry<T : Any>(override val id: String, val value: T) : KRegistrable
+
+    override fun beforeReload(plugin: LibreforgePlugin) {
+        onBeforeReload()
+    }
 
     override fun clear(plugin: LibreforgePlugin) {
         registry.clear()
