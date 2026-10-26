@@ -8,6 +8,7 @@ import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.willfp.eco.core.Prerequisite
+import com.willfp.eco.util.StringUtils
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
@@ -31,7 +32,7 @@ class MinionHologram(
         } else {
             display.teleport(anchorOf(minion))
         }
-        display.text(Component.text(textFor(minion)))
+        display.text(StringUtils.toComponent(textFor(minion)))
     }
 
     fun remove(minion: Minion) {
@@ -43,14 +44,13 @@ class MinionHologram(
         if (minion.entity.isDead) {
             return null
         }
-        val display = minion.entity.world.spawn(anchorOf(minion), TextDisplay::class.java) {
+        val display = minion.entity.world.spawn(anchorOf(minion), TextDisplay::class.java) { textDisplay ->
             // Never looked up by identity - always re-spawned from minion.hologram in
             // memory. Persisting it just leaves an orphan behind on an ungraceful
             // stop (crash, kill), which stacks up over repeated restarts.
-            it.isPersistent = false
-            it.billboard = Display.Billboard.CENTER
-            it.setSeeThrough(true)
-            it.text(Component.empty())
+            textDisplay.isPersistent = false
+            textDisplay.billboard = Display.Billboard.CENTER
+            textDisplay.text(Component.empty())
         }
         minion.hologram = display
         return display
