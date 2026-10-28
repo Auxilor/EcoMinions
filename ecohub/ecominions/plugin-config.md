@@ -84,6 +84,10 @@ minion:
     # orb - dropped as an orb at the minion.
     mode: store
 
+# Players with ecominions.rename can right-click their minion with a named name tag to rename it.
+# Colour codes are kept only for players with ecominions.rename.color.
+rename:
+  max-length: 32 # The longest name a minion can have, in visible characters.
 
 # The layout of each menu.
 # A button's item and location are set here, and its name and lore in lang.yml.
@@ -321,6 +325,16 @@ A minion's own `sell-prices` always win, and are never scaled. For items with no
 
 :::info
 There is no plugin-wide auto sell interval. Set it with the trigger on the auto sell upgrade's effect, see [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade#effects).
+:::
+
+### Rename
+
+A player with `ecominions.rename` renames their minion by right-clicking it with a name tag renamed in an anvil. The name replaces `%minion_name%` for that minion in its menu, hologram and messages, and it stays when the minion is picked up and placed again. The name tag is used up, except in creative mode. A name tag with no name opens the menu as normal.
+
+`max-length` is the longest name a minion can have, counted in visible characters, so colour codes do not count. Colour and format codes are kept only for players with `ecominions.rename.color`. For everyone else they are removed.
+
+:::tip
+Both permissions are off by default, so they can be sold as a rank perk. Only the minion's owner, or a player with `ecominions.admin`, can rename it.
 :::
 
 ### Menus

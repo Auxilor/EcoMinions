@@ -1,6 +1,5 @@
 package com.exanthiax.ecominions.minions.integration
 
-import com.exanthiax.ecominions.api.island.IslandPrivilege
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.islands.MinionAccess
@@ -113,6 +112,9 @@ class MinionPlacementListener(
         if (event.hand != EquipmentSlot.HAND) {
             return
         }
+        if (event.player.inventory.itemInMainHand.isNamedNameTag()) {
+            return
+        }
         val stand = event.rightClicked as? ArmorStand ?: return
         val minion = minions.getByEntity(stand) ?: return
 
@@ -134,7 +136,7 @@ class MinionPlacementListener(
     private fun clickIfAllowed(event: PlayerInteractAtEntityEvent, stand: ArmorStand, minion: Minion) {
         val player = event.player
         if (!access.canUse(player, minion)) {
-            player.sendMessage(denialMessage(player, minion))
+            player.sendMessage(messages.useDenial(access, player, minion))
             return
         }
         TriggerClickMinion.dispatch(
@@ -160,18 +162,11 @@ class MinionPlacementListener(
 
     fun openIfAllowed(player: Player, minion: Minion) {
         if (!access.canUse(player, minion)) {
-            player.sendMessage(denialMessage(player, minion))
+            player.sendMessage(messages.useDenial(access, player, minion))
             return
         }
         mainMenu.open(player, minion)
     }
-
-    private fun denialMessage(player: Player, minion: Minion): String =
-        if (access.deniedByIsland(player, minion, IslandPrivilege.USE)) {
-            messages.line("messages.no-island-permission")
-        } else {
-            messages.line("messages.not-owner")
-        }
 
     private fun celebrate(minion: Minion) {
         val location = minion.entity.location

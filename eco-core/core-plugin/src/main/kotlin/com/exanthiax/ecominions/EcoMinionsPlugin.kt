@@ -60,6 +60,7 @@ import com.exanthiax.ecominions.minions.integration.MinionPistonListener
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.MinionPlacementListener
 import com.exanthiax.ecominions.minions.integration.MinionRecipes
+import com.exanthiax.ecominions.minions.integration.MinionRenameListener
 import com.exanthiax.ecominions.minions.integration.MinionSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionSlayerListener
 import com.exanthiax.ecominions.minions.integration.PaperMinionAttackListener
@@ -224,7 +225,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
                 messages.line(
                     "messages.level-up",
                     TemplateContext.of(
-                        "minion_name" to minion.state.definition.name,
+                        "minion_name" to minion.state.name,
                         "level" to level
                     )
                 )
@@ -524,6 +525,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
 
     override fun loadListeners(): List<Listener> = listOfNotNull(
         placementListener,
+        MinionRenameListener(minionService, minionAccess, minionSettings, messages),
         if (PaperMinionAttackListener.isSupported) PaperMinionAttackListener(minionService, placementListener) else null,
         MinionPickListener(minionService),
         if (PaperMinionPickListener.isSupported) PaperMinionPickListener(minionService) else null,

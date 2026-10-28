@@ -72,4 +72,17 @@ class MinionSettingsLoaderTest {
         assertTrue(settings.typeLimitsEnabled)
         assertEquals(mapOf(MinionType.MINER to 10, MinionType.FARMER to 4), settings.typeLimits)
     }
+
+    @Test
+    fun `rename length defaults to 32`() {
+        assertEquals(32, MinionSettingsLoader(config()).load().renameMaxLength)
+    }
+
+    @Test
+    fun `rename length reads config`() {
+        val config = config()
+        every { config.getIntOrNull("rename.max-length") } returns 16
+
+        assertEquals(16, MinionSettingsLoader(config).load().renameMaxLength)
+    }
 }

@@ -353,7 +353,7 @@ These work in holograms, `lang.yml`, menu titles and item names, `spawn-item.lor
 
 | Placeholder | Value |
 | --- | --- |
-| `%minion_name%` | The minion's `name`, colour codes included. |
+| `%minion_name%` | The minion's `name`, colour codes included. A renamed minion shows its own name instead. |
 | `%type%` | The minion's ID, i.e. its file name without `.yml`. |
 | `%kind%` | The minion's `type`, capitalised, e.g. `Miner` or `Fishing`. |
 | `%level%` | The minion's current level. |

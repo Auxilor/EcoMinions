@@ -21,8 +21,14 @@ data class MinionState(
     /** The last real kills of a slayer, replayed by its offline cycles. */
     val killSample: List<KillRecord> = emptyList(),
     /** When a limit started holding this minion back. Idle time after it is never paid out. */
-    val limitedSince: Long? = null
+    val limitedSince: Long? = null,
+    /** The name a player gave this minion with a name tag, already cleaned and formatted. */
+    val customName: String? = null
 ) {
+    /** The name shown for this minion: its custom name, or its type's name. */
+    val name: String
+        get() = customName ?: definition.name
+
     /**
      * Clamped on read so that lowering `max-level` in config demotes minions
      * cleanly, rather than stranding them above the top of the curve.
@@ -83,6 +89,7 @@ data class MinionState(
             limitedSince == other.limitedSince &&
             fuel == other.fuel &&
             storedExperience == other.storedExperience &&
+            customName == other.customName &&
             killSample.map { it.experience to it.drops.size } == other.killSample.map { it.experience to it.drops.size } &&
             (inventoryBytes?.contentEquals(other.inventoryBytes) ?: (other.inventoryBytes == null))
     }
@@ -99,6 +106,7 @@ data class MinionState(
         result = 31 * result + (limitedSince?.hashCode() ?: 0)
         result = 31 * result + (fuel?.hashCode() ?: 0)
         result = 31 * result + storedExperience
+        result = 31 * result + (customName?.hashCode() ?: 0)
         result = 31 * result + killSample.size
         result = 31 * result + (inventoryBytes?.contentHashCode() ?: 0)
         return result

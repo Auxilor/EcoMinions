@@ -48,7 +48,8 @@ class MinionStateRepository(
             storedExperience = container.get(keys.storedExperience, MinionDataKeys.INT) ?: 0,
             killSample = container.get(keys.killSample, MinionDataKeys.BYTES)
                 ?.let { runCatching { KillSampleCodec.decode(it) }.getOrNull() }
-                .orEmpty()
+                .orEmpty(),
+            customName = container.get(keys.customName, MinionDataKeys.STRING)
         )
     }
 
@@ -90,6 +91,10 @@ class MinionStateRepository(
         } else {
             container.remove(keys.killSample)
         }
+
+        state.customName
+            ?.let { container.set(keys.customName, MinionDataKeys.STRING, it) }
+            ?: container.remove(keys.customName)
     }
 
     /** Persists a live minion, including its storage and burning fuel. */

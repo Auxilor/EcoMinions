@@ -68,7 +68,7 @@ class MinionPlaceholders(
     }
 
     override fun internalPlaceholders(): List<InternalPlaceholder> = listOf(
-        InternalPlaceholder("minion_name") { it.state()?.definition?.name },
+        InternalPlaceholder("minion_name") { it.state()?.name },
         InternalPlaceholder("type") { it.state()?.definition?.id },
         InternalPlaceholder("kind") { context ->
             context.state()?.definition?.type?.id?.replaceFirstChar { it.uppercase() }
