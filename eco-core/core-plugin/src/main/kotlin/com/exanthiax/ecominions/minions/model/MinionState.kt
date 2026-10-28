@@ -9,6 +9,8 @@ data class MinionState(
     val xp: Double = 0.0,
     val owner: UUID? = null,
     val upgrades: Map<String, Int> = emptyMap(),
+    /** Owned upgrades the owner switched off. They keep their tier but give no effects. */
+    val disabledUpgrades: Set<String> = emptySet(),
     val inventoryBytes: ByteArray? = null,
     val uuid: UUID? = null,
     val shutdownTimestamp: Long? = null,
@@ -51,6 +53,12 @@ data class MinionState(
         return copy(upgrades = updated, storedLevel = levelFor(updated))
     }
 
+    fun isUpgradeDisabled(upgradeId: String): Boolean = upgradeId in disabledUpgrades
+
+    /** @return A copy with [upgradeId] switched on or off, its tier untouched. */
+    fun withUpgradeDisabled(upgradeId: String, disabled: Boolean): MinionState =
+        copy(disabledUpgrades = if (disabled) disabledUpgrades + upgradeId else disabledUpgrades - upgradeId)
+
     /** @return A copy at [level] with [xp] banked toward the next one. */
     fun withXp(xp: Double, level: Int): MinionState =
         copy(xp = xp, storedLevel = level)
@@ -69,6 +77,7 @@ data class MinionState(
             xp == other.xp &&
             owner == other.owner &&
             upgrades == other.upgrades &&
+            disabledUpgrades == other.disabledUpgrades &&
             uuid == other.uuid &&
             shutdownTimestamp == other.shutdownTimestamp &&
             limitedSince == other.limitedSince &&
@@ -84,6 +93,7 @@ data class MinionState(
         result = 31 * result + xp.hashCode()
         result = 31 * result + (owner?.hashCode() ?: 0)
         result = 31 * result + upgrades.hashCode()
+        result = 31 * result + disabledUpgrades.hashCode()
         result = 31 * result + (uuid?.hashCode() ?: 0)
         result = 31 * result + (shutdownTimestamp?.hashCode() ?: 0)
         result = 31 * result + (limitedSince?.hashCode() ?: 0)

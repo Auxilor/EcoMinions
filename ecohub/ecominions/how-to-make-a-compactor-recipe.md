@@ -29,7 +29,7 @@ IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). 
 
 | Part | What it controls |
 | --- | --- |
-| **Display** | The recipe's name and icon in the upgrade menu |
+| **Display** | The recipe's name and icon in the upgrade menu, and whether players can switch it off |
 | **Recipe** | What is used up and what is made |
 | **Price** | What the recipe costs to buy |
 | **Conditions** | Who can buy it and when it runs |
@@ -39,6 +39,7 @@ IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). 
 name: "&8Coal Compactor" # The recipe's name in the menu.
 display:
   icon: coal_block # The recipe's icon in the menu.
+toggleable: true # Optional. Whether the owner can switch it off once bought. Defaults to true.
 
 # === Recipe: what is used up and what is made ===
 input: COAL # The item used up.
@@ -66,7 +67,10 @@ How the recipe shows in the minion's upgrade menu, the same as an upgrade.
 name: "&8Coal Compactor" # The recipe's name in the menu.
 display:
   icon: coal_block # The recipe's icon in the menu.
+toggleable: true # Optional. Whether the owner can switch it off once bought. Defaults to true.
 ```
+
+Once bought, the owner can right-click the recipe in the upgrade menu to stop the minion compacting with it, and right-click again to start again. Set `toggleable: false` to keep it always on.
 
 ### Recipe
 

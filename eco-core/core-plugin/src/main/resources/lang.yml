@@ -139,6 +139,11 @@ gui:
         - "%multi_pay_indicator%"
         - ""
         - "&7Click to upgrade"
+      enabled-lore:
+        - "&7Right-click to disable"
+      disabled-lore:
+        - "&cDisabled"
+        - "&7Right-click to enable"
       cost-separator: " &7or &f"
       maxed: "&aMaxed"
     multi-pay-indicator: "&8(Multiple payment options)"

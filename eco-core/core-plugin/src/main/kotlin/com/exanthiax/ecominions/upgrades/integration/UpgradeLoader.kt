@@ -28,7 +28,8 @@ class UpgradeLoader : ConfigLoader<Upgrade> {
             id = id,
             name = config.getFormattedString("name"),
             iconLookup = config.getStringOrNull("display.icon") ?: DEFAULT_ICON,
-            tiers = tiers
+            tiers = tiers,
+            toggleable = config.getBoolOrNull("toggleable") != false
         )
     }
 

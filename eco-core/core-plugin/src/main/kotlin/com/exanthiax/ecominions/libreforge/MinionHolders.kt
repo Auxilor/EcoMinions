@@ -29,6 +29,9 @@ class MinionHolders(
                 continue
             }
             val upgrade = upgradeById(upgradeId) ?: continue
+            if (!upgrade.isActiveIn(state)) {
+                continue
+            }
             upgrade.holderFor(tier)?.let { holders += SimpleProvidedHolder(it) }
         }
 

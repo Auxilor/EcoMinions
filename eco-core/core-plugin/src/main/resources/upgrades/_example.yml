@@ -9,6 +9,10 @@ name: "&eExample Upgrade" # The upgrade's name in the menu.
 display:
   icon: redstone # The upgrade's icon in the menu.
 
+# (Optional) Whether the owner can right-click the upgrade in the menu to switch it off. Defaults to true.
+# A switched-off upgrade keeps its tier but gives no effects.
+# toggleable: true
+
 # Effects are written once and shared by every tier. Only the owned tier is active.
 # %tier_value% is the value of the tier the minion owns, and %tier% is the tier number.
 effects:
