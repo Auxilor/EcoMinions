@@ -74,7 +74,8 @@ class MinionTickerTest {
     private fun ticker(
         activity: MinionActivity,
         events: EventDispatcher = RecordingEventDispatcher(),
-        updateConditions: (Minion) -> Unit = {}
+        updateConditions: (Minion) -> Unit = {},
+        takesInput: (MinionDefinition) -> Boolean = { false }
     ) = MinionTicker(
         worlds = worlds,
         fuels = fuels,
@@ -82,7 +83,8 @@ class MinionTickerTest {
         events = events,
         activityOf = { activity },
         dueTriggers = { emptyList() },
-        updateConditions = updateConditions
+        updateConditions = updateConditions,
+        takesInput = takesInput
     )
 
     @Test
@@ -156,6 +158,32 @@ class MinionTickerTest {
         assertEquals(1, events.events.filterIsInstance<MinionStorageFullEvent>().size)
         assertEquals(Minion.AnimationState.FULL, subject.animation)
         assertEquals(140L, subject.mining.nextActionAt)
+    }
+
+    @Test
+    fun `input minion acts when full`() {
+        val subject = minion()
+        subject.storage.add(ItemStack(Material.STONE))
+        val activity = ScriptedActivity(ActivityResult.WORKED)
+        val events = RecordingEventDispatcher()
+
+        ticker(activity, events, takesInput = { true }).tick(subject, 100L)
+
+        assertEquals(1, activity.acted)
+        assertEquals(0, events.events.filterIsInstance<MinionStorageFullEvent>().size)
+    }
+
+    @Test
+    fun `other minions stop when full`() {
+        val subject = minion()
+        subject.storage.add(ItemStack(Material.STONE))
+        val activity = ScriptedActivity(ActivityResult.WORKED)
+        val events = RecordingEventDispatcher()
+
+        ticker(activity, events).tick(subject, 100L)
+
+        assertEquals(0, activity.acted)
+        assertEquals(1, events.events.filterIsInstance<MinionStorageFullEvent>().size)
     }
 
     @Test

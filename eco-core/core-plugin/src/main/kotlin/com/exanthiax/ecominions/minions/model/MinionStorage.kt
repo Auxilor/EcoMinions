@@ -111,6 +111,9 @@ class MinionStorage(
         return leftovers
     }
 
+    /** @return How many items are stored in stacks similar to [item]. */
+    fun countSimilar(item: ItemStack): Int = count { similar(it, item) }
+
     /**
      * Removes up to [item]'s amount of stacks similar to it, last slot first so
      * partial stacks left behind stay at the front.

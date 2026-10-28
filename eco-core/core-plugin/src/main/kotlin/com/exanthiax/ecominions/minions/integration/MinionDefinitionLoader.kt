@@ -9,14 +9,18 @@ import com.exanthiax.ecominions.core.world.BlockLookup
 import com.exanthiax.ecominions.core.world.EcoEntityLookup
 import com.exanthiax.ecominions.core.world.EntityLookup
 import com.exanthiax.ecominions.core.world.ItemLookup
+import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.levelling.integration.LevellingLoader
+import com.exanthiax.ecominions.minions.model.BreederSettings
 import com.exanthiax.ecominions.minions.model.CraftingSpec
+import com.exanthiax.ecominions.minions.model.FeederSettings
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionEquipment
 import com.exanthiax.ecominions.minions.model.MinionModel
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.PriceList
+import com.exanthiax.ecominions.minions.model.SlayerSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.TargetSet
 import com.willfp.eco.core.blocks.TestableBlock
@@ -56,9 +60,13 @@ class MinionDefinitionLoader(
     private val compactorRecipeIds: () -> Collection<String>,
     /** Every upgrade id, so `allowed-upgrades` can reject one that does not exist. */
     private val upgradeIds: () -> Collection<String>,
+    /** Resolves a feeder's `fuels:` ids. */
+    fuels: FuelService,
     private val entities: EntityLookup = EcoEntityLookup()
 ) : ConfigLoader<MinionDefinition> {
     private val collectionSettings = CollectionSettingsLoader(items)
+    private val breederSettings = BreederSettingsLoader(entities, items)
+    private val feederSettings = FeederSettingsLoader(fuels)
     private val dropLists = MinionDropListLoader(items)
     private val slayerSettings = SlayerSettingsLoader(entities, dropLists)
     private val fishingSettings = FishingSettingsLoader(dropLists)
@@ -99,7 +107,7 @@ class MinionDefinitionLoader(
 
         val placement = readPlacement(id, config, targets, type, context)
         val floorOffset = floorOffset(config.getStringOrNull("placement.floor-offset"), type, context)
-        val slayer = if (type == MinionType.SLAYER) slayerSettings.load(config, context) ?: return null else null
+        val typeSettings = readTypeSettings(type, config, context) ?: return null
         if (!statsValid) {
             return null
         }
@@ -121,13 +129,32 @@ class MinionDefinitionLoader(
             holder = compileHolder(id, config, context),
             compactorRecipes = compactorRecipes,
             collection = if (type == MinionType.COLLECTOR) collectionSettings.load(config, context) else null,
-            slayer = slayer,
+            slayer = typeSettings.slayer,
+            breeder = typeSettings.breeder,
+            feeder = typeSettings.feeder,
             fishing = if (type == MinionType.FISHING) fishingSettings.load(config, context) else null,
             bypassAntigrief = config.getBool("bypass-antigrief"),
             limit = config.getIntOrNull("limit")?.coerceAtLeast(0),
             model = model(config.getSubsection("model"), context)
         )
     }
+
+    private fun readTypeSettings(type: MinionType, config: Config, context: LoadContext): TypeSettings? =
+        if (type == MinionType.SLAYER) {
+            slayerSettings.load(config, context)?.let { TypeSettings(slayer = it) }
+        } else if (type == MinionType.BREEDER) {
+            breederSettings.load(config, context)?.let { TypeSettings(breeder = it) }
+        } else if (type == MinionType.FEEDER) {
+            feederSettings.load(config, context)?.let { TypeSettings(feeder = it) }
+        } else {
+            TypeSettings()
+        }
+
+    private class TypeSettings(
+        val slayer: SlayerSettings? = null,
+        val breeder: BreederSettings? = null,
+        val feeder: FeederSettings? = null
+    )
 
     /** An id that names no upgrade is dropped with a violation, as it could never be bought. */
     private fun readAllowedUpgrades(config: Config, context: LoadContext): List<String> {
@@ -516,7 +543,8 @@ class MinionDefinitionLoader(
         private val MinionType.usesTargetBlocks: Boolean
             get() = when (this) {
                 MinionType.MINER, MinionType.FARMER, MinionType.WOODCUTTER -> true
-                MinionType.SLAYER, MinionType.FISHING, MinionType.COLLECTOR -> false
+                MinionType.SLAYER, MinionType.FISHING, MinionType.COLLECTOR,
+                MinionType.FEEDER, MinionType.BREEDER -> false
             }
 
         private val MinionType.selfSeedsByDefault: Boolean

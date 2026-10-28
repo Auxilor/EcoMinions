@@ -26,6 +26,7 @@ import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.core.world.EcoBlockLookup
 import com.exanthiax.ecominions.core.world.EcoItemLookup
+import com.exanthiax.ecominions.core.world.VanillaWorld
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.fuel.integration.FuelLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
@@ -71,12 +72,10 @@ import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionModel
-import com.exanthiax.ecominions.minions.model.VanillaFishingTable
 import com.exanthiax.ecominions.minions.service.BukkitWorkAreaEntities
 import com.exanthiax.ecominions.minions.service.ExperienceSink
 import com.exanthiax.ecominions.minions.service.FishingLootRoller
 import com.exanthiax.ecominions.minions.service.MiningTargetFinder
-import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.exanthiax.ecominions.minions.service.MinionBlockIndex
 import com.exanthiax.ecominions.minions.service.MinionCollectService
@@ -84,6 +83,7 @@ import com.exanthiax.ecominions.minions.service.MinionCompactService
 import com.exanthiax.ecominions.minions.service.MinionDropTables
 import com.exanthiax.ecominions.minions.service.MinionFactory
 import com.exanthiax.ecominions.minions.service.MinionFuelService
+import com.exanthiax.ecominions.minions.service.MinionInput
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionLimits
@@ -103,8 +103,12 @@ import com.exanthiax.ecominions.minions.service.SeedingService
 import com.exanthiax.ecominions.minions.service.SellPricingService
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.minions.service.TreeService
+import com.exanthiax.ecominions.minions.service.activity.ActivitySignals
 import com.exanthiax.ecominions.minions.service.activity.BlockActivity
+import com.exanthiax.ecominions.minions.service.activity.BreederActivity
 import com.exanthiax.ecominions.minions.service.activity.CollectionActivity
+import com.exanthiax.ecominions.minions.service.activity.FeederActivity
+import com.exanthiax.ecominions.minions.service.activity.FeederTargets
 import com.exanthiax.ecominions.minions.service.activity.FishingActivity
 import com.exanthiax.ecominions.minions.service.activity.MinionActivities
 import com.exanthiax.ecominions.minions.service.activity.SlayerActivity
@@ -139,17 +143,9 @@ import com.willfp.eco.core.integrations.model.ModelManager
 import com.willfp.eco.core.items.Items
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
-import java.util.concurrent.ThreadLocalRandom
 import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.entity.ExperienceOrb
 import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
 import org.bukkit.event.Listener
-import org.bukkit.inventory.ItemStack
-import org.bukkit.loot.LootContext
-import org.bukkit.loot.LootTables
 import org.bukkit.plugin.ServicePriority
 
 /**
@@ -193,6 +189,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val vanillaBlocks = VanillaBlockDefaults(blockLookup)
     private val blockIndex = MinionBlockIndex({ blockDefinitions.all() }, vanillaBlocks)
+    private val fuels = ConfigDrivenRegistry<Fuel>(
+        "fuel", "fuels", "fuels", FuelLoader(), report
+    )
+    private val fuelService = FuelService(fuels)
     private val minionTypes = ConfigDrivenRegistry(
         "minion_type", "minions", "minion types",
         MinionDefinitionLoader(
@@ -205,15 +205,13 @@ class EcoMinionsPlugin : LibreforgePlugin() {
             { minionSettings.value.hardSlotCap },
             compactorRecipes::find,
             compactorRecipes::ids,
-            { upgrades.ids() }
+            { upgrades.ids() },
+            fuelService
         ),
         report
     )
     private val upgrades = ConfigDrivenRegistry<Upgrade>(
         "upgrade", "upgrades", "upgrades", UpgradeLoader(), report
-    )
-    private val fuels = ConfigDrivenRegistry<Fuel>(
-        "fuel", "fuels", "fuels", FuelLoader(), report
     )
 
     // Services
@@ -235,7 +233,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val triggerDispatch = MinionTriggerDispatch(xpService)
     private val upgradeService = UpgradeService(upgrades)
-    private val fuelService = FuelService(fuels)
     private val compactorService = CompactorService()
     private val compactService = MinionCompactService(compactorService, events)
     private val repository = MinionStateRepository(dataKeys) { minionTypes.find(it) }
@@ -248,7 +245,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val sellPricing = SellPricingService(sellPricingSettings) { shopIntegration.unitsFor(it) }
     private val sellService = SellService(sellPricing, shopIntegration, events, compactService::isInput)
     private val dropTables = MinionDropTables(
-        resolve = { material, location -> vanillaDrops(material, location) },
+        resolve = VanillaWorld::drops,
         resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
     )
     private val protection = MinionProtection()
@@ -260,11 +257,12 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         farmer = FarmerBehaviour(regenService, seedingService)
     )
     private val miningTargets = MiningTargetFinder(protection::allows)
-    private val experienceSink = ExperienceSink(minionSettings) { minion, amount -> spawnXpOrb(minion, amount) }
+    private val experienceSink = ExperienceSink(minionSettings, VanillaWorld::spawnXpOrb)
     private val blockActivity = BlockActivity(
         miningTargets, blockIndex, regenService, behaviours, triggerDispatch, events, dropTables, experienceSink
     )
     private val workAreaEntities = BukkitWorkAreaEntities()
+    private val islandRegistry = IslandRegistry(logger::warning)
     private val collectionActivity = CollectionActivity(
         workAreaEntities, triggerDispatch, events, experienceSink,
         { item -> item.itemMeta?.persistentDataContainer?.let(repository::isMinion) == true },
@@ -279,18 +277,49 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         spawnedByKey = dataKeys.spawnedBy,
         canWork = protection::allows
     )
+    private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
+    private val minionInput = MinionInput(fuelService, repository::save, events)
+    private val activitySignals = ActivitySignals(events, triggerDispatch)
+    private val feederActivity = FeederActivity(
+        targets = FeederTargets(
+            entities = workAreaEntities,
+            fuels = fuelService,
+            minionOf = { minionService.getByEntity(it) },
+            isActive = { minionService.isActive(it) },
+            islandAt = { location ->
+                if (minionSettings.value.islandPrivileges) islandRegistry.islandAt(location) else null
+            },
+            takesInput = minionInput::takesInput
+        ),
+        fuels = fuelService,
+        fuelService = minionFuelService,
+        storageSaved = { repository.save(it) },
+        signals = activitySignals,
+        canWork = protection::allows
+    )
+    private val breederActivity = BreederActivity(
+        entities = workAreaEntities,
+        storageSaved = { repository.save(it) },
+        spawnedByKey = dataKeys.spawnedBy,
+        signals = activitySignals,
+        canWork = protection::allows
+    )
     private val ecoItemsIntegration = EcoItemsIntegrationService()
     private val fishingActivity = FishingActivity(
-        FishingLootRoller(ecoItemsIntegration, { location, owner -> vanillaFishingLoot(location, owner) }),
+        FishingLootRoller(ecoItemsIntegration, VanillaWorld::fishingLoot),
         triggerDispatch, events, experienceSink,
         canWork = protection::allows
     )
-    private val activities = MinionActivities(blockActivity, collectionActivity, slayerActivity, fishingActivity)
+    private val activities = MinionActivities(
+        blockActivity, collectionActivity, slayerActivity, fishingActivity, feederActivity, breederActivity
+    )
     private val offlineProgress = OfflineProgressService(
         minionSettings, fuelService, triggerDispatch, events, experienceSink, activities::get
     )
-    private val ticker = MinionTicker(worlds, fuelService, triggerDispatch, events, activities::get)
-    private val activityService = MinionActivityService(
+    private val ticker = MinionTicker(
+        worlds, fuelService, triggerDispatch, events, activities::get, takesInput = minionInput::takesInput
+    )
+    private val activityService: MinionActivityService = MinionActivityService(
         repository, offlineProgress, minionSettings,
         { Bukkit.getPlayer(it) != null },
         { islandMemberCache.membersOf(it.uuid) },
@@ -323,10 +352,9 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         readLimits = { ServerProfile.load().read(islandLimitsKey) },
         writeLimits = { ServerProfile.load().write(islandLimitsKey, it) }
     )
-    private val islandRegistry = IslandRegistry(logger::warning)
     private val islandMemberCache = IslandMemberCache()
     private val islandTracker = IslandMinionTracker(islandRegistry, islandIndex, islandMemberCache)
-    private val minionService = MinionService(
+    private val minionService: MinionService = MinionService(
         minionTypes, minionFactory, repository,
         limits, activityService, minionSettings, events, regions, placedMinions,
         onRegister = { minion ->
@@ -354,7 +382,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         minionService, minionFactory, itemFactory, repository, minionLimits, worlds, minionSettings,
         triggerDispatch, events, minionAccess, islandRegistry, AntigriefManager::canPlaceBlock
     )
-    private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
     private val minionItems = MinionItemService(itemFactory, events)
     private val collector = MinionCollectService(repository, events)
@@ -371,7 +398,8 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val menuViewers = MenuViewers { menu, player -> regions.on(player) { menu.refresh(player) } }
     private val mainMenu = MainMenu(
         menuSettings, messages, chrome, MinionStorageView(messages), placementService,
-        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions, minionLimits
+        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions, minionLimits,
+        minionInput
     )
     private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
 
@@ -547,39 +575,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         )
     }
 
-    /**
-     * What a vanilla block drops when broken, rolled the way live mining rolls it.
-     *
-     * A `blocks/` loot table cannot be populated through Bukkit's loot context, so
-     * the drops come from a snapshot of the block at [location] retyped to
-     * [material]; the world itself is never changed.
-     */
-    private fun vanillaDrops(material: Material, location: Location): List<ItemStack> =
-        runCatching { location.block.state.apply { type = material }.drops.toList() }
-            .getOrDefault(emptyList())
-
-    /** Adds to an orb already at the minion, so an unattended minion keeps one orb rather than a pile. */
-    private fun spawnXpOrb(minion: Minion, amount: Int) {
-        val location = minion.entity.location.clone().add(0.0, 0.5, 0.0)
-        location.getNearbyEntitiesByType(ExperienceOrb::class.java, XP_MERGE_RADIUS)
-            .firstOrNull { it.isValid }
-            ?.let {
-                it.experience += amount
-                return
-            }
-        minion.entity.world.spawn(location, ExperienceOrb::class.java).experience = amount
-    }
-
-    /**
-     * Rolls the server's own fishing loot table. Null when it cannot be rolled
-     * without a hook, and the caller falls back to [VanillaFishingTable].
-     */
-    private fun vanillaFishingLoot(location: Location, owner: Player?): List<ItemStack>? =
-        runCatching {
-            val context = LootContext.Builder(location).luck(0f).apply { owner?.let(::killer) }.build()
-            LootTables.FISHING.lootTable.populateLoot(ThreadLocalRandom.current(), context).toList()
-        }.getOrNull()
-
     private fun refreshSettings() {
         minionSettings.update(minionSettingsLoader.load())
         sellPricingSettings.update(minionSettings.value.sellPricing)
@@ -588,7 +583,6 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     }
 
     private companion object {
-        const val XP_MERGE_RADIUS = 1.5
         const val SUPERIOR_SKYBLOCK = "SuperiorSkyblock2"
         const val BENTO_BOX = "BentoBox"
         const val IRIDIUM_SKYBLOCK = "IridiumSkyblock"

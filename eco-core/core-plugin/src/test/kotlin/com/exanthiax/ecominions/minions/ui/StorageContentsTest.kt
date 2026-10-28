@@ -85,4 +85,16 @@ class StorageContentsTest {
         assertEquals(1, sample.amount)
         assertEquals(4, storage.getItem(0)?.amount)
     }
+
+    @Test
+    fun `sample is the raw stored stack`() {
+        val storage = storage(ItemStack(Material.DIAMOND, 2), ItemStack(Material.COBBLESTONE, 64))
+
+        val sample = StorageContents.top(storage, 9, byMaterial)[1].first
+
+        assertEquals(Material.DIAMOND, sample.type)
+        assertEquals(1, sample.amount)
+        assertEquals(1, storage.remove(sample))
+        assertEquals(1, storage.getItem(0)?.amount)
+    }
 }
