@@ -87,7 +87,7 @@ class MinionStateRepositoryTest {
 
         assertNull(repository.read(container)!!.customName)
     }
-    
+
     @Test
     fun `disabled upgrades round trip`() {
         val container = FakePersistentDataContainer.create()
