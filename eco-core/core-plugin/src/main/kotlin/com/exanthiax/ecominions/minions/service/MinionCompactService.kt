@@ -40,7 +40,7 @@ class MinionCompactService(
 
     private fun activeRecipes(minion: Minion): List<CompactorRecipe> {
         val owned = minion.state.definition.compactorRecipes
-            .filter { minion.state.upgradeLevel(it.upgrade.id) > 0 }
+            .filter { it.upgrade.isActiveIn(minion.state) }
         if (owned.isEmpty()) {
             return emptyList()
         }

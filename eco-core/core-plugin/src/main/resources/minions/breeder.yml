@@ -1,0 +1,46 @@
+name: "&7Breeder Minion"
+type: breeder
+target-mobs: [cow, sheep, pig, chicken]
+food: [WHEAT, CARROT, WHEAT_SEEDS]
+max-mobs: 8
+
+base-stats:
+  speed-ticks: 60
+  efficiency-ticks: 10
+  radius: 3
+  storage-slots: 27
+  max-storage-slots: 54
+  regen-delay-ticks: 100
+
+spawn-item:
+  item: "WHEAT"
+  display-name: "&7Breeder Minion &8(Lvl %level%)"
+  lore:
+    - "&8Breeds nearby animals"
+    - "&8Level: &7%level%"
+  crafting:
+    enabled: true
+    give-amount: 1
+    permission: ""
+    shapeless: false
+    recipe:
+      - "HAY_BLOCK"
+      - "HAY_BLOCK"
+      - "HAY_BLOCK"
+      - "HAY_BLOCK"
+      - "ARMOR_STAND"
+      - "HAY_BLOCK"
+      - "HAY_BLOCK"
+      - "HAY_BLOCK"
+      - "HAY_BLOCK"
+
+allowed-upgrades:
+  - speed
+  - efficiency
+  - radius
+  - capacity
+
+equipment:
+  chestplate: LEATHER_CHESTPLATE
+  leggings: LEATHER_LEGGINGS
+  boots: LEATHER_BOOTS

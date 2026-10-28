@@ -15,6 +15,7 @@ import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionFuelService
+import com.exanthiax.ecominions.minions.service.MinionInput
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.willfp.eco.core.config.interfaces.Config
@@ -60,7 +61,8 @@ class MainMenu(
     private val viewers: MenuViewers,
     private val events: EventDispatcher,
     private val regions: Regions,
-    private val limits: MinionLimits
+    private val limits: MinionLimits,
+    private val input: MinionInput
 ) {
     fun open(player: Player, minion: Minion) {
         if (!events.dispatch(MinionOpenEvent(player, minion, MinionMenuType.MAIN))) {
@@ -73,7 +75,7 @@ class MainMenu(
 
         // Built once per render and then read by each storage slot, so the
         // aggregation runs once for the whole area instead of once per slot.
-        var contents: List<ItemStack> = emptyList()
+        var entries: List<Pair<ItemStack, Int>> = emptyList()
 
         menu(rows) {
             setTitle(messages.render(current.mainTitle, context(minion)))
@@ -81,19 +83,26 @@ class MainMenu(
             addCustomSlots(current.mainSection, "")
 
             onRender { _, _ ->
-                contents = storageView.itemsFor(minion, settings.value, storageArea.size)
+                entries = storageView.entriesFor(minion, settings.value, storageArea.size)
             }
 
             setButton(current.mainSection, key = "title-item", row = 1, column = TITLE_COLUMN) { section ->
                 slot({ _, _ -> titleItem(minion, section) })
             }
 
-            addPagedAreaIfNotEmpty(object : PagedAreaComponent<ItemStack>(storageArea) {
-                override fun getEntries(player: Player, menu: Menu): List<ItemStack> = contents
+            addPagedAreaIfNotEmpty(object : PagedAreaComponent<Pair<ItemStack, Int>>(storageArea) {
+                override fun getEntries(player: Player, menu: Menu): List<Pair<ItemStack, Int>> = entries
 
-                override fun getEntrySlot(player: Player, menu: Menu, entry: ItemStack): Slot = slot(entry)
+                override fun getEntrySlot(player: Player, menu: Menu, entry: Pair<ItemStack, Int>): Slot =
+                    inputSlot(
+                        player = player,
+                        minion = minion,
+                        shown = storageView.displayItem(entry.first, entry.second, settings.value),
+                        sample = entry.first
+                    )
 
-                override fun getEmptySlot(player: Player, menu: Menu): Slot = slot(chrome.fillerItem())
+                override fun getEmptySlot(player: Player, menu: Menu): Slot =
+                    inputSlot(player = player, minion = minion, shown = chrome.fillerItem(), sample = null)
             })
 
             setButton(current.mainSection, key = "collect-all", row = rows, column = 2) { section ->
@@ -146,6 +155,39 @@ class MainMenu(
         meta.lore = messages.lines("gui.main.title-item.lore", context)
         item.itemMeta = meta
         return item
+    }
+
+    private fun inputSlot(player: Player, minion: Minion, shown: ItemStack, sample: ItemStack?): Slot =
+        slot(shown) {
+            if (input.takesInput(minion.state.definition)) {
+                onLeftClick { event, _, menu ->
+                    if (regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                        when {
+                            event.cursor.type != Material.AIR -> deposit(player, minion, event.cursor)
+                            sample != null -> input.withdraw(player, minion, sample)
+                        }
+                        menu.refresh(player)
+                    }
+                }
+            }
+        }
+
+
+    private fun deposit(player: Player, minion: Minion, cursor: ItemStack) {
+        when (val result = input.deposit(player, minion, cursor)) {
+            MinionInput.Deposit.Refused -> player.sendMessage(messages.line("messages.input-not-accepted"))
+            MinionInput.Deposit.Cancelled -> Unit
+            is MinionInput.Deposit.Accepted -> shrink(player, cursor, result.moved)
+        }
+    }
+
+    private fun shrink(player: Player, cursor: ItemStack, moved: Int) {
+        if (moved == 0) {
+            player.sendMessage(messages.line("messages.input-storage-full"))
+        } else {
+            val left = cursor.amount - moved
+            player.setItemOnCursor(if (left <= 0) null else cursor.clone().apply { amount = left })
+        }
     }
 
     private fun collectAllSlot(player: Player, minion: Minion, section: Config): Slot =

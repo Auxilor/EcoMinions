@@ -12,6 +12,7 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.activity.ActivityResult
 import com.exanthiax.ecominions.minions.service.activity.MinionActivity
 import com.willfp.libreforge.triggers.Trigger
@@ -31,7 +32,9 @@ class MinionTicker(
     private val activityOf: (MinionType) -> MinionActivity,
     /** A lambda, not a reference: libreforge is not on the classpath yet when the plugin is constructed. */
     private val dueTriggers: (Long) -> List<Trigger> = { TriggerGroupMinionStatic.dueOn(it) },
-    private val updateConditions: (Minion) -> Unit = { it.toDispatcher().updateEffects() }
+    private val updateConditions: (Minion) -> Unit = { it.toDispatcher().updateEffects() },
+    /** Feeders and breeders keep working with full storage: it holds their input, not their output. */
+    private val takesInput: (MinionDefinition) -> Boolean = { false }
 ) {
     fun tick(minion: Minion, now: Long) {
         if (minion.entity.isDead || worlds.isDisabled(minion.entity.world)) {
@@ -52,7 +55,7 @@ class MinionTicker(
             return
         }
 
-        if (minion.isStorageFull) {
+        if (minion.isStorageFull && !takesInput(minion.state.definition)) {
             minion.animation = Minion.AnimationState.FULL
             if (!minion.mining.wasFull) {
                 minion.mining.wasFull = true

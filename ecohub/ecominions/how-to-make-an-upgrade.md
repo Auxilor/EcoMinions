@@ -29,7 +29,7 @@ IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). 
 
 | Part | What it controls |
 | --- | --- |
-| **Display** | The upgrade's name and icon in the upgrade menu |
+| **Display** | The upgrade's name and icon in the upgrade menu, and whether players can switch it off |
 | **Effects** | What the upgrade does, shared by every tier |
 | **Tiers** | Each tier's value, menu text, costs and buy conditions |
 
@@ -38,6 +38,7 @@ IDs may only contain lowercase letters, numbers, and underscores (a-z, 0-9, _). 
 name: "&bSpeed" # The upgrade's name in the menu.
 display:
   icon: sugar # The upgrade's icon in the menu.
+toggleable: true # Optional. Whether the owner can switch it off once bought. Defaults to true.
 
 # === Effects: what the upgrade does ===
 effects: # Effects shared by every tier. %tier_value% is the owned tier's value.
@@ -76,7 +77,10 @@ How the upgrade shows in the minion's upgrade menu.
 name: "&bSpeed" # The upgrade's name in the menu.
 display:
   icon: sugar # The upgrade's icon in the menu.
+toggleable: true # Optional. Whether the owner can switch it off once bought. Defaults to true.
 ```
+
+Once a minion owns an upgrade, its owner can right-click it in the upgrade menu to switch it off, and right-click again to switch it back on. A switched-off upgrade keeps its tier and still counts towards the minion's level, but its effects stop. Set `toggleable: false` for upgrades that should always stay on. The shipped `capacity` upgrade does this, because switching it off would shrink storage that already holds items.
 
 ### Effects
 

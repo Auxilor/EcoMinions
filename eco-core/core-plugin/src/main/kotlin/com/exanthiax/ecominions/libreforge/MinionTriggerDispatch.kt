@@ -117,6 +117,20 @@ class MinionTriggerDispatch(
         )
     }
 
+    /** Dispatches [trigger] against [minion] with [location] as the trigger's location. */
+    fun triggerAt(minion: Minion, trigger: Trigger, location: Location, value: Double) {
+        dispatch(
+            minion,
+            trigger,
+            TriggerData(
+                dispatcher = minion.toDispatcher(),
+                player = minion.ownerPlayer(),
+                location = location,
+                value = value
+            )
+        )
+    }
+
     /** Dispatches [trigger] against [minion] for one item it just collected. */
     fun collect(minion: Minion, trigger: Trigger, item: ItemStack, value: Double) {
         dispatch(

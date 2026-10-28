@@ -25,9 +25,11 @@ import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTarge
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
 import com.exanthiax.ecominions.libreforge.triggers.TriggerClickMinion
 import com.exanthiax.ecominions.libreforge.triggers.TriggerGroupMinionStatic
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionBreed
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCatchFish
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollectItem
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFeed
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelExpire
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelStart
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionKillMob
@@ -114,6 +116,8 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionRegenBlock)
         Triggers.register(TriggerMinionTick)
         Triggers.register(TriggerMinionCollectItem)
+        Triggers.register(TriggerMinionFeed)
+        Triggers.register(TriggerMinionBreed)
         Triggers.register(TriggerMinionKillMob)
         Triggers.register(TriggerMinionCatchFish)
         Triggers.register(TriggerGroupMinionStatic)

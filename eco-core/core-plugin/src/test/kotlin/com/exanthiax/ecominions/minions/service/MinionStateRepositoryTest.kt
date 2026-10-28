@@ -21,6 +21,7 @@ class MinionStateRepositoryTest {
         every { xp } returns NamespacedKey("ecominions", "xp")
         every { owner } returns NamespacedKey("ecominions", "owner")
         every { upgrades } returns NamespacedKey("ecominions", "upgrades")
+        every { disabledUpgrades } returns NamespacedKey("ecominions", "disabled_upgrades")
         every { inventory } returns NamespacedKey("ecominions", "inventory")
         every { minionUuid } returns NamespacedKey("ecominions", "uuid")
         every { shutdownTimestamp } returns NamespacedKey("ecominions", "shutdown_ts")
@@ -85,5 +86,22 @@ class MinionStateRepositoryTest {
         repository.write(container, MinionState(definition))
 
         assertNull(repository.read(container)!!.customName)
+    }
+    
+    @Test
+    fun `disabled upgrades round trip`() {
+        val container = FakePersistentDataContainer.create()
+
+        repository.write(container, MinionState(definition, disabledUpgrades = setOf("auto_sell", "speed")))
+
+        assertEquals(setOf("auto_sell", "speed"), repository.read(container)!!.disabledUpgrades)
+    }
+
+    @Test
+    fun `old data reads all enabled`() {
+        val container = FakePersistentDataContainer.create()
+        repository.write(container, MinionState(definition))
+
+        assertTrue(repository.read(container)!!.disabledUpgrades.isEmpty())
     }
 }

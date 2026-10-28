@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.upgrades.model
 
 import com.exanthiax.ecominions.api.upgrade.Upgrade as ApiUpgrade
+import com.exanthiax.ecominions.minions.model.MinionState
 import com.willfp.libreforge.Holder
 import com.willfp.libreforge.conditions.ConditionList
 
@@ -10,7 +11,9 @@ class Upgrade(
     override val name: String,
     /** eco item lookup string for the menu icon. */
     val iconLookup: String,
-    val tiers: Map<Int, UpgradeTier>
+    val tiers: Map<Int, UpgradeTier>,
+    /** Whether the owner can switch it off once bought. */
+    val toggleable: Boolean = true
 ) : ApiUpgrade {
 
     override val maxTier: Int = tiers.keys.maxOrNull() ?: 0
@@ -28,6 +31,10 @@ class Upgrade(
      *   that tier is unowned, unconfigured, or declares no effects.
      */
     fun holderFor(tier: Int): Holder? = tiers[tier]?.holder
+
+    /** @return Whether [state] owns this upgrade and has not switched it off. */
+    fun isActiveIn(state: MinionState): Boolean =
+        state.upgradeLevel(id) > 0 && !(toggleable && state.isUpgradeDisabled(id))
 
     override fun toString(): String = "Upgrade(id=$id)"
 }

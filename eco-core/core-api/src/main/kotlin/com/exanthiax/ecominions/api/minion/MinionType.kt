@@ -24,7 +24,13 @@ enum class MinionType {
     FISHING,
 
     /** Picks up dropped items and XP orbs in its area. */
-    COLLECTOR;
+    COLLECTOR,
+
+    /** Refuels the other minions in its area from fuel players load into it. */
+    FEEDER,
+
+    /** Breeds the animals in its area with food players load into it. */
+    BREEDER;
 
     /** How this type is spelled in a minion's config file. */
     val id: String

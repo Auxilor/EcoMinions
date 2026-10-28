@@ -33,6 +33,8 @@ messages:
   upgrade-already-max: "&cThis upgrade is already at max tier."
   no-payment-method: "&cNo valid payment options are available."
   no-fuel: "&cYou have no fuel items in your inventory."
+  input-not-accepted: "&cThis minion does not take that item."
+  input-storage-full: "&cThis minion's storage is full."
   fuel-applied: "&aFueled with &e%count%x %fuel_name%&a."
   level-up: "&aYour &e%minion_name% &areached level &e%level%&a!"
   rename-success: "&aRenamed your minion to &f%minion_name%&a."
@@ -51,6 +53,11 @@ hologram:
   nothing-to-collect: "&e&lNothing to Collect in %diameter%x%height%x%diameter% Area"
   no-mobs: "&e&lNo Mobs in %diameter%x%height%x%diameter% Area"
   no-water: "&e&lNo Water in %diameter%x%height%x%diameter% Area"
+  nothing-to-feed: "&e&lNothing to Feed in %diameter%x%height%x%diameter% Area"
+  no-fuel-stored: "&e&lNo Fuel Stored"
+  nothing-to-breed: "&e&lNothing to Breed in %diameter%x%height%x%diameter% Area"
+  no-food-stored: "&e&lNo Food Stored"
+  pen-full: "&e&lPen Full"
   idle: "&7&lIDLE &8- &7Owner offline"
   limited: "&c&lINACTIVE &8- &7Over %limit_name% limit"
 
@@ -135,6 +142,11 @@ gui:
         - "%multi_pay_indicator%"
         - ""
         - "&7Click to upgrade"
+      enabled-lore:
+        - "&7Right-click to disable"
+      disabled-lore:
+        - "&cDisabled"
+        - "&7Right-click to enable"
       cost-separator: " &7or &f"
       maxed: "&aMaxed"
     multi-pay-indicator: "&8(Multiple payment options)"

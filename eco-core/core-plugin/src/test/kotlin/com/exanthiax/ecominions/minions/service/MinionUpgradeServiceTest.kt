@@ -138,4 +138,40 @@ class MinionUpgradeServiceTest {
         assertEquals(null, events.last<MinionUpgradeEvent>().player)
         assertEquals(2, events.last<MinionUpgradeEvent>().tier)
     }
+
+    @Test
+    fun `toggle disables then enables`() {
+        val (service, minionService) = service()
+        val owned = MinionState(definition = type).withUpgrade("speed", 1)
+
+        assertTrue(service.toggle(minion(owned), speed))
+        verify { minionService.updateState(any(), owned.withUpgradeDisabled("speed", true)) }
+
+        val disabled = owned.withUpgradeDisabled("speed", true)
+        assertTrue(service.toggle(minion(disabled), speed))
+        verify { minionService.updateState(any(), owned) }
+    }
+
+    @Test
+    fun `toggle needs an owned tier`() {
+        val (service, minionService) = service()
+
+        assertFalse(service.toggle(minion(MinionState(definition = type)), speed))
+        verify(exactly = 0) { minionService.updateState(any(), any()) }
+    }
+
+    @Test
+    fun `untoggleable cannot toggle`() {
+        val (service, minionService) = service()
+        val locked = Upgrade(
+            id = "speed",
+            name = "Speed",
+            iconLookup = "sugar",
+            tiers = speed.tiers,
+            toggleable = false
+        )
+
+        assertFalse(service.toggle(minion(MinionState(definition = type).withUpgrade("speed", 1)), locked))
+        verify(exactly = 0) { minionService.updateState(any(), any()) }
+    }
 }

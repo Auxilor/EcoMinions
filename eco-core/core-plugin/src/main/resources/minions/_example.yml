@@ -13,6 +13,8 @@ name: "&fExample Minion" # The name shown on its hologram and item.
 # slayer: kills mobs in its area. See target-mobs below.
 # fishing: catches from water in its area. See min-water below.
 # collector: picks up dropped items and XP orbs. See target-items below.
+# feeder: refuels nearby minions from fuel players put in its storage. See fuels below.
+# breeder: breeds nearby animals with food players put in its storage. See food below.
 # A block definition in blocks/ can force a behaviour for one block with restore.
 type: miner
 
@@ -41,7 +43,7 @@ base-stats:
   radius: 3 # How far the work area reaches sideways, in blocks.
   # How tall the work area is, in blocks, counted up from placement.floor-offset.
   # Leave it out for the type's default: miner 1, farmer 1, woodcutter 5,
-  # slayer 3, fishing 1, collector 3.
+  # slayer 3, fishing 1, collector 3, feeder 3, breeder 3.
   height: 1
   storage-slots: 27 # Stack slots in its storage.
   max-storage-slots: 54 # The most slots capacity upgrades can reach.
@@ -214,6 +216,20 @@ allowed-upgrades:
 #     chance: 1
 #     amount: 1-2
 #     xp: 1-3
+
+# Feeders (type: feeder) refuel nearby minions from fuel players put in their storage.
+# The fuel ids it may use. Empty uses every fuel.
+# fuels: []
+
+# Breeders (type: breeder) breed nearby animals with food players put in their storage.
+# The animals to breed: vanilla types, or custom mobs like 'ecomobs:tank_zombie'. Required.
+# target-mobs:
+#   - cow
+# The items it accepts as food. Required. An animal only breeds with food it eats in vanilla.
+# food:
+#   - WHEAT
+# The most target animals in its area, babies included, before it stops breeding. May use %level%.
+# max-mobs: 8
 
 # Fishing minions (type: fishing) catch from water source blocks in their area.
 # The water source blocks needed before it fishes.

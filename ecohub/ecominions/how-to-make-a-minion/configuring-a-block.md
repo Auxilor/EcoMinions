@@ -1,6 +1,6 @@
 ---
 title: "Configuring a Block"
-sidebar_position: 8
+sidebar_position: 10
 ---
 
 A **block definition** describes what a block **is**; the minion's `type` decides what is **done** with it. Each definition is one config file in `blocks/`. This page builds one from scratch.
