@@ -11,11 +11,13 @@ import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.fuel.service.FuelService
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MenuSettings
+import com.exanthiax.ecominions.minions.model.MinionDefinition
+import com.exanthiax.ecominions.minions.model.accepts
 import com.exanthiax.ecominions.minions.service.Minion
-import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionCollectService
 import com.exanthiax.ecominions.minions.service.MinionFuelService
 import com.exanthiax.ecominions.minions.service.MinionInput
+import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.willfp.eco.core.config.interfaces.Config
@@ -72,12 +74,14 @@ class MainMenu(
         val current = settings.value
         val rows = current.mainRows
         val storageArea = chrome.area(current.mainSection, "storage-area", rows)
+        val emptyItem = emptySlotItem(minion.state.definition)
 
         // Built once per render and then read by each storage slot, so the
         // aggregation runs once for the whole area instead of once per slot.
         var entries: List<Pair<ItemStack, Int>> = emptyList()
 
         menu(rows) {
+            allowChangingHeldItem()
             setTitle(messages.render(current.mainTitle, context(minion)))
             setMask(chrome.mask(current.mainSection, rows))
             addCustomSlots(current.mainSection, "")
@@ -102,7 +106,7 @@ class MainMenu(
                     )
 
                 override fun getEmptySlot(player: Player, menu: Menu): Slot =
-                    inputSlot(player = player, minion = minion, shown = chrome.fillerItem(), sample = null)
+                    inputSlot(player = player, minion = minion, shown = emptyItem.clone(), sample = null)
             })
 
             setButton(current.mainSection, key = "collect-all", row = rows, column = 2) { section ->
@@ -143,6 +147,17 @@ class MainMenu(
             section.getSlotLocations(key, listOf(SlotLocation(row = row, column = column))),
             button(section.getSubsection(key))
         )
+
+    private fun emptySlotItem(definition: MinionDefinition): ItemStack =
+        if (input.takesInput(definition)) {
+            chrome.inputFillerItem(acceptedNames(definition))
+        } else {
+            chrome.fillerItem()
+        }
+
+    private fun acceptedNames(definition: MinionDefinition): List<String> =
+        definition.breeder?.run { food.map { storageView.nameOf(it.item) } }
+            ?: fuels.all().filter { definition.feeder?.accepts(it) == true }.map { it.displayName }
 
     private fun context(minion: Minion): TemplateContext =
         TemplateContext.of(MinionPlaceholders.MINION to minion)

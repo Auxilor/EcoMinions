@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.ui
 
+import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.core.gui.SlotArea
@@ -35,6 +36,22 @@ class MenuChrome(
      * and so have to draw their own background when they have nothing to show.
      */
     fun fillerItem(): ItemStack = ItemStack(fillerMaterial())
+
+    /**
+     * The empty-slot item for a minion that players fill, listing what it takes as `%accepted%`,
+     * or [fillerItem] when `lang.yml` has no `gui.input-filler`.
+     */
+    fun inputFillerItem(accepted: List<String>): ItemStack {
+        if (!messages.has("gui.input-filler")) {
+            return fillerItem()
+        }
+        val context = TemplateContext.of("accepted" to accepted.joinToString(", "))
+        return named(
+            Material.matchMaterial(messages.raw("gui.input-filler.material").uppercase()) ?: fillerMaterial(),
+            messages.line("gui.input-filler.name", context),
+            messages.lines("gui.input-filler.lore", context)
+        )
+    }
 
     /** The area set by the [path] section of [section], or everything between the title row and the button row. */
     fun area(section: Config, path: String, rows: Int): SlotArea =

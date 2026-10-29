@@ -88,7 +88,7 @@ class MinionStorageView(
         val item = sample.clone()
         val meta = item.itemMeta ?: return item
         val context = TemplateContext.of(
-            "item_name" to nameOf(item, if (meta.hasDisplayName()) meta.displayName else null),
+            "item_name" to nameOf(item),
             "count" to count
         )
 
@@ -105,9 +105,16 @@ class MinionStorageView(
         return item
     }
 
-    /** The item's own name if it has one, otherwise its material read out. */
-    private fun nameOf(item: ItemStack, displayName: String?): String =
-        if (displayName.isNullOrEmpty()) titleCase(item.type) else displayName
+    /** The item's own name if it has one, its display name before its item name, otherwise its material read out. */
+    fun nameOf(item: ItemStack): String {
+        val meta = item.itemMeta
+        return when {
+            meta == null -> titleCase(item.type)
+            meta.hasDisplayName() -> meta.displayName
+            meta.hasItemName() -> meta.itemName
+            else -> titleCase(item.type)
+        }
+    }
 
     /** `SMOOTH_STONE` reads as `Smooth Stone`. */
     private fun titleCase(material: Material): String =
