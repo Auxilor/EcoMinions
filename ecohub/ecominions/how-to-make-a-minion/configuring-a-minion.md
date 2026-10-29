@@ -246,10 +246,10 @@ model: # Optional. Shown instead of the armour stand.
   plugin: "model-engine" # Either model-engine or better-model.
   id: "" # The model id in that plugin. Leave blank to keep the armour stand.
   animations: # Optional. Each animation loops while the minion is in that state.
-    idle: "" # While it is waiting between actions.
+    idle: "" # While it is making its own work, such as placing a block to mine.
     working: "" # While it is working.
     full: "" # While its storage is full.
-    offline: "" # While its owner is offline or a limit holds it back. Blank plays idle.
+    offline: "" # While it is inactive, such as when its owner and island members are offline or a limit holds it back. Blank plays idle.
     blocked: "" # While it has nothing to work on. Blank plays idle.
 
 particles:
