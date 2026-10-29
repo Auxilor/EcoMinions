@@ -346,7 +346,7 @@ Each menu has a `title` and `rows`: `main` is a minion's menu, `upgrade-list` it
 | `mask` | all | The background. `items` is a list of items, and each digit in `pattern` places the item at that position in the list. `0` leaves the slot empty. `type-select` ships with an empty background. |
 | `custom-slots` | all | Extra items placed in the menu, each with an `item`, a `location` and optional click actions. A custom slot replaces a built-in item in the same slot, except the page buttons in `type-select`, which stay on top. |
 | `title-item` | `main`, `upgrade` | The item at the top. In `upgrade` only its location can be changed, because it shows the upgrade's own icon. |
-| `storage-area` | `main` | Where the minion's stored items are shown. Empty slots show `gui.filler.material` from `lang.yml`. |
+| `storage-area` | `main` | Where the minion's stored items are shown. Empty slots show `gui.filler.material` from `lang.yml`. On minions that players fill (breeders and feeders) they show `gui.input-filler` instead, whose `%accepted%` placeholder lists the items or fuels the minion takes. |
 | `collect-all`, `limit`, `fuel`, `pickup`, `stored-xp`, `upgrades`, `info` | `main` | The minion's buttons. While fuel burns, the fuel button shows that fuel's item. `limit` only shows when a limit is on, and its item cannot be changed. |
 | `type-area` | `type-select` | Where the minions are shown. Minions that do not fit go on the next page. |
 | `previous-page`, `next-page` | `type-select` | The page buttons. Each one is hidden when there is no page in its direction. |
