@@ -563,7 +563,9 @@ class MinionDefinitionLoader(
                         id = id,
                         idleAnimation = section.getStringOrNull("animations.idle")?.takeIf { it.isNotBlank() },
                         workingAnimation = section.getStringOrNull("animations.working")?.takeIf { it.isNotBlank() },
-                        fullAnimation = section.getStringOrNull("animations.full")?.takeIf { it.isNotBlank() }
+                        fullAnimation = section.getStringOrNull("animations.full")?.takeIf { it.isNotBlank() },
+                        offlineAnimation = section.getStringOrNull("animations.offline")?.takeIf { it.isNotBlank() },
+                        blockedAnimation = section.getStringOrNull("animations.blocked")?.takeIf { it.isNotBlank() }
                     )
                 }
                 ?: context.unknown(
