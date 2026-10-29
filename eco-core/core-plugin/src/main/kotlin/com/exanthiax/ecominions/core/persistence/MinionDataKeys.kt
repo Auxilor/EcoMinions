@@ -31,6 +31,9 @@ class MinionDataKeys(plugin: EcoPlugin) {
     /** On a mob a slayer spawned: the spawning minion's UUID. */
     val spawnedBy: NamespacedKey = NamespacedKey(plugin, "minion")
 
+    /** On an animal a breeder fed: the feeding minion's UUID, until the pair breeds. */
+    val bredBy: NamespacedKey = NamespacedKey(plugin, "bred_by")
+
     companion object {
         val STRING: PersistentDataType<String, String> = PersistentDataType.STRING
         val INT: PersistentDataType<Int, Int> = PersistentDataType.INTEGER

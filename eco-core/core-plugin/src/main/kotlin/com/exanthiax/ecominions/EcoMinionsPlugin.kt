@@ -50,6 +50,7 @@ import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
+import com.exanthiax.ecominions.minions.integration.MinionBreedListener
 import com.exanthiax.ecominions.minions.integration.MinionChunkListener
 import com.exanthiax.ecominions.minions.integration.MinionCustomItems
 import com.exanthiax.ecominions.minions.integration.MinionDefinitionLoader
@@ -531,6 +532,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         if (PaperMinionPickListener.isSupported) PaperMinionPickListener(minionService) else null,
         MinionChunkListener(minionService),
         MinionSlayerListener(slayerActivity, minionService),
+        MinionBreedListener(minionService, experienceSink, dataKeys.bredBy),
         MinionPistonListener(minionService),
         MinionOwnerListener(minionService, activityService, regions),
         MinionLimitsListener(minionLimits),
