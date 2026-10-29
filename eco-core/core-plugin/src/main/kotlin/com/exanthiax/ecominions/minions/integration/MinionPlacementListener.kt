@@ -156,22 +156,22 @@ class MinionPlacementListener(
     /** A bucket aims past entities at the block behind them, so clicking a minion would empty it there. */
     @EventHandler(ignoreCancelled = true)
     fun onBucketEmpty(event: PlayerBucketEmptyEvent) {
-        if (isAimingAtMinion(event.player)) {
+        if (isAimingAtMinion(event.player, FluidCollisionMode.NEVER, ignorePassable = true)) {
             event.isCancelled = true
         }
     }
 
-    /** As [onBucketEmpty], for an empty bucket filling from behind a minion. */
+    /** As [onBucketEmpty], for an empty bucket filling from behind a minion. A source in front of it still fills. */
     @EventHandler(ignoreCancelled = true)
     fun onBucketFill(event: PlayerBucketFillEvent) {
-        if (isAimingAtMinion(event.player)) {
+        if (isAimingAtMinion(event.player, FluidCollisionMode.SOURCE_ONLY, ignorePassable = false)) {
             event.isCancelled = true
         }
     }
 
-    private fun isAimingAtMinion(player: Player): Boolean {
+    private fun isAimingAtMinion(player: Player, fluids: FluidCollisionMode, ignorePassable: Boolean): Boolean {
         val eye = player.eyeLocation
-        val hit = player.world.rayTrace(eye, eye.direction, BUCKET_REACH, FluidCollisionMode.NEVER, true, 0.0) {
+        val hit = player.world.rayTrace(eye, eye.direction, BUCKET_REACH, fluids, ignorePassable, 0.0) {
             it is ArmorStand
         }
         val stand = hit?.hitEntity as? ArmorStand ?: return false
