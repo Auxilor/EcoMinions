@@ -6,7 +6,9 @@ data class MinionModel(
     val id: String,
     val idleAnimation: String?,
     val workingAnimation: String?,
-    val fullAnimation: String?
+    val fullAnimation: String?,
+    val offlineAnimation: String?,
+    val blockedAnimation: String?
 ) {
     enum class Provider(val configName: String) {
         MODEL_ENGINE("model-engine"),

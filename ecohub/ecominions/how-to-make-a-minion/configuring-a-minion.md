@@ -246,9 +246,11 @@ model: # Optional. Shown instead of the armour stand.
   plugin: "model-engine" # Either model-engine or better-model.
   id: "" # The model id in that plugin. Leave blank to keep the armour stand.
   animations: # Optional. Each animation loops while the minion is in that state.
-    idle: "" # While it is waiting or has nothing to work on.
+    idle: "" # While it is making its own work, such as placing a block to mine.
     working: "" # While it is working.
     full: "" # While its storage is full.
+    offline: "" # While it is inactive, such as when its owner and island members are offline or a limit holds it back. Blank plays idle.
+    blocked: "" # While it has nothing to work on. Blank plays idle.
 
 particles:
   full: # Shown while its storage is full.
@@ -276,7 +278,7 @@ particles:
 
 Every equipment slot is optional. Set a slot to `""` to leave it bare on purpose. A dyed leather piece is written the way any dyed item is in the item lookup.
 
-A `model` hides the armour stand and its equipment, and the model is shown in its place. If the model plugin is not installed or the id is not found, the minion keeps its armour stand. An animation left blank plays nothing in that state. A ModelEngine animation should be set to loop in its blueprint.
+A `model` hides the armour stand and its equipment, and the model is shown in its place. If the model plugin is not installed or the id is not found, the minion keeps its armour stand. An animation left blank plays nothing in that state, except `offline` and `blocked`, which play `idle` when blank. A ModelEngine animation should be set to loop in its blueprint.
 
 The `blocked` box is sized from `radius` and `height`, and only the owner sees it. Keep its `offset` at `0.0` so the outline is drawn exactly on the box.
 

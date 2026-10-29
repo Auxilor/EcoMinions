@@ -166,7 +166,7 @@ class Minion(
 
     override fun toString(): String = "Minion(uuid=$uuid, type=${state.definition.id}, owner=${state.owner})"
 
-    enum class AnimationState { IDLE, MINING, FULL, BLOCKED }
+    enum class AnimationState { IDLE, MINING, FULL, BLOCKED, OFFLINE }
 
     companion object {
         const val NO_TARGET = "no-target"

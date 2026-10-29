@@ -44,9 +44,11 @@ class MinionModels {
         val model = minion.model ?: return false
 
         val next = when (state) {
-            Minion.AnimationState.IDLE, Minion.AnimationState.BLOCKED -> model.idleAnimation
+            Minion.AnimationState.IDLE -> model.idleAnimation
             Minion.AnimationState.MINING -> model.workingAnimation
             Minion.AnimationState.FULL -> model.fullAnimation
+            Minion.AnimationState.BLOCKED -> model.blockedAnimation ?: model.idleAnimation
+            Minion.AnimationState.OFFLINE -> model.offlineAnimation ?: model.idleAnimation
         }
         if (next != minion.playingAnimation) {
             val provider = providers.getValue(model.provider)

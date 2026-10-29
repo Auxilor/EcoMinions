@@ -236,7 +236,11 @@ class MinionDefinitionLoaderTest {
     @Test
     fun `model reads plugin and id`() {
         val model = MinionDefinitionLoader.model(
-            modelConfig(plugin = "Better-Model", id = "robot", idle = "idle", working = "mine", full = ""),
+            modelConfig(
+                plugin = "Better-Model",
+                id = "robot",
+                animations = mapOf("idle" to "idle", "working" to "mine", "full" to "", "offline" to "sleep")
+            ),
             context()
         )
 
@@ -246,7 +250,9 @@ class MinionDefinitionLoaderTest {
                 id = "robot",
                 idleAnimation = "idle",
                 workingAnimation = "mine",
-                fullAnimation = null
+                fullAnimation = null,
+                offlineAnimation = "sleep",
+                blockedAnimation = null
             ),
             model
         )
@@ -255,16 +261,14 @@ class MinionDefinitionLoaderTest {
     private fun modelConfig(
         plugin: String,
         id: String,
-        idle: String? = null,
-        working: String? = null,
-        full: String? = null
+        animations: Map<String, String> = emptyMap()
     ): Config {
         val config = mockk<Config>(relaxed = true)
         every { config.getString("plugin") } returns plugin
         every { config.getStringOrNull("id") } returns id
-        every { config.getStringOrNull("animations.idle") } returns idle
-        every { config.getStringOrNull("animations.working") } returns working
-        every { config.getStringOrNull("animations.full") } returns full
+        for (state in listOf("idle", "working", "full", "offline", "blocked")) {
+            every { config.getStringOrNull("animations.$state") } returns animations[state]
+        }
         return config
     }
 

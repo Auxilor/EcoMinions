@@ -22,7 +22,9 @@ class MinionModelsTest {
         id = "robot",
         idleAnimation = "idle",
         workingAnimation = "mine",
-        fullAnimation = null
+        fullAnimation = null,
+        offlineAnimation = "sleep",
+        blockedAnimation = null
     )
 
     private val provider = mockk<MinionModelProvider>(relaxed = true) {
@@ -109,6 +111,34 @@ class MinionModelsTest {
         verify(exactly = 1) { provider.stop(minion.entity, "idle") }
         verify(exactly = 1) { provider.play(minion.entity, "mine") }
         assertEquals("mine", minion.playingAnimation)
+    }
+
+    @Test
+    fun `offline plays offline`() {
+        val minion = minion().also(models::attach)
+
+        models.animate(minion, Minion.AnimationState.OFFLINE)
+
+        verify(exactly = 1) { provider.play(minion.entity, "sleep") }
+        assertEquals("sleep", minion.playingAnimation)
+    }
+
+    @Test
+    fun `blank blocked plays idle`() {
+        val minion = minion().also(models::attach)
+
+        models.animate(minion, Minion.AnimationState.BLOCKED)
+
+        verify(exactly = 1) { provider.play(minion.entity, "idle") }
+    }
+
+    @Test
+    fun `blank offline plays idle`() {
+        val minion = minion(model = model.copy(offlineAnimation = null)).also(models::attach)
+
+        models.animate(minion, Minion.AnimationState.OFFLINE)
+
+        verify(exactly = 1) { provider.play(minion.entity, "idle") }
     }
 
     @Test

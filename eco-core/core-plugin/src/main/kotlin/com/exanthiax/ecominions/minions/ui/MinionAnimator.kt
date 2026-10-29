@@ -18,7 +18,7 @@ class MinionAnimator(private val models: MinionModels) {
         }
 
         when (minion.animation) {
-            Minion.AnimationState.IDLE, Minion.AnimationState.BLOCKED -> {
+            Minion.AnimationState.IDLE, Minion.AnimationState.BLOCKED, Minion.AnimationState.OFFLINE -> {
                 stand.leftArmPose = REST
                 stand.rightArmPose = REST
                 stand.headPose = EulerAngle(bobOf(now), 0.0, 0.0)
@@ -40,9 +40,9 @@ class MinionAnimator(private val models: MinionModels) {
         }
     }
 
-    /** An idle minion's stand stays still, but its model loops its idle animation. */
+    /** An idle minion's stand stays still, but its model loops its offline animation. */
     fun rest(minion: Minion) {
-        models.animate(minion, Minion.AnimationState.IDLE)
+        models.animate(minion, Minion.AnimationState.OFFLINE)
     }
 
     /** A four-step bob so an idle minion does not look frozen. */

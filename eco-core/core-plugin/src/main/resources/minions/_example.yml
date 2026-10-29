@@ -121,9 +121,11 @@ model:
   plugin: "model-engine" # Either model-engine or better-model.
   id: "" # The model id in that plugin.
   animations: # Optional. Each animation loops while the minion is in that state.
-    idle: "" # While it is waiting or has nothing to work on.
+    idle: "" # While it is making its own work, such as placing a block to mine.
     working: "" # While it is working.
     full: "" # While its storage is full.
+    offline: "" # While it is inactive, such as when its owner and island members are offline or a limit holds it back. Blank plays idle.
+    blocked: "" # While it has nothing to work on. Blank plays idle.
 
 placement:
   # If true, surface-block is put back under a block when it regenerates, such
