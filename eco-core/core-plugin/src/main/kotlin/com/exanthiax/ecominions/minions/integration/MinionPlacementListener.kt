@@ -15,6 +15,7 @@ import com.willfp.eco.util.StringUtils
 import com.willfp.eco.util.asAudience
 import com.willfp.libreforge.toDispatcher
 import com.willfp.libreforge.triggers.TriggerData
+import org.bukkit.FluidCollisionMode
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.ArmorStand
@@ -23,6 +24,8 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.player.PlayerBucketEmptyEvent
+import org.bukkit.event.player.PlayerBucketFillEvent
 import org.bukkit.event.player.PlayerInteractAtEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
@@ -150,6 +153,31 @@ class MinionPlacementListener(
         )
     }
 
+    /** A bucket aims past entities at the block behind them, so clicking a minion would empty it there. */
+    @EventHandler(ignoreCancelled = true)
+    fun onBucketEmpty(event: PlayerBucketEmptyEvent) {
+        if (isAimingAtMinion(event.player, FluidCollisionMode.NEVER, ignorePassable = true)) {
+            event.isCancelled = true
+        }
+    }
+
+    /** As [onBucketEmpty], for an empty bucket filling from behind a minion. A source in front of it still fills. */
+    @EventHandler(ignoreCancelled = true)
+    fun onBucketFill(event: PlayerBucketFillEvent) {
+        if (isAimingAtMinion(event.player, FluidCollisionMode.SOURCE_ONLY, ignorePassable = false)) {
+            event.isCancelled = true
+        }
+    }
+
+    private fun isAimingAtMinion(player: Player, fluids: FluidCollisionMode, ignorePassable: Boolean): Boolean {
+        val eye = player.eyeLocation
+        val hit = player.world.rayTrace(eye, eye.direction, BUCKET_REACH, fluids, ignorePassable, 0.0) {
+            it is ArmorStand
+        }
+        val stand = hit?.hitEntity as? ArmorStand ?: return false
+        return minions.getByEntity(stand) != null
+    }
+
     /** Minions are indestructible; hitting one opens it instead. */
     @EventHandler
     fun onDamage(event: EntityDamageByEntityEvent) {
@@ -189,5 +217,6 @@ class MinionPlacementListener(
     private companion object {
         const val CENTRE = 0.5
         const val PARTICLE_COUNT = 12
+        const val BUCKET_REACH = 5.0
     }
 }
