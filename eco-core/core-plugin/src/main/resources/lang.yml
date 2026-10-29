@@ -189,5 +189,12 @@ gui:
     material: "black_stained_glass_pane"
     name: " "
 
+  input-filler: # Empty storage slots on minions that players fill, such as breeders and feeders.
+    material: "lime_stained_glass_pane"
+    name: "&aPlace items here"
+    lore:
+      - "&7Click with an item on your cursor to add it."
+      - "&7Accepts: &f%accepted%"
+
 action-bar:
   interact: "&f%minion_name% &7Lvl %level% &8| &7Inventory &f%used%&7/&f%total%"

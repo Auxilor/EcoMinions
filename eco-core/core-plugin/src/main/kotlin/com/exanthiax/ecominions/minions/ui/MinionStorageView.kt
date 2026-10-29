@@ -106,6 +106,9 @@ class MinionStorageView(
     }
 
     /** The item's own name if it has one, otherwise its material read out. */
+    fun nameOf(item: ItemStack): String =
+        nameOf(item, item.itemMeta?.takeIf { it.hasDisplayName() }?.displayName)
+
     private fun nameOf(item: ItemStack, displayName: String?): String =
         if (displayName.isNullOrEmpty()) titleCase(item.type) else displayName
 
