@@ -81,6 +81,7 @@ class MainMenu(
         var entries: List<Pair<ItemStack, Int>> = emptyList()
 
         menu(rows) {
+            allowChangingHeldItem()
             setTitle(messages.render(current.mainTitle, context(minion)))
             setMask(chrome.mask(current.mainSection, rows))
             addCustomSlots(current.mainSection, "")
