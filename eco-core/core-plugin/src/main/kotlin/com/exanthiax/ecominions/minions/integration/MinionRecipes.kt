@@ -5,6 +5,7 @@ import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.recipe.Recipes
+import com.willfp.eco.core.recipe.recipes.CraftingRecipe
 
 /**
  * Registers the recipes that produce minion items.
@@ -17,20 +18,27 @@ class MinionRecipes(
     private val minions: MinionService,
     private val itemFactory: MinionItemFactory
 ) {
-    fun registerAll() {
-        for (type in minions.types()) {
-            val crafting = type.crafting ?: continue
-            val output = itemFactory.build(MinionState(definition = type))
-                .apply { amount = crafting.giveAmount }
+    @Volatile
+    private var registered: List<CraftingRecipe> = emptyList()
 
-            Recipes.createAndRegisterRecipe(
-                plugin,
-                type.id,
-                output,
-                crafting.recipe,
-                crafting.permission,
-                crafting.shapeless
-            )
+    fun registerAll() {
+        registered.forEach { Recipes.unregister(it) }
+
+        registered = buildList {
+            for (type in minions.types()) {
+                val crafting = type.crafting ?: continue
+                val output = itemFactory.build(MinionState(definition = type))
+                    .apply { amount = crafting.giveAmount }
+
+                Recipes.createAndRegisterRecipe(
+                    plugin,
+                    type.id,
+                    output,
+                    crafting.recipe,
+                    crafting.permission,
+                    crafting.shapeless
+                )?.let { add(it) }
+            }
         }
     }
 }
