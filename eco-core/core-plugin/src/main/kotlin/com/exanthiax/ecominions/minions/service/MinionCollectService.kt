@@ -3,8 +3,9 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.api.event.MinionExtractEvent
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 
-/** Moves a minion's storage into a player's inventory. */
+/** Moves a minion's storage into a player's inventory, or onto the ground at their feet. */
 class MinionCollectService(
     private val repository: MinionStateRepository,
     private val events: EventDispatcher
@@ -15,32 +16,45 @@ class MinionCollectService(
      *
      * @return How many items were moved, or null if the extract event was cancelled.
      */
-    fun collect(player: Player, minion: Minion): Int? {
+    fun collect(player: Player, minion: Minion): Int? = extract(player, minion) { item ->
+        val leftover = player.inventory.addItem(item).values.sumOf { it.amount }
+        if (leftover > 0) {
+            minion.storage.add(item.clone().apply { amount = leftover })
+        }
+        item.amount - leftover
+    }
+
+    /**
+     * Drops everything in [minion]'s storage on the ground at [player]'s feet.
+     *
+     * @return How many items were dropped, or null if the extract event was cancelled.
+     */
+    fun drop(player: Player, minion: Minion): Int? = extract(player, minion) { item ->
+        player.world.dropItemNaturally(player.location, item)
+        item.amount
+    }
+
+    private fun extract(player: Player, minion: Minion, deliver: (ItemStack) -> Int): Int? {
         val stored = (0 until minion.storage.size).mapNotNull { minion.storage.getItem(it)?.clone() }
         if (stored.isEmpty()) {
             return 0
         }
 
         val event = MinionExtractEvent(player, minion, stored.toMutableList())
-        if (!events.dispatch(event)) {
-            return null
-        }
+        return if (events.dispatch(event)) move(minion, event.items, deliver) else null
+    }
 
-        var collected = 0
-        for (item in event.items) {
+    private fun move(minion: Minion, items: List<ItemStack>, deliver: (ItemStack) -> Int): Int {
+        var moved = 0
+        for (item in items) {
             val removed = minion.storage.remove(item)
-            if (removed <= 0) {
-                continue
-            }
-            val leftover = player.inventory.addItem(item.clone().apply { amount = removed }).values.sumOf { it.amount }
-            collected += removed - leftover
-            if (leftover > 0) {
-                minion.storage.add(item.clone().apply { amount = leftover })
+            if (removed > 0) {
+                moved += deliver(item.clone().apply { amount = removed })
             }
         }
 
         repository.save(minion)
-        return collected
+        return moved
     }
 
     /**

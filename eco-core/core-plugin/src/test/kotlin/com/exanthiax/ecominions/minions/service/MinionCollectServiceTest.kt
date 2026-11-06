@@ -100,6 +100,56 @@ class MinionCollectServiceTest {
     }
 
     @Test
+    fun `drop empties storage`() {
+        val subject = minion()
+        val player = player()
+
+        val dropped = MinionCollectService(repository, RecordingEventDispatcher()).drop(player, subject)
+
+        assertEquals(12, dropped)
+        assertEquals(0, subject.storage.used)
+        verify(exactly = 2) { player.world.dropItemNaturally(player.location, any<ItemStack>()) }
+        verify(exactly = 0) { player.inventory.addItem(*anyVararg()) }
+        verify { repository.save(subject) }
+    }
+
+    @Test
+    fun `cancelled drop keeps storage`() {
+        val subject = minion()
+        val player = player()
+
+        val dropped = MinionCollectService(repository, RecordingEventDispatcher(allow = false)).drop(player, subject)
+
+        assertNull(dropped)
+        assertEquals(2, subject.storage.used)
+        verify(exactly = 0) { player.world.dropItemNaturally(any(), any<ItemStack>()) }
+        verify(exactly = 0) { repository.save(any()) }
+    }
+
+    @Test
+    fun `drop honours listener filter`() {
+        val subject = minion()
+        val events = RecordingEventDispatcher { event ->
+            (event as? MinionExtractEvent)?.items?.removeIf { it.type == Material.DIAMOND }
+        }
+
+        val dropped = MinionCollectService(repository, events).drop(player(), subject)
+
+        assertEquals(10, dropped)
+        assertEquals(1, subject.storage.used)
+    }
+
+    @Test
+    fun `dropping nothing does not save`() {
+        val subject = minion().apply { storage.clear() }
+
+        val dropped = MinionCollectService(repository, RecordingEventDispatcher()).drop(player(), subject)
+
+        assertEquals(0, dropped)
+        verify(exactly = 0) { repository.save(any()) }
+    }
+
+    @Test
     fun `claiming gives the stored xp and empties it`() {
         val subject = minion()
         subject.state = subject.state.withStoredExperience(12)

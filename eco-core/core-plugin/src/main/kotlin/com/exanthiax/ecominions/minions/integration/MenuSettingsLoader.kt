@@ -16,7 +16,8 @@ class MenuSettingsLoader(
         typeSelectTitle = config.getString("gui.type-select.title"),
         mainSection = config.getSubsection("gui.main"),
         typeSelectSection = config.getSubsection("gui.type-select"),
-        showStoredXp = !config.has("gui.main.show-stored-xp") || config.getBool("gui.main.show-stored-xp")
+        showStoredXp = !config.has("gui.main.show-stored-xp") || config.getBool("gui.main.show-stored-xp"),
+        showDropAll = config.getBool("gui.main.drop-all.enabled")
     )
 
     private fun readStorageDisplay(): MenuSettings.StorageDisplay {

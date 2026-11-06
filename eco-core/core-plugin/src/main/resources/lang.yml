@@ -25,6 +25,7 @@ messages:
   info-header: "&e%minion_name% &7(Lvl %level%) &8| &7Owner: &f%owner%"
   inventory-full: "&cYour inventory is full!"
   collected: "&aCollected &e%count% &aitems."
+  dropped: "&aDropped &e%count% &aitems."
   claimed-xp: "&aClaimed &e%amount% &aXP."
   no-stored-xp: "&cThis minion has no stored XP."
   upgrade-purchased: "&aUpgraded &e%upgrade% &ato tier &e%tier%&a."
@@ -81,6 +82,11 @@ gui:
       lore:
         - "&7Click to pull all items"
         - "&7into your inventory."
+    drop-all:
+      name: "&cDrop All &8(%used%&8/&7%total% slots&8)"
+      lore:
+        - "&7Click to drop all items"
+        - "&7on the ground at your feet."
     pickup:
       name: "&cPickup Minion"
       lore:

@@ -16,7 +16,9 @@ data class MenuSettings(
     /** The `gui.type-select` section, read for the type select menu's optional layout keys. */
     val typeSelectSection: Config,
     /** If the main menu shows the stored XP button. */
-    val showStoredXp: Boolean = true
+    val showStoredXp: Boolean = true,
+    /** If the main menu shows the drop all button. */
+    val showDropAll: Boolean = false
 ) {
     /** Where a collected item's count is shown. */
     enum class StorageDisplay {
