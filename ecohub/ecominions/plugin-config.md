@@ -55,6 +55,9 @@ minion:
   hologram-offset: 1.6
   # How often (in ticks) to refresh the hologram contents
   hologram-refresh-ticks: 20
+  # The colour behind the hologram text: default, transparent or a quoted ARGB
+  # hex such as "80FF0000", where the first two digits are the opacity.
+  hologram-background: default
   # Sets the invulnerable flag on the minion's armour stand. Minions always
   # ignore damage, whatever this is set to.
   invulnerable: true

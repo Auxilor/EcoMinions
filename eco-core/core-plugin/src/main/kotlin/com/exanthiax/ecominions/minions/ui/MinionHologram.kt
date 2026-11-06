@@ -10,6 +10,7 @@ import com.exanthiax.ecominions.minions.service.MinionActivityService
 import com.willfp.eco.core.Prerequisite
 import com.willfp.eco.util.StringUtils
 import net.kyori.adventure.text.Component
+import org.bukkit.Color
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
 
@@ -33,6 +34,7 @@ class MinionHologram(
             display.teleport(anchorOf(minion))
         }
         display.text(StringUtils.toComponent(textFor(minion)))
+        display.backgroundColor = Color.fromARGB(settings.value.hologramBackground)
     }
 
     fun remove(minion: Minion) {

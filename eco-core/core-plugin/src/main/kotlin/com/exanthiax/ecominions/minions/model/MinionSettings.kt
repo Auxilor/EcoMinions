@@ -36,8 +36,13 @@ data class MinionSettings(
     /** The cap for each type. A type left out has no cap. */
     val typeLimits: Map<MinionType, Int> = emptyMap(),
     /** The longest name, in visible characters, a name tag can give a minion. */
-    val renameMaxLength: Int = 32
+    val renameMaxLength: Int = 32,
+    /** The ARGB colour behind the hologram text. */
+    val hologramBackground: Int = DEFAULT_HOLOGRAM_BACKGROUND
 )
+
+/** The ARGB background a text display has when nothing sets one. */
+const val DEFAULT_HOLOGRAM_BACKGROUND: Int = 0x40000000
 
 /** What happens when a placement would go past a limit. */
 enum class OverLimitMode {

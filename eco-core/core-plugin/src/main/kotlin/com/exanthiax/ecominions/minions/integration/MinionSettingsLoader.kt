@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.api.minion.MinionType
+import com.exanthiax.ecominions.minions.model.DEFAULT_HOLOGRAM_BACKGROUND
 import com.exanthiax.ecominions.minions.model.ExperienceMode
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.OverLimitMode
@@ -45,8 +46,24 @@ class MinionSettingsLoader(
         typeLimitsEnabled = config.getBoolOrNull("limits.per-type.enabled") ?: false,
         typeLimitOverrides = config.getBoolOrNull("limits.per-type.permission-overrides") ?: true,
         typeLimits = readTypeLimits(),
-        renameMaxLength = config.getIntOrNull("rename.max-length")?.coerceAtLeast(1) ?: 32
+        renameMaxLength = config.getIntOrNull("rename.max-length")?.coerceAtLeast(1) ?: 32,
+        hologramBackground = readHologramBackground()
     )
+
+    private fun readHologramBackground(): Int {
+        val value = config.getStringOrNull("minion.hologram-background")?.trim().orEmpty()
+        return when {
+            value.isEmpty() || value.equals("default", ignoreCase = true) -> DEFAULT_HOLOGRAM_BACKGROUND
+            value.equals("transparent", ignoreCase = true) -> 0
+            ARGB_HEX.matches(value) -> value.toUInt(HEX_RADIX).toInt()
+            else -> DEFAULT_HOLOGRAM_BACKGROUND.also {
+                warn(
+                    "Unknown minion.hologram-background '$value', using default. " +
+                        "Use default, transparent or a quoted 8-digit ARGB hex."
+                )
+            }
+        }
+    }
 
     private fun readOverLimit(): OverLimitMode {
         val value = config.getStringOrNull("limits.over-limit")?.trim() ?: return OverLimitMode.PREVENT
@@ -60,5 +77,10 @@ class MinionSettingsLoader(
         return section.getKeys(false).mapNotNull { key ->
             MinionType.entries.firstOrNull { it.id == key.lowercase() }?.let { it to section.getInt(key).coerceAtLeast(0) }
         }.toMap()
+    }
+
+    private companion object {
+        const val HEX_RADIX = 16
+        val ARGB_HEX = Regex("[0-9a-fA-F]{8}")
     }
 }
