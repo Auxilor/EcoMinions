@@ -17,21 +17,17 @@ class MinionCollectService(
      * @return How many items were moved, or null if the extract event was cancelled.
      */
     fun collect(player: Player, minion: Minion): Int? = extract(player, minion) { item ->
-        val leftover = player.inventory.addItem(item).values.sumOf { it.amount }
-        if (leftover > 0) {
-            minion.storage.add(item.clone().apply { amount = leftover })
-        }
-        item.amount - leftover
+        player.inventory.addItem(item).values.sumOf { it.amount }
     }
 
     /**
      * Drops everything in [minion]'s storage on the ground at [player]'s feet.
+     * Items the world refuses to spawn stay in storage.
      *
      * @return How many items were dropped, or null if the extract event was cancelled.
      */
     fun drop(player: Player, minion: Minion): Int? = extract(player, minion) { item ->
-        player.world.dropItemNaturally(player.location, item)
-        item.amount
+        if (player.world.dropItemNaturally(player.location, item).isValid) 0 else item.amount
     }
 
     private fun extract(player: Player, minion: Minion, deliver: (ItemStack) -> Int): Int? {
@@ -48,8 +44,13 @@ class MinionCollectService(
         var moved = 0
         for (item in items) {
             val removed = minion.storage.remove(item)
-            if (removed > 0) {
-                moved += deliver(item.clone().apply { amount = removed })
+            if (removed <= 0) {
+                continue
+            }
+            val undelivered = deliver(item.clone().apply { amount = removed })
+            moved += removed - undelivered
+            if (undelivered > 0) {
+                minion.storage.add(item.clone().apply { amount = undelivered })
             }
         }
 
