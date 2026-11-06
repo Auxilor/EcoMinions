@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.api.minion.MinionType
+import com.exanthiax.ecominions.minions.model.DEFAULT_HOLOGRAM_BACKGROUND
 import com.exanthiax.ecominions.minions.model.OverLimitMode
 import com.willfp.eco.core.config.interfaces.Config
 import io.mockk.every
@@ -84,5 +85,41 @@ class MinionSettingsLoaderTest {
         every { config.getIntOrNull("rename.max-length") } returns 16
 
         assertEquals(16, MinionSettingsLoader(config).load().renameMaxLength)
+    }
+
+    private fun background(value: String?, warnings: MutableList<String> = mutableListOf()): Int {
+        val config = config()
+        every { config.getStringOrNull("minion.hologram-background") } returns value
+        return MinionSettingsLoader(config, warnings::add).load().hologramBackground
+    }
+
+    @Test
+    fun `background missing is default`() {
+        val warnings = mutableListOf<String>()
+
+        assertEquals(DEFAULT_HOLOGRAM_BACKGROUND, background(null, warnings))
+        assertEquals(emptyList<String>(), warnings)
+    }
+
+    @Test
+    fun `background reads keywords`() {
+        assertEquals(DEFAULT_HOLOGRAM_BACKGROUND, background(" Default "))
+        assertEquals(0, background("TRANSPARENT"))
+    }
+
+    @Test
+    fun `background reads argb hex`() {
+        assertEquals(0x80FF0000.toInt(), background("80ff0000"))
+        assertEquals(0, background("00000000"))
+    }
+
+    @Test
+    fun `bad background warns`() {
+        listOf("0", "FF0000", "80FF00001", "+0000000", "red").forEach { value ->
+            val warnings = mutableListOf<String>()
+
+            assertEquals(DEFAULT_HOLOGRAM_BACKGROUND, background(value, warnings))
+            assertEquals(1, warnings.size)
+        }
     }
 }

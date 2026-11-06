@@ -43,6 +43,7 @@ sell-pricing:
 minion:
   hologram-offset: 1.6 # How far above the minion the hologram floats, in blocks.
   hologram-refresh-ticks: 20 # How often the hologram updates, in ticks.
+  hologram-background: default # The colour behind the hologram text: default, transparent or a quoted ARGB hex such as "80FF0000".
   invulnerable: true # If the minion's armour stand cannot be damaged.
 
   show-regen-marker: true # If a block waiting to regenerate shows as cobblestone. If false, it is air until it regenerates.
