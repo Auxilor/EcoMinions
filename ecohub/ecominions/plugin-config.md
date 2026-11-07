@@ -136,6 +136,13 @@ gui:
         row: 6
         column: 2
       locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
+    drop-all: # Drops every stored item at the player's feet. Off by default. Collector minions never show it.
+      enabled: false # If the button is shown.
+      item: dropper
+      location:
+        row: 6
+        column: 1
+      locations: [ ] # Optional list of rows and columns; if set, the button shows in each of them instead of location
     limit: # Says which limit holds an idle minion back. Only shown when a limit is on. Its item is a barrier while idle and paper otherwise.
       location:
         row: 6
@@ -351,6 +358,7 @@ Each menu has a `title` and `rows`: `main` is a minion's menu, `upgrade-list` it
 | `title-item` | `main`, `upgrade` | The item at the top. In `upgrade` only its location can be changed, because it shows the upgrade's own icon. |
 | `storage-area` | `main` | Where the minion's stored items are shown. Empty slots show `gui.filler.material` from `lang.yml`. On minions that players fill (breeders and feeders) they show `gui.input-filler` instead, whose `%accepted%` placeholder lists the items or fuels the minion takes. |
 | `collect-all`, `limit`, `fuel`, `pickup`, `stored-xp`, `upgrades`, `info` | `main` | The minion's buttons. While fuel burns, the fuel button shows that fuel's item. `limit` only shows when a limit is on, and its item cannot be changed. |
+| `drop-all` | `main` | Drops every stored item on the ground at the player's feet, for servers where a plugin stores picked up items. Set `enabled: true` to show it. Collector minions never show it. It sits in row 6, column 1, so move it if a custom slot uses that position. |
 | `type-area` | `type-select` | Where the minions are shown. Minions that do not fit go on the next page. |
 | `previous-page`, `next-page` | `type-select` | The page buttons. Each one is hidden when there is no page in its direction. |
 | `upgrade-area` | `upgrade-list` | Where the upgrades are shown. Upgrades that do not fit are not shown. |

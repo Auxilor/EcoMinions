@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions.ui
 import com.exanthiax.ecominions.api.event.MinionCloseEvent
 import com.exanthiax.ecominions.api.event.MinionOpenEvent
 import com.exanthiax.ecominions.api.menu.MinionMenuType
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
@@ -111,6 +112,11 @@ class MainMenu(
 
             setButton(current.mainSection, key = "collect-all", row = rows, column = 2) { section ->
                 collectAllSlot(player, minion, section)
+            }
+            if (showsDropAll(current, minion)) {
+                setButton(current.mainSection, key = "drop-all", row = rows, column = 1) { section ->
+                    dropAllSlot(player, minion, section)
+                }
             }
             setButton(current.mainSection, key = "fuel", row = rows, column = 4) { section ->
                 fuelSlot(player, minion, section)
@@ -231,6 +237,32 @@ class MainMenu(
             chrome.buttonItem(section, Material.HOPPER),
             messages.line("gui.main.collect-all.name", context),
             messages.lines("gui.main.collect-all.lore", context)
+        )
+    }
+
+    private fun showsDropAll(current: MenuSettings, minion: Minion): Boolean =
+        current.showDropAll &&
+            minion.state.definition.type != MinionType.COLLECTOR &&
+            messages.has("gui.main.drop-all.name")
+
+    private fun dropAllSlot(player: Player, minion: Minion, section: Config): Slot =
+        slot({ _, _ -> dropAllItem(minion, section) }) {
+            onLeftClick { _, _, menu ->
+                if (!regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
+                    return@onLeftClick
+                }
+                val dropped = collector.drop(player, minion) ?: return@onLeftClick
+                player.sendMessage(messages.line("messages.dropped", TemplateContext.of("count" to dropped)))
+                menu.refresh(player)
+            }
+        }
+
+    private fun dropAllItem(minion: Minion, section: Config): ItemStack {
+        val context = context(minion)
+        return chrome.named(
+            chrome.buttonItem(section, Material.DROPPER),
+            messages.line("gui.main.drop-all.name", context),
+            messages.lines("gui.main.drop-all.lore", context)
         )
     }
 

@@ -12,6 +12,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
+import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -45,11 +46,17 @@ class MinionCollectServiceTest {
         storage.add(ItemStack(Material.DIAMOND, 2))
     }
 
-    /** A player whose inventory keeps back [refused] of whatever it is handed. */
-    private fun player(refused: Int = 0): Player = mockk(relaxed = true) {
+    /**
+     * A player whose inventory keeps back [refused] of whatever it is handed, and
+     * whose world either accepts or rejects dropped items.
+     */
+    private fun player(refused: Int = 0, dropsSpawn: Boolean = true): Player = mockk(relaxed = true) {
         every { inventory.addItem(*anyVararg()) } answers {
             val item = firstArg<Array<ItemStack>>().first()
             if (refused > 0) hashMapOf(0 to item.clone().apply { amount = refused }) else hashMapOf()
+        }
+        every { world.dropItemNaturally(any(), any<ItemStack>()) } returns mockk<Item> {
+            every { isValid } returns dropsSpawn
         }
     }
 
@@ -97,6 +104,86 @@ class MinionCollectServiceTest {
 
         assertEquals(10, collected)
         assertEquals(2, subject.storage.count { true })
+    }
+
+    @Test
+    fun `partial fill counts delivered`() {
+        val subject = minion().apply {
+            storage.clear()
+            storage.add(ItemStack(Material.COBBLESTONE, 10))
+        }
+        val player = player()
+        every { player.inventory.addItem(*anyVararg()) } answers {
+            val item = firstArg<Array<ItemStack>>().first()
+            item.amount -= 4
+            hashMapOf(0 to item)
+        }
+
+        val collected = MinionCollectService(repository, RecordingEventDispatcher()).collect(player, subject)
+
+        assertEquals(4, collected)
+        assertEquals(6, subject.storage.count { true })
+    }
+
+    @Test
+    fun `drop empties storage`() {
+        val subject = minion()
+        val player = player()
+
+        val dropped = MinionCollectService(repository, RecordingEventDispatcher()).drop(player, subject)
+
+        assertEquals(12, dropped)
+        assertEquals(0, subject.storage.used)
+        verify(exactly = 2) { player.world.dropItemNaturally(player.location, any<ItemStack>()) }
+        verify(exactly = 0) { player.inventory.addItem(*anyVararg()) }
+        verify { repository.save(subject) }
+    }
+
+    @Test
+    fun `cancelled drop keeps storage`() {
+        val subject = minion()
+        val player = player()
+
+        val dropped = MinionCollectService(repository, RecordingEventDispatcher(allow = false)).drop(player, subject)
+
+        assertNull(dropped)
+        assertEquals(2, subject.storage.used)
+        verify(exactly = 0) { player.world.dropItemNaturally(any(), any<ItemStack>()) }
+        verify(exactly = 0) { repository.save(any()) }
+    }
+
+    @Test
+    fun `drop honours listener filter`() {
+        val subject = minion()
+        val events = RecordingEventDispatcher { event ->
+            (event as? MinionExtractEvent)?.items?.removeIf { it.type == Material.DIAMOND }
+        }
+
+        val dropped = MinionCollectService(repository, events).drop(player(), subject)
+
+        assertEquals(10, dropped)
+        assertEquals(1, subject.storage.used)
+    }
+
+    @Test
+    fun `rejected drop stays stored`() {
+        val subject = minion()
+
+        val dropped = MinionCollectService(repository, RecordingEventDispatcher())
+            .drop(player(dropsSpawn = false), subject)
+
+        assertEquals(0, dropped)
+        assertEquals(12, subject.storage.count { true })
+    }
+
+    @Test
+    fun `dropping nothing does not save`() {
+        val subject = minion().apply { storage.clear() }
+
+        val dropped = MinionCollectService(repository, RecordingEventDispatcher()).drop(player(), subject)
+
+        assertEquals(0, dropped)
+        verify(exactly = 0) { repository.save(any()) }
     }
 
     @Test
