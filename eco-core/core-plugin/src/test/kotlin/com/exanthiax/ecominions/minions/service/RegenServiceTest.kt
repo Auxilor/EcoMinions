@@ -14,11 +14,13 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.block.Block
+import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.BlockData
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -73,16 +75,24 @@ class RegenServiceTest {
         assertTrue(minion.mining.regenQueue.isEmpty())
     }
 
+    /** A crop comes back ripe, from its own data rather than the marker or a seedling. */
     @Test
     fun `restores vanilla block data`() {
-        val world = FakeWorld()
-        val minion = minion(world)
-        val definition = MinionBlock.regenDefault(id = "coal_ore", lookup = "COAL_ORE", block = mockk<TestableBlock>())
-            .copy(vanillaMaterial = Material.COAL_ORE)
+        val crop = mockk<Ageable>(relaxed = true) { every { maximumAge } returns 7 }
+        every { Bukkit.createBlockData(Material.WHEAT) } returns crop
+        val block = mockk<Block>(relaxed = true)
+        every { block.location } returns mockk<Location>(relaxed = true) { every { this@mockk.block } returns block }
+        val minion = minion(FakeWorld())
+        val definition = MinionBlock.regenDefault(id = "wheat", lookup = "WHEAT", block = mockk<TestableBlock>())
+            .copy(vanillaMaterial = Material.WHEAT)
+        val service = service(showMarker = true)
 
-        service(showMarker = true).queue(minion, world.blockAt(1, 0, 0), definition, Material.COAL_ORE, now = 0L)
+        service.queue(minion, block, definition, Material.WHEAT, now = 0L)
+        service.process(minion, now = 60L)
 
-        assertNull(minion.mining.regenQueue.single().customBlock)
+        verify { crop.age = 7 }
+        verify { block.blockData = crop }
+        assertTrue(minion.mining.regenQueue.isEmpty())
     }
 
     private fun service(showMarker: Boolean) = RegenService(
