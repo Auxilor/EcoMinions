@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.core.event.BukkitEventDispatcher
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionRegenBlock
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.activity.BlockActivity
 import org.bukkit.Material
@@ -25,7 +26,7 @@ class RegenService(
     private val dispatch: MinionTriggerDispatch,
     private val events: EventDispatcher = BukkitEventDispatcher
 ) {
-    fun queue(minion: Minion, block: Block, original: Material, now: Long) {
+    fun queue(minion: Minion, block: Block, definition: MinionBlock?, original: Material, now: Long) {
         if (settings.value.showRegenMarker) {
             block.type = MARKER_BLOCK
             minion.mining.pendingRegen += block.location
@@ -38,7 +39,8 @@ class RegenService(
             regenData = fullyGrownData(original),
             surfaceBlock = minion.state.definition.placement.surfaceBlock
                 .takeIf { minion.state.definition.placement.liftRegen },
-            regenAt = now + minion.stats.regenDelayTicks
+            regenAt = now + minion.stats.regenDelayTicks,
+            customBlock = definition?.takeIf { it.vanillaMaterial == null }?.block
         )
     }
 
@@ -55,7 +57,7 @@ class RegenService(
                     surface.place(below.location)
                 }
             }
-            entry.location.block.blockData = entry.regenData
+            entry.customBlock?.place(entry.location) ?: run { entry.location.block.blockData = entry.regenData }
             dispatch.trigger(minion, TriggerMinionRegenBlock, block = entry.location.block)
             if (MinionRegenEvent.getHandlerList().registeredListeners.isNotEmpty()) {
                 events.dispatch(MinionRegenEvent(minion, entry.location.block))

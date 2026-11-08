@@ -3,18 +3,23 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
+import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import com.exanthiax.ecominions.testsupport.FakeWorld
+import com.willfp.eco.core.blocks.TestableBlock
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
+import io.mockk.verify
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.data.BlockData
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -37,7 +42,7 @@ class RegenServiceTest {
         val world = FakeWorld()
         val minion = minion(world)
 
-        service(showMarker = true).queue(minion, world.blockAt(1, 0, 0), Material.COAL_ORE, now = 0L)
+        service(showMarker = true).queue(minion, world.blockAt(1, 0, 0), null, Material.COAL_ORE, now = 0L)
 
         assertEquals(RegenService.MARKER_BLOCK, world.typeAt(1, 0, 0))
     }
@@ -47,9 +52,37 @@ class RegenServiceTest {
         val world = FakeWorld()
         val minion = minion(world)
 
-        service(showMarker = false).queue(minion, world.blockAt(1, 0, 0), Material.COAL_ORE, now = 0L)
+        service(showMarker = false).queue(minion, world.blockAt(1, 0, 0), null, Material.COAL_ORE, now = 0L)
 
         assertEquals(Material.AIR, world.typeAt(1, 0, 0))
+    }
+
+    /** A custom block is drawn with a vanilla state, so its material alone would put back the wrong block. */
+    @Test
+    fun `places a custom block back`() {
+        val world = FakeWorld()
+        val minion = minion(world)
+        val custom = mockk<TestableBlock>(relaxed = true)
+        val definition = MinionBlock.regenDefault(id = "ruby_ore", lookup = "ecoitems:ruby_ore", block = custom)
+        val service = service(showMarker = true)
+
+        service.queue(minion, world.blockAt(1, 0, 0), definition, Material.NOTE_BLOCK, now = 0L)
+        service.process(minion, now = 60L)
+
+        verify { custom.place(any()) }
+        assertTrue(minion.mining.regenQueue.isEmpty())
+    }
+
+    @Test
+    fun `restores vanilla block data`() {
+        val world = FakeWorld()
+        val minion = minion(world)
+        val definition = MinionBlock.regenDefault(id = "coal_ore", lookup = "COAL_ORE", block = mockk<TestableBlock>())
+            .copy(vanillaMaterial = Material.COAL_ORE)
+
+        service(showMarker = true).queue(minion, world.blockAt(1, 0, 0), definition, Material.COAL_ORE, now = 0L)
+
+        assertNull(minion.mining.regenQueue.single().customBlock)
     }
 
     private fun service(showMarker: Boolean) = RegenService(

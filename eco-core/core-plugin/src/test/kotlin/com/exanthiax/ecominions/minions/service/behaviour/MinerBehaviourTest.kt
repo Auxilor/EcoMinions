@@ -27,7 +27,7 @@ class MinerBehaviourTest {
 
         behaviour.onBlockBroken(minion, block, definition = null, original = Material.STONE, now = 100L)
 
-        verify { regen.queue(minion, block, Material.STONE, 100L) }
+        verify { regen.queue(minion, block, null, Material.STONE, 100L) }
     }
 
     @Test
@@ -39,7 +39,7 @@ class MinerBehaviourTest {
 
         behaviour.onBlockBroken(minion, block, wheat, Material.WHEAT, now = 100L)
 
-        verify { regen.queue(minion, block, Material.WHEAT, 100L) }
+        verify { regen.queue(minion, block, wheat, Material.WHEAT, 100L) }
     }
 
     /** Seeding takes the cycle, so the ore it just placed is not mined on the same one. */

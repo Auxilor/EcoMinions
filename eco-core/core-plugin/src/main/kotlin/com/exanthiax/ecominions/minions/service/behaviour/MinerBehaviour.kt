@@ -24,7 +24,7 @@ class MinerBehaviour(
         definition: MinionBlock?,
         original: Material,
         now: Long
-    ) = regen.queue(minion, block, original, now)
+    ) = regen.queue(minion, block, definition, original, now)
 
     override fun onBeforeMine(minion: Minion, now: Long): Boolean = seeding.tick(minion)
 

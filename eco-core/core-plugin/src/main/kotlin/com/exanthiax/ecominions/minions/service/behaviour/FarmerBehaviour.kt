@@ -33,7 +33,7 @@ class FarmerBehaviour(
     ) {
         val plant = definition?.plant
         if (plant == null) {
-            regen.queue(minion, block, original, now)
+            regen.queue(minion, block, definition, original, now)
             return
         }
         plant.place(block.location)

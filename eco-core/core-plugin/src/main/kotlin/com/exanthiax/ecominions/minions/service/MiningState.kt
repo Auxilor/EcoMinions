@@ -90,6 +90,8 @@ class MiningState {
         val location: Location,
         val regenData: BlockData,
         val surfaceBlock: TestableBlock?,
-        val regenAt: Long
+        val regenAt: Long,
+        /** The custom block to place back, or null for a vanilla block restored from [regenData]. */
+        val customBlock: TestableBlock? = null
     )
 }
