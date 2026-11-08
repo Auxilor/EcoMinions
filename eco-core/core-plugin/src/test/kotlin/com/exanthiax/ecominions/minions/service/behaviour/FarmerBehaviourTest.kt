@@ -34,7 +34,7 @@ class FarmerBehaviourTest {
         behaviour.onBlockBroken(minion, block, wheat, Material.WHEAT, now = 100L)
 
         assertEquals(Material.WHEAT, block.type, "the crop should be replanted immediately")
-        verify(exactly = 0) { regen.queue(any(), any(), any(), any()) }
+        verify(exactly = 0) { regen.queue(any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -44,7 +44,7 @@ class FarmerBehaviourTest {
 
         behaviour.onBlockBroken(minion, block, bare, Material.STONE, now = 100L)
 
-        verify { regen.queue(minion, block, Material.STONE, 100L) }
+        verify { regen.queue(minion, block, bare, Material.STONE, 100L) }
     }
 
     @Test
@@ -53,7 +53,7 @@ class FarmerBehaviourTest {
 
         behaviour.onBlockBroken(minion, block, null, Material.STONE, now = 100L)
 
-        verify { regen.queue(minion, block, Material.STONE, 100L) }
+        verify { regen.queue(minion, block, null, Material.STONE, 100L) }
     }
 
     /** Seeding takes the cycle, so the crop it just planted is not harvested on the same one. */
