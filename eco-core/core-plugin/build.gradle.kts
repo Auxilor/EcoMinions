@@ -27,8 +27,8 @@ dependencies {
 
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly("wiki.ecohub:eco:$ecoVersion")
-    compileOnly("com.willfp:EcoShop:2026.41.1")
-    compileOnly("com.willfp:EcoItems:2026.41.1")
+    compileOnly("com.willfp:EcoShop:2026.46")
+    compileOnly("com.willfp:EcoItems:2026.46")
     compileOnly("com.bgsoftware:SuperiorSkyblockAPI:2026.3")
     compileOnly("world.bentobox:bentobox:2.7.0")
     compileOnly("com.iridium:IridiumSkyblock:4.1.5")
