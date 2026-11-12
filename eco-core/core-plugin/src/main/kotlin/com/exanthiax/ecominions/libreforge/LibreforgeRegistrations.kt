@@ -79,7 +79,7 @@ object LibreforgeRegistrations {
         upgrades: ConfigDrivenRegistry<Upgrade>,
         fuels: ConfigDrivenRegistry<Fuel>,
         compactorRecipes: ConfigDrivenRegistry<CompactorRecipeDefinition>
-    ): List<ConfigCategory> = listOf(blocks, upgrades, fuels, compactorRecipes, types)
+    ): List<NativeConfigCategory> = listOf(blocks, upgrades, fuels, compactorRecipes, types)
 
     /**
      * Every libreforge component this plugin owns.

@@ -28,21 +28,21 @@ class ConfigDrivenRegistry<T : Any>(
     /** Adapts a model object to eco's registry, which requires an id-bearing type. */
     class Entry<T : Any>(override val id: String, val value: T) : KRegistrable
 
-    override fun beforeReload(plugin: LibreforgePlugin) {
+    override fun beforeReload(plugin: EcoPlugin) {
         onBeforeReload()
     }
 
-    override fun clear(plugin: LibreforgePlugin) {
+    override fun clear(plugin: EcoPlugin) {
         registry.clear()
     }
 
-    override fun acceptConfig(plugin: LibreforgePlugin, id: String, config: Config) {
+    override fun acceptConfig(plugin: EcoPlugin, id: String, config: Config) {
         val context = LoadContext(ViolationContext(plugin, "$directory/$id.yml"), report)
         val loaded = loader.load(id, config, context) ?: return
         registry.register(Entry(id, loaded))
     }
 
-    override fun afterReload(plugin: LibreforgePlugin) {
+    override fun afterReload(plugin: EcoPlugin) {
         report.recordLoaded(displayName, values().size)
     }
 

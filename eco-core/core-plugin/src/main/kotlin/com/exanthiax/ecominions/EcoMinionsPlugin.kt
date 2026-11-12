@@ -135,12 +135,12 @@ import com.exanthiax.ecominions.upgrades.service.UpgradeService
 import com.exanthiax.ecominions.upgrades.ui.CostSelectMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeMenu
-import com.willfp.eco.core.command.impl.PluginCommand
 import org.bukkit.Bukkit
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.Listener
 import org.bukkit.plugin.ServicePriority
 import wiki.ecohub.config.category.NativeConfigCategory
+import wiki.ecohub.core.command.EcoCommand
 import wiki.ecohub.core.plugin.EcoPlugin
 import wiki.ecohub.data.PersistentDataKey
 import wiki.ecohub.data.PersistentDataKeyType
@@ -156,7 +156,7 @@ import wiki.ecohub.provider.protection.ExternalAntigriefService
  * Wiring only. If a decision about how minions behave appears below, it is in the
  * wrong file.
  */
-class EcoMinionsPlugin : LibreforgePlugin() {
+class EcoMinionsPlugin : EcoPlugin() {
 
     // Core
     private val report = LoadReport().apply { quiet = true }
@@ -389,54 +389,62 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     private val collector = MinionCollectService(repository, events)
 
     // Presentation
-    private val chrome = MenuChrome(messages)
-    private val costSelectMenu = CostSelectMenu(upgradeMenuSettings, messages, chrome, purchases, events, regions)
-    private val upgradeMenu = UpgradeMenu(
-        upgradeMenuSettings, messages, chrome, upgradeService, purchases, costSelectMenu, events, regions
-    )
-    private val upgradeListMenu = UpgradeListMenu(
-        upgradeMenuSettings, messages, chrome, upgradeService, upgradeMenu, events
-    )
-    private val menuViewers = MenuViewers { menu, player -> regions.on(player) { menu.refresh(player) } }
-    private val mainMenu = MainMenu(
-        menuSettings, messages, chrome, MinionStorageView(messages), placementService,
-        fuelService, minionFuelService, collector, upgradeListMenu, menuViewers, events, regions, minionLimits,
-        minionInput
-    )
-    private val typeSelectMenu = TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
+    private val chrome by lazy { MenuChrome(messages) }
+    private val costSelectMenu by lazy {
+        CostSelectMenu(upgradeMenuSettings, messages, chrome, purchases, events, regions)
+    }
+    private val upgradeMenu by lazy {
+        UpgradeMenu(upgradeMenuSettings, messages, chrome, upgradeService, purchases, costSelectMenu, events, regions)
+    }
+    private val upgradeListMenu by lazy {
+        UpgradeListMenu(upgradeMenuSettings, messages, chrome, upgradeService, upgradeMenu, events)
+    }
+    private val menuViewers by lazy { MenuViewers { menu, player -> regions.on(player) { menu.refresh(player) } } }
+    private val mainMenu by lazy {
+        MainMenu(
+            menuSettings, messages, chrome, MinionStorageView(messages), placementService, fuelService,
+            minionFuelService, collector, upgradeListMenu, menuViewers, events, regions, minionLimits, minionInput
+        )
+    }
+    private val typeSelectMenu by lazy {
+        TypeSelectMenu(menuSettings, messages, chrome, minionService, itemFactory, minionItems)
+    }
 
     // API
-    private val api = EcoMinionsApiImpl(
-        MinionsManagerImpl(
-            minionService, placementService, itemFactory, minionItems, collector,
-            sellService, repository, activityService, xpService, compactService, events, regions, minionAccess,
-            islandLimits, minionLimits
-        ) { Bukkit.getOfflinePlayer(it) },
-        UpgradesManagerImpl(upgradeService, purchases, minionService),
-        FuelsManagerImpl(fuelService, minionFuelService, minionService),
-        MenusManagerImpl(mainMenu, upgradeListMenu, typeSelectMenu, minionService, regions),
-        islandRegistry
-    )
+    private val api by lazy {
+        EcoMinionsApiImpl(
+            MinionsManagerImpl(
+                minionService, placementService, itemFactory, minionItems, collector,
+                sellService, repository, activityService, xpService, compactService, events, regions, minionAccess,
+                islandLimits, minionLimits
+            ) { Bukkit.getOfflinePlayer(it) },
+            UpgradesManagerImpl(upgradeService, purchases, minionService),
+            FuelsManagerImpl(fuelService, minionFuelService, minionService),
+            MenusManagerImpl(mainMenu, upgradeListMenu, typeSelectMenu, minionService, regions),
+            islandRegistry
+        )
+    }
 
     // Lifecycle
-    private val placementListener = MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages, minionAccess)
+    private val placementListener by lazy { MinionPlacementListener(minionService, placementService, itemFactory, mainMenu, messages, minionAccess) }
     private val customItems = MinionCustomItems(this, minionService, itemFactory)
-    private val recipes = MinionRecipes(this, minionService, itemFactory)
-    private val lifecycle = LifecycleManager(
-        this,
-        listOf(
-            MinionMiningLoop(minionService, ticker, activityService, regions),
-            MinionRenderLoop(
-                minionService, MinionAnimator(minionModels),
-                MinionHologram(messages, minionSettings, activityService),
-                ParticleEmitter(), minionSettings, activityService, regions
-            ),
-            menuViewers,
-            minionLimits
+    private val recipes by lazy { MinionRecipes(this, minionService, itemFactory) }
+    private val lifecycle by lazy {
+        LifecycleManager(
+            this,
+            listOf(
+                MinionMiningLoop(minionService, ticker, activityService, regions),
+                MinionRenderLoop(
+                    minionService, MinionAnimator(minionModels),
+                    MinionHologram(messages, minionSettings, activityService),
+                    ParticleEmitter(), minionSettings, activityService, regions
+                ),
+                menuViewers, minionLimits
+            )
         )
-    )
+    }
 
-    override fun loadConfigCategories(): List<ConfigCategory> =
+    override fun loadConfigCategories(): List<NativeConfigCategory> =
         LibreforgeRegistrations.configCategories(blockDefinitions, minionTypes, upgrades, fuels, compactorRecipes)
 
     private var superiorSkyblockPrivilegesRegistered = false
@@ -539,7 +547,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         IslandMemberListener(minionService, activityService, islandRegistry, islandIndex, minionSettings, regions)
     )
 
-    override fun loadPluginCommands(): List<PluginCommand> = listOf(
+    override fun loadPluginCommands(): List<EcoCommand> = listOf(
         minionsCommand(
             typeSelectMenu,
             CommandOpen(typeSelectMenu),
