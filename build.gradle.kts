@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import wiki.ecohub.gradle.modules.EcoModulesExtension
 
 plugins {
     kotlin("jvm") version "2.3.0"
@@ -6,6 +7,7 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.gradleup.shadow") version "9.3.1"
+    id("wiki.ecohub.eco-modules") version "1.0.0"
 }
 
 group = "com.exanthiax"
@@ -18,6 +20,10 @@ base {
 
 dependencies {
     implementation(project(path = ":eco-core:core-plugin", configuration = "shadow"))
+}
+
+configure<EcoModulesExtension> {
+    use("menus", "progression", "recipe", "effects-system")
 }
 
 publishing {
