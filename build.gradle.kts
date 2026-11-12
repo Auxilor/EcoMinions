@@ -6,12 +6,10 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.gradleup.shadow") version "9.3.1"
-    id("com.willfp.libreforge-gradle-plugin") version "2.0.1"
 }
 
 group = "com.exanthiax"
 version = findProperty("version")!!
-val libreforgeVersion = findProperty("libreforge-version")
 val ecoApiVersion = findProperty("eco-api-version")
 
 base {
@@ -24,7 +22,7 @@ dependencies {
 
 publishing {
     publications {
-        // maven-private: the libreforge jar (shaded plugin with libreforge embedded)
+        // maven-private: the shaded plugin jar
         create<MavenPublication>("private") {
             artifactId = rootProject.name
         }
@@ -56,7 +54,7 @@ publishing {
 // The API spans core-api and core-plugin, so the published jar merges both. It is
 // the plain output, not shadowJar: shadowJar drops META-INF (taking the
 // .kotlin_module with it, which hides every top-level declaration from the Kotlin
-// compiler) and relocates kotlin.* into com.willfp.eco.libs.kotlin, which rewrites
+// compiler) and relocates kotlin.* into wiki.ecohub.libs.kotlin, which rewrites
 // @kotlin.Metadata and makes the whole API read as Java.
 val apiJar by tasks.registering(Jar::class) {
     archiveClassifier.set("api")
@@ -70,7 +68,7 @@ val apiJar by tasks.registering(Jar::class) {
 // and its pom are published - no sources, javadoc, or classified variants.
 afterEvaluate {
     publishing.publications.named<MavenPublication>("private") {
-        artifact(tasks.named("libreforgeJar"))
+        artifact(tasks.named("shadowJar"))
     }
     publishing.publications.named<MavenPublication>("release") {
         artifact(apiJar) {
@@ -87,8 +85,8 @@ tasks.register("publishToAuxilor") {
 }
 
 tasks.register<Copy>("dist") {
-    dependsOn("libreforgeJar")
-    from(tasks.named("libreforgeJar").map { it.outputs.files })
+    dependsOn("shadowJar")
+    from(tasks.named("shadowJar").map { it.outputs.files })
     into(layout.projectDirectory.dir("dist"))
     rename { "${rootProject.name}-${project.version}.jar" }
 }
@@ -124,11 +122,9 @@ allprojects {
     tasks {
         shadowJar {
             exclude("META-INF/**")
-            relocate("com.willfp.libreforge.loader", "com.exanthiax.ecominions.libreforge.loader")
-            relocate("kotlin", "com.willfp.eco.libs.kotlin")
-            relocate("kotlin.jvm", "com.willfp.eco.libs.kotlin.jvm")
-            relocate("kotlin.coroutines", "com.willfp.eco.libs.kotlin.coroutines")
-            relocate("kotlin.reflect", "com.willfp.eco.libs.kotlin.reflect")
+            relocate("kotlin", "wiki.ecohub.libs.kotlin") {
+                exclude("kotlin.kotlin_builtins")
+            }
         }
 
         compileKotlin {
@@ -152,7 +148,6 @@ allprojects {
             filesMatching(listOf("**plugin.yml", "**eco.yml")) {
                 expand(
                     "version" to project.version,
-                    "libreforgeVersion" to libreforgeVersion!!,
                     "ecoApiVersion" to ecoApiVersion!!,
                     "pluginName" to rootProject.name
                 )
