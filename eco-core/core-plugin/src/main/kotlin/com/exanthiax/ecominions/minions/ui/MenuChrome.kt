@@ -78,7 +78,7 @@ class MenuChrome(
     /** The item named by the `item` or `material` key of [section], or [default] when it names none. */
     fun buttonItem(section: Config, default: Material): ItemStack =
         (section.getStringOrNull("item") ?: section.getStringOrNull("material"))
-            ?.let { Items.lookup(it).item }
+            ?.let { Items.lookup(it).getItem() }
             ?: ItemStack(default)
 
     fun named(material: Material, name: String, lore: List<String> = emptyList()): ItemStack =

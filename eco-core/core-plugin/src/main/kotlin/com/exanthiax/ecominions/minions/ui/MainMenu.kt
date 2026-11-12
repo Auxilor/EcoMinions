@@ -34,10 +34,6 @@ import wiki.ecohub.modules.menus.getSlotLocations
 import wiki.ecohub.modules.menus.menu
 import wiki.ecohub.modules.menus.menu.Menu
 import wiki.ecohub.modules.menus.menu.MenuBuilder
-import wiki.ecohub.modules.menus.onClose
-import wiki.ecohub.modules.menus.onOpen
-import wiki.ecohub.modules.menus.onRender
-import wiki.ecohub.modules.menus.onShiftLeftClick
 import wiki.ecohub.modules.menus.slot
 import wiki.ecohub.modules.menus.slot.Slot
 
@@ -162,7 +158,7 @@ class MainMenu(
         }
 
     private fun acceptedNames(definition: MinionDefinition): List<String> =
-        definition.breeder?.run { food.map { storageView.nameOf(it.item) } }
+        definition.breeder?.run { food.map { storageView.nameOf(it.getItem()) } }
             ?: fuels.all().filter { definition.feeder?.accepts(it) == true }.map { it.displayName }
 
     private fun context(minion: Minion): TemplateContext =
@@ -358,7 +354,7 @@ class MainMenu(
         }
 
         return chrome.named(
-            active?.let { Items.lookup(it.itemLookup).item.type.takeIf { type -> type.isItem && !type.isAir } }
+            active?.let { Items.lookup(it.itemLookup).getItem().type.takeIf { type -> type.isItem && !type.isAir } }
                 ?.let { ItemStack(it) }
                 ?: chrome.buttonItem(section, Material.COAL),
             messages.line("gui.main.fuel.name"),

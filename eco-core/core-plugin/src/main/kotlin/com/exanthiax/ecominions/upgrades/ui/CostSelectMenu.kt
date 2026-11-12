@@ -19,7 +19,6 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import wiki.ecohub.modules.menus.addCustomSlots
 import wiki.ecohub.modules.menus.menu
-import wiki.ecohub.modules.menus.onClose
 import wiki.ecohub.modules.menus.slot
 import wiki.ecohub.modules.menus.slot.Slot
 

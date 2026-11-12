@@ -29,7 +29,6 @@ import wiki.ecohub.modules.menus.addCustomSlots
 import wiki.ecohub.modules.menus.component.addComponent
 import wiki.ecohub.modules.menus.getSlotLocations
 import wiki.ecohub.modules.menus.menu
-import wiki.ecohub.modules.menus.onClose
 import wiki.ecohub.modules.menus.slot
 import wiki.ecohub.modules.menus.slot.Slot
 
@@ -88,7 +87,7 @@ class UpgradeMenu(
     }
 
     private fun titleItem(upgrade: Upgrade, context: TemplateContext): ItemStack {
-        val item = Items.lookup(upgrade.iconLookup).item.clone()
+        val item = Items.lookup(upgrade.iconLookup).getItem().clone()
         item.itemMeta?.let { meta ->
             meta.setDisplayName(messages.line("gui.upgrade.title-item.name", context))
             meta.lore = messages.lines("gui.upgrade.title-item.lore", context)

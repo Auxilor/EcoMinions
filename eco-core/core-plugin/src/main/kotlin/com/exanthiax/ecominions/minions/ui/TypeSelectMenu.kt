@@ -72,9 +72,9 @@ class TypeSelectMenu(
                     addCustomSlots(current.typeSelectSection, "")
                     for ((position, type) in types.withIndex()) {
                         setSlot(
-                            typeArea.row + position / columns,
-                            typeArea.column + position % columns,
-                            typeSlot(player, type)
+                            row = typeArea.row + position / columns,
+                            column = typeArea.column + position % columns,
+                            slot = typeSlot(player, type)
                         )
                     }
                 }
