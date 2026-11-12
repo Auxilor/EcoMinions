@@ -15,7 +15,7 @@ class MinionItemFactory(
 ) {
     fun build(state: MinionState): ItemStack {
         val type = state.definition
-        val item = Items.lookup(type.spawnItem.itemLookup).item.clone()
+        val item = Items.lookup(type.spawnItem.itemLookup).getItem().clone()
 
         val meta = item.itemMeta ?: return item
         val context = TemplateContext.of(MinionPlaceholders.STATE to state)

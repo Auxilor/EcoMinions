@@ -24,7 +24,7 @@ class MinionCustomItems(
     fun registerAll() {
         for (type in minions.types()) {
             val key = NamespacedKey(plugin, type.id)
-            Items.registerCustomItem(
+            Items.registerCustom(
                 key,
                 CustomItem(
                     key,

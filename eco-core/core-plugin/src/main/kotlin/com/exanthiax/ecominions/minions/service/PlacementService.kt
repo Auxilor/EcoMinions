@@ -267,5 +267,5 @@ class PlacementService(
         minion.mining.seeded.clear()
     }
 
-    private fun String.toItemStack(): ItemStack = Items.lookup(this).item.clone()
+    private fun String.toItemStack(): ItemStack = Items.lookup(this).getItem().clone()
 }

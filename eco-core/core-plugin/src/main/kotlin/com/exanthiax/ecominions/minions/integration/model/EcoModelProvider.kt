@@ -12,7 +12,7 @@ class EcoModelProvider(
     private val loop = ModelAnimation.builder().loopMode(ModelAnimation.LoopMode.LOOP).build()
 
     override fun attach(stand: ArmorStand, id: String): Boolean {
-        if (!ExternalModelService.attachModel(stand, provider.configName, id)) {
+        if (!ExternalModelService.attachModel(entity = stand, providerId = provider.configName, modelId = id)) {
             return false
         }
 

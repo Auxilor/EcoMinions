@@ -16,7 +16,7 @@ class MinionDropListLoader(
     private fun entry(section: Config, path: String, context: LoadContext): MinionDropList.Entry? {
         val raw = section.getStringOrNull("item")?.takeIf { it.isNotBlank() }
             ?: return context.invalid(path, "", "an item or custom item id")
-        val item = items.lookup(raw)?.item
+        val item = items.lookup(raw)?.getItem()
             ?: return context.invalid(path, raw, "an item or custom item id")
 
         return MinionDropList.Entry(

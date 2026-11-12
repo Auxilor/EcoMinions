@@ -16,7 +16,7 @@ import wiki.ecohub.provider.protection.ExternalAntigriefService
 class MinionProtection(
     private val ownerOf: (Minion) -> Player? = { it.ownerPlayer() },
     private val canBuild: (Player, Block) -> Boolean = { player, block ->
-        AntigriefManager.canBreakBlock(player, block) && AntigriefManager.canPlaceBlock(player, block)
+        ExternalAntigriefService.canBreakBlock(player, block) && ExternalAntigriefService.canPlaceBlock(player, block)
     },
     private val clock: () -> Long = System::currentTimeMillis
 ) {

@@ -108,7 +108,7 @@ class UpgradeLoader : ConfigLoader<Upgrade> {
         )
 
         return SimpleHolder(
-            NamespacedKeyUtils.create(NAMESPACE, "upgrade_${upgradeId}_$level"),
+            NamespacedKeyUtils.create(namespace = NAMESPACE, key = "upgrade_${upgradeId}_$level"),
             effects,
             conditions
         )

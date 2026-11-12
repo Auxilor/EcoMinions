@@ -57,7 +57,7 @@ class CompactorService {
     }
 
     private fun outputOf(recipe: CompactorRecipe): ItemStack {
-        val item = Items.lookup(recipe.outputLookup).item.clone()
+        val item = Items.lookup(recipe.outputLookup).getItem().clone()
         item.amount = recipe.outputAmount
         return item
     }

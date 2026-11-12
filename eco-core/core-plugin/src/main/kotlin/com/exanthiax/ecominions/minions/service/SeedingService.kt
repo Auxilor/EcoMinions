@@ -148,7 +148,7 @@ class SeedingService(
         below: Block,
         expectedSurface: TestableBlock?
     ): Boolean {
-        val material = (seed as? MaterialTestableBlock)?.material ?: return true
+        val material = (seed as? MaterialTestableBlock)?.getMaterial() ?: return true
         if (!SeedSurface.isPrepared(below, expectedSurface)) {
             return true
         }
@@ -160,7 +160,7 @@ class SeedingService(
 
     /** Lays a water source beside the ground of [spot] when [seed] needs one there. */
     private fun irrigate(minion: Minion, seed: TestableBlock, spot: Block) {
-        val material = (seed as? MaterialTestableBlock)?.material ?: return
+        val material = (seed as? MaterialTestableBlock)?.getMaterial() ?: return
         if (material !in WATER_PLANTS || material.createBlockData().isSupported(spot)) {
             return
         }

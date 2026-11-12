@@ -227,7 +227,7 @@ class MinionDefinitionLoader(
         val violations = context.violationContext
 
         return SimpleHolder(
-            NamespacedKeyUtils.create(NAMESPACE, "type_$id"),
+            NamespacedKeyUtils.create(namespace = NAMESPACE, key = "type_$id"),
             Effects.compile(effectConfigs, violations.with("effects")),
             Conditions.compile(config.getSubsections("conditions"), violations.with("conditions"))
         )

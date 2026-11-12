@@ -22,5 +22,5 @@ class EcoItemLookup : ItemLookup {
      * keeps that sentinel private - [Items.isEmpty] is its own test for it.
      */
     override fun lookup(id: String): TestableItem? =
-        Items.lookup(id).takeIf { !Items.isEmpty(it.item) }
+        Items.lookup(id).takeIf { !Items.isEmpty(it.getItem()) }
 }

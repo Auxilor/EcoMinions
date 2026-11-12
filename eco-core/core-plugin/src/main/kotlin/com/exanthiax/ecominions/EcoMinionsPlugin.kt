@@ -248,7 +248,7 @@ class EcoMinionsPlugin : EcoPlugin() {
     private val sellService = SellService(sellPricing, shopIntegration, events, compactService::isInput)
     private val dropTables = MinionDropTables(
         resolve = VanillaWorld::drops,
-        resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
+        resolveItem = { id -> Items.lookup(id).getItem().takeIf { !Items.isEmpty(it) }?.clone() }
     )
     private val protection = MinionProtection()
     private val seedingService = SeedingService(protection::allows)
@@ -382,7 +382,7 @@ class EcoMinionsPlugin : EcoPlugin() {
     )
     private val placementService = PlacementService(
         minionService, minionFactory, itemFactory, repository, minionLimits, worlds, minionSettings,
-        triggerDispatch, events, minionAccess, islandRegistry, AntigriefManager::canPlaceBlock
+        triggerDispatch, events, minionAccess, islandRegistry, ExternalAntigriefService::canPlaceBlock
     )
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
     private val minionItems = MinionItemService(itemFactory, events)
@@ -490,7 +490,7 @@ class EcoMinionsPlugin : EcoPlugin() {
                 .onFailure { logger.warning("Lands support disabled: ${it.message}") }
         }
         MinionModel.Provider.entries
-            .filter { ExternalModelService.getIntegration(it.configName) != null }
+            .filter { ExternalModelService.getProvider(it.configName) != null }
             .forEach { minionModels.register(EcoModelProvider(it)) }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)
         shopIntegration.init()

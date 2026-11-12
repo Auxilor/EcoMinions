@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.minions.integration.shop.ShopIntegrationService
 import org.bukkit.Bukkit
 import org.bukkit.inventory.ItemStack
 import wiki.ecohub.provider.economy.ExternalEconomyService
+import java.math.BigDecimal
 
 /**
  * Sells a minion's storage to its owner.
@@ -80,7 +81,7 @@ class SellService(
         }
 
         if (event.total > 0.0) {
-            ExternalEconomyService.giveMoney(Bukkit.getOfflinePlayer(owner), event.total)
+            ExternalEconomyService.giveMoney(Bukkit.getOfflinePlayer(owner), BigDecimal.valueOf(event.total))
         }
         return event.total + shopPaid
     }
