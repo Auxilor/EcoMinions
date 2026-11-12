@@ -2,14 +2,14 @@ package com.exanthiax.ecominions.libreforge.mutators
 
 import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.NoCompileData
-import com.willfp.libreforge.get
-import com.willfp.libreforge.mutators.Mutator
-import com.willfp.libreforge.mutators.parameterTransformers
-import com.willfp.libreforge.toDispatcher
-import com.willfp.libreforge.triggers.TriggerData
-import com.willfp.libreforge.triggers.TriggerParameter
+import wiki.ecohub.config.Config
+import wiki.ecohub.core.registry.NoCompileData
+import wiki.ecohub.game.entity.toDispatcher
+import wiki.ecohub.rules.holder.get
+import wiki.ecohub.rules.mutator.Mutator
+import wiki.ecohub.rules.mutator.parameterTransformers
+import wiki.ecohub.rules.trigger.TriggerData
+import wiki.ecohub.rules.trigger.TriggerParameter
 
 /**
  * Retargets the chain at the minion's owner.

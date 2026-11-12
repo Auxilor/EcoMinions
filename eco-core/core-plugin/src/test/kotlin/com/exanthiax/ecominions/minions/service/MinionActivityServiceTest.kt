@@ -4,11 +4,11 @@ import com.exanthiax.ecominions.api.minion.LimitBreach
 import com.exanthiax.ecominions.api.minion.LimitScope
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionStats
 import com.exanthiax.ecominions.minions.model.MinionStorage
-import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import io.mockk.every
 import io.mockk.mockk

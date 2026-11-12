@@ -9,13 +9,13 @@ import com.exanthiax.ecominions.minions.service.ExperienceSink
 import com.exanthiax.ecominions.minions.service.FishingLootRoller
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionWorkArea
-import com.willfp.libreforge.triggers.event.DropCause
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.block.Block
 import org.bukkit.block.data.Levelled
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
+import wiki.ecohub.rules.trigger.DropCause
 import kotlin.random.Random
 
 /** Casts into water sources in its box. Self-seeding lays the pool one source at a time. */

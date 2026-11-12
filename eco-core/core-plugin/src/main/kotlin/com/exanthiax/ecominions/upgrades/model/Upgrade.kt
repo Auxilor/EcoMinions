@@ -1,9 +1,9 @@
 package com.exanthiax.ecominions.upgrades.model
 
-import com.exanthiax.ecominions.api.upgrade.Upgrade as ApiUpgrade
 import com.exanthiax.ecominions.minions.model.MinionState
-import com.willfp.libreforge.Holder
-import com.willfp.libreforge.conditions.ConditionList
+import wiki.ecohub.rules.condition.ConditionList
+import wiki.ecohub.rules.holder.Holder
+import com.exanthiax.ecominions.api.upgrade.Upgrade as ApiUpgrade
 
 /** A purchasable upgrade and its tier ladder. */
 class Upgrade(

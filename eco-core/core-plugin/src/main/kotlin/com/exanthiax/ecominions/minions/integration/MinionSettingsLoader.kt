@@ -6,8 +6,8 @@ import com.exanthiax.ecominions.minions.model.ExperienceMode
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.OverLimitMode
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
-import com.willfp.eco.core.config.interfaces.Config
 import org.bukkit.Material
+import wiki.ecohub.config.Config
 
 /** Reads `config.yml` into [MinionSettings], re-run on every reload. */
 class MinionSettingsLoader(

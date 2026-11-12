@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.upgrades.model
 
-import com.willfp.eco.core.config.interfaces.Config
+import wiki.ecohub.config.Config
 
 /** Layout of the upgrade menus, read from `config.yml`. */
 data class UpgradeMenuSettings(

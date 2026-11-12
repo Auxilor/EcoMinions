@@ -4,10 +4,10 @@ import com.exanthiax.ecominions.api.event.MinionDestroyEvent
 import com.exanthiax.ecominions.api.event.MinionPickupEvent
 import com.exanthiax.ecominions.api.event.MinionPlaceEvent
 import com.exanthiax.ecominions.api.island.IslandPrivilege
+import com.exanthiax.ecominions.api.minion.DestroyCause
 import com.exanthiax.ecominions.api.minion.LimitBreach
 import com.exanthiax.ecominions.api.minion.LimitScope
 import com.exanthiax.ecominions.api.minion.MinionType
-import com.exanthiax.ecominions.api.minion.DestroyCause
 import com.exanthiax.ecominions.core.config.SettingsHolder
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.persistence.InventoryCodec
@@ -21,7 +21,6 @@ import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.OverLimitMode
-import com.willfp.eco.core.items.Items
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -30,6 +29,7 @@ import org.bukkit.block.Block
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.item.Items
 import java.util.UUID
 
 /** Places minions in the world and takes them back out of it. */

@@ -10,11 +10,11 @@ import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionLevelUp
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.progression.LevelProgression
-import com.willfp.libreforge.EmptyProvidedHolder
-import com.willfp.libreforge.levels.LevelUpDispatcher
-import com.willfp.libreforge.triggers.DispatchedTrigger
-import com.willfp.libreforge.triggers.TriggerData
+import wiki.ecohub.modules.progression.LevelProgression
+import wiki.ecohub.modules.progression.LevelUpDispatcher
+import wiki.ecohub.rules.holder.EmptyProvidedHolder
+import wiki.ecohub.rules.trigger.DispatchedTrigger
+import wiki.ecohub.rules.trigger.TriggerData
 
 /**
  * Accumulates minion XP and runs the level-up flow.

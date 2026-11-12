@@ -21,25 +21,25 @@ import com.exanthiax.ecominions.minions.service.MinionInput
 import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.gui.SlotLocation
-import com.willfp.eco.core.gui.addCustomSlots
-import com.willfp.eco.core.gui.component.PagedAreaComponent
-import com.willfp.eco.core.gui.getSlotLocations
-import com.willfp.eco.core.gui.menu
-import com.willfp.eco.core.gui.menu.Menu
-import com.willfp.eco.core.gui.menu.MenuBuilder
-import com.willfp.eco.core.gui.onClose
-import com.willfp.eco.core.gui.onOpen
-import com.willfp.eco.core.gui.onRender
-import com.willfp.eco.core.gui.onShiftLeftClick
-import com.willfp.eco.core.gui.slot
-import com.willfp.eco.core.gui.slot.Slot
-import com.willfp.eco.core.items.Items
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.config.Config
+import wiki.ecohub.game.item.Items
+import wiki.ecohub.modules.menus.SlotLocation
+import wiki.ecohub.modules.menus.addCustomSlots
+import wiki.ecohub.modules.menus.component.PagedAreaComponent
+import wiki.ecohub.modules.menus.getSlotLocations
+import wiki.ecohub.modules.menus.menu
+import wiki.ecohub.modules.menus.menu.Menu
+import wiki.ecohub.modules.menus.menu.MenuBuilder
+import wiki.ecohub.modules.menus.onClose
+import wiki.ecohub.modules.menus.onOpen
+import wiki.ecohub.modules.menus.onRender
+import wiki.ecohub.modules.menus.onShiftLeftClick
+import wiki.ecohub.modules.menus.slot
+import wiki.ecohub.modules.menus.slot.Slot
 
 /**
  * The menu shown when a player clicks a minion.

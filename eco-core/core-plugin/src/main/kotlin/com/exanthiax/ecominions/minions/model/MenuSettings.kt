@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.willfp.eco.core.config.interfaces.Config
+import wiki.ecohub.config.Config
 
 /** Layout of the minion menus, read from `config.yml`. */
 data class MenuSettings(

@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.willfp.eco.core.entities.TestableEntity
-import com.willfp.eco.core.items.TestableItem
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.entity.lookup.TestableEntity
+import wiki.ecohub.game.item.lookup.TestableItem
 
 /** What a breeder breeds and feeds on. [maxMobs] may be a `%level%` expression. */
 data class BreederSettings(

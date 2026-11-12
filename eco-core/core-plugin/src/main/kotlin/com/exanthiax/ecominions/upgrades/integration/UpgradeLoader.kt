@@ -5,14 +5,14 @@ import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.price.ConfiguredPrice
-import com.willfp.eco.core.price.impl.PriceFree
-import com.willfp.eco.util.NamespacedKeyUtils
-import com.willfp.libreforge.Holder
-import com.willfp.libreforge.SimpleHolder
-import com.willfp.libreforge.conditions.Conditions
-import com.willfp.libreforge.effects.Effects
+import wiki.ecohub.config.Config
+import wiki.ecohub.core.platform.NamespacedKeyUtils
+import wiki.ecohub.core.price.ConfiguredPrice
+import wiki.ecohub.core.price.PriceFree
+import wiki.ecohub.rules.condition.Conditions
+import wiki.ecohub.rules.effect.Effects
+import wiki.ecohub.rules.holder.Holder
+import wiki.ecohub.rules.holder.SimpleHolder
 
 /** Parses one file in `upgrades/` into an [Upgrade] and its tier ladder. */
 class UpgradeLoader : ConfigLoader<Upgrade> {

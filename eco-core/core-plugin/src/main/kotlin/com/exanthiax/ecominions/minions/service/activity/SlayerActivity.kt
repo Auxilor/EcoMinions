@@ -13,8 +13,6 @@ import com.exanthiax.ecominions.minions.service.ExperienceSink
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionWorkArea
 import com.exanthiax.ecominions.minions.service.WorkAreaEntities
-import com.willfp.eco.core.entities.TestableEntity
-import com.willfp.libreforge.triggers.event.DropCause
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
@@ -27,6 +25,8 @@ import org.bukkit.entity.Tameable
 import org.bukkit.event.HandlerList
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.persistence.PersistentDataType
+import wiki.ecohub.game.entity.lookup.TestableEntity
+import wiki.ecohub.rules.trigger.DropCause
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random

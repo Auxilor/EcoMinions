@@ -4,7 +4,7 @@ import com.exanthiax.ecominions.core.config.IntRanges
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.world.ItemLookup
 import com.exanthiax.ecominions.minions.model.MinionDropList
-import com.willfp.eco.core.config.interfaces.Config
+import wiki.ecohub.config.Config
 
 /** Parses a `drops:` list once at load. A bad entry is reported and skipped, never fatal. */
 class MinionDropListLoader(

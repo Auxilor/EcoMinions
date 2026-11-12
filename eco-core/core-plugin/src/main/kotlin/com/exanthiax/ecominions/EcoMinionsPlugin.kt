@@ -136,19 +136,19 @@ import com.exanthiax.ecominions.upgrades.ui.CostSelectMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
 import com.exanthiax.ecominions.upgrades.ui.UpgradeMenu
 import com.willfp.eco.core.command.impl.PluginCommand
-import com.willfp.eco.core.data.PlayerProfile
-import com.willfp.eco.core.data.ServerProfile
-import com.willfp.eco.core.data.keys.PersistentDataKey
-import com.willfp.eco.core.data.keys.PersistentDataKeyType
-import com.willfp.eco.core.integrations.antigrief.AntigriefManager
-import com.willfp.eco.core.integrations.model.ModelManager
-import com.willfp.eco.core.items.Items
-import com.willfp.libreforge.loader.LibreforgePlugin
-import com.willfp.libreforge.loader.configs.ConfigCategory
 import org.bukkit.Bukkit
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.Listener
 import org.bukkit.plugin.ServicePriority
+import wiki.ecohub.config.category.NativeConfigCategory
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.data.PersistentDataKey
+import wiki.ecohub.data.PersistentDataKeyType
+import wiki.ecohub.data.profile.PlayerProfile
+import wiki.ecohub.data.profile.ServerProfile
+import wiki.ecohub.game.item.Items
+import wiki.ecohub.provider.content.ExternalModelService
+import wiki.ecohub.provider.protection.ExternalAntigriefService
 
 /**
  * Composition root: the only class that constructs anything.
@@ -482,7 +482,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
                 .onFailure { logger.warning("Lands support disabled: ${it.message}") }
         }
         MinionModel.Provider.entries
-            .filter { ModelManager.getIntegration(it.configName) != null }
+            .filter { ExternalModelService.getIntegration(it.configName) != null }
             .forEach { minionModels.register(EcoModelProvider(it)) }
         LibreforgeRegistrations.registerAll(upgrades, worlds, sellService, compactService, xpService, minionService::getByEntity)
         shopIntegration.init()

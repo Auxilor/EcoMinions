@@ -2,23 +2,23 @@ package com.exanthiax.ecominions.minions.ui
 
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.text.Messages
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.gui.SlotArea
-import com.willfp.eco.core.gui.SlotLocation
-import com.willfp.eco.core.gui.component.ConfigButton
-import com.willfp.eco.core.gui.component.PagedAreaComponent
-import com.willfp.eco.core.gui.component.addPagedArea
-import com.willfp.eco.core.gui.getFillerMask
-import com.willfp.eco.core.gui.getSlotArea
-import com.willfp.eco.core.gui.menu.Menu
-import com.willfp.eco.core.gui.menu.MenuBuilder
-import com.willfp.eco.core.gui.slot.FillerMask
-import com.willfp.eco.core.gui.slot.MaskItems
-import com.willfp.eco.core.gui.slot.Slot
-import com.willfp.eco.core.items.Items
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.config.Config
+import wiki.ecohub.game.item.Items
+import wiki.ecohub.modules.menus.SlotLocation
+import wiki.ecohub.modules.menus.component.ConfigButton
+import wiki.ecohub.modules.menus.component.PagedAreaComponent
+import wiki.ecohub.modules.menus.component.addPagedArea
+import wiki.ecohub.modules.menus.getFillerMask
+import wiki.ecohub.modules.menus.menu.Menu
+import wiki.ecohub.modules.menus.menu.MenuBuilder
+import wiki.ecohub.modules.menus.slot.Slot
+import wiki.ecohub.modules.menus.slot.SlotArea
+import wiki.ecohub.modules.menus.slot.getSlotArea
+import wiki.ecohub.modules.menus.slot.mask.FillerMask
+import wiki.ecohub.modules.menus.slot.mask.MaskItems
 
 /** The shared furniture every menu in the plugin uses. */
 class MenuChrome(

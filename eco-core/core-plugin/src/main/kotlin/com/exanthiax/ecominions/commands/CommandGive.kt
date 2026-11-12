@@ -5,11 +5,11 @@ import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionService
-import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.command.impl.Subcommand
-import com.willfp.eco.util.StringUtils
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.ui.text.StringUtils
 
 /**
  * `/minions give <player> <type>`. Minions are always given at level one.

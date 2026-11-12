@@ -2,8 +2,8 @@ package com.exanthiax.ecominions.fuel.service
 
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.fuel.model.Fuel
-import com.willfp.eco.core.items.Items
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.item.Items
 import com.exanthiax.ecominions.api.minion.Minion as ApiMinion
 
 /**

@@ -5,9 +5,9 @@ import com.exanthiax.ecominions.compactor.model.CompactorRecipe
 import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.libreforge.toDispatcher
-import com.willfp.eco.core.items.Items
-import com.willfp.libreforge.EmptyProvidedHolder
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.item.Items
+import wiki.ecohub.rules.holder.EmptyProvidedHolder
 
 /** Runs a minion's owned compactor recipes over its storage. */
 class MinionCompactService(

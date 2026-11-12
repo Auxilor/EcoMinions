@@ -1,12 +1,12 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.willfp.eco.core.blocks.TestableBlock
-import com.willfp.eco.core.blocks.impl.MaterialTestableBlock
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.TileState
 import org.bukkit.block.data.Ageable
+import wiki.ecohub.game.block.lookup.MaterialTestableBlock
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /**
  * Stocks a minion's work area with the blocks it mines, one block at a time.

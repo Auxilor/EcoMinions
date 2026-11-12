@@ -7,11 +7,11 @@ import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.StoredFuel
 import com.exanthiax.ecominions.minions.model.UpgradeCodec
-import java.util.UUID
 import org.bukkit.Location
 import org.bukkit.entity.ArmorStand
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataContainer
+import java.util.UUID
 
 /**
  * Reads and writes minion state to persistent data containers, whether they

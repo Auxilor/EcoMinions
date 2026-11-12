@@ -3,10 +3,10 @@ package com.exanthiax.ecominions.minions.integration
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionService
-import com.willfp.eco.core.EcoPlugin
-import com.willfp.eco.core.items.CustomItem
-import com.willfp.eco.core.items.Items
 import org.bukkit.NamespacedKey
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.game.item.CustomItem
+import wiki.ecohub.game.item.Items
 
 /**
  * Exposes every minion's spawn item to eco's item lookup system as

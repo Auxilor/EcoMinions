@@ -2,9 +2,9 @@ package com.exanthiax.ecominions.libreforge
 
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.upgrades.model.Upgrade
-import com.willfp.libreforge.NamedValue
-import com.willfp.libreforge.get
-import com.willfp.libreforge.registerPlaceholderProvider
+import wiki.ecohub.core.stdlib.NamedValue
+import wiki.ecohub.rules.holder.get
+import wiki.ecohub.rules.holder.registerPlaceholderProvider
 
 /**
  * Binds `%tier_value%` and `%tier%` inside an upgrade holder's effect arguments.

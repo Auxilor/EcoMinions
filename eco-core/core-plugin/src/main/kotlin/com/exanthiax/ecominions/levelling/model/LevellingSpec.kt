@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.levelling.model
 
-import com.willfp.eco.core.progression.LevelCurve
-import com.willfp.libreforge.conditions.ConditionList
-import com.willfp.libreforge.effects.Chain
+import wiki.ecohub.modules.progression.LevelCurve
+import wiki.ecohub.rules.chain.Chain
+import wiki.ecohub.rules.condition.ConditionList
 
 /**
  * A minion definition's whole `levelling:` block.

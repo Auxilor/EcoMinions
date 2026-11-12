@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.core.registry
 
 import com.exanthiax.ecominions.core.error.LoadContext
-import com.willfp.eco.core.config.interfaces.Config
+import wiki.ecohub.config.Config
 
 /**
  * Turns one config file into one validated model object.

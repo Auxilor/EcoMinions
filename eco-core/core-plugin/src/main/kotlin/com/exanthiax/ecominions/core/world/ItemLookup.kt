@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.core.world
 
-import com.willfp.eco.core.items.Items
-import com.willfp.eco.core.items.TestableItem
+import wiki.ecohub.game.item.Items
+import wiki.ecohub.game.item.lookup.TestableItem
 
 /**
  * The item-identity operations this plugin needs.

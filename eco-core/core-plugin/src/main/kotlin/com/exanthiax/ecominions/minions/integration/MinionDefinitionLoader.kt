@@ -23,18 +23,18 @@ import com.exanthiax.ecominions.minions.model.PriceList
 import com.exanthiax.ecominions.minions.model.SlayerSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.TargetSet
-import com.willfp.eco.core.blocks.TestableBlock
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.placeholder.context.placeholderContext
-import com.willfp.eco.util.NamespacedKeyUtils
-import com.willfp.eco.util.evaluateExpression
-import com.willfp.eco.util.evaluateExpressionOrNull
-import com.willfp.libreforge.Holder
-import com.willfp.libreforge.SimpleHolder
-import com.willfp.libreforge.conditions.Conditions
-import com.willfp.libreforge.effects.Effects
-import kotlin.math.roundToInt
 import org.bukkit.Material
+import wiki.ecohub.config.Config
+import wiki.ecohub.core.platform.NamespacedKeyUtils
+import wiki.ecohub.game.block.lookup.TestableBlock
+import wiki.ecohub.math.evaluateExpression
+import wiki.ecohub.math.evaluateExpressionOrNull
+import wiki.ecohub.rules.condition.Conditions
+import wiki.ecohub.rules.effect.Effects
+import wiki.ecohub.rules.holder.Holder
+import wiki.ecohub.rules.holder.SimpleHolder
+import wiki.ecohub.ui.placeholder.placeholderContext
+import kotlin.math.roundToInt
 
 /** Parses one file in `minions/` into a validated [MinionDefinition]. */
 class MinionDefinitionLoader(

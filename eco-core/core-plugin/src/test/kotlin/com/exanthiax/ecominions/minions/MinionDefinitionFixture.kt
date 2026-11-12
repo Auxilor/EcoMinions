@@ -16,8 +16,8 @@ import com.exanthiax.ecominions.minions.model.PriceList
 import com.exanthiax.ecominions.minions.model.SlayerSettings
 import com.exanthiax.ecominions.minions.model.SpawnItemSpec
 import com.exanthiax.ecominions.minions.model.TargetSet
-import com.willfp.libreforge.Holder
 import org.bukkit.Material
+import wiki.ecohub.rules.holder.Holder
 
 /**
  * A minimal minion definition for tests.

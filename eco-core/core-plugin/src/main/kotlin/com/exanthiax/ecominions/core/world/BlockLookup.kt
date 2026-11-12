@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.core.world
 
-import com.willfp.eco.core.blocks.Blocks
-import com.willfp.eco.core.blocks.TestableBlock
-import com.willfp.eco.core.blocks.impl.EmptyTestableBlock
+import wiki.ecohub.game.block.Blocks
+import wiki.ecohub.game.block.lookup.EmptyTestableBlock
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /**
  * The block-identity operations this plugin needs.

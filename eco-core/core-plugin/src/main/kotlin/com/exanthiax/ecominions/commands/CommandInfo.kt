@@ -5,10 +5,10 @@ import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.integration.targetedArmorStand
 import com.exanthiax.ecominions.minions.service.MinionService
-import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.command.impl.Subcommand
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import wiki.ecohub.core.plugin.EcoPlugin
 
 /** `/minions info` - reports on the minion the sender is looking at. */
 class CommandInfo(

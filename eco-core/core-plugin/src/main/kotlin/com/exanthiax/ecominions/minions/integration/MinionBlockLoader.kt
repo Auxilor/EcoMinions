@@ -6,9 +6,9 @@ import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.core.world.BlockLookup
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.RestoreMode
-import com.willfp.eco.core.blocks.TestableBlock
-import com.willfp.eco.core.config.interfaces.Config
 import org.bukkit.Material
+import wiki.ecohub.config.Config
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /**
  * Parses one file in `blocks/` into a validated [MinionBlock].

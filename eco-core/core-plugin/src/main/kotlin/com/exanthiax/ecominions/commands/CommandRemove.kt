@@ -6,11 +6,11 @@ import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.PlacementService
-import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.command.impl.Subcommand
-import com.willfp.eco.util.StringUtils
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.ui.text.StringUtils
 import java.util.concurrent.atomic.AtomicInteger
 
 /**

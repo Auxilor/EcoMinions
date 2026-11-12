@@ -1,11 +1,11 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.minions.model.TargetSet
-import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.block.TileState
 import org.bukkit.block.data.type.Leaves
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /**
  * The ground a self-seeder plants on.

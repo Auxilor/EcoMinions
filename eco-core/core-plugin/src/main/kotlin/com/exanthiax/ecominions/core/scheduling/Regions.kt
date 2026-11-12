@@ -1,13 +1,13 @@
 package com.exanthiax.ecominions.core.scheduling
 
-import com.willfp.eco.core.Eco
-import com.willfp.eco.core.EcoPlugin
-import com.willfp.eco.core.FoliaSupport
-import com.willfp.eco.core.Prerequisite
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Entity
+import wiki.ecohub.core.Eco
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.core.plugin.startup.FoliaSupport
+import wiki.ecohub.core.plugin.startup.Prerequisite
 
 /**
  * Runs work on the thread that owns what it touches.

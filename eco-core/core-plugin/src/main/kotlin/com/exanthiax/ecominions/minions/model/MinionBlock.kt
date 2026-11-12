@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Material
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /** How a mined block comes back. */
 enum class RestoreMode {
