@@ -6,10 +6,8 @@ import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.PlacementService
-import com.willfp.eco.core.command.impl.Subcommand
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
-import wiki.ecohub.core.plugin.EcoPlugin
 import wiki.ecohub.ui.text.StringUtils
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -20,12 +18,11 @@ import java.util.concurrent.atomic.AtomicInteger
  * reported once the last of them is done.
  */
 class CommandRemove(
-    plugin: EcoPlugin,
     private val minions: MinionService,
     private val placement: PlacementService,
     private val messages: Messages,
     private val regions: Regions
-) : Subcommand(plugin, "remove", "ecominions.command.remove", false) {
+) : EcoMinionsSubcommand("remove", "ecominions.command.remove", false) {
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
         if (args.isEmpty()) {

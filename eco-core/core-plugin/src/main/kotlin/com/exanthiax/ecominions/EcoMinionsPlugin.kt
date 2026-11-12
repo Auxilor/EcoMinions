@@ -7,10 +7,10 @@ import com.exanthiax.ecominions.api.impl.MinionsManagerImpl
 import com.exanthiax.ecominions.api.impl.UpgradesManagerImpl
 import com.exanthiax.ecominions.commands.CommandGive
 import com.exanthiax.ecominions.commands.CommandInfo
-import com.exanthiax.ecominions.commands.CommandMinions
 import com.exanthiax.ecominions.commands.CommandOpen
 import com.exanthiax.ecominions.commands.CommandReload
 import com.exanthiax.ecominions.commands.CommandRemove
+import com.exanthiax.ecominions.commands.minionsCommand
 import com.exanthiax.ecominions.compactor.integration.CompactorRecipeLoader
 import com.exanthiax.ecominions.compactor.service.CompactorService
 import com.exanthiax.ecominions.core.config.SettingsHolder
@@ -540,16 +540,13 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
 
     override fun loadPluginCommands(): List<PluginCommand> = listOf(
-        CommandMinions(
-            this,
+        minionsCommand(
             typeSelectMenu,
-            listOf(
-                CommandOpen(this, typeSelectMenu),
-                CommandGive(this, minionService, minionItems, messages, regions),
-                CommandReload(this, regions) { minionTypes.values().size },
-                CommandRemove(this, minionService, placementService, messages, regions),
-                CommandInfo(this, minionService, messages)
-            )
+            CommandOpen(typeSelectMenu),
+            CommandGive(minionService, minionItems, messages, regions),
+            CommandReload(this, regions) { minionTypes.values().size },
+            CommandRemove(minionService, placementService, messages, regions),
+            CommandInfo(minionService, messages)
         )
     )
 

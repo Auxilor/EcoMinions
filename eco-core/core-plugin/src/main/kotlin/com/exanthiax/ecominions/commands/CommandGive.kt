@@ -5,10 +5,8 @@ import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.core.text.Messages
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionService
-import com.willfp.eco.core.command.impl.Subcommand
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
-import wiki.ecohub.core.plugin.EcoPlugin
 import wiki.ecohub.ui.text.StringUtils
 
 /**
@@ -18,12 +16,11 @@ import wiki.ecohub.ui.text.StringUtils
  * console never runs on under Folia.
  */
 class CommandGive(
-    plugin: EcoPlugin,
     private val minions: MinionService,
     private val items: MinionItemService,
     private val messages: Messages,
     private val regions: Regions
-) : Subcommand(plugin, "give", "ecominions.command.give", false) {
+) : EcoMinionsSubcommand("give", "ecominions.command.give", false) {
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
         if (args.size < 2) {
