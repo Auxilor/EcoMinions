@@ -3,6 +3,7 @@ package com.exanthiax.ecominions.minions.service.activity
 import com.exanthiax.ecominions.api.event.MinionKillEvent
 import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.core.event.EventDispatcher
+import com.exanthiax.ecominions.core.world.isSolidBlock
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionKillMob
@@ -25,6 +26,7 @@ import org.bukkit.entity.Tameable
 import org.bukkit.event.HandlerList
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.persistence.PersistentDataType
+import wiki.ecohub.core.platform.Platform
 import wiki.ecohub.game.entity.lookup.TestableEntity
 import wiki.ecohub.rules.trigger.DropCause
 import java.util.UUID
@@ -46,7 +48,9 @@ class SlayerActivity(
     private val spawnedByKey: NamespacedKey,
     private val ownerOf: (Minion) -> Player? = { it.ownerPlayer() },
     private val listening: (HandlerList) -> Boolean = { it.registeredListeners.isNotEmpty() },
-    private val rewardOf: (LivingEntity) -> Int = { (it as? Mob)?.possibleExperienceReward ?: 0 },
+    private val rewardOf: (LivingEntity) -> Int = { entity ->
+        if (Platform.current.isPaper) (entity as? Mob)?.possibleExperienceReward ?: 0 else 0
+    },
     private val random: Random = Random.Default,
     private val canWork: (Minion, Block) -> Boolean = { _, _ -> true }
 ) : MinionActivity {
@@ -63,7 +67,7 @@ class SlayerActivity(
             return
         }
         pendingDeaths[target.uniqueId] = minion
-        if (minion.state.definition.slayer?.creditOwner == true) {
+        if (minion.state.definition.slayer?.creditOwner == true && Platform.current.isPaper) {
             ownerOf(minion)?.let(target::setKiller)
         }
         target.health = 0.0
@@ -174,18 +178,20 @@ class SlayerActivity(
         if (!entity.isValid || entity.isDead || entity.uniqueId in pendingDeaths) {
             return false
         }
-        if (entity is Player || entity is ArmorStand || (entity is Tameable && entity.ownerUniqueId != null)) {
+        if (entity is Player || entity is ArmorStand || entity.isOwnedPet()) {
             return false
         }
         val spawnedBy = entity.persistentDataContainer.get(spawnedByKey, PersistentDataType.STRING)
         if (spawnedBy != null && spawnedBy != minion.uuid.toString()) {
             return false
         }
-        if (spawnedBy == null && entity.customName() != null) {
+        if (spawnedBy == null && entity.customName != null) {
             return false
         }
         return settings.targets.any { it.matches(entity) } && canWork(minion, entity.location.block)
     }
+
+    private fun LivingEntity.isOwnedPet(): Boolean = this is Tameable && owner != null
 
     private fun maxMobs(minion: Minion, settings: SlayerSettings): Int =
         minion.state.definition.baseStats.evaluate(settings.maxMobs, minion.level).coerceAtLeast(1)
@@ -204,7 +210,7 @@ class SlayerActivity(
     private fun isOpenSpot(block: Block): Boolean =
         block.isPassable &&
             block.world.getBlockAt(block.x, block.y + 1, block.z).isPassable &&
-            block.world.getBlockAt(block.x, block.y - 1, block.z).isSolid
+            block.world.getBlockAt(block.x, block.y - 1, block.z).isSolidBlock
 
     private companion object {
         const val NO_MOBS = "no-mobs"

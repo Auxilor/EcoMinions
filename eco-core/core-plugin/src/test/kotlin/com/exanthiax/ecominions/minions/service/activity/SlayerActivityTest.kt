@@ -23,7 +23,6 @@ import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
@@ -143,7 +142,7 @@ class SlayerActivityTest {
             every { isValid } returns true
             every { isDead } returns false
             every { persistentDataContainer } returns container
-            every { customName() } returns if (named) Component.text("Bob") else null
+            every { customName } returns if (named) "Bob" else null
         }
     }
 

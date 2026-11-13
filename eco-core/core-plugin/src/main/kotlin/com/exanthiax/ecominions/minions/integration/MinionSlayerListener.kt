@@ -1,7 +1,5 @@
 package com.exanthiax.ecominions.minions.integration
 
-import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent
-import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent
 import com.exanthiax.ecominions.api.event.MinionLoadEvent
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionService
@@ -25,16 +23,6 @@ class MinionSlayerListener(
         }
     }
 
-    @EventHandler
-    fun onRemove(event: EntityRemoveFromWorldEvent) {
-        slayer.forget(event.entity, minions::getByUuid)
-    }
-
-    @EventHandler
-    fun onAdd(event: EntityAddToWorldEvent) {
-        slayer.track(event.entity, minions::getByUuid)
-    }
-
     @EventHandler(ignoreCancelled = true)
     fun onCombust(event: EntityCombustEvent) {
         if (slayer.isSpawned(event.entity)) {
@@ -45,5 +33,15 @@ class MinionSlayerListener(
     @EventHandler
     fun onLoad(event: MinionLoadEvent) {
         (event.minion as? Minion)?.let(slayer::recount)
+    }
+
+    companion object {
+        /** The listener keeping slayer mob counts in step, for this platform. */
+        fun trackingListener(slayer: SlayerActivity, minions: MinionService): Listener =
+            if (PaperMinionSlayerTrackingListener.isSupported) {
+                PaperMinionSlayerTrackingListener(slayer, minions)
+            } else {
+                SpigotMinionSlayerTrackingListener(slayer, minions)
+            }
     }
 }

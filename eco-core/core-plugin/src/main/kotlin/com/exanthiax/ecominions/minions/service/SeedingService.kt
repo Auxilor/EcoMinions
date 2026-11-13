@@ -1,5 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.core.world.isSolidBlock
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
@@ -180,14 +181,14 @@ class SeedingService(
         val targets = minion.state.definition.targetBlocks
         return HORIZONTAL.map { ground.getRelative(it) }.firstOrNull { candidate ->
             !(candidate.x == center.x && candidate.z == center.z) &&
-                candidate.isSolid &&
+                candidate.isSolidBlock &&
                 candidate.state !is TileState &&
                 !targets.matches(candidate) &&
                 !minion.mining.isAwaitingRegen(candidate) &&
                 candidate.getRelative(BlockFace.UP).type == Material.AIR &&
                 canWork(minion, candidate) &&
                 HORIZONTAL.all { face ->
-                    candidate.getRelative(face).let { it.isSolid || it.type == Material.WATER }
+                    candidate.getRelative(face).let { it.isSolidBlock || it.type == Material.WATER }
                 }
         }
     }

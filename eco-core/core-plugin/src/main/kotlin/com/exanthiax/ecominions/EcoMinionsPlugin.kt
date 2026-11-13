@@ -545,7 +545,7 @@ class EcoMinionsPlugin : EcoPlugin() {
         MinionOwnerListener(minionService, activityService, regions),
         MinionLimitsListener(minionLimits),
         IslandMemberListener(minionService, activityService, islandRegistry, islandIndex, minionSettings, regions)
-    )
+    ) + MinionSlayerListener.trackingListener(slayerActivity, minionService)
 
     override fun loadPluginCommands(): List<EcoCommand> = listOf(
         minionsCommand(

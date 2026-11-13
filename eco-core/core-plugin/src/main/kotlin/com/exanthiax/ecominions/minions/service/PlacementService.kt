@@ -183,7 +183,7 @@ class PlacementService(
     /** A slayer's frozen mobs would stand forever without it. */
     private fun removeSpawnedMobs(minion: Minion) {
         for (uuid in minion.mining.spawnedMobs.toList()) {
-            minion.entity.world.getEntity(uuid)?.remove()
+            Bukkit.getServer().getEntity(uuid)?.remove()
         }
         minion.mining.spawnedMobs.clear()
     }

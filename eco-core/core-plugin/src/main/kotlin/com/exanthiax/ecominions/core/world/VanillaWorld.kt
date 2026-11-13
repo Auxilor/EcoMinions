@@ -33,8 +33,11 @@ object VanillaWorld {
     /** Adds to an orb already at the minion, so an unattended minion keeps one orb rather than a pile. */
     fun spawnXpOrb(minion: Minion, amount: Int) {
         val location = minion.entity.location.clone().add(0.0, 0.5, 0.0)
-        val existing = location.getNearbyEntitiesByType(ExperienceOrb::class.java, XP_MERGE_RADIUS)
-            .firstOrNull { it.isValid }
+        val existing = minion.entity.world
+            .getNearbyEntities(location, XP_MERGE_RADIUS, XP_MERGE_RADIUS, XP_MERGE_RADIUS) { entity ->
+                entity is ExperienceOrb && entity.isValid
+            }
+            .firstOrNull() as? ExperienceOrb
         if (existing != null) {
             existing.experience += amount
         } else {

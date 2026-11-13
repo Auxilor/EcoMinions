@@ -5,6 +5,7 @@ import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Entity
 import wiki.ecohub.core.Eco
+import wiki.ecohub.core.platform.ownsGlobal
 import wiki.ecohub.core.plugin.EcoPlugin
 import wiki.ecohub.core.plugin.startup.FoliaSupport
 import wiki.ecohub.core.plugin.startup.Prerequisite
@@ -59,7 +60,7 @@ class Regions(
 
     /** Runs [action] on the global region: now if this is the global region thread, else on its next tick. */
     inline fun global(crossinline action: () -> Unit) {
-        if (!Prerequisite.HAS_FOLIA.isMet || Bukkit.isGlobalTickThread()) {
+        if (!Prerequisite.HAS_FOLIA.isMet || Bukkit.getServer().ownsGlobal()) {
             action()
         } else {
             plugin.scheduler.global().run(Runnable { action() })
