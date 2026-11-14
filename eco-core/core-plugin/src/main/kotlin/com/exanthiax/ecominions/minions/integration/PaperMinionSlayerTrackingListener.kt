@@ -6,6 +6,7 @@ import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.activity.SlayerActivity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import wiki.ecohub.core.plugin.startup.Prerequisite
 
 /**
  * Keeps slayer mob counts in step as mobs enter and leave the world, on Paper and forks. Kept apart
@@ -28,8 +29,7 @@ class PaperMinionSlayerTrackingListener(
     }
 
     companion object {
-        val isSupported: Boolean = runCatching {
-            Class.forName("com.destroystokyo.paper.event.entity.EntityAddToWorldEvent")
-        }.isSuccess
+        val isSupported: Boolean
+            get() = Prerequisite.HAS_PAPER.isMet
     }
 }

@@ -5,6 +5,7 @@ import io.papermc.paper.event.player.PlayerPickEntityEvent
 import org.bukkit.entity.ArmorStand
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import wiki.ecohub.core.plugin.startup.Prerequisite
 
 /**
  * Server-side pick-block on Paper and forks (Purpur, Folia, ...). Kept apart from [MinionPickListener]
@@ -23,8 +24,8 @@ class PaperMinionPickListener(
     }
 
     companion object {
-        val isSupported: Boolean = runCatching {
-            Class.forName("io.papermc.paper.event.player.PlayerPickEntityEvent")
-        }.isSuccess
+        /** Paper added [PlayerPickEntityEvent] in 1.21.5. */
+        val isSupported: Boolean
+            get() = Prerequisite.HAS_PAPER.isMet && Prerequisite.hasVersion(1, 21, 5).isMet
     }
 }
