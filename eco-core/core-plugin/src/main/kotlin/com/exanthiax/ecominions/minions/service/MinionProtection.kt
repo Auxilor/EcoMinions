@@ -30,9 +30,13 @@ class MinionProtection(
             mining.protectedBlocks.clear()
             mining.protectionCheckedAt = now
         }
+        val builder = builderOf(minion) ?: return false
+        if (mining.protectionBuilder != builder.uniqueId) {
+            mining.protectedBlocks.clear()
+            mining.protectionBuilder = builder.uniqueId
+        }
         val position = BlockPositions.pack(block.location)
         mining.protectedBlocks[position]?.let { return it }
-        val builder = builderOf(minion) ?: return false
         return canBuild(builder, block).also { mining.protectedBlocks[position] = it }
     }
 
