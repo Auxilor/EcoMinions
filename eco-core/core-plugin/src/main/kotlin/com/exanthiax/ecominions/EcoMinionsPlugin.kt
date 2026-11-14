@@ -250,7 +250,10 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         resolve = VanillaWorld::drops,
         resolveItem = { id -> Items.lookup(id).item.takeIf { !Items.isEmpty(it) }?.clone() }
     )
-    private val protection = MinionProtection()
+    private val protection = MinionProtection(builderOf = { minion ->
+        minion.ownerPlayer() ?: minion.takeIf { minionSettings.value.activeWhileMemberOnline }
+            ?.let { islandMemberCache.membersOf(it.uuid).firstNotNullOfOrNull(Bukkit::getPlayer) }
+    })
     private val seedingService = SeedingService(protection::allows)
     private val regenService = RegenService(minionSettings, triggerDispatch, events)
     private val behaviours = MinionBehaviours(
