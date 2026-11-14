@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.upgrades.integration
 
 import com.exanthiax.ecominions.upgrades.model.TierCost
-import com.willfp.eco.core.price.ConfiguredPrice
 import org.bukkit.entity.Player
+import wiki.ecohub.core.price.ConfiguredPrice
 
 /** Adapts eco's price system to the slice's [TierCost] port. */
 class ConfiguredPriceCost(

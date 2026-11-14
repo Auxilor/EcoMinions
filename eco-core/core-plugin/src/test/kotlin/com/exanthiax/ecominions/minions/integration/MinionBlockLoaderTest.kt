@@ -4,9 +4,6 @@ import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.error.LoadReport
 import com.exanthiax.ecominions.minions.model.RestoreMode
 import com.exanthiax.ecominions.testsupport.FakeBlockLookup
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.ConfigViolation
-import com.willfp.libreforge.ViolationContext
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -17,6 +14,9 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import wiki.ecohub.config.Config
+import wiki.ecohub.config.ConfigViolation
+import wiki.ecohub.config.ViolationContext
 
 class MinionBlockLoaderTest {
 

@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.libreforge
 
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.libreforge.Dispatcher
 import org.bukkit.Location
+import wiki.ecohub.rules.holder.Dispatcher
 import java.util.UUID
 
 /**

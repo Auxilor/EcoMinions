@@ -1,11 +1,10 @@
 package com.exanthiax.ecominions.commands
 
 import com.exanthiax.ecominions.core.scheduling.Regions
-import com.willfp.eco.core.EcoPlugin
-import com.willfp.eco.core.command.impl.Subcommand
-import com.willfp.eco.util.StringUtils
-import com.willfp.eco.util.toNiceString
 import org.bukkit.command.CommandSender
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.core.stdlib.toNiceString
+import wiki.ecohub.ui.text.StringUtils
 
 /**
  * `/minions reload`.
@@ -17,7 +16,7 @@ class CommandReload(
     private val plugin: EcoPlugin,
     private val regions: Regions,
     private val minionTypeCount: () -> Int
-) : Subcommand(plugin, "reload", "ecominions.command.reload", false) {
+) : EcoMinionsSubcommand("reload", "ecominions.command.reload", false) {
 
     override fun onExecute(sender: CommandSender, args: List<String>) {
         regions.global {

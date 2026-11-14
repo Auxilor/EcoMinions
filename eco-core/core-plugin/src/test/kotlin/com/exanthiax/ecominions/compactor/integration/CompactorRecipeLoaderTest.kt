@@ -2,14 +2,14 @@ package com.exanthiax.ecominions.compactor.integration
 
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.error.LoadReport
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.ViolationContext
-import com.willfp.libreforge.conditions.ConditionList
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import wiki.ecohub.config.Config
+import wiki.ecohub.config.ViolationContext
+import wiki.ecohub.rules.condition.ConditionList
 
 class CompactorRecipeLoaderTest {
 

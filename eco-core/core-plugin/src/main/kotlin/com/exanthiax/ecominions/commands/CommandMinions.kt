@@ -1,34 +1,28 @@
 package com.exanthiax.ecominions.commands
 
 import com.exanthiax.ecominions.minions.ui.TypeSelectMenu
-import com.willfp.eco.core.EcoPlugin
-import com.willfp.eco.core.command.impl.PluginCommand
-import com.willfp.eco.util.StringUtils
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import wiki.ecohub.core.command.EcoCommand
+import wiki.ecohub.core.command.command
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.ui.text.StringUtils
+
+private const val CONSOLE_USAGE = "&eEcoMinions &7- give, reload, remove, info, open"
 
 /** `/minions` - opens the type browser, or lists subcommands from the console. */
-class CommandMinions(
-    plugin: EcoPlugin,
-    private val typeSelect: TypeSelectMenu,
-    subcommands: List<com.willfp.eco.core.command.impl.Subcommand>
-) : PluginCommand(plugin, "minions", "ecominions.command.minions", false) {
+internal fun EcoPlugin.minionsCommand(
+    typeSelect: TypeSelectMenu,
+    vararg subcommands: EcoMinionsSubcommand
+): EcoCommand = command(name = "minions", permission = "ecominions.command.minions") {
+    mount(*subcommands)
 
-    init {
-        subcommands.forEach { addSubcommand(it) }
-    }
+    executes {
+        val player = sender as? Player
 
-    override fun onExecute(sender: CommandSender, args: List<String>) {
-        if (sender is Player) {
-            typeSelect.open(sender)
-            return
+        if (player != null) {
+            typeSelect.open(player)
+        } else {
+            sender.sendMessage(StringUtils.format(CONSOLE_USAGE))
         }
-        sender.sendMessage(StringUtils.format(CONSOLE_USAGE))
-    }
-
-    override fun tabComplete(sender: CommandSender, args: List<String>): List<String> = emptyList()
-
-    private companion object {
-        const val CONSOLE_USAGE = "&eEcoMinions &7- give, reload, remove, info, open"
     }
 }

@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.core.placeholders
 
-import com.willfp.eco.core.placeholder.InjectablePlaceholder
-import com.willfp.eco.core.placeholder.PlaceholderInjectable
-import com.willfp.eco.core.placeholder.StaticPlaceholder
+import wiki.ecohub.ui.placeholder.InjectablePlaceholder
+import wiki.ecohub.ui.placeholder.PlaceholderInjectable
+import wiki.ecohub.ui.placeholder.type.StaticPlaceholder
 
 /**
  * Supplies `%level%` to an eco expression.

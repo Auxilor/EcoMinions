@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.willfp.eco.core.particle.Particles
-import com.willfp.eco.core.particle.SpawnableParticle
+import wiki.ecohub.game.particle.Particles
+import wiki.ecohub.game.particle.SpawnableParticle
 
 /** The particle layers a minion emits. */
 data class ParticleSettings(

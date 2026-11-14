@@ -2,12 +2,11 @@ package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.PlacementSettings
+import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import com.exanthiax.ecominions.testsupport.FakeWorld
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import com.exanthiax.ecominions.testsupport.FakeBlockLookup
-import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import wiki.ecohub.game.block.lookup.TestableBlock
 import kotlin.math.abs
 
 class SeedingServiceTest {

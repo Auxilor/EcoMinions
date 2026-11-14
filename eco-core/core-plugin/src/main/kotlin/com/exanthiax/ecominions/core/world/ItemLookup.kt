@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.core.world
 
-import com.willfp.eco.core.items.Items
-import com.willfp.eco.core.items.TestableItem
+import wiki.ecohub.game.item.Items
+import wiki.ecohub.game.item.lookup.TestableItem
 
 /**
  * The item-identity operations this plugin needs.
@@ -22,5 +22,5 @@ class EcoItemLookup : ItemLookup {
      * keeps that sentinel private - [Items.isEmpty] is its own test for it.
      */
     override fun lookup(id: String): TestableItem? =
-        Items.lookup(id).takeIf { !Items.isEmpty(it.item) }
+        Items.lookup(id).takeIf { !Items.isEmpty(it.getItem()) }
 }

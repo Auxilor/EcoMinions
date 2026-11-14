@@ -8,7 +8,6 @@ import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
-import com.willfp.libreforge.conditions.ConditionList
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -19,6 +18,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import wiki.ecohub.rules.condition.ConditionList
 
 class MinionUpgradeServiceTest {
 

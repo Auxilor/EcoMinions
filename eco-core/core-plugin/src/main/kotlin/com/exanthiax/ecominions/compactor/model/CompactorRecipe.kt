@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.compactor.model
 
-import com.willfp.libreforge.conditions.ConditionList
+import wiki.ecohub.rules.condition.ConditionList
 
 /** Compresses bulk drops into their block form inside minion storage. */
 class CompactorRecipe(

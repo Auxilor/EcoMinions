@@ -1,9 +1,9 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.libreforge.ownerPlayer
-import com.willfp.eco.core.integrations.antigrief.AntigriefManager
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
+import wiki.ecohub.provider.protection.ExternalAntigriefService
 
 /**
  * Whether a minion may work a block: its owner must be able to build there,
@@ -16,7 +16,7 @@ import org.bukkit.entity.Player
 class MinionProtection(
     private val ownerOf: (Minion) -> Player? = { it.ownerPlayer() },
     private val canBuild: (Player, Block) -> Boolean = { player, block ->
-        AntigriefManager.canBreakBlock(player, block) && AntigriefManager.canPlaceBlock(player, block)
+        ExternalAntigriefService.canBreakBlock(player, block) && ExternalAntigriefService.canPlaceBlock(player, block)
     },
     private val clock: () -> Long = System::currentTimeMillis
 ) {

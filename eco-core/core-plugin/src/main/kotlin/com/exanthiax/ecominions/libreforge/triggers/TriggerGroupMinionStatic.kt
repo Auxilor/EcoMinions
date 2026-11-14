@@ -1,10 +1,10 @@
 package com.exanthiax.ecominions.libreforge.triggers
 
-import com.willfp.eco.core.placeholder.context.placeholderContext
-import com.willfp.eco.util.evaluateExpressionOrNull
-import com.willfp.libreforge.triggers.Trigger
-import com.willfp.libreforge.triggers.TriggerGroup
-import com.willfp.libreforge.triggers.TriggerParameter
+import wiki.ecohub.math.evaluateExpressionOrNull
+import wiki.ecohub.rules.trigger.Trigger
+import wiki.ecohub.rules.trigger.TriggerGroup
+import wiki.ecohub.rules.trigger.TriggerParameter
+import wiki.ecohub.ui.placeholder.placeholderContext
 import java.util.concurrent.ConcurrentHashMap
 
 /**

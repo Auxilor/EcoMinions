@@ -1,6 +1,7 @@
 package com.exanthiax.ecominions.minions.ui
 
 import com.exanthiax.ecominions.core.config.SettingsHolder
+import com.exanthiax.ecominions.core.lifecycle.MinionClock
 import com.exanthiax.ecominions.core.lifecycle.Tickable
 import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.minions.model.MinionSettings
@@ -32,7 +33,7 @@ class MinionRenderLoop(
     override val tickInterval = RENDER_INTERVAL_TICKS
 
     override fun tick() {
-        val now = Bukkit.getCurrentTick().toLong()
+        val now = MinionClock.now
         val hologramInterval = settings.value.hologramRefreshTicks
 
         for (minion in minions.all()) {

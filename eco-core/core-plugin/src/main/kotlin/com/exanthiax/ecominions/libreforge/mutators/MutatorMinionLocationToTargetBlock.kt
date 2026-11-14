@@ -1,9 +1,9 @@
 package com.exanthiax.ecominions.libreforge.mutators
 
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.NoCompileData
-import com.willfp.libreforge.mutators.Mutator
-import com.willfp.libreforge.triggers.TriggerData
+import wiki.ecohub.config.Config
+import wiki.ecohub.core.registry.NoCompileData
+import wiki.ecohub.rules.mutator.Mutator
+import wiki.ecohub.rules.trigger.TriggerData
 
 /** Moves the chain's location onto the block the minion is acting on. */
 object MutatorMinionLocationToTargetBlock : Mutator<NoCompileData>("minion_location_to_target_block") {

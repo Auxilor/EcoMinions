@@ -21,25 +21,21 @@ import com.exanthiax.ecominions.minions.service.MinionInput
 import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.upgrades.ui.UpgradeListMenu
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.gui.SlotLocation
-import com.willfp.eco.core.gui.addCustomSlots
-import com.willfp.eco.core.gui.component.PagedAreaComponent
-import com.willfp.eco.core.gui.getSlotLocations
-import com.willfp.eco.core.gui.menu
-import com.willfp.eco.core.gui.menu.Menu
-import com.willfp.eco.core.gui.menu.MenuBuilder
-import com.willfp.eco.core.gui.onClose
-import com.willfp.eco.core.gui.onOpen
-import com.willfp.eco.core.gui.onRender
-import com.willfp.eco.core.gui.onShiftLeftClick
-import com.willfp.eco.core.gui.slot
-import com.willfp.eco.core.gui.slot.Slot
-import com.willfp.eco.core.items.Items
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.config.Config
+import wiki.ecohub.game.item.Items
+import wiki.ecohub.modules.menus.SlotLocation
+import wiki.ecohub.modules.menus.addCustomSlots
+import wiki.ecohub.modules.menus.component.PagedAreaComponent
+import wiki.ecohub.modules.menus.getSlotLocations
+import wiki.ecohub.modules.menus.menu
+import wiki.ecohub.modules.menus.menu.Menu
+import wiki.ecohub.modules.menus.menu.MenuBuilder
+import wiki.ecohub.modules.menus.slot
+import wiki.ecohub.modules.menus.slot.Slot
 
 /**
  * The menu shown when a player clicks a minion.
@@ -162,7 +158,7 @@ class MainMenu(
         }
 
     private fun acceptedNames(definition: MinionDefinition): List<String> =
-        definition.breeder?.run { food.map { storageView.nameOf(it.item) } }
+        definition.breeder?.run { food.map { storageView.nameOf(it.getItem()) } }
             ?: fuels.all().filter { definition.feeder?.accepts(it) == true }.map { it.displayName }
 
     private fun context(minion: Minion): TemplateContext =
@@ -358,7 +354,7 @@ class MainMenu(
         }
 
         return chrome.named(
-            active?.let { Items.lookup(it.itemLookup).item.type.takeIf { type -> type.isItem && !type.isAir } }
+            active?.let { Items.lookup(it.itemLookup).getItem().type.takeIf { type -> type.isItem && !type.isAir } }
                 ?.let { ItemStack(it) }
                 ?: chrome.buttonItem(section, Material.COAL),
             messages.line("gui.main.fuel.name"),

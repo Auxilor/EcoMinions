@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.core.lifecycle.MinionClock
 import com.exanthiax.ecominions.core.lifecycle.Tickable
 import com.exanthiax.ecominions.core.scheduling.Regions
-import org.bukkit.Bukkit
 
 /**
  * Ticks every live minion from one repeating task, rather than
@@ -26,7 +26,7 @@ class MinionMiningLoop(
     override val tickInterval = 1L
 
     override fun tick() {
-        val now = Bukkit.getCurrentTick().toLong()
+        val now = MinionClock.advance()
         for (minion in minions.all()) {
             if (minion.state.owner == null ||
                 minion.state.shutdownTimestamp != null && !activity.isActive(minion) && !activity.needsReconcile(minion)

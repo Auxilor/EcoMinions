@@ -15,8 +15,8 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.activity.ActivityResult
 import com.exanthiax.ecominions.minions.service.activity.MinionActivity
-import com.willfp.libreforge.triggers.Trigger
-import com.willfp.libreforge.updateEffects
+import wiki.ecohub.rules.holder.updateEffects
+import wiki.ecohub.rules.trigger.Trigger
 
 /**
  * Drives one minion for a single tick.

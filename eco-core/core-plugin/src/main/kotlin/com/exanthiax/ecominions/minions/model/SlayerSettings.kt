@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.willfp.eco.core.entities.TestableEntity
+import wiki.ecohub.game.entity.lookup.TestableEntity
 
 /** What a slayer kills. [maxMobs] may be a `%level%` expression. */
 data class SlayerSettings(

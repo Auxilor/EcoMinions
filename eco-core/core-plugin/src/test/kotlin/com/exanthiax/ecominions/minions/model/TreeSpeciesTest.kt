@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import com.exanthiax.ecominions.minions.integration.VanillaBlockDefaults
+import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull

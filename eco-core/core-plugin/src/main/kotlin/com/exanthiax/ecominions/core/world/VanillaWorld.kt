@@ -9,6 +9,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.loot.LootContext
 import org.bukkit.loot.LootTables
+import wiki.ecohub.game.block.getDropsAt
 import java.util.concurrent.ThreadLocalRandom
 
 /** The live server's own drops, loot and xp orbs, for the parts of a minion's work that copy vanilla. */
@@ -19,22 +20,20 @@ object VanillaWorld {
      * What a vanilla block drops when broken, rolled the way live mining rolls it.
      *
      * A `blocks/` loot table cannot be populated through Bukkit's loot context, so
-     * the drops come from a snapshot of the block at [location] retyped to
-     * [material]; the world itself is never changed.
+     * the drops are rolled for [material] at [location] by eco; the world itself is
+     * never changed.
      */
     fun drops(material: Material, location: Location): List<ItemStack> =
-        runCatching {
-            location.block.state
-                .apply { type = material }
-                .drops
-                .toList()
-        }.getOrDefault(emptyList())
+        material.takeIf { it.isBlock }?.createBlockData()?.getDropsAt(location).orEmpty()
 
     /** Adds to an orb already at the minion, so an unattended minion keeps one orb rather than a pile. */
     fun spawnXpOrb(minion: Minion, amount: Int) {
         val location = minion.entity.location.clone().add(0.0, 0.5, 0.0)
-        val existing = location.getNearbyEntitiesByType(ExperienceOrb::class.java, XP_MERGE_RADIUS)
-            .firstOrNull { it.isValid }
+        val existing = minion.entity.world
+            .getNearbyEntities(location, XP_MERGE_RADIUS, XP_MERGE_RADIUS, XP_MERGE_RADIUS) { entity ->
+                entity is ExperienceOrb && entity.isValid
+            }
+            .firstOrNull() as? ExperienceOrb
         if (existing != null) {
             existing.experience += amount
         } else {

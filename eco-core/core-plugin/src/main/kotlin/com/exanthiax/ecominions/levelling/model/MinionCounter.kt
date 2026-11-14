@@ -1,12 +1,12 @@
 package com.exanthiax.ecominions.levelling.model
 
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.ConfigurableElement
-import com.willfp.libreforge.conditions.ConditionList
-import com.willfp.libreforge.effects.arguments.EffectArgumentList
-import com.willfp.libreforge.filters.FilterList
-import com.willfp.libreforge.triggers.DispatchedTrigger
-import com.willfp.libreforge.triggers.Trigger
+import wiki.ecohub.config.Config
+import wiki.ecohub.config.ConfigurableElement
+import wiki.ecohub.rules.argument.EffectArgumentList
+import wiki.ecohub.rules.condition.ConditionList
+import wiki.ecohub.rules.filter.FilterList
+import wiki.ecohub.rules.trigger.DispatchedTrigger
+import wiki.ecohub.rules.trigger.Trigger
 import java.util.UUID
 
 /**

@@ -7,12 +7,12 @@ import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
-import com.willfp.eco.core.Prerequisite
-import com.willfp.eco.util.StringUtils
-import net.kyori.adventure.text.Component
 import org.bukkit.Color
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
+import wiki.ecohub.core.plugin.startup.Prerequisite
+import wiki.ecohub.game.entity.teleportRegionAware
+import wiki.ecohub.ui.text.StringUtils
 
 /** The floating label above a minion. */
 class MinionHologram(
@@ -28,12 +28,8 @@ class MinionHologram(
      */
     fun refresh(minion: Minion) {
         val display = minion.hologram?.takeIf { it.isValid } ?: spawn(minion) ?: return
-        if (Prerequisite.HAS_FOLIA.isMet) {
-            display.teleportAsync(anchorOf(minion))
-        } else {
-            display.teleport(anchorOf(minion))
-        }
-        display.text(StringUtils.toComponent(textFor(minion)))
+        display.teleportRegionAware(anchorOf(minion))
+        display.showText(textFor(minion))
         display.backgroundColor = Color.fromARGB(settings.value.hologramBackground)
     }
 
@@ -52,10 +48,18 @@ class MinionHologram(
             // stop (crash, kill), which stacks up over repeated restarts.
             textDisplay.isPersistent = false
             textDisplay.billboard = Display.Billboard.CENTER
-            textDisplay.text(Component.empty())
+            textDisplay.showText("")
         }
         minion.hologram = display
         return display
+    }
+
+    private fun TextDisplay.showText(legacy: String) {
+        if (Prerequisite.HAS_PAPER.isMet) {
+            text(StringUtils.toComponent(legacy))
+        } else {
+            setText(legacy)
+        }
     }
 
     private fun anchorOf(minion: Minion) =

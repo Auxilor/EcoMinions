@@ -17,7 +17,6 @@ import com.exanthiax.ecominions.minions.service.ExperienceSink
 import com.exanthiax.ecominions.minions.service.FishingLootRoller
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.testsupport.FakeWorld
-import com.willfp.libreforge.triggers.event.DropResult
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -27,6 +26,7 @@ import org.bukkit.inventory.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import wiki.ecohub.rules.trigger.DropResult
 import java.util.UUID
 import kotlin.random.Random
 

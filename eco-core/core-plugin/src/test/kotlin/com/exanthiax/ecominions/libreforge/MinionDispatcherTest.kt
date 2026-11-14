@@ -1,13 +1,13 @@
 package com.exanthiax.ecominions.libreforge
 
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.libreforge.get
 import io.mockk.every
 import io.mockk.mockk
 import org.bukkit.Location
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
+import wiki.ecohub.rules.holder.get
 import java.util.UUID
 
 class MinionDispatcherTest {

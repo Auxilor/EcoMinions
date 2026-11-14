@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.libreforge
 
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.libreforge.triggers.DispatchedTrigger
+import wiki.ecohub.rules.trigger.DispatchedTrigger
 
 /**
  * Observes every trigger [MinionTriggerDispatch] sends.

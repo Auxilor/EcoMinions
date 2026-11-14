@@ -4,7 +4,7 @@ import com.exanthiax.ecominions.core.config.IntRanges
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.world.ItemLookup
 import com.exanthiax.ecominions.minions.model.MinionDropList
-import com.willfp.eco.core.config.interfaces.Config
+import wiki.ecohub.config.Config
 
 /** Parses a `drops:` list once at load. A bad entry is reported and skipped, never fatal. */
 class MinionDropListLoader(
@@ -16,7 +16,7 @@ class MinionDropListLoader(
     private fun entry(section: Config, path: String, context: LoadContext): MinionDropList.Entry? {
         val raw = section.getStringOrNull("item")?.takeIf { it.isNotBlank() }
             ?: return context.invalid(path, "", "an item or custom item id")
-        val item = items.lookup(raw)?.item
+        val item = items.lookup(raw)?.getItem()
             ?: return context.invalid(path, raw, "an item or custom item id")
 
         return MinionDropList.Entry(

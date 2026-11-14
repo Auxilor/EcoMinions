@@ -15,13 +15,12 @@ import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeMenuSettings
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
-import com.willfp.eco.core.gui.addCustomSlots
-import com.willfp.eco.core.gui.menu
-import com.willfp.eco.core.gui.onClose
-import com.willfp.eco.core.gui.slot
-import com.willfp.eco.core.gui.slot.Slot
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import wiki.ecohub.modules.menus.addCustomSlots
+import wiki.ecohub.modules.menus.menu
+import wiki.ecohub.modules.menus.slot
+import wiki.ecohub.modules.menus.slot.Slot
 
 /** Shown when a tier can be paid for in more than one way. */
 class CostSelectMenu(

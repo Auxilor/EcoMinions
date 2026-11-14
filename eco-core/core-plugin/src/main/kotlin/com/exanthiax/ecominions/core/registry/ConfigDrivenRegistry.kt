@@ -2,11 +2,11 @@ package com.exanthiax.ecominions.core.registry
 
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.error.LoadReport
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.registry.KRegistrable
-import com.willfp.libreforge.ViolationContext
-import com.willfp.libreforge.loader.LibreforgePlugin
-import com.willfp.libreforge.loader.configs.RegistrableCategory
+import wiki.ecohub.config.Config
+import wiki.ecohub.config.ViolationContext
+import wiki.ecohub.config.category.RegistrableCategory
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.core.registry.KRegistrable
 
 /**
  * A folder of config files loaded into model objects.
@@ -28,21 +28,21 @@ class ConfigDrivenRegistry<T : Any>(
     /** Adapts a model object to eco's registry, which requires an id-bearing type. */
     class Entry<T : Any>(override val id: String, val value: T) : KRegistrable
 
-    override fun beforeReload(plugin: LibreforgePlugin) {
+    override fun beforeReload(plugin: EcoPlugin) {
         onBeforeReload()
     }
 
-    override fun clear(plugin: LibreforgePlugin) {
+    override fun clear(plugin: EcoPlugin) {
         registry.clear()
     }
 
-    override fun acceptConfig(plugin: LibreforgePlugin, id: String, config: Config) {
+    override fun acceptConfig(plugin: EcoPlugin, id: String, config: Config) {
         val context = LoadContext(ViolationContext(plugin, "$directory/$id.yml"), report)
         val loaded = loader.load(id, config, context) ?: return
         registry.register(Entry(id, loaded))
     }
 
-    override fun afterReload(plugin: LibreforgePlugin) {
+    override fun afterReload(plugin: EcoPlugin) {
         report.recordLoaded(displayName, values().size)
     }
 

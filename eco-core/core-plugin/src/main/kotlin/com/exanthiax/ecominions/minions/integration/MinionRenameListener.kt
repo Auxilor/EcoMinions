@@ -7,7 +7,6 @@ import com.exanthiax.ecominions.islands.MinionAccess
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionService
-import com.willfp.eco.util.StringUtils
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.GameMode
 import org.bukkit.Material
@@ -19,6 +18,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.ui.text.StringUtils
 
 /** Renames a minion when it is right-clicked with a named name tag. */
 class MinionRenameListener(

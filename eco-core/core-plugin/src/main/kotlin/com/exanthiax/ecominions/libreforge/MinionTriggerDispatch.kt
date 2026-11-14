@@ -4,20 +4,20 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCollect
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionFuelStart
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.libreforge.drops.DropContribution
-import com.willfp.libreforge.drops.LibreforgeDrops
-import com.willfp.libreforge.triggers.DispatchedTrigger
-import com.willfp.libreforge.triggers.Trigger
-import com.willfp.libreforge.triggers.TriggerData
-import com.willfp.libreforge.triggers.event.DropCause
-import com.willfp.libreforge.triggers.event.DropContext
-import com.willfp.libreforge.triggers.event.DropResult
-import com.willfp.libreforge.triggers.event.EditableDropEvent
 import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.drop.DropContribution
+import wiki.ecohub.game.drop.LibreforgeDrops
+import wiki.ecohub.rules.trigger.DispatchedTrigger
+import wiki.ecohub.rules.trigger.DropCause
+import wiki.ecohub.rules.trigger.DropContext
+import wiki.ecohub.rules.trigger.DropResult
+import wiki.ecohub.rules.trigger.EditableDropEvent
+import wiki.ecohub.rules.trigger.Trigger
+import wiki.ecohub.rules.trigger.TriggerData
 
 /** What a drop dispatch left, plus the XP libreforge contributors added. */
 data class MinionDrops(val results: List<DropResult>, val contributedExperience: Int)

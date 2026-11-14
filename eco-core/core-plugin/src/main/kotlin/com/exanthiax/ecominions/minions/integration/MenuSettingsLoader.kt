@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.minions.model.MenuSettings
-import com.willfp.eco.core.config.interfaces.Config
+import wiki.ecohub.config.Config
 
 /** Reads the `gui` section of `config.yml` into [MenuSettings]. */
 class MenuSettingsLoader(

@@ -1,9 +1,9 @@
 package com.exanthiax.ecominions.core.error
 
-import com.willfp.libreforge.ViolationContext
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
+import wiki.ecohub.config.ViolationContext
 
 class LoadContextTest {
 

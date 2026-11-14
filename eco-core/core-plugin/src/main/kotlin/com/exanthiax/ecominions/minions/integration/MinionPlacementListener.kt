@@ -11,10 +11,6 @@ import com.exanthiax.ecominions.minions.service.PlacementService
 import com.exanthiax.ecominions.minions.ui.MainMenu
 import com.exanthiax.ecominions.minions.ui.displayName
 import com.exanthiax.ecominions.minions.ui.limitName
-import com.willfp.eco.util.StringUtils
-import com.willfp.eco.util.asAudience
-import com.willfp.libreforge.toDispatcher
-import com.willfp.libreforge.triggers.TriggerData
 import org.bukkit.FluidCollisionMode
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -29,6 +25,10 @@ import org.bukkit.event.player.PlayerBucketFillEvent
 import org.bukkit.event.player.PlayerInteractAtEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
+import wiki.ecohub.game.entity.player.asAudience
+import wiki.ecohub.game.entity.toDispatcher
+import wiki.ecohub.rules.trigger.TriggerData
+import wiki.ecohub.ui.text.StringUtils
 
 /** Turns clicks into placements and menu opens. */
 class MinionPlacementListener(

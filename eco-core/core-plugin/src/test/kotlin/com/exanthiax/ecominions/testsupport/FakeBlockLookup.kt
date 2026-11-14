@@ -1,10 +1,10 @@
 package com.exanthiax.ecominions.testsupport
 
 import com.exanthiax.ecominions.core.world.BlockLookup
-import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /**
  * An in-memory [BlockLookup] for tests.

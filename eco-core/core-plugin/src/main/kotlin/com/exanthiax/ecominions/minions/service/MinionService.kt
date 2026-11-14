@@ -7,16 +7,15 @@ import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.core.registry.ConfigDrivenRegistry
 import com.exanthiax.ecominions.core.scheduling.Regions
 import com.exanthiax.ecominions.libreforge.toDispatcher
+import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.MinionState
-import com.exanthiax.ecominions.minions.model.MinionDefinition
-import com.willfp.libreforge.flushHolders
-import com.willfp.libreforge.forceRefreshHolders
-import com.willfp.libreforge.updateEffects
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
+import wiki.ecohub.rules.holder.HolderStates
+import wiki.ecohub.rules.holder.updateEffects
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -176,9 +175,9 @@ class MinionService(
      */
     fun refreshEffects(minion: Minion) {
         minion.toDispatcher().apply {
-            forceRefreshHolders()
+            HolderStates.forceMarkAllProviders(this)
             updateEffects()
-            flushHolders()
+            HolderStates.flushNow(this)
         }
     }
 

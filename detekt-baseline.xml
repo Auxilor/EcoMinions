@@ -1076,7 +1076,7 @@
     <ID>TooGenericExceptionCaught:IslandRegistry.kt:IslandRegistry$exception: Exception</ID>
     <ID>TooGenericExceptionCaught:SuperiorSkyblockIslandProvider.kt:SuperiorSkyblockIslandProvider$exception: Exception</ID>
     <ID>TooGenericExceptionCaught:SuperiorSkyblockIslandProvider.kt:SuperiorSkyblockIslandProvider.Companion$exception: Exception</ID>
-    <ID>TooManyFunctions:EcoMinionsPlugin.kt:EcoMinionsPlugin : LibreforgePlugin</ID>
+    <ID>TooManyFunctions:EcoMinionsPlugin.kt:EcoMinionsPlugin : EcoPlugin</ID>
     <ID>TooManyFunctions:MainMenu.kt:MainMenu</ID>
     <ID>TooManyFunctions:MinionDefinitionLoader.kt:MinionDefinitionLoader : ConfigLoader</ID>
     <ID>TooManyFunctions:MinionFuelService.kt:MinionFuelService</ID>

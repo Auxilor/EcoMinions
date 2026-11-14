@@ -2,9 +2,9 @@ package com.exanthiax.ecominions.minions.integration
 
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.minions.model.ParticleSettings
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.particle.Particles
-import com.willfp.eco.core.particle.impl.EmptyParticle
+import wiki.ecohub.config.Config
+import wiki.ecohub.game.particle.EmptyParticle
+import wiki.ecohub.game.particle.Particles
 
 /** Parses the `particles` section of a minion definition. */
 class ParticleSettingsLoader {

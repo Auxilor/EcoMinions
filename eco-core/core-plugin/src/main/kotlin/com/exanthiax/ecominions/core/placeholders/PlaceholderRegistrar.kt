@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.core.placeholders
 
-import com.willfp.eco.core.EcoPlugin
-import com.willfp.eco.core.placeholder.RegistrablePlaceholder
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.ui.placeholder.RegistrablePlaceholder
 
 /**
  * Single owner of the plugin's entire placeholder surface. Grep here to see every

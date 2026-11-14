@@ -1,11 +1,12 @@
 package com.exanthiax.ecominions.minions.service
 
+import com.exanthiax.ecominions.core.world.isSolidBlock
 import com.exanthiax.ecominions.minions.model.TargetSet
-import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.block.TileState
 import org.bukkit.block.data.type.Leaves
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /**
  * The ground a self-seeder plants on.
@@ -28,12 +29,12 @@ object SeedSurface {
     /** @return true if a seed can go on top of [below], once [prepare]d. */
     fun accepts(below: Block, surface: TestableBlock?, targets: TargetSet): Boolean {
         if (surface == null) {
-            return below.isSolid
+            return below.isSolidBlock
         }
         if (surface.matches(below)) {
             return true
         }
-        return below.isSolid &&
+        return below.isSolidBlock &&
             below.blockData !is Leaves &&
             !targets.matches(below) &&
             below.state !is TileState
