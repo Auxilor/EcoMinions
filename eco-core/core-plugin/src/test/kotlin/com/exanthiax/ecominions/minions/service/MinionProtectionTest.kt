@@ -24,8 +24,10 @@ class MinionProtectionTest {
         every { state } returns MinionState(definition = MinionDefinitionFixture.build(bypassAntigrief = bypassAntigrief))
     }
 
-    private fun protection(allowed: Boolean = true, online: Boolean = true) = MinionProtection(
-        ownerOf = { if (online) owner else null },
+    private var online = true
+
+    private fun protection(allowed: Boolean = true) = MinionProtection(
+        builderOf = { if (online) owner else null },
         canBuild = { _, _ -> asked++; allowed },
         clock = { now }
     )
@@ -63,11 +65,25 @@ class MinionProtectionTest {
         assertEquals(2, asked)
     }
 
-    /** An offline owner's minion is idle, and an unowned one belongs to nobody to check. */
+    /** With `active-while-member-online`, a minion can run with nobody it can be checked against. */
     @Test
-    fun `without an online owner nothing is asked`() {
-        assertTrue(protection(allowed = false, online = false).allows(minion, world.blockAt(1, 0, 0)))
+    fun `no builder refuses the block`() {
+        online = false
+
+        assertFalse(protection(allowed = true).allows(minion, world.blockAt(1, 0, 0)))
         assertEquals(0, asked)
+    }
+
+    @Test
+    fun `no builder refusal is not kept`() {
+        val protection = protection()
+        online = false
+        protection.allows(minion, world.blockAt(1, 0, 0))
+
+        online = true
+
+        assertTrue(protection.allows(minion, world.blockAt(1, 0, 0)))
+        assertEquals(1, asked)
     }
 
     @Test
