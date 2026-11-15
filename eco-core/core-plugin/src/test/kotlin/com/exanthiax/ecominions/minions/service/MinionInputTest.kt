@@ -241,4 +241,19 @@ class MinionInputTest {
         assertTrue(input.takesInput(feeder().state.definition))
         assertTrue(input.takesInput(breeder().state.definition))
     }
+
+    @Test
+    fun `withdraw fires what moved`() {
+        val withdrawals = CopyOnWriteArrayList<ItemStack>()
+        val subject = breeder()
+        subject.storage.add(ItemStack(Material.WHEAT, 64))
+        val inventory = mockk<PlayerInventory> {
+            every { addItem(*anyVararg()) } returns hashMapOf(0 to ItemStack(Material.WHEAT, 20))
+        }
+
+        MinionInput(fuels, { saved += it }, events) { _, _, item -> withdrawals += item }
+            .withdraw(playerWith(inventory), subject, ItemStack(Material.WHEAT))
+
+        assertEquals(listOf(44), withdrawals.map { it.amount })
+    }
 }

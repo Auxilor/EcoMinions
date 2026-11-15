@@ -20,6 +20,7 @@ import com.exanthiax.ecominions.libreforge.effects.EffectMinionHeight
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSellStorage
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
+import com.exanthiax.ecominions.libreforge.filters.FilterMinionTypes
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionAsDispatcher
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTargetBlock
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
@@ -42,6 +43,7 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionSell
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionWithdraw
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.Minion
@@ -50,6 +52,7 @@ import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.willfp.libreforge.conditions.Conditions
 import com.willfp.libreforge.effects.Effects
+import com.willfp.libreforge.filters.Filters
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import com.willfp.libreforge.mutators.Mutators
 import com.willfp.libreforge.triggers.Triggers
@@ -130,6 +133,9 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionLevelUp)
         Triggers.register(TriggerMinionCollect)
         Triggers.register(TriggerClickMinion)
+        Triggers.register(TriggerMinionWithdraw)
+
+        Filters.register(FilterMinionTypes(minionAt))
 
         Conditions.register(ConditionMinionLevelAbove)
         Conditions.register(ConditionMinionLevelBelow)

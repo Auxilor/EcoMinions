@@ -17,7 +17,9 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CopyOnWriteArrayList
 
 class MinionCollectServiceTest {
 
@@ -206,5 +208,48 @@ class MinionCollectServiceTest {
 
         assertEquals(0, MinionCollectService(repository, RecordingEventDispatcher()).claimExperience(player, minion()))
         verify(exactly = 0) { player.giveExp(any()) }
+    }
+
+    private val withdrawals = CopyOnWriteArrayList<ItemStack>()
+
+    private fun recording(events: RecordingEventDispatcher = RecordingEventDispatcher()) =
+        MinionCollectService(repository, events) { _, _, item -> withdrawals += item }
+
+    @Test
+    fun `collect fires per stack`() {
+        recording().collect(player(), minion())
+
+        assertEquals(
+            listOf(Material.COBBLESTONE to 10, Material.DIAMOND to 2),
+            withdrawals.map { it.type to it.amount }
+        )
+    }
+
+    @Test
+    fun `withdrawn skips the overflow`() {
+        recording().collect(player(refused = 1), minion())
+
+        assertEquals(listOf(9, 1), withdrawals.map { it.amount })
+    }
+
+    @Test
+    fun `drop fires withdrawn`() {
+        recording().drop(player(), minion())
+
+        assertEquals(12, withdrawals.sumOf { it.amount })
+    }
+
+    @Test
+    fun `rejected drop fires nothing`() {
+        recording().drop(player(dropsSpawn = false), minion())
+
+        assertTrue(withdrawals.isEmpty())
+    }
+
+    @Test
+    fun `cancel fires nothing`() {
+        recording(RecordingEventDispatcher(allow = false)).collect(player(), minion())
+
+        assertTrue(withdrawals.isEmpty())
     }
 }

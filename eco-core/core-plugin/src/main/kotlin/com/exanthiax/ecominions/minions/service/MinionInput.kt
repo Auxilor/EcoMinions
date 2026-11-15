@@ -18,7 +18,8 @@ import org.bukkit.inventory.ItemStack
 class MinionInput(
     private val fuels: FuelService,
     private val save: (Minion) -> Unit,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val withdrawn: (Player, Minion, ItemStack) -> Unit = { _, _, _ -> }
 ) {
     fun takesInput(definition: MinionDefinition): Boolean = definition.feeder != null || definition.breeder != null
 
@@ -85,6 +86,9 @@ class MinionInput(
             val leftover = if (removed > 0) giveBack(player, item, removed) else 0
             if (leftover > 0) {
                 minion.storage.add(item.clone().apply { amount = leftover })
+            }
+            if (removed > leftover) {
+                withdrawn(player, minion, item.clone().apply { amount = removed - leftover })
             }
             taken += removed
             moved += removed - leftover

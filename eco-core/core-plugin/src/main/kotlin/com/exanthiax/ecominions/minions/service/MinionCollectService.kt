@@ -8,7 +8,8 @@ import org.bukkit.inventory.ItemStack
 /** Moves a minion's storage into a player's inventory, or onto the ground at their feet. */
 class MinionCollectService(
     private val repository: MinionStateRepository,
-    private val events: EventDispatcher
+    private val events: EventDispatcher,
+    private val withdrawn: (Player, Minion, ItemStack) -> Unit = { _, _, _ -> }
 ) {
     /**
      * Hands [player] everything in [minion]'s storage that fits in their
@@ -37,10 +38,10 @@ class MinionCollectService(
         }
 
         val event = MinionExtractEvent(player, minion, stored.toMutableList())
-        return if (events.dispatch(event)) move(minion, event.items, deliver) else null
+        return if (events.dispatch(event)) move(player, minion, event.items, deliver) else null
     }
 
-    private fun move(minion: Minion, items: List<ItemStack>, deliver: (ItemStack) -> Int): Int {
+    private fun move(player: Player, minion: Minion, items: List<ItemStack>, deliver: (ItemStack) -> Int): Int {
         var moved = 0
         for (item in items) {
             val removed = minion.storage.remove(item)
@@ -51,6 +52,9 @@ class MinionCollectService(
             moved += removed - undelivered
             if (undelivered > 0) {
                 minion.storage.add(item.clone().apply { amount = undelivered })
+            }
+            if (removed > undelivered) {
+                withdrawn(player, minion, item.clone().apply { amount = removed - undelivered })
             }
         }
 
