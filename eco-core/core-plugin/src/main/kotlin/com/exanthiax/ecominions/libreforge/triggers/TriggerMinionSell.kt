@@ -7,7 +7,8 @@ object TriggerMinionSell : Trigger("minion_sell") {
     override val description = "Fires when a minion's storage is sold."
     override val categories = setOf("minion", "economy")
     override val additionalInfo = listOf(
-        "Only fires for minions. Use it in a minion type's effects, an upgrade's effects, or xp-gain-methods."
+        "Fires for the minion, so use it in a minion type's effects, an upgrade's effects, or xp-gain-methods.",
+        "Player effects there, like give_skill_xp or give_money, act on the owner while they are online."
     )
     override val parameterDescriptions = mapOf(
         TriggerParameter.VALUE to "The money the sale earned.",

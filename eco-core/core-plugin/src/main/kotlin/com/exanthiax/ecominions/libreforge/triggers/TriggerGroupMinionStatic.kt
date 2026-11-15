@@ -49,7 +49,8 @@ object TriggerGroupMinionStatic : TriggerGroup("minion_static") {
         override val description = "Fires for each working minion on a fixed tick interval."
         override val categories = setOf("minion")
         override val additionalInfo = listOf(
-            "Only fires for minions. Use it in a minion type's effects or an upgrade's effects.",
+            "Fires for the minion, so use it in a minion type's effects or an upgrade's effects.",
+            "Player effects there, like give_skill_xp or give_money, act on the owner while they are online.",
             "Use minion_static_<ticks>, e.g. minion_static_200 for every 200 ticks.",
             "Carries no player, so effects that need one cannot use it."
         )
@@ -63,7 +64,8 @@ object TriggerGroupMinionStatic : TriggerGroup("minion_static") {
         override val description = "Fires for each working minion on a tick interval set by an expression."
         override val categories = setOf("minion")
         override val additionalInfo = listOf(
-            "Only fires for minions. Use it in a minion type's effects or an upgrade's effects.",
+            "Fires for the minion, so use it in a minion type's effects or an upgrade's effects.",
+            "Player effects there, like give_skill_xp or give_money, act on the owner while they are online.",
             "The expression is worked out again on every check, so it can use placeholders."
         )
         override val parameterDescriptions = mapOf(
