@@ -48,7 +48,7 @@ import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.libreforge.LibreforgeRegistrations
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.ownerPlayer
-import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionWithdraw
+import com.exanthiax.ecominions.libreforge.triggers.dispatchMinionWithdraw
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
 import com.exanthiax.ecominions.minions.integration.MinionBreedListener
@@ -284,7 +284,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         canWork = protection::allows
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
-    private val minionInput = MinionInput(fuelService, repository::save, events, TriggerMinionWithdraw::withdrawn)
+    private val minionInput = MinionInput(fuelService, repository::save, events, ::dispatchMinionWithdraw)
     private val activitySignals = ActivitySignals(events, triggerDispatch)
     private val feederActivity = FeederActivity(
         targets = FeederTargets(
@@ -390,7 +390,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
     private val minionItems = MinionItemService(itemFactory, events)
-    private val collector = MinionCollectService(repository, events, TriggerMinionWithdraw::withdrawn)
+    private val collector = MinionCollectService(repository, events, ::dispatchMinionWithdraw)
 
     // Presentation
     private val chrome = MenuChrome(messages)

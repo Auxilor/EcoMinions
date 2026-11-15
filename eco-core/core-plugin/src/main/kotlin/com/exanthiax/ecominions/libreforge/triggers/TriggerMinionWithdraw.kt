@@ -15,7 +15,7 @@ object TriggerMinionWithdraw : Trigger("minion_withdraw") {
 
     override val additionalInfo = listOf(
         "Fires for the player, not the minion, so it works in a player's own effects and in EcoSkills xp-gain-methods.",
-        "Fires for collect all, drop all, taking one stack in the menu, and plugins collecting through the API.",
+        "Fires for collect all, drop all, a feeder or breeder stack taken in the menu, and API collects.",
         "Only counts what reached the player. Items that did not fit stay in storage and are not counted.",
         "Feeders and breeders hold items players put in. Add not_minion_types: [feeder, breeder] to skip them.",
         "Add the minion_as_dispatcher mutator to run minion effects on the minion the items came from."
@@ -36,18 +36,22 @@ object TriggerMinionWithdraw : Trigger("minion_withdraw") {
         TriggerParameter.VICTIM,
         TriggerParameter.LOCATION
     )
+}
 
-    /** Dispatches for [player] taking [item] out of [minion]; [item]'s amount is what reached them. */
-    fun withdrawn(player: Player, minion: Minion, item: ItemStack) {
-        dispatch(
-            player.toDispatcher(),
-            TriggerData(
-                player = player,
-                victim = minion.entity,
-                location = minion.location,
-                item = item,
-                value = item.amount.toDouble()
-            )
+/**
+ * Dispatches [TriggerMinionWithdraw] for [player] taking [item] out of [minion]; [item]'s amount is what reached them.
+ *
+ * Top level so the plugin can hold a reference to it before libreforge is on the classpath.
+ */
+fun dispatchMinionWithdraw(player: Player, minion: Minion, item: ItemStack) {
+    TriggerMinionWithdraw.dispatch(
+        player.toDispatcher(),
+        TriggerData(
+            player = player,
+            victim = minion.entity,
+            location = minion.location,
+            item = item,
+            value = item.amount.toDouble()
         )
-    }
+    )
 }
