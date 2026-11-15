@@ -54,6 +54,7 @@ fun dispatchMinionWithdraw(player: Player, minion: Minion, item: ItemStack) {
             location = minion.location,
             item = item,
             value = item.amount.toDouble()
-        )
+        ),
+        allowDuplicates = true
     )
 }
