@@ -233,17 +233,19 @@ class MinionCollectServiceTest {
     }
 
     @Test
-    fun `drop fires withdrawn`() {
+    fun `drop fires nothing`() {
         recording().drop(player(), minion())
 
-        assertEquals(12, withdrawals.sumOf { it.amount })
+        assertTrue(withdrawals.isEmpty())
     }
 
     @Test
-    fun `rejected drop fires nothing`() {
-        recording().drop(player(dropsSpawn = false), minion())
+    fun `withdrawn runs after save`() {
+        val subject = minion()
 
-        assertTrue(withdrawals.isEmpty())
+        MinionCollectService(repository, RecordingEventDispatcher()) { _, _, _ ->
+            verify { repository.save(subject) }
+        }.collect(player(), subject)
     }
 
     @Test

@@ -13,53 +13,38 @@ class MinionCollectService(
 ) {
     /**
      * Hands [player] everything in [minion]'s storage that fits in their
-     * inventory; the rest stays in storage.
+     * inventory; the rest stays in storage. Reports each stack that arrived to `withdrawn`, after saving.
      *
      * @return How many items were moved, or null if the extract event was cancelled.
      */
-    fun collect(player: Player, minion: Minion): Int? = extract(player, minion) { item ->
-        player.inventory.addItem(item).values.sumOf { it.amount }
+    fun collect(player: Player, minion: Minion): Int? {
+        val handover = extract(player, minion) { item ->
+            player.inventory.addItem(item).values.sumOf { it.amount }
+        } ?: return null
+        handover.delivered.forEach { withdrawn(player, minion, it) }
+        return handover.moved
     }
 
     /**
      * Drops everything in [minion]'s storage on the ground at [player]'s feet.
      * Items the world refuses to spawn stay in storage.
      *
+     * Reports nothing to `withdrawn`: dropped items can be picked up by anyone, or by a collector minion.
+     *
      * @return How many items were dropped, or null if the extract event was cancelled.
      */
     fun drop(player: Player, minion: Minion): Int? = extract(player, minion) { item ->
         if (player.world.dropItemNaturally(player.location, item).isValid) 0 else item.amount
-    }
+    }?.moved
 
-    private fun extract(player: Player, minion: Minion, deliver: (ItemStack) -> Int): Int? {
+    private fun extract(player: Player, minion: Minion, deliver: (ItemStack) -> Int): StorageHandover? {
         val stored = (0 until minion.storage.size).mapNotNull { minion.storage.getItem(it)?.clone() }
-        if (stored.isEmpty()) {
-            return 0
-        }
-
         val event = MinionExtractEvent(player, minion, stored.toMutableList())
-        return if (events.dispatch(event)) move(player, minion, event.items, deliver) else null
-    }
-
-    private fun move(player: Player, minion: Minion, items: List<ItemStack>, deliver: (ItemStack) -> Int): Int {
-        var moved = 0
-        for (item in items) {
-            val removed = minion.storage.remove(item)
-            if (removed <= 0) {
-                continue
-            }
-            val undelivered = deliver(item.clone().apply { amount = removed })
-            moved += removed - undelivered
-            if (undelivered > 0) {
-                minion.storage.add(item.clone().apply { amount = undelivered })
-            }
-            if (removed > undelivered) {
-                withdrawn(player, minion, item.clone().apply { amount = removed - undelivered })
-            }
+        return when {
+            stored.isEmpty() -> StorageHandover.NONE
+            !events.dispatch(event) -> null
+            else -> minion.handOver(event.items, deliver).also { repository.save(minion) }
         }
-
-        repository.save(minion)
-        return moved
     }
 
     /**
