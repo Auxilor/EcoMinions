@@ -256,4 +256,19 @@ class MinionInputTest {
 
         assertEquals(listOf(44), withdrawals.map { it.amount })
     }
+
+    @Test
+    fun `withdraw saves first`() {
+        val subject = breeder()
+        subject.storage.add(ItemStack(Material.WHEAT, 64))
+        val inventory = mockk<PlayerInventory> {
+            every { addItem(*anyVararg()) } returns hashMapOf()
+        }
+        val savedAtWithdraw = CopyOnWriteArrayList<Minion>()
+
+        MinionInput(fuels, { saved += it }, events) { _, _, _ -> savedAtWithdraw += saved }
+            .withdraw(playerWith(inventory), subject, ItemStack(Material.WHEAT))
+
+        assertEquals(listOf(subject), savedAtWithdraw)
+    }
 }

@@ -79,26 +79,13 @@ class MinionInput(
     }
 
     private fun hand(player: Player, minion: Minion, items: List<ItemStack>): Int {
-        var moved = 0
-        var taken = 0
-        for (item in items) {
-            val removed = minion.storage.remove(item)
-            val leftover = if (removed > 0) giveBack(player, item, removed) else 0
-            if (leftover > 0) {
-                minion.storage.add(item.clone().apply { amount = leftover })
-            }
-            if (removed > leftover) {
-                withdrawn(player, minion, item.clone().apply { amount = removed - leftover })
-            }
-            taken += removed
-            moved += removed - leftover
+        val handover = minion.handOver(items) { item ->
+            player.inventory.addItem(item).values.sumOf { it.amount }
         }
-        if (taken > 0) {
+        if (handover.taken > 0) {
             save(minion)
         }
-        return moved
+        handover.delivered.forEach { withdrawn(player, minion, it) }
+        return handover.moved
     }
-
-    private fun giveBack(player: Player, item: ItemStack, removed: Int): Int =
-        player.inventory.addItem(item.clone().apply { amount = removed }).values.sumOf { it.amount }
 }
