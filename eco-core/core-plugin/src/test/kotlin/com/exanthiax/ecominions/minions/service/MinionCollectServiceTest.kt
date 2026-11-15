@@ -9,6 +9,7 @@ import com.exanthiax.ecominions.minions.model.MinionStats
 import com.exanthiax.ecominions.minions.model.MinionStorage
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
@@ -60,6 +61,9 @@ class MinionCollectServiceTest {
             every { isValid } returns dropsSpawn
         }
     }
+
+    private fun sample(material: Material, cap: Int = 64): ItemStack =
+        spyk(ItemStack(material)) { every { maxStackSize } returns cap }
 
     @Test
     fun `collecting moves everything into the inventory`() {
@@ -192,7 +196,7 @@ class MinionCollectServiceTest {
         val subject = minion().apply { storage.add(ItemStack(Material.COBBLESTONE, 64)) }
 
         val withdrawn = MinionCollectService(repository, RecordingEventDispatcher())
-            .withdraw(player(), subject, ItemStack(Material.COBBLESTONE))
+            .withdraw(player(), subject, sample(Material.COBBLESTONE))
 
         assertEquals(64, withdrawn)
         assertEquals(10, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
@@ -205,10 +209,20 @@ class MinionCollectServiceTest {
         val subject = minion().apply { storage.add(ItemStack(Material.COBBLESTONE, 64)) }
 
         val withdrawn = MinionCollectService(repository, RecordingEventDispatcher())
-            .withdraw(player(refused = 20), subject, ItemStack(Material.COBBLESTONE))
+            .withdraw(player(refused = 20), subject, sample(Material.COBBLESTONE))
 
         assertEquals(44, withdrawn)
         assertEquals(30, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
+    }
+
+    @Test
+    fun `withdraw obeys item stack cap`() {
+        val subject = minion()
+        val withdrawn = MinionCollectService(repository, RecordingEventDispatcher())
+            .withdraw(player(), subject, sample(Material.COBBLESTONE, cap = 4))
+
+        assertEquals(4, withdrawn)
+        assertEquals(6, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
     }
 
     @Test
@@ -217,7 +231,7 @@ class MinionCollectServiceTest {
         val player = player()
 
         val withdrawn = MinionCollectService(repository, RecordingEventDispatcher(allow = false))
-            .withdraw(player, subject, ItemStack(Material.COBBLESTONE))
+            .withdraw(player, subject, sample(Material.COBBLESTONE))
 
         assertNull(withdrawn)
         assertEquals(12, subject.storage.count { true })
@@ -233,7 +247,7 @@ class MinionCollectServiceTest {
         })
 
         val withdrawn = MinionCollectService(repository, events)
-            .withdraw(player(), subject, ItemStack(Material.COBBLESTONE))
+            .withdraw(player(), subject, sample(Material.COBBLESTONE))
 
         assertEquals(3, withdrawn)
         assertEquals(7, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
@@ -244,7 +258,7 @@ class MinionCollectServiceTest {
         val events = RecordingEventDispatcher()
 
         val withdrawn = MinionCollectService(repository, events)
-            .withdraw(player(), minion(), ItemStack(Material.GOLD_INGOT))
+            .withdraw(player(), minion(), sample(Material.GOLD_INGOT))
 
         assertEquals(0, withdrawn)
         assertTrue(events.events.isEmpty())

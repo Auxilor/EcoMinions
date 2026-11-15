@@ -29,7 +29,7 @@ class MinionCollectService(
      * @return How many items were moved, or null if the extract event was cancelled.
      */
     fun withdraw(player: Player, minion: Minion, sample: ItemStack): Int? {
-        val amount = minion.storage.countSimilar(sample).coerceAtMost(sample.type.maxStackSize)
+        val amount = minion.storage.countSimilar(sample).coerceAtMost(sample.maxStackSize)
         val stack = sample.clone().apply { this.amount = amount }
         return extract(player, minion, listOfNotNull(stack.takeIf { amount > 0 }), intoInventory(player))
     }
