@@ -95,10 +95,14 @@ class MinionStorageView(
         if (display.showsCountInName) {
             meta.setDisplayName(messages.line("gui.main.storage-item.name", context))
         }
-        if (display.showsCountInLore) {
-            // Appended rather than assigned: the item's own lore is part of what
-            // it is, and a compacted item's tier or source often lives there.
-            meta.lore = (meta.lore ?: emptyList()) + messages.lines("gui.main.storage-item.lore", context)
+        // Appended rather than assigned: the item's own lore is part of what
+        // it is, and a compacted item's tier or source often lives there.
+        meta.lore = buildList {
+            addAll(meta.lore.orEmpty())
+            if (display.showsCountInLore) {
+                addAll(messages.lines("gui.main.storage-item.lore", context))
+            }
+            addAll(messages.lines("gui.main.storage-item.withdraw-lore", context))
         }
 
         item.itemMeta = meta

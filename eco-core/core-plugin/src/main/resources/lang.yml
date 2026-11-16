@@ -77,6 +77,7 @@ gui:
       name: "&f%item_name% &7x %count%"
       lore:
         - "&7Amount: &f%count%"
+      withdraw-lore:
         - ""
         - "&eClick to withdraw a stack"
     collect-all:
