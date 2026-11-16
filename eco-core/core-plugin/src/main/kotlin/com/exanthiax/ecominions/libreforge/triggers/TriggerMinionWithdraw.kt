@@ -15,7 +15,7 @@ object TriggerMinionWithdraw : Trigger("minion_withdraw") {
 
     override val additionalInfo = listOf(
         "Fires for the player, not the minion, so it works in a player's own effects and in EcoSkills xp-gain-methods.",
-        "Fires for collect all, a feeder or breeder stack taken in the menu, and API collects.",
+        "Fires for collect all, a stack taken in the menu, and API collects.",
         "Does not fire for drop all, because dropped items can be picked up again.",
         "Only counts what reached the player. Items that did not fit stay in storage and are not counted.",
         "Feeders and breeders hold items players put in, and collectors pick up items players throw.",
