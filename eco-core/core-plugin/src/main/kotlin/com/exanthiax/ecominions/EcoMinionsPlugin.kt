@@ -48,6 +48,7 @@ import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.libreforge.LibreforgeRegistrations
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.ownerPlayer
+import com.exanthiax.ecominions.libreforge.triggers.dispatchMinionWithdraw
 import com.exanthiax.ecominions.minions.integration.MenuSettingsLoader
 import com.exanthiax.ecominions.minions.integration.MinionBlockLoader
 import com.exanthiax.ecominions.minions.integration.MinionBreedListener
@@ -389,7 +390,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
     )
     private val purchases = MinionUpgradeService(minionService, triggerDispatch, events)
     private val minionItems = MinionItemService(itemFactory, events)
-    private val collector = MinionCollectService(repository, events)
+    private val collector = MinionCollectService(repository, events, ::dispatchMinionWithdraw)
 
     // Presentation
     private val chrome = MenuChrome(messages)
