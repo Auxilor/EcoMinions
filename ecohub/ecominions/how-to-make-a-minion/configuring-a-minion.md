@@ -251,7 +251,7 @@ effects:
       - id: minion_owner_online
 ```
 
-**When a player takes the items out.** The `minion_withdraw` trigger fires for the player who takes items out of a minion: collect all, or taking one stack out of a feeder or breeder in the menu. Drop all does not fire it, because dropped items can be picked up again. It fires for the player, not the minion, so it goes in the player's own effects, such as an EcoSkills skill's `xp-gain-methods`, not in the minion's config. `%trigger_value%` is how many items reached the player.
+**When a player takes the items out.** The `minion_withdraw` trigger fires for the player who takes items out of a minion: collect all, or taking one stack out in the menu. Drop all does not fire it, because dropped items can be picked up again. It fires for the player, not the minion, so it goes in the player's own effects, such as an EcoSkills skill's `xp-gain-methods`, not in the minion's config. `%trigger_value%` is how many items reached the player.
 
 ```yaml
 xp-gain-methods: # In an EcoSkills skill config.
