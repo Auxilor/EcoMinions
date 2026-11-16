@@ -18,6 +18,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -194,14 +195,33 @@ class MinionCollectServiceTest {
     @Test
     fun `withdraw takes one stack`() {
         val subject = minion().apply { storage.add(ItemStack(Material.COBBLESTONE, 64)) }
+        val events = RecordingEventDispatcher()
 
-        val withdrawn = MinionCollectService(repository, RecordingEventDispatcher())
+        val withdrawn = MinionCollectService(repository, events)
             .withdraw(player(), subject, sample(Material.COBBLESTONE))
 
         assertEquals(64, withdrawn)
         assertEquals(10, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
         assertEquals(2, subject.storage.countSimilar(ItemStack(Material.DIAMOND)))
         verify { repository.save(subject) }
+        val event = events.last<MinionExtractEvent>()
+        assertSame(subject, event.minion)
+        assertEquals(listOf(Material.COBBLESTONE to 64), event.items.map { it.type to it.amount })
+    }
+
+    @Test
+    fun `emptied withdraw skips save`() {
+        val subject = minion()
+        val events = RecordingEventDispatcher(edit = { event ->
+            if (event is MinionExtractEvent) event.items.clear()
+        })
+
+        val withdrawn = MinionCollectService(repository, events)
+            .withdraw(player(), subject, sample(Material.COBBLESTONE))
+
+        assertEquals(0, withdrawn)
+        assertEquals(10, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
+        verify(exactly = 0) { repository.save(any()) }
     }
 
     @Test

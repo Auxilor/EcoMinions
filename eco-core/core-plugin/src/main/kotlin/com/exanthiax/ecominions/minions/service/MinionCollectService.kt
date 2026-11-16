@@ -62,11 +62,13 @@ class MinionCollectService(
 
     private fun move(minion: Minion, items: List<ItemStack>, deliver: (ItemStack) -> Int): Int {
         var moved = 0
+        var taken = 0
         for (item in items) {
             val removed = minion.storage.remove(item)
             if (removed <= 0) {
                 continue
             }
+            taken += removed
             val undelivered = deliver(item.clone().apply { amount = removed })
             moved += removed - undelivered
             if (undelivered > 0) {
@@ -74,7 +76,9 @@ class MinionCollectService(
             }
         }
 
-        repository.save(minion)
+        if (taken > 0) {
+            repository.save(minion)
+        }
         return moved
     }
 
