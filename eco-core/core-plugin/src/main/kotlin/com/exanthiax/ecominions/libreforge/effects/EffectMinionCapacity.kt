@@ -8,6 +8,9 @@ import com.exanthiax.ecominions.minions.service.Minion
 /**
  * Capacity is structural: changing it resizes a live inventory rather than only
  * moving a number, so it is the one stat effect with an after-change hook.
+ *
+ * Only growth applies here. libreforge disables effects before enabling them
+ * again on reloads and chunk loads, so shrinking here dropped upgraded storage.
  */
 object EffectMinionCapacity : MinionStatEffect(
     id = "minion_capacity",
@@ -31,10 +34,8 @@ object EffectMinionCapacity : MinionStatEffect(
     }
 
     override fun afterChange(minion: Minion) {
-        val overflow = minion.resizeStorage(minion.stats.storageSize)
-
-        for (item in overflow) {
-            minion.entity.world.dropItemNaturally(minion.entity.location, item)
+        if (minion.stats.storageSize > minion.storageSize) {
+            minion.resizeStorage(minion.stats.storageSize)
         }
     }
 }

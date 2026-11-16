@@ -10,16 +10,15 @@ import org.bukkit.entity.ArmorStand
 class MinionFactory {
     fun create(state: MinionState, entity: ArmorStand): Minion {
         val stats = MinionStats(state.definition.baseStats, state.level)
-        val storage = MinionStorage(stats.storageSize)
+        val saved = state.inventoryBytes
+            ?.let { bytes -> runCatching { InventoryCodec.decode(bytes) }.getOrNull() }
+            .orEmpty()
+        val storage = MinionStorage(stats.storageSize.coerceAtLeast(saved.size))
 
-        state.inventoryBytes?.let { bytes ->
-            runCatching { InventoryCodec.decode(bytes) }
-                .getOrNull()
-                ?.forEachIndexed { index, item ->
-                    if (index < storage.size && item != null) {
-                        storage.setItem(index, item)
-                    }
-                }
+        saved.forEachIndexed { index, item ->
+            if (item != null) {
+                storage.setItem(index, item)
+            }
         }
 
         return Minion(state, entity, storage, stats).apply {
