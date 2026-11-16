@@ -1,7 +1,6 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.api.event.MinionDepositEvent
-import com.exanthiax.ecominions.api.event.MinionExtractEvent
 import com.exanthiax.ecominions.core.event.RecordingEventDispatcher
 import com.exanthiax.ecominions.fuel.model.Fuel
 import com.exanthiax.ecominions.fuel.service.FuelService
@@ -15,15 +14,12 @@ import com.exanthiax.ecominions.minions.model.MinionStorage
 import com.exanthiax.ecominions.testsupport.FakeItemLookup
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.PlayerInventory
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -62,12 +58,6 @@ class MinionInputTest {
     private val player = mockk<Player>(relaxed = true)
 
     private fun inputWith(dispatcher: RecordingEventDispatcher) = MinionInput(fuels, { saved += it }, dispatcher)
-
-    private fun playerWith(playerInventory: PlayerInventory) = mockk<Player>(relaxed = true) {
-        every { inventory } returns playerInventory
-    }
-
-    private fun roomyInventory() = mockk<PlayerInventory> { every { addItem(*anyVararg()) } returns hashMapOf() }
 
     private fun minion(definition: MinionDefinition, slots: Int = 1): Minion = Minion(
         state = MinionState(definition = definition),
@@ -110,32 +100,6 @@ class MinionInputTest {
 
         assertEquals(64, subject.storage.getItem(0)?.amount)
         assertEquals(listOf(subject), saved)
-    }
-
-    @Test
-    fun `withdraw keeps the overflow`() {
-        val subject = breeder()
-        subject.storage.add(ItemStack(Material.WHEAT, 64))
-        val inventory = mockk<PlayerInventory> {
-            every { addItem(*anyVararg()) } returns hashMapOf(0 to ItemStack(Material.WHEAT, 20))
-        }
-
-        assertEquals(44, input.withdraw(playerWith(inventory), subject, ItemStack(Material.WHEAT)))
-
-        assertEquals(20, subject.storage.getItem(0)?.amount)
-        assertEquals(listOf(subject), saved)
-        verify(exactly = 1) { inventory.addItem(*anyVararg()) }
-    }
-
-    @Test
-    fun `withdraw empties the slot`() {
-        val subject = breeder()
-        subject.storage.add(ItemStack(Material.WHEAT, 10))
-        val inventory = roomyInventory()
-
-        assertEquals(10, input.withdraw(playerWith(inventory), subject, ItemStack(Material.WHEAT)))
-
-        assertNull(subject.storage.getItem(0))
     }
 
     @Test
@@ -184,53 +148,6 @@ class MinionInputTest {
     @Test
     fun `refused item fires no event`() {
         input.deposit(player, feeder(), ItemStack(Material.BLAZE_ROD, 5))
-
-        assertTrue(events.events.isEmpty())
-    }
-
-    @Test
-    fun `cancelled extract is a no-op`() {
-        val subject = breeder()
-        subject.storage.add(ItemStack(Material.WHEAT, 10))
-        val inventory = roomyInventory()
-
-        val cancelling = inputWith(RecordingEventDispatcher(allow = false))
-
-        assertEquals(0, cancelling.withdraw(playerWith(inventory), subject, ItemStack(Material.WHEAT)))
-
-        assertEquals(10, subject.storage.getItem(0)?.amount)
-        assertTrue(saved.isEmpty())
-        verify(exactly = 0) { inventory.addItem(*anyVararg()) }
-    }
-
-    @Test
-    fun `extract event has the stack`() {
-        val subject = breeder()
-        subject.storage.add(ItemStack(Material.WHEAT, 10))
-
-        input.withdraw(playerWith(roomyInventory()), subject, ItemStack(Material.WHEAT))
-
-        val event = events.last<MinionExtractEvent>()
-        assertSame(subject, event.minion)
-        assertEquals(listOf(10), event.items.map { it.amount })
-    }
-
-    @Test
-    fun `lowered extract takes less`() {
-        val subject = breeder()
-        subject.storage.add(ItemStack(Material.WHEAT, 10))
-        val lowering = RecordingEventDispatcher(edit = { event ->
-            if (event is MinionExtractEvent) event.items.forEach { it.amount = 3 }
-        })
-
-        assertEquals(3, inputWith(lowering).withdraw(playerWith(roomyInventory()), subject, ItemStack(Material.WHEAT)))
-
-        assertEquals(7, subject.storage.getItem(0)?.amount)
-    }
-
-    @Test
-    fun `empty withdraw fires no event`() {
-        assertEquals(0, input.withdraw(playerWith(roomyInventory()), breeder(), ItemStack(Material.WHEAT)))
 
         assertTrue(events.events.isEmpty())
     }

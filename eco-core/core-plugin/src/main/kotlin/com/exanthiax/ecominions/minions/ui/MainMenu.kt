@@ -99,7 +99,7 @@ class MainMenu(
                 override fun getEntries(player: Player, menu: Menu): List<Pair<ItemStack, Int>> = entries
 
                 override fun getEntrySlot(player: Player, menu: Menu, entry: Pair<ItemStack, Int>): Slot =
-                    inputSlot(
+                    storageSlot(
                         player = player,
                         minion = minion,
                         shown = storageView.displayItem(entry.first, entry.second, settings.value),
@@ -107,7 +107,7 @@ class MainMenu(
                     )
 
                 override fun getEmptySlot(player: Player, menu: Menu): Slot =
-                    inputSlot(player = player, minion = minion, shown = emptyItem.clone(), sample = null)
+                    storageSlot(player = player, minion = minion, shown = emptyItem.clone(), sample = null)
             })
 
             setButton(current.mainSection, key = "collect-all", row = rows, column = 2) { section ->
@@ -178,14 +178,15 @@ class MainMenu(
         return item
     }
 
-    private fun inputSlot(player: Player, minion: Minion, shown: ItemStack, sample: ItemStack?): Slot =
+    private fun storageSlot(player: Player, minion: Minion, shown: ItemStack, sample: ItemStack?): Slot =
         slot(shown) {
-            if (input.takesInput(minion.state.definition)) {
+            val takesInput = input.takesInput(minion.state.definition)
+            if (takesInput || sample != null) {
                 onLeftClick { event, _, menu ->
                     if (regions.ownsOrWarn(minion.entity, MENU_ACTION)) {
                         when {
-                            event.cursor.type != Material.AIR -> deposit(player, minion, event.cursor)
-                            sample != null -> input.withdraw(player, minion, sample)
+                            event.cursor.type == Material.AIR -> sample?.let { withdraw(player, minion, it) }
+                            takesInput -> deposit(player, minion, event.cursor)
                         }
                         menu.refresh(player)
                     }
@@ -193,6 +194,11 @@ class MainMenu(
             }
         }
 
+    private fun withdraw(player: Player, minion: Minion, sample: ItemStack) {
+        if (collector.withdraw(player, minion, sample) == 0 && minion.storage.countSimilar(sample) > 0) {
+            player.sendMessage(messages.line("messages.inventory-full"))
+        }
+    }
 
     private fun deposit(player: Player, minion: Minion, cursor: ItemStack) {
         when (val result = input.deposit(player, minion, cursor)) {
