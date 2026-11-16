@@ -5,7 +5,10 @@ import com.exanthiax.ecominions.core.event.EventDispatcher
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-/** Moves a minion's storage into a player's inventory, or onto the ground at their feet. */
+/**
+ * Moves a minion's storage, or one stack of it, into a player's inventory, or
+ * all of it onto the ground at their feet.
+ */
 class MinionCollectService(
     private val repository: MinionStateRepository,
     private val events: EventDispatcher,
@@ -17,12 +20,18 @@ class MinionCollectService(
      *
      * @return How many items were moved, or null if the extract event was cancelled.
      */
-    fun collect(player: Player, minion: Minion): Int? {
-        val handover = extract(player, minion) { item ->
-            player.inventory.addItem(item).values.sumOf { it.amount }
-        } ?: return null
-        handover.delivered.forEach { withdrawn(player, minion, it) }
-        return handover.moved
+    fun collect(player: Player, minion: Minion): Int? = hand(player, minion, everything(minion))
+
+    /**
+     * Hands [player] up to one stack similar to [sample]; what does not fit
+     * in their inventory stays in storage. Reports what arrived to `withdrawn`, after saving.
+     *
+     * @return How many items were moved, or null if the extract event was cancelled.
+     */
+    fun withdraw(player: Player, minion: Minion, sample: ItemStack): Int? {
+        val amount = minion.storage.countSimilar(sample).coerceAtMost(sample.maxStackSize)
+        val stack = sample.clone().apply { this.amount = amount }
+        return hand(player, minion, listOfNotNull(stack.takeIf { amount > 0 }))
     }
 
     /**
@@ -33,17 +42,32 @@ class MinionCollectService(
      *
      * @return How many items were dropped, or null if the extract event was cancelled.
      */
-    fun drop(player: Player, minion: Minion): Int? = extract(player, minion) { item ->
+    fun drop(player: Player, minion: Minion): Int? = extract(player, minion, everything(minion)) { item ->
         if (player.world.dropItemNaturally(player.location, item).isValid) 0 else item.amount
     }?.moved
 
-    private fun extract(player: Player, minion: Minion, deliver: (ItemStack) -> Int): StorageHandover? {
-        val stored = (0 until minion.storage.size).mapNotNull { minion.storage.getItem(it)?.clone() }
+    private fun hand(player: Player, minion: Minion, stored: List<ItemStack>): Int? {
+        val handover = extract(player, minion, stored) { item ->
+            player.inventory.addItem(item).values.sumOf { it.amount }
+        } ?: return null
+        handover.delivered.forEach { withdrawn(player, minion, it) }
+        return handover.moved
+    }
+
+    private fun everything(minion: Minion): List<ItemStack> =
+        (0 until minion.storage.size).mapNotNull { minion.storage.getItem(it)?.clone() }
+
+    private fun extract(
+        player: Player,
+        minion: Minion,
+        stored: List<ItemStack>,
+        deliver: (ItemStack) -> Int
+    ): StorageHandover? {
         val event = MinionExtractEvent(player, minion, stored.toMutableList())
         return when {
             stored.isEmpty() -> StorageHandover.NONE
             !events.dispatch(event) -> null
-            else -> minion.handOver(event.items, deliver).also { repository.save(minion) }
+            else -> minion.handOver(event.items, deliver).also { if (it.taken > 0) repository.save(minion) }
         }
     }
 

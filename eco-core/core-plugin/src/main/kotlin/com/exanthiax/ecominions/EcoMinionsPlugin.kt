@@ -284,7 +284,7 @@ class EcoMinionsPlugin : LibreforgePlugin() {
         canWork = protection::allows
     )
     private val minionFuelService = MinionFuelService(fuelService, repository, triggerDispatch, events)
-    private val minionInput = MinionInput(fuelService, repository::save, events, ::dispatchMinionWithdraw)
+    private val minionInput = MinionInput(fuelService, repository::save, events)
     private val activitySignals = ActivitySignals(events, triggerDispatch)
     private val feederActivity = FeederActivity(
         targets = FeederTargets(
