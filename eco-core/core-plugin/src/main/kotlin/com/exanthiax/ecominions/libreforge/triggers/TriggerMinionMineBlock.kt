@@ -9,7 +9,8 @@ object TriggerMinionMineBlock : Trigger("minion_mine_block") {
     override val categories = setOf("minion", "world")
 
     override val additionalInfo = listOf(
-        "Only fires for minions. Use it in a minion type's effects, an upgrade's effects, or xp-gain-methods."
+        "Fires for the minion, so use it in a minion type's effects, an upgrade's effects, or xp-gain-methods.",
+        "Player effects there, like give_skill_xp or give_money, act on the owner while they are online."
     )
 
     override val parameterDescriptions = mapOf(

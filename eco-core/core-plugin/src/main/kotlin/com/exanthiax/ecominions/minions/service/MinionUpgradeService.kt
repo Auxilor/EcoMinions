@@ -82,6 +82,7 @@ class MinionUpgradeService(
         }
         val disabled = !minion.state.isUpgradeDisabled(upgrade.id)
         minions.updateState(minion, minion.state.withUpgradeDisabled(upgrade.id, disabled))
+        minions.onLevelChanged(minion)
         return true
     }
 

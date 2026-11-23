@@ -23,7 +23,7 @@ object ConditionMinionIsType : Condition<NoCompileData>("minion_is_type") {
         require(
             "types",
             "You must specify the minion types!",
-            description = "The minion types to match: miner, woodcutter, farmer, slayer, fishing or collector.",
+            description = "Types to match: miner, woodcutter, farmer, slayer, fishing, collector, feeder or breeder.",
             type = ArgType.STRING_LIST
         )
     }

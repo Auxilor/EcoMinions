@@ -49,26 +49,29 @@ object TriggerGroupMinionStatic : TriggerGroup("minion_static") {
         override val description = "Fires for each working minion on a fixed tick interval."
         override val categories = setOf("minion")
         override val additionalInfo = listOf(
-            "Only fires for minions. Use it in a minion type's effects or an upgrade's effects.",
-            "Use minion_static_<ticks>, e.g. minion_static_200 for every 200 ticks.",
-            "Carries no player, so effects that need one cannot use it."
+            "Fires for the minion, so use it in a minion type's effects or an upgrade's effects.",
+            "Player effects there, like give_skill_xp or give_money, act on the owner while they are online.",
+            "Use minion_static_<ticks>, e.g. minion_static_200 for every 200 ticks."
         )
         override val parameterDescriptions = mapOf(
+            TriggerParameter.PLAYER to "The owning player, if they are online.",
             TriggerParameter.LOCATION to "The minion's location."
         )
-        override val parameters = setOf(TriggerParameter.LOCATION)
+        override val parameters = setOf(TriggerParameter.PLAYER, TriggerParameter.LOCATION)
     }
 
     class MinionDynamicStaticTrigger(val expression: String) : Trigger("minion_static_$expression") {
         override val description = "Fires for each working minion on a tick interval set by an expression."
         override val categories = setOf("minion")
         override val additionalInfo = listOf(
-            "Only fires for minions. Use it in a minion type's effects or an upgrade's effects.",
+            "Fires for the minion, so use it in a minion type's effects or an upgrade's effects.",
+            "Player effects there, like give_skill_xp or give_money, act on the owner while they are online.",
             "The expression is worked out again on every check, so it can use placeholders."
         )
         override val parameterDescriptions = mapOf(
+            TriggerParameter.PLAYER to "The owning player, if they are online.",
             TriggerParameter.LOCATION to "The minion's location."
         )
-        override val parameters = setOf(TriggerParameter.LOCATION)
+        override val parameters = setOf(TriggerParameter.PLAYER, TriggerParameter.LOCATION)
     }
 }

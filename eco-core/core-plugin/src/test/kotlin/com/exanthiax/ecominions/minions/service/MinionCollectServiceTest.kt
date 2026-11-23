@@ -9,6 +9,7 @@ import com.exanthiax.ecominions.minions.model.MinionStats
 import com.exanthiax.ecominions.minions.model.MinionStorage
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
@@ -17,7 +18,10 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CopyOnWriteArrayList
 
 class MinionCollectServiceTest {
 
@@ -59,6 +63,9 @@ class MinionCollectServiceTest {
             every { isValid } returns dropsSpawn
         }
     }
+
+    private fun sample(material: Material, cap: Int = 64): ItemStack =
+        spyk(ItemStack(material)) { every { maxStackSize } returns cap }
 
     @Test
     fun `collecting moves everything into the inventory`() {
@@ -187,6 +194,98 @@ class MinionCollectServiceTest {
     }
 
     @Test
+    fun `withdraw takes one stack`() {
+        val subject = minion().apply { storage.add(ItemStack(Material.COBBLESTONE, 64)) }
+        val events = RecordingEventDispatcher()
+
+        val withdrawn = MinionCollectService(repository, events)
+            .withdraw(player(), subject, sample(Material.COBBLESTONE))
+
+        assertEquals(64, withdrawn)
+        assertEquals(10, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
+        assertEquals(2, subject.storage.countSimilar(ItemStack(Material.DIAMOND)))
+        verify { repository.save(subject) }
+        val event = events.last<MinionExtractEvent>()
+        assertSame(subject, event.minion)
+        assertEquals(listOf(Material.COBBLESTONE to 64), event.items.map { it.type to it.amount })
+    }
+
+    @Test
+    fun `emptied withdraw skips save`() {
+        val subject = minion()
+        val events = RecordingEventDispatcher(edit = { event ->
+            if (event is MinionExtractEvent) event.items.clear()
+        })
+
+        val withdrawn = MinionCollectService(repository, events)
+            .withdraw(player(), subject, sample(Material.COBBLESTONE))
+
+        assertEquals(0, withdrawn)
+        assertEquals(10, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
+        verify(exactly = 0) { repository.save(any()) }
+    }
+
+    @Test
+    fun `withdraw keeps the overflow`() {
+        val subject = minion().apply { storage.add(ItemStack(Material.COBBLESTONE, 64)) }
+
+        val withdrawn = MinionCollectService(repository, RecordingEventDispatcher())
+            .withdraw(player(refused = 20), subject, sample(Material.COBBLESTONE))
+
+        assertEquals(44, withdrawn)
+        assertEquals(30, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
+    }
+
+    @Test
+    fun `withdraw obeys item stack cap`() {
+        val subject = minion()
+        val withdrawn = MinionCollectService(repository, RecordingEventDispatcher())
+            .withdraw(player(), subject, sample(Material.COBBLESTONE, cap = 4))
+
+        assertEquals(4, withdrawn)
+        assertEquals(6, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
+    }
+
+    @Test
+    fun `cancelled withdraw keeps all`() {
+        val subject = minion()
+        val player = player()
+
+        val withdrawn = MinionCollectService(repository, RecordingEventDispatcher(allow = false))
+            .withdraw(player, subject, sample(Material.COBBLESTONE))
+
+        assertNull(withdrawn)
+        assertEquals(12, subject.storage.count { true })
+        verify(exactly = 0) { player.inventory.addItem(*anyVararg()) }
+        verify(exactly = 0) { repository.save(any()) }
+    }
+
+    @Test
+    fun `lowered withdraw takes less`() {
+        val subject = minion()
+        val events = RecordingEventDispatcher(edit = { event ->
+            if (event is MinionExtractEvent) event.items.forEach { it.amount = 3 }
+        })
+
+        val withdrawn = MinionCollectService(repository, events)
+            .withdraw(player(), subject, sample(Material.COBBLESTONE))
+
+        assertEquals(3, withdrawn)
+        assertEquals(7, subject.storage.countSimilar(ItemStack(Material.COBBLESTONE)))
+    }
+
+    @Test
+    fun `empty withdraw fires no event`() {
+        val events = RecordingEventDispatcher()
+
+        val withdrawn = MinionCollectService(repository, events)
+            .withdraw(player(), minion(), sample(Material.GOLD_INGOT))
+
+        assertEquals(0, withdrawn)
+        assertTrue(events.events.isEmpty())
+    }
+
+    @Test
     fun `claiming gives the stored xp and empties it`() {
         val subject = minion()
         subject.state = subject.state.withStoredExperience(12)
@@ -206,5 +305,68 @@ class MinionCollectServiceTest {
 
         assertEquals(0, MinionCollectService(repository, RecordingEventDispatcher()).claimExperience(player, minion()))
         verify(exactly = 0) { player.giveExp(any()) }
+    }
+
+    private val withdrawals = CopyOnWriteArrayList<ItemStack>()
+
+    private fun recording(events: RecordingEventDispatcher = RecordingEventDispatcher()) =
+        MinionCollectService(repository, events) { _, _, item -> withdrawals += item }
+
+    @Test
+    fun `collect fires per stack`() {
+        recording().collect(player(), minion())
+
+        assertEquals(
+            listOf(Material.COBBLESTONE to 10, Material.DIAMOND to 2),
+            withdrawals.map { it.type to it.amount }
+        )
+    }
+
+    @Test
+    fun `withdrawn skips the overflow`() {
+        recording().collect(player(refused = 1), minion())
+
+        assertEquals(listOf(9, 1), withdrawals.map { it.amount })
+    }
+
+    @Test
+    fun `drop fires nothing`() {
+        recording().drop(player(), minion())
+
+        assertTrue(withdrawals.isEmpty())
+    }
+
+    @Test
+    fun `withdrawn runs after save`() {
+        val subject = minion()
+
+        MinionCollectService(repository, RecordingEventDispatcher()) { _, _, _ ->
+            verify { repository.save(subject) }
+        }.collect(player(), subject)
+    }
+
+    @Test
+    fun `cancel fires nothing`() {
+        recording(RecordingEventDispatcher(allow = false)).collect(player(), minion())
+
+        assertTrue(withdrawals.isEmpty())
+    }
+
+    @Test
+    fun `withdraw fires what moved`() {
+        val subject = minion().apply { storage.add(ItemStack(Material.COBBLESTONE, 64)) }
+
+        recording().withdraw(player(refused = 20), subject, sample(Material.COBBLESTONE))
+
+        assertEquals(listOf(44), withdrawals.map { it.amount })
+    }
+
+    @Test
+    fun `withdraw saves first`() {
+        val subject = minion()
+
+        MinionCollectService(repository, RecordingEventDispatcher()) { _, _, _ ->
+            verify { repository.save(subject) }
+        }.withdraw(player(), subject, sample(Material.COBBLESTONE))
     }
 }

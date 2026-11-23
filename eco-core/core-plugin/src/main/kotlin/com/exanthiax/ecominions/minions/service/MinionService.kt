@@ -234,10 +234,10 @@ class MinionService(
         minion.mining.seeded += repository.readSeeded(stand)
 
         val registered = register(minion)
+        refreshEffects(registered)
         if (activity.isActive(registered)) {
             activity.resume(registered)
         }
-        refreshEffects(registered)
         events.dispatch(MinionLoadEvent(registered))
         return registered
     }

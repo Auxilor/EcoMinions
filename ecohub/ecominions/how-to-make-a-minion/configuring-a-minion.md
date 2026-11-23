@@ -223,11 +223,51 @@ conditions: [] # Optional. Conditions that must pass for the effects to be activ
 They work the same as an upgrade's effects (see [How to Make an Upgrade](https://hub.auxilor.io/wiki/ecominions/how-to-make-an-upgrade#effects)), without `%tier_value%`. They add to upgrade effects on the same stat, so the example's `+1` radius stacks with the radius upgrade.
 
 :::tip
-EcoMinions' own triggers, effects, conditions and mutators are listed on the [EcoMinions wiki](https://hub.auxilor.io/wiki/ecominions), and only work on minions. Stock libreforge effects that change drops, like `multiply_drops` and `autosmelt`, work with `minion_mine_block`, `minion_kill_mob` and `minion_catch_fish`.
+EcoMinions' own triggers, effects, conditions, filters and mutators are listed on the [EcoMinions wiki](https://hub.auxilor.io/wiki/ecominions). Minion triggers fire for the minion, so they go in a minion type's or an upgrade's effects, but any stock effect can run on them, including ones that reward the owner. Stock libreforge effects that change drops, like `multiply_drops` and `autosmelt`, work with `minion_mine_block`, `minion_kill_mob` and `minion_catch_fish`.
 :::
 
 :::warning Offline owners
 A minion keeps working on triggers like `minion_mine_block` without its owner, and catches up their offline time when they return. Effects that act on the player, like `send_message` or `give_money`, do nothing while the owner is offline. Guard them with the `minion_owner_online` condition, or move the chain onto the owner with the `minion_owner_as_dispatcher` mutator.
+:::
+
+### Rewarding players
+
+Minions can give players skill XP, money or anything else a libreforge effect can give. There are two ways to do it.
+
+**When the minion makes the items.** Put a player effect on a minion trigger in the minion's `effects`. It goes to the owner, and only while they are online.
+
+```yaml
+effects:
+  - id: give_skill_xp
+    args:
+      skill: mining # The EcoSkills skill to give XP in.
+      amount: "%trigger_value% * 2" # 2 XP for each item stored.
+    triggers:
+      - minion_collect
+    filters:
+      items:
+        - diamond
+    conditions:
+      - id: minion_owner_online
+```
+
+**When a player takes the items out.** The `minion_withdraw` trigger fires for the player who takes items out of a minion: collect all, or taking one stack out in the menu. Drop all does not fire it, because dropped items can be picked up again. It fires for the player, not the minion, so it goes in the player's own effects, such as an EcoSkills skill's `xp-gain-methods`, not in the minion's config. `%trigger_value%` is how many items reached the player.
+
+```yaml
+xp-gain-methods: # In an EcoSkills skill config.
+  - trigger: minion_withdraw
+    multiplier: 2 # 2 XP for each item taken out.
+    filters:
+      items:
+        - diamond
+      not_minion_types: # Skip minions players can put items into.
+        - feeder
+        - breeder
+        - collector
+```
+
+:::warning Deposited items
+Feeders and breeders hold items players put into them, and collectors pick up items players throw near them. Without the `not_minion_types` filter, a player could put items in and take them back out to earn rewards. The `minion_types` filter takes minion types (`miner`, `woodcutter`, `farmer`, `slayer`, `fishing`, `collector`, `feeder`, `breeder`), not minion IDs.
 :::
 
 ### Appearance

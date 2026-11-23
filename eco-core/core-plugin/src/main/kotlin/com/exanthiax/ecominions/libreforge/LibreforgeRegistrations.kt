@@ -20,6 +20,7 @@ import com.exanthiax.ecominions.libreforge.effects.EffectMinionHeight
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionRadius
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSellStorage
 import com.exanthiax.ecominions.libreforge.effects.EffectMinionSpeed
+import com.exanthiax.ecominions.libreforge.filters.FilterMinionTypes
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionAsDispatcher
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionLocationToTargetBlock
 import com.exanthiax.ecominions.libreforge.mutators.MutatorMinionOwnerAsDispatcher
@@ -42,6 +43,7 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionSell
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionStorageFull
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionTick
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionUpgrade
+import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionWithdraw
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.service.Minion
@@ -52,6 +54,7 @@ import org.bukkit.entity.Entity
 import wiki.ecohub.config.category.NativeConfigCategory
 import wiki.ecohub.rules.condition.Conditions
 import wiki.ecohub.rules.effect.Effects
+import wiki.ecohub.rules.filter.Filters
 import wiki.ecohub.rules.mutator.Mutators
 import wiki.ecohub.rules.trigger.Triggers
 
@@ -130,6 +133,9 @@ object LibreforgeRegistrations {
         Triggers.register(TriggerMinionLevelUp)
         Triggers.register(TriggerMinionCollect)
         Triggers.register(TriggerClickMinion)
+        Triggers.register(TriggerMinionWithdraw)
+
+        Filters.register(FilterMinionTypes(minionAt))
 
         Conditions.register(ConditionMinionLevelAbove)
         Conditions.register(ConditionMinionLevelBelow)
