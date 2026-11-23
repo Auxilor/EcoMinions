@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.core.placeholders
 
-import com.willfp.eco.util.StringUtils
+import wiki.ecohub.ui.text.StringUtils
 
 /**
  * The only place placeholder expansion happens. Slices hand it configured text

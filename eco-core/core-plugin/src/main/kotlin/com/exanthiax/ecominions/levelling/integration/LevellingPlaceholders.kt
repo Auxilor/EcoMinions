@@ -7,8 +7,8 @@ import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.progression.ProgressionPlaceholders
-import com.willfp.eco.util.toNumeral
+import wiki.ecohub.math.toNumeral
+import wiki.ecohub.modules.progression.ProgressionPlaceholders
 
 /**
  * The levelling slice's internal placeholders.

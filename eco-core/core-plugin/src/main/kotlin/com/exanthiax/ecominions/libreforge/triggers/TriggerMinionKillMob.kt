@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.libreforge.triggers
 
-import com.willfp.libreforge.triggers.Trigger
-import com.willfp.libreforge.triggers.TriggerParameter
+import wiki.ecohub.rules.trigger.Trigger
+import wiki.ecohub.rules.trigger.TriggerParameter
 
 object TriggerMinionKillMob : Trigger("minion_kill_mob") {
     override val description = "Fires when a slayer minion kills a mob, before its drops are stored."

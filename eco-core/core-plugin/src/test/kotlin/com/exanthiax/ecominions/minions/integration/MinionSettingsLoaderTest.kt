@@ -3,13 +3,13 @@ package com.exanthiax.ecominions.minions.integration
 import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.minions.model.DEFAULT_HOLOGRAM_BACKGROUND
 import com.exanthiax.ecominions.minions.model.OverLimitMode
-import com.willfp.eco.core.config.interfaces.Config
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import wiki.ecohub.config.Config
 
 class MinionSettingsLoaderTest {
     @Test

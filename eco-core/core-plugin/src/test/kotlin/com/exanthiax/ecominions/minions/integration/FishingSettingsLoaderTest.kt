@@ -3,15 +3,15 @@ package com.exanthiax.ecominions.minions.integration
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.error.LoadReport
 import com.exanthiax.ecominions.testsupport.FakeItemLookup
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.ConfigViolation
-import com.willfp.libreforge.ViolationContext
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import wiki.ecohub.config.Config
+import wiki.ecohub.config.ConfigViolation
+import wiki.ecohub.config.ViolationContext
 
 class FishingSettingsLoaderTest {
     private val loader = FishingSettingsLoader(MinionDropListLoader(FakeItemLookup()))

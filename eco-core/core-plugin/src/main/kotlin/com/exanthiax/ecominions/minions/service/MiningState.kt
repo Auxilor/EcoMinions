@@ -1,13 +1,13 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.willfp.eco.core.blocks.TestableBlock
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.data.BlockData
 import org.bukkit.entity.LivingEntity
+import wiki.ecohub.game.block.lookup.TestableBlock
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /** Where a single minion is up to in its mine/regen cycle. Never persisted. */
 class MiningState {

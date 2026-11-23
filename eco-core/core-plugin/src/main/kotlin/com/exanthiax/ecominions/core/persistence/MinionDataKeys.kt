@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.core.persistence
 
-import com.willfp.eco.core.EcoPlugin
 import org.bukkit.NamespacedKey
 import org.bukkit.persistence.PersistentDataType
+import wiki.ecohub.core.plugin.EcoPlugin
 
 /**
  * Every persistent data key the plugin writes, created in one place.

@@ -3,9 +3,9 @@ package com.exanthiax.ecominions.minions.integration
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionService
-import com.willfp.eco.core.EcoPlugin
-import com.willfp.eco.core.recipe.Recipes
-import com.willfp.eco.core.recipe.recipes.CraftingRecipe
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.modules.recipe.Recipes
+import wiki.ecohub.modules.recipe.crafting.CraftingRecipe
 
 /**
  * Registers the recipes that produce minion items.

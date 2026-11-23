@@ -8,11 +8,11 @@ import com.exanthiax.ecominions.upgrades.integration.ConfiguredPriceCost
 import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.price.ConfiguredPrice
-import com.willfp.eco.core.price.impl.PriceFree
-import com.willfp.libreforge.conditions.ConditionList
-import com.willfp.libreforge.conditions.Conditions
+import wiki.ecohub.config.Config
+import wiki.ecohub.core.price.ConfiguredPrice
+import wiki.ecohub.core.price.PriceFree
+import wiki.ecohub.rules.condition.ConditionList
+import wiki.ecohub.rules.condition.Conditions
 
 /** Parses one file in `compactor-recipes/` into a compaction rule and the [Upgrade] that unlocks it. */
 class CompactorRecipeLoader : ConfigLoader<CompactorRecipeDefinition> {

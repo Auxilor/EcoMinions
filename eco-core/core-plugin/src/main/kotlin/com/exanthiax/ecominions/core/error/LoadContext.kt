@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.core.error
 
-import com.willfp.libreforge.ConfigViolation
-import com.willfp.libreforge.ViolationContext
+import wiki.ecohub.config.ConfigViolation
+import wiki.ecohub.config.ViolationContext
 
 /**
  * Handed to a loader for one config file. Every rejected value goes through here:

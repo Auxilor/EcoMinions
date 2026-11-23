@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.willfp.eco.core.items.TestableItem
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.item.lookup.TestableItem
 
 /**
  * What a minion's drops are worth.

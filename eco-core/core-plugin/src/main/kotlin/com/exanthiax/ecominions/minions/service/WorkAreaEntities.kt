@@ -16,7 +16,8 @@ class BukkitWorkAreaEntities : WorkAreaEntities {
         val halfHeight = (heights.last - heights.first + 1) / 2.0
         val center = base.location.add(0.5, heights.first + halfHeight, 0.5)
         return minion.entity.world
-            .getNearbyEntitiesByType(type, center, radius + 0.5, halfHeight, radius + 0.5)
+            .getNearbyEntities(center, radius + 0.5, halfHeight, radius + 0.5) { type.isInstance(it) }
+            .map { type.cast(it) }
             .filter { entity ->
                 val block = entity.location.block
                 abs(block.x - base.x) <= radius &&

@@ -1,13 +1,13 @@
 package com.exanthiax.ecominions.minions.service
 
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
-import com.exanthiax.ecominions.testsupport.FakeWorld
-import io.mockk.every
-import io.mockk.mockk
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.TargetSet
 import com.exanthiax.ecominions.testsupport.FakeBlockLookup
+import com.exanthiax.ecominions.testsupport.FakeWorld
+import io.mockk.every
+import io.mockk.mockk
 import org.bukkit.Material
 import org.bukkit.block.data.BlockData
 import org.junit.jupiter.api.Assertions.assertEquals

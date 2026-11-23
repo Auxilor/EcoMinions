@@ -13,10 +13,10 @@ import com.exanthiax.ecominions.minions.service.MinionDropTables
 import com.exanthiax.ecominions.minions.service.RegenService
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviour
 import com.exanthiax.ecominions.minions.service.behaviour.MinionBehaviours
-import com.willfp.libreforge.triggers.event.DropCause
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.rules.trigger.DropCause
 
 /** Mines, regenerates, replants and fells: the three block types. */
 class BlockActivity(

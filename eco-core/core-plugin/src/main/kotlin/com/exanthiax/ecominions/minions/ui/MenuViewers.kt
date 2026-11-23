@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.minions.ui
 
 import com.exanthiax.ecominions.core.lifecycle.Tickable
-import com.willfp.eco.core.gui.menu.Menu
 import org.bukkit.entity.Player
+import wiki.ecohub.modules.menus.menu.Menu
 import java.util.concurrent.ConcurrentHashMap
 
 /**

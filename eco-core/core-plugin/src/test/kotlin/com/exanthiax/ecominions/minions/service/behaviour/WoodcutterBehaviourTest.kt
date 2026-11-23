@@ -5,8 +5,8 @@ import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.PlacementSettings
 import com.exanthiax.ecominions.minions.model.TargetSet
-import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MiningState
+import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.TreeService
 import com.exanthiax.ecominions.testsupport.FakeBlockLookup
 import com.exanthiax.ecominions.testsupport.FakeWorld

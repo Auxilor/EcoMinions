@@ -1,11 +1,11 @@
 package com.exanthiax.ecominions.minions.ui
 
-import com.willfp.eco.core.gui.menu.Menu
 import io.mockk.every
 import io.mockk.mockk
 import org.bukkit.entity.Player
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import wiki.ecohub.modules.menus.menu.Menu
 
 class MenuViewersTest {
 

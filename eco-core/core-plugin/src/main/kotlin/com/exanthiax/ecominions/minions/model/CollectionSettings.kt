@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.willfp.eco.core.items.TestableItem
+import wiki.ecohub.game.item.lookup.TestableItem
 
 /** A collector's filter. An empty [targetItems] collects everything. */
 data class CollectionSettings(

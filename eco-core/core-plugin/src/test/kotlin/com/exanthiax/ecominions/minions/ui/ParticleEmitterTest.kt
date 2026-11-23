@@ -1,13 +1,13 @@
 package com.exanthiax.ecominions.minions.ui
 
 import com.exanthiax.ecominions.minions.model.ParticleSettings
-import com.willfp.eco.core.particle.SpawnableParticle
 import io.mockk.mockk
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import wiki.ecohub.game.particle.SpawnableParticle
 import kotlin.math.abs
 
 class ParticleEmitterTest {

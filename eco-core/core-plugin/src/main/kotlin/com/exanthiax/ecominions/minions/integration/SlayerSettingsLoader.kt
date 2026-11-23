@@ -3,7 +3,7 @@ package com.exanthiax.ecominions.minions.integration
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.world.EntityLookup
 import com.exanthiax.ecominions.minions.model.SlayerSettings
-import com.willfp.eco.core.config.interfaces.Config
+import wiki.ecohub.config.Config
 
 /** Reads a slayer's `target-mobs`, `max-mobs`, `drops` and `credit-owner`. */
 class SlayerSettingsLoader(

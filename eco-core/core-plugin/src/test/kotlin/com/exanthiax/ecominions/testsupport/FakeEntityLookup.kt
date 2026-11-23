@@ -1,10 +1,10 @@
 package com.exanthiax.ecominions.testsupport
 
 import com.exanthiax.ecominions.core.world.EntityLookup
-import com.willfp.eco.core.entities.TestableEntity
 import org.bukkit.Location
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
+import wiki.ecohub.game.entity.lookup.TestableEntity
 
 /** An in-memory [EntityLookup]. Matching is by [Entity.getType] only. */
 class FakeEntityLookup(

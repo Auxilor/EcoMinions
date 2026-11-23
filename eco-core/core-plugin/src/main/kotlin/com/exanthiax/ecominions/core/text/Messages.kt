@@ -2,7 +2,7 @@ package com.exanthiax.ecominions.core.text
 
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.placeholders.TemplateRenderer
-import com.willfp.eco.core.config.interfaces.Config
+import wiki.ecohub.config.Config
 
 /**
  * Reads admin-authored text out of `lang.yml` and renders it.

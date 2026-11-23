@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.core.world
 
-import com.willfp.eco.core.entities.Entities
-import com.willfp.eco.core.entities.TestableEntity
-import com.willfp.eco.core.entities.impl.EmptyTestableEntity
+import wiki.ecohub.game.entity.Entities
+import wiki.ecohub.game.entity.lookup.EmptyTestableEntity
+import wiki.ecohub.game.entity.lookup.TestableEntity
 
 /** The sibling of [BlockLookup] for mobs, which may be custom mobs from EcoMobs. */
 interface EntityLookup {

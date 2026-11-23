@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.libreforge.triggers
 
-import com.willfp.libreforge.triggers.Trigger
-import com.willfp.libreforge.triggers.TriggerParameter
+import wiki.ecohub.rules.trigger.Trigger
+import wiki.ecohub.rules.trigger.TriggerParameter
 
 object TriggerMinionRegenBlock : Trigger("minion_regen_block") {
     override val description = "Fires when a block a minion mined regenerates."

@@ -2,6 +2,7 @@ package com.exanthiax.ecominions.minions.service.activity
 
 import com.exanthiax.ecominions.api.event.MinionCatchEvent
 import com.exanthiax.ecominions.core.event.EventDispatcher
+import com.exanthiax.ecominions.core.world.isSolidBlock
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionCatchFish
@@ -9,13 +10,13 @@ import com.exanthiax.ecominions.minions.service.ExperienceSink
 import com.exanthiax.ecominions.minions.service.FishingLootRoller
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionWorkArea
-import com.willfp.libreforge.triggers.event.DropCause
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.block.Block
 import org.bukkit.block.data.Levelled
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
+import wiki.ecohub.rules.trigger.DropCause
 import kotlin.random.Random
 
 /** Casts into water sources in its box. Self-seeding lays the pool one source at a time. */
@@ -108,10 +109,10 @@ class FishingActivity(
 
     private fun seed(minion: Minion): Boolean {
         val spot = MinionWorkArea.blocks(minion)
-            .filter {
-                (it.type == Material.AIR || isFlowingWater(it)) &&
-                    it.world.getBlockAt(it.x, it.y - 1, it.z).isSolid &&
-                    canWork(minion, it)
+            .filter { block ->
+                (block.type == Material.AIR || isFlowingWater(block)) &&
+                    block.world.getBlockAt(block.x, block.y - 1, block.z).isSolidBlock &&
+                    canWork(minion, block)
             }
             .randomOrNull(random)
             ?: return false

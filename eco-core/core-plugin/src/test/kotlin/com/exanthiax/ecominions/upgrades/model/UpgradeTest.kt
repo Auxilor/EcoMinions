@@ -1,10 +1,10 @@
 package com.exanthiax.ecominions.upgrades.model
 
-import com.willfp.libreforge.Holder
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
+import wiki.ecohub.rules.holder.Holder
 
 class UpgradeTest {
 

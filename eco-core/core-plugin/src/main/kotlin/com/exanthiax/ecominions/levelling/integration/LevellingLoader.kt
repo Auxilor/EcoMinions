@@ -4,19 +4,19 @@ import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.placeholders.LevelInjectable
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.levelling.model.MinionCounter
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.placeholder.context.placeholderContext
-import com.willfp.eco.core.progression.LevelCurve
-import com.willfp.eco.core.progression.LevelCurves
-import com.willfp.eco.util.evaluateExpression
-import com.willfp.libreforge.conditions.Conditions
-import com.willfp.libreforge.effects.Effects
-import com.willfp.libreforge.effects.executors.impl.NormalExecutorFactory
-import com.willfp.libreforge.filters.Filters
-import com.willfp.libreforge.effects.arguments.EffectArguments
-import com.willfp.libreforge.separatorAmbivalent
-import com.willfp.libreforge.triggers.DispatchedTrigger
-import com.willfp.libreforge.triggers.Triggers
+import wiki.ecohub.config.Config
+import wiki.ecohub.config.section.separatorAmbivalent
+import wiki.ecohub.math.evaluateExpression
+import wiki.ecohub.modules.progression.LevelCurve
+import wiki.ecohub.modules.progression.LevelCurves
+import wiki.ecohub.rules.argument.EffectArguments
+import wiki.ecohub.rules.chain.NormalExecutorFactory
+import wiki.ecohub.rules.condition.Conditions
+import wiki.ecohub.rules.effect.Effects
+import wiki.ecohub.rules.filter.Filters
+import wiki.ecohub.rules.trigger.DispatchedTrigger
+import wiki.ecohub.rules.trigger.Triggers
+import wiki.ecohub.ui.placeholder.placeholderContext
 
 /**
  * Parses a minion definition's `levelling:` block.

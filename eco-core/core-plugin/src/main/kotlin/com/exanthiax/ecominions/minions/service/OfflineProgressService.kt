@@ -10,8 +10,8 @@ import com.exanthiax.ecominions.libreforge.triggers.TriggerMinionMineBlock
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.OfflineProgress
 import com.exanthiax.ecominions.minions.service.activity.MinionActivity
-import com.willfp.libreforge.triggers.event.DropCause
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.rules.trigger.DropCause
 
 /** Credits a minion for the time it spent idle, and burns the fuel that took. */
 class OfflineProgressService(

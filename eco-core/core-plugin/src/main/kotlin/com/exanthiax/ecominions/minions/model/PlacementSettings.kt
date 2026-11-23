@@ -1,6 +1,6 @@
 package com.exanthiax.ecominions.minions.model
 
-import com.willfp.eco.core.blocks.TestableBlock
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /**
  * Whether mined blocks regenerate one block higher than they were broken, what

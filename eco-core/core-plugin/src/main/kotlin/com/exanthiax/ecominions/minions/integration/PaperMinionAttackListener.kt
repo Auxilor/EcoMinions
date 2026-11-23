@@ -5,6 +5,7 @@ import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import org.bukkit.entity.ArmorStand
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import wiki.ecohub.core.plugin.startup.Prerequisite
 
 /**
  * Opens a minion when it is hit. An invulnerable stand never fires a damage event, so
@@ -26,8 +27,7 @@ class PaperMinionAttackListener(
     }
 
     companion object {
-        val isSupported: Boolean = runCatching {
-            Class.forName("io.papermc.paper.event.player.PrePlayerAttackEntityEvent")
-        }.isSuccess
+        val isSupported: Boolean
+            get() = Prerequisite.HAS_PAPER.isMet
     }
 }

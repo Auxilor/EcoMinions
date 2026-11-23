@@ -6,12 +6,12 @@ import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
-import com.willfp.libreforge.Holder
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import wiki.ecohub.rules.holder.Holder
 
 class MinionHoldersTest {
 

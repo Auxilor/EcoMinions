@@ -7,7 +7,6 @@ import com.exanthiax.ecominions.minions.model.MinionBlock
 import com.exanthiax.ecominions.minions.model.MinionSettings
 import com.exanthiax.ecominions.minions.model.SellPricingSettings
 import com.exanthiax.ecominions.testsupport.FakeWorld
-import com.willfp.eco.core.blocks.TestableBlock
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 class RegenServiceTest {
 

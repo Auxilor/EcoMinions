@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.libreforge.triggers
 
-import com.willfp.libreforge.triggers.Trigger
-import com.willfp.libreforge.triggers.TriggerParameter
+import wiki.ecohub.rules.trigger.Trigger
+import wiki.ecohub.rules.trigger.TriggerParameter
 
 object TriggerMinionMineBlock : Trigger("minion_mine_block") {
     override val description = "Fires when a minion breaks a target block, before its drops are stored."

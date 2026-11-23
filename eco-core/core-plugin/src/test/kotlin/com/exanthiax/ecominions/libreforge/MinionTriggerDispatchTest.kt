@@ -1,8 +1,5 @@
 package com.exanthiax.ecominions.libreforge
 
-import com.willfp.libreforge.drops.DropContribution
-import com.willfp.libreforge.triggers.event.DropCause
-import com.willfp.libreforge.triggers.event.DropContext
 import io.mockk.mockk
 import org.bukkit.Location
 import org.bukkit.Material
@@ -13,6 +10,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
+import wiki.ecohub.game.drop.DropContribution
+import wiki.ecohub.rules.trigger.DropCause
+import wiki.ecohub.rules.trigger.DropContext
 
 /**
  * Covers the contribution step only. The dispatch itself builds a libreforge

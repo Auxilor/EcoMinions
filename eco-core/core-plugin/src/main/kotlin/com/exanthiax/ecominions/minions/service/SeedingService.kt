@@ -1,12 +1,13 @@
 package com.exanthiax.ecominions.minions.service
 
-import com.willfp.eco.core.blocks.TestableBlock
-import com.willfp.eco.core.blocks.impl.MaterialTestableBlock
+import com.exanthiax.ecominions.core.world.isSolidBlock
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.TileState
 import org.bukkit.block.data.Ageable
+import wiki.ecohub.game.block.lookup.MaterialTestableBlock
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /**
  * Stocks a minion's work area with the blocks it mines, one block at a time.
@@ -148,7 +149,7 @@ class SeedingService(
         below: Block,
         expectedSurface: TestableBlock?
     ): Boolean {
-        val material = (seed as? MaterialTestableBlock)?.material ?: return true
+        val material = (seed as? MaterialTestableBlock)?.getMaterial() ?: return true
         if (!SeedSurface.isPrepared(below, expectedSurface)) {
             return true
         }
@@ -160,7 +161,7 @@ class SeedingService(
 
     /** Lays a water source beside the ground of [spot] when [seed] needs one there. */
     private fun irrigate(minion: Minion, seed: TestableBlock, spot: Block) {
-        val material = (seed as? MaterialTestableBlock)?.material ?: return
+        val material = (seed as? MaterialTestableBlock)?.getMaterial() ?: return
         if (material !in WATER_PLANTS || material.createBlockData().isSupported(spot)) {
             return
         }
@@ -180,14 +181,14 @@ class SeedingService(
         val targets = minion.state.definition.targetBlocks
         return HORIZONTAL.map { ground.getRelative(it) }.firstOrNull { candidate ->
             !(candidate.x == center.x && candidate.z == center.z) &&
-                candidate.isSolid &&
+                candidate.isSolidBlock &&
                 candidate.state !is TileState &&
                 !targets.matches(candidate) &&
                 !minion.mining.isAwaitingRegen(candidate) &&
                 candidate.getRelative(BlockFace.UP).type == Material.AIR &&
                 canWork(minion, candidate) &&
                 HORIZONTAL.all { face ->
-                    candidate.getRelative(face).let { it.isSolid || it.type == Material.WATER }
+                    candidate.getRelative(face).let { it.isSolidBlock || it.type == Material.WATER }
                 }
         }
     }

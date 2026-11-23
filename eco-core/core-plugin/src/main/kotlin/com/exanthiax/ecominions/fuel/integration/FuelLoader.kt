@@ -3,7 +3,7 @@ package com.exanthiax.ecominions.fuel.integration
 import com.exanthiax.ecominions.core.error.LoadContext
 import com.exanthiax.ecominions.core.registry.ConfigLoader
 import com.exanthiax.ecominions.fuel.model.Fuel
-import com.willfp.eco.core.config.interfaces.Config
+import wiki.ecohub.config.Config
 
 /** Parses one file in `fuels/` into a [Fuel]. */
 class FuelLoader : ConfigLoader<Fuel> {

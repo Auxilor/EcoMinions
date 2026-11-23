@@ -6,8 +6,6 @@ import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.progression.LevelCurve
-import com.willfp.libreforge.conditions.ConditionList
 import io.mockk.every
 import io.mockk.mockk
 import org.bukkit.event.EventPriority
@@ -21,6 +19,8 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import wiki.ecohub.modules.progression.LevelCurve
+import wiki.ecohub.rules.condition.ConditionList
 
 class MinionXpServiceGrantTest {
 

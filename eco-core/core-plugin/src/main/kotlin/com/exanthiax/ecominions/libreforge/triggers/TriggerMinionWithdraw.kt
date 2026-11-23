@@ -1,12 +1,12 @@
 package com.exanthiax.ecominions.libreforge.triggers
 
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.libreforge.toDispatcher
-import com.willfp.libreforge.triggers.Trigger
-import com.willfp.libreforge.triggers.TriggerData
-import com.willfp.libreforge.triggers.TriggerParameter
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.entity.toDispatcher
+import wiki.ecohub.rules.trigger.Trigger
+import wiki.ecohub.rules.trigger.TriggerData
+import wiki.ecohub.rules.trigger.TriggerParameter
 
 object TriggerMinionWithdraw : Trigger("minion_withdraw") {
     override val description = "Fires each time a player takes a stack of items out of a minion's storage."

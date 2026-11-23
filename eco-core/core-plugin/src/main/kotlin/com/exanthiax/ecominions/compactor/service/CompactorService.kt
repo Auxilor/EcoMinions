@@ -2,8 +2,8 @@ package com.exanthiax.ecominions.compactor.service
 
 import com.exanthiax.ecominions.compactor.model.CompactorRecipe
 import com.exanthiax.ecominions.minions.model.MinionStorage
-import com.willfp.eco.core.items.Items
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.item.Items
 
 /** Compresses bulk drops in a minion's storage into their block form. */
 class CompactorService {
@@ -57,7 +57,7 @@ class CompactorService {
     }
 
     private fun outputOf(recipe: CompactorRecipe): ItemStack {
-        val item = Items.lookup(recipe.outputLookup).item.clone()
+        val item = Items.lookup(recipe.outputLookup).getItem().clone()
         item.amount = recipe.outputAmount
         return item
     }

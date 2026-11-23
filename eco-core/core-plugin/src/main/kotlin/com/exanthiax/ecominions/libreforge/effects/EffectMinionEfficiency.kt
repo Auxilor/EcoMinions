@@ -1,8 +1,8 @@
 package com.exanthiax.ecominions.libreforge.effects
 
 import com.exanthiax.ecominions.minions.model.MinionStat
-import com.willfp.libreforge.ArgType
-import com.willfp.libreforge.arguments
+import wiki.ecohub.config.ArgType
+import wiki.ecohub.config.arguments
 
 object EffectMinionEfficiency : MinionStatEffect(
     id = "minion_efficiency",

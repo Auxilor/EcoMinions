@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.libreforge.triggers
 
-import com.willfp.libreforge.triggers.Trigger
-import com.willfp.libreforge.triggers.TriggerParameter
+import wiki.ecohub.rules.trigger.Trigger
+import wiki.ecohub.rules.trigger.TriggerParameter
 
 /** Fires once per level a minion gains. Dispatched by EcoMinions, not a Bukkit listener. */
 object TriggerMinionLevelUp : Trigger("minion_level_up") {

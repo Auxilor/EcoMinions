@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.libreforge.triggers
 
-import com.willfp.libreforge.triggers.Trigger
-import com.willfp.libreforge.triggers.TriggerParameter
+import wiki.ecohub.rules.trigger.Trigger
+import wiki.ecohub.rules.trigger.TriggerParameter
 
 object TriggerMinionCatchFish : Trigger("minion_catch_fish") {
     override val description = "Fires when a fishing minion catches something, before it is stored."

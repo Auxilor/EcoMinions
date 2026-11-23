@@ -1,9 +1,9 @@
 package com.exanthiax.ecominions.testsupport
 
 import com.exanthiax.ecominions.core.world.ItemLookup
-import com.willfp.eco.core.items.TestableItem
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.item.lookup.TestableItem
 
 /**
  * An in-memory [ItemLookup] for tests.

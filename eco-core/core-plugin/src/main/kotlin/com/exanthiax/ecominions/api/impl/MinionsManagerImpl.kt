@@ -18,8 +18,8 @@ import com.exanthiax.ecominions.minions.model.MinionDefinition
 import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionActivityService
-import com.exanthiax.ecominions.minions.service.MinionCompactService
 import com.exanthiax.ecominions.minions.service.MinionCollectService
+import com.exanthiax.ecominions.minions.service.MinionCompactService
 import com.exanthiax.ecominions.minions.service.MinionItemFactory
 import com.exanthiax.ecominions.minions.service.MinionItemService
 import com.exanthiax.ecominions.minions.service.MinionLimits

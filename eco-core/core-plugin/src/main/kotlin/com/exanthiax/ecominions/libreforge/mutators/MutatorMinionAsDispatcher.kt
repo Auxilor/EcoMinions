@@ -2,11 +2,11 @@ package com.exanthiax.ecominions.libreforge.mutators
 
 import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.NoCompileData
-import com.willfp.libreforge.mutators.Mutator
-import com.willfp.libreforge.triggers.TriggerData
 import org.bukkit.entity.Entity
+import wiki.ecohub.config.Config
+import wiki.ecohub.core.registry.NoCompileData
+import wiki.ecohub.rules.mutator.Mutator
+import wiki.ecohub.rules.trigger.TriggerData
 
 /**
  * Retargets the chain at the minion in the trigger's victim.

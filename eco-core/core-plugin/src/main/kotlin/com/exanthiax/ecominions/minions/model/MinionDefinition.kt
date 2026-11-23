@@ -1,12 +1,12 @@
 package com.exanthiax.ecominions.minions.model
 
+import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.compactor.model.CompactorRecipeDefinition
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
-import com.exanthiax.ecominions.api.minion.MinionType
-import com.willfp.libreforge.Holder
 import org.bukkit.Material
-import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefinition
+import wiki.ecohub.rules.holder.Holder
 import kotlin.math.roundToInt
+import com.exanthiax.ecominions.api.minion.MinionDefinition as ApiMinionDefinition
 
 /**
  * A configured minion. Immutable, fully validated by the time it exists:

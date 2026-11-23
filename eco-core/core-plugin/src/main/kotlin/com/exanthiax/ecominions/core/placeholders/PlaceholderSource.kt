@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.core.placeholders
 
-import com.willfp.eco.core.EcoPlugin
-import com.willfp.eco.core.placeholder.Placeholder
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.ui.placeholder.Placeholder
 
 /** A placeholder resolved inside lore, messages and holograms, e.g. `%level%`. */
 class InternalPlaceholder(

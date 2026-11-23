@@ -7,8 +7,8 @@ import com.exanthiax.ecominions.libreforge.toDispatcher
 import com.exanthiax.ecominions.upgrades.model.TierCost
 import com.exanthiax.ecominions.upgrades.model.Upgrade
 import com.exanthiax.ecominions.upgrades.model.UpgradeTier
-import com.willfp.libreforge.EmptyProvidedHolder
 import org.bukkit.entity.Player
+import wiki.ecohub.rules.holder.EmptyProvidedHolder
 
 /**
  * Buying an upgrade for a minion.

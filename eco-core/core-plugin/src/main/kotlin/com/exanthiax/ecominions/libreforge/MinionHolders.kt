@@ -3,9 +3,9 @@ package com.exanthiax.ecominions.libreforge
 import com.exanthiax.ecominions.core.world.WorldSettings
 import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.upgrades.model.Upgrade
-import com.willfp.libreforge.ProvidedHolder
-import com.willfp.libreforge.SimpleProvidedHolder
-import com.willfp.libreforge.registerSpecificHolderProvider
+import wiki.ecohub.rules.holder.ProvidedHolder
+import wiki.ecohub.rules.holder.SimpleProvidedHolder
+import wiki.ecohub.rules.holder.registerSpecificHolderProvider
 
 /**
  * Everything that gives a minion effects: its type, and each purchased upgrade at

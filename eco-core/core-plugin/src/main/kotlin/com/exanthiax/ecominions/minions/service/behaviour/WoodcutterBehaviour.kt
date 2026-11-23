@@ -6,10 +6,10 @@ import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.PlantSpacing
 import com.exanthiax.ecominions.minions.service.SeedSurface
 import com.exanthiax.ecominions.minions.service.TreeService
-import com.willfp.eco.core.blocks.TestableBlock
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
+import wiki.ecohub.game.block.lookup.TestableBlock
 
 /**
  * The plant-wait-fell loop of a tree minion.

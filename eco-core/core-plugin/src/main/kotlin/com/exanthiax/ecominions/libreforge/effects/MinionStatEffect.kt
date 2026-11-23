@@ -2,16 +2,16 @@ package com.exanthiax.ecominions.libreforge.effects
 
 import com.exanthiax.ecominions.minions.model.MinionStat
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.Dispatcher
-import com.willfp.libreforge.NoCompileData
-import com.willfp.libreforge.ProvidedHolder
-import com.willfp.libreforge.effects.Effect
-import com.willfp.libreforge.effects.Identifiers
-import com.willfp.libreforge.effects.RunOrder
-import com.willfp.libreforge.get
-import com.willfp.libreforge.getIntFromExpression
-import com.willfp.libreforge.triggers.TriggerData
+import wiki.ecohub.config.Config
+import wiki.ecohub.config.section.getIntFromExpression
+import wiki.ecohub.core.registry.NoCompileData
+import wiki.ecohub.rules.effect.Effect
+import wiki.ecohub.rules.effect.Identifiers
+import wiki.ecohub.rules.effect.RunOrder
+import wiki.ecohub.rules.holder.Dispatcher
+import wiki.ecohub.rules.holder.ProvidedHolder
+import wiki.ecohub.rules.holder.get
+import wiki.ecohub.rules.trigger.TriggerData
 
 /**
  * A permanent effect that moves one minion stat while its holder is active.

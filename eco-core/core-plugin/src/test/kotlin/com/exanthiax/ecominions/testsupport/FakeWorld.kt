@@ -1,7 +1,9 @@
 package com.exanthiax.ecominions.testsupport
 
+import com.exanthiax.ecominions.core.world.isSolidBlock
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -17,6 +19,10 @@ import org.bukkit.entity.ArmorStand
  */
 class FakeWorld {
     private val blocks = HashMap<Triple<Int, Int, Int>, Material>()
+
+    init {
+        mockkStatic("com.exanthiax.ecominions.core.world.BlockSolidityKt")
+    }
 
     val bukkit: World = mockk<World>().also { world ->
         every { world.getBlockAt(any<Int>(), any<Int>(), any<Int>()) } answers {
@@ -57,7 +63,7 @@ class FakeWorld {
         every { block.z } returns z
         every { block.world } returns bukkit
         every { block.type } answers { typeAt(x, y, z) }
-        every { block.isSolid } answers { typeAt(x, y, z) != Material.AIR }
+        every { block.isSolidBlock } answers { typeAt(x, y, z) != Material.AIR }
         every { block.isPassable } answers { typeAt(x, y, z) == Material.AIR || typeAt(x, y, z) == Material.WATER }
         every { block.type = any() } answers { set(x, y, z, firstArg()) }
         // Real block data needs a running server; nothing under test is Ageable.

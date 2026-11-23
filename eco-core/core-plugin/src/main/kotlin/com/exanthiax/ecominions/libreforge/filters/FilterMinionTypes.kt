@@ -2,14 +2,14 @@ package com.exanthiax.ecominions.libreforge.filters
 
 import com.exanthiax.ecominions.api.minion.MinionType
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.ArgType
-import com.willfp.libreforge.ConfigViolation
-import com.willfp.libreforge.ViolationContext
-import com.willfp.libreforge.filters.Filter
-import com.willfp.libreforge.get
-import com.willfp.libreforge.triggers.TriggerData
 import org.bukkit.entity.Entity
+import wiki.ecohub.config.ArgType
+import wiki.ecohub.config.Config
+import wiki.ecohub.config.ConfigViolation
+import wiki.ecohub.config.ViolationContext
+import wiki.ecohub.rules.filter.Filter
+import wiki.ecohub.rules.holder.get
+import wiki.ecohub.rules.trigger.TriggerData
 
 /**
  * Matches the minion behind a trigger by type.

@@ -15,10 +15,10 @@ import com.exanthiax.ecominions.minions.service.MinionLimits
 import com.exanthiax.ecominions.minions.service.MinionService
 import com.exanthiax.ecominions.minions.service.PlacementLimits
 import com.exanthiax.ecominions.minions.ui.limitName
-import com.willfp.eco.core.EcoPlugin
-import com.willfp.eco.core.placeholder.Placeholder
-import com.willfp.eco.core.placeholder.PlayerPlaceholder
 import org.bukkit.Bukkit
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.ui.placeholder.Placeholder
+import wiki.ecohub.ui.placeholder.type.PlayerPlaceholder
 import java.util.UUID
 
 /** The minions slice's contribution to both placeholder scopes. */

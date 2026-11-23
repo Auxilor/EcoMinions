@@ -50,13 +50,13 @@ import com.exanthiax.ecominions.minions.service.Minion
 import com.exanthiax.ecominions.minions.service.MinionCompactService
 import com.exanthiax.ecominions.minions.service.SellService
 import com.exanthiax.ecominions.upgrades.model.Upgrade
-import com.willfp.libreforge.conditions.Conditions
-import com.willfp.libreforge.effects.Effects
-import com.willfp.libreforge.filters.Filters
-import com.willfp.libreforge.loader.configs.ConfigCategory
-import com.willfp.libreforge.mutators.Mutators
-import com.willfp.libreforge.triggers.Triggers
 import org.bukkit.entity.Entity
+import wiki.ecohub.config.category.NativeConfigCategory
+import wiki.ecohub.rules.condition.Conditions
+import wiki.ecohub.rules.effect.Effects
+import wiki.ecohub.rules.filter.Filters
+import wiki.ecohub.rules.mutator.Mutators
+import wiki.ecohub.rules.trigger.Triggers
 
 /**
  * Single owner of everything the plugin hands to libreforge.
@@ -82,7 +82,7 @@ object LibreforgeRegistrations {
         upgrades: ConfigDrivenRegistry<Upgrade>,
         fuels: ConfigDrivenRegistry<Fuel>,
         compactorRecipes: ConfigDrivenRegistry<CompactorRecipeDefinition>
-    ): List<ConfigCategory> = listOf(blocks, upgrades, fuels, compactorRecipes, types)
+    ): List<NativeConfigCategory> = listOf(blocks, upgrades, fuels, compactorRecipes, types)
 
     /**
      * Every libreforge component this plugin owns.

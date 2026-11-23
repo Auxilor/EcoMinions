@@ -2,12 +2,12 @@ package com.exanthiax.ecominions.libreforge.conditions
 
 import com.exanthiax.ecominions.libreforge.ownerPlayer
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.Dispatcher
-import com.willfp.libreforge.NoCompileData
-import com.willfp.libreforge.ProvidedHolder
-import com.willfp.libreforge.conditions.Condition
-import com.willfp.libreforge.get
+import wiki.ecohub.config.Config
+import wiki.ecohub.core.registry.NoCompileData
+import wiki.ecohub.rules.condition.Condition
+import wiki.ecohub.rules.holder.Dispatcher
+import wiki.ecohub.rules.holder.ProvidedHolder
+import wiki.ecohub.rules.holder.get
 
 object ConditionMinionOwnerOnline : Condition<NoCompileData>("minion_owner_online") {
     override val description = "Passes when the minion's owner is online."

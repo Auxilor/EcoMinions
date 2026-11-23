@@ -3,10 +3,10 @@ package com.exanthiax.ecominions.minions.service
 import com.exanthiax.ecominions.core.placeholders.TemplateContext
 import com.exanthiax.ecominions.core.placeholders.TemplateRenderer
 import com.exanthiax.ecominions.minions.integration.MinionPlaceholders
-import com.exanthiax.ecominions.minions.model.MinionState
 import com.exanthiax.ecominions.minions.model.MinionDefinition
-import com.willfp.eco.core.items.Items
+import com.exanthiax.ecominions.minions.model.MinionState
 import org.bukkit.inventory.ItemStack
+import wiki.ecohub.game.item.Items
 
 /** Builds and reads the placeable item that carries a minion between worlds. */
 class MinionItemFactory(
@@ -15,7 +15,7 @@ class MinionItemFactory(
 ) {
     fun build(state: MinionState): ItemStack {
         val type = state.definition
-        val item = Items.lookup(type.spawnItem.itemLookup).item.clone()
+        val item = Items.lookup(type.spawnItem.itemLookup).getItem().clone()
 
         val meta = item.itemMeta ?: return item
         val context = TemplateContext.of(MinionPlaceholders.STATE to state)

@@ -1,7 +1,7 @@
 package com.exanthiax.ecominions.core.lifecycle
 
-import com.willfp.eco.core.EcoPlugin
-import com.willfp.eco.core.scheduling.EcoTask
+import wiki.ecohub.core.plugin.EcoPlugin
+import wiki.ecohub.core.scheduler.EcoTask
 
 /**
  * Owns every repeating task in the plugin. Reload semantics live here and

@@ -47,7 +47,7 @@ class BreederActivity(
     override fun offlineCycle(minion: Minion): OfflineYield? = null
 
     private fun isReady(animal: Animals): Boolean =
-        animal.isAdult && animal.canBreed() && !animal.isLoveMode && animal.customName() == null &&
+        animal.isAdult && animal.canBreed() && !animal.isLoveMode && animal.customName == null &&
             !animal.persistentDataContainer.has(spawnedByKey)
 
     private fun storedFood(minion: Minion, settings: BreederSettings): List<ItemStack> =

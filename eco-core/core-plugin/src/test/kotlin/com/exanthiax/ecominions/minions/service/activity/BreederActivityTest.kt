@@ -20,7 +20,6 @@ import com.exanthiax.ecominions.testsupport.FakePersistentDataContainer
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.kyori.adventure.text.Component
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -99,7 +98,7 @@ class BreederActivityTest {
         every { isAdult } returns adult
         every { isLoveMode } returns inLove
         every { isBreedItem(any<ItemStack>()) } answers { firstArg<ItemStack>().type == Material.WHEAT }
-        every { customName() } returns if (named) Component.text("Bob") else null
+        every { customName } returns if (named) "Bob" else null
         every { persistentDataContainer } returns tagContainer(tagged)
         every { location } returns mockk<Location>(relaxed = true)
     }.also { animals += it }
@@ -112,7 +111,7 @@ class BreederActivityTest {
         every { isBreedItem(any<ItemStack>()) } answers {
             firstArg<ItemStack>().type in setOf(Material.WHEAT, Material.CARROT)
         }
-        every { customName() } returns null
+        every { customName } returns null
         every { persistentDataContainer } returns tagContainer(false)
         every { location } returns mockk<Location>(relaxed = true)
     }.also { animals += it }
@@ -123,7 +122,7 @@ class BreederActivityTest {
         every { isAdult } returns true
         every { isLoveMode } returns false
         every { isBreedItem(any<ItemStack>()) } answers { firstArg<ItemStack>().type == Material.CARROT }
-        every { customName() } returns null
+        every { customName } returns null
         every { persistentDataContainer } returns tagContainer(false)
         every { location } returns mockk<Location>(relaxed = true)
     }.also { animals += it }
@@ -376,7 +375,7 @@ class BreederActivityTest {
             every { isAdult } returns true
             every { isLoveMode } returns false
             every { isBreedItem(any<ItemStack>()) } returns true
-            every { customName() } returns null
+            every { customName } returns null
             every { persistentDataContainer } returns tagContainer(false)
             every { location } returns mockk<Location>(relaxed = true)
         }.also { animals += it }

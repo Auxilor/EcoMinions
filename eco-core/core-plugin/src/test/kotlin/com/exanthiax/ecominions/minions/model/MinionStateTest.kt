@@ -2,13 +2,13 @@ package com.exanthiax.ecominions.minions.model
 
 import com.exanthiax.ecominions.levelling.model.LevellingSpec
 import com.exanthiax.ecominions.minions.MinionDefinitionFixture
-import com.willfp.eco.core.progression.LevelCurve
-import com.willfp.libreforge.conditions.ConditionList
-import java.util.UUID
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
+import wiki.ecohub.modules.progression.LevelCurve
+import wiki.ecohub.rules.condition.ConditionList
+import java.util.UUID
 
 class MinionStateTest {
 

@@ -2,15 +2,15 @@ package com.exanthiax.ecominions.libreforge.effects
 
 import com.exanthiax.ecominions.levelling.service.MinionXpService
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.libreforge.ArgType
-import com.willfp.libreforge.NoCompileData
-import com.willfp.libreforge.arguments
-import com.willfp.libreforge.effects.Effect
-import com.willfp.libreforge.get
-import com.willfp.libreforge.getDoubleFromExpression
-import com.willfp.libreforge.triggers.TriggerData
-import com.willfp.libreforge.triggers.TriggerParameter
+import wiki.ecohub.config.ArgType
+import wiki.ecohub.config.Config
+import wiki.ecohub.config.arguments
+import wiki.ecohub.config.section.getDoubleFromExpression
+import wiki.ecohub.core.registry.NoCompileData
+import wiki.ecohub.rules.effect.Effect
+import wiki.ecohub.rules.holder.get
+import wiki.ecohub.rules.trigger.TriggerData
+import wiki.ecohub.rules.trigger.TriggerParameter
 
 /** Grants XP to a minion, letting a fuel or an upgrade tier feed progression. */
 class EffectGiveMinionXp(

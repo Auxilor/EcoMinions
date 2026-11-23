@@ -3,10 +3,10 @@ package com.exanthiax.ecominions.minions.service.activity
 import com.exanthiax.ecominions.core.event.EventDispatcher
 import com.exanthiax.ecominions.libreforge.MinionTriggerDispatch
 import com.exanthiax.ecominions.minions.service.Minion
-import com.willfp.libreforge.triggers.Trigger
 import org.bukkit.Location
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
+import wiki.ecohub.rules.trigger.Trigger
 
 /** Fires the cancellable event and the libreforge trigger around a feeder or breeder's work. */
 class ActivitySignals(
